@@ -94,10 +94,14 @@ client.on("messageCreate", (msg) => {
                                         avatar: glist.author.avatar,
                                     })
                                     .then((webhook) => {
-                                        webhook.send({
-                                            content: glist.text,
-                                            files: glist.files,
-                                        })
+                                        webhook
+                                            .send({
+                                                content: glist.text,
+                                                files: glist.files,
+                                            })
+                                            .then(() => {
+                                                webhook.delete()
+                                            })
                                     })
                             }
                         }
