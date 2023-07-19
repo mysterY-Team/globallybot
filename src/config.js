@@ -15,4 +15,13 @@ const firebaseConfig = {
 module.exports = {
     TOKEN: process.env.token,
     firebaseApp: initializeApp(firebaseConfig),
+    ownersID: [
+        "1130819449080000565", //patyczakus
+    ],
+    customEmoticons: {
+        loading: "<:pixel_loading:1131168286265053276>",
+        info: "<:pixel_info:1131168434160406621>",
+        denided: "<:pixel_denided:1131168402933817364>",
+        approved: "<:pixel_approved:1131168382067159110>",
+    },
 }

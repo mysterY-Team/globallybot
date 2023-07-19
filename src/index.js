@@ -64,7 +64,6 @@ client.on("messageCreate", (msg) => {
     if (glist.author.isUser) {
         get(ref(getDatabase(firebaseApp), "globalchat/channels")).then(
             (snapshot) => {
-                console.log(snapshot.val())
                 var dataJSON = new Map()
                 dataJSON = JSON.parse(JSON.stringify(snapshot.val()))
                 var dataObject = []
