@@ -1,4 +1,3 @@
-require("dotenv").config()
 const { initializeApp } = require("@firebase/app")
 
 const firebaseConfig = {
@@ -13,7 +12,7 @@ const firebaseConfig = {
 }
 
 module.exports = {
-    TOKEN: process.env.token,
+    TOKEN: "MTEzMDQyMzE4MTkwMDAwMTM4MQ.GxXbQs.Rj_VRoSXIh1ZFYXL2f-VhSecORGnAKqQlMj9Zg",
     firebaseApp: initializeApp(firebaseConfig),
     ownersID: [
         "1130819449080000565", //patyczakus
