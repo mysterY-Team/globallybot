@@ -15,7 +15,7 @@ module.exports = {
     TOKEN: "MTEzMDQyMzE4MTkwMDAwMTM4MQ.GxXbQs.Rj_VRoSXIh1ZFYXL2f-VhSecORGnAKqQlMj9Zg",
     firebaseApp: initializeApp(firebaseConfig),
     ownersID: [
-        "1130819449080000565", //patyczakus
+        "939641051453481020", //patyczakus
     ],
     customEmoticons: {
         loading: "<:pixel_loading:1131168286265053276>",
