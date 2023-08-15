@@ -17,6 +17,9 @@ module.exports = {
     ownersID: [
         "939641051453481020", //patyczakus
     ],
+    supportServer: {
+        id: "1012079728133423115",
+    },
     customEmoticons: {
         loading: "<:pixel_loading:1131168286265053276>",
         info: "<:pixel_info:1131168434160406621>",

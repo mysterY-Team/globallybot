@@ -1,40 +1,32 @@
-const { SlashCommandBuilder } = require("@discordjs/builders")
 const {
     CommandInteraction,
     Client,
     PermissionFlagsBits,
 } = require("discord.js")
 const { getDatabase, ref, get, set } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons } = require("./config")
+const { firebaseApp, ownersID, customEmoticons } = require("../config")
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName("konfigurujkanał")
-        .setDescription("Konfiguruje kanał do GlobalChata")
-        .addChannelOption((option) =>
-            option
-                .setName("kanał")
-                .setDescription("Kanał, na którym ma się znajdywać GlobalChat.")
-                .setRequired(true),
-        ),
     /**
      *
      * @param {Client} client
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
+        if (interaction.guildId == null)
+            return interaction.reply(
+                `${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`,
+            )
+
         //argument kanału i serwer
         var channel = interaction.options.get("kanał", true)
         var guild = client.guilds.cache.get(interaction.guildId)
-
         if (
             !(
-                (interaction.member.permissions.has(
-                    PermissionFlagsBits.ManageWebhooks,
-                ) &&
-                    interaction.member.permissions.has(
+                interaction.member.permissions.has(
+                    PermissionFlagsBits.ManageWebhooks &
                         PermissionFlagsBits.ManageChannels,
-                    )) ||
+                ) ||
                 interaction.member.permissions.has(
                     PermissionFlagsBits.Administrator,
                 ) ||

@@ -1,24 +1,8 @@
-const { SlashCommandBuilder } = require("@discordjs/builders")
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { getDatabase, ref, set, get } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons } = require("./config")
+const { firebaseApp, ownersID, customEmoticons } = require("../config")
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName("gzablokuj")
-        .setDescription("Dodaje osoby do czarnej listy GlobalChata.")
-        .addStringOption((option) =>
-            option
-                .setName("osoba")
-                .setDescription("ID osoby do zablokowania.")
-                .setRequired(true),
-        )
-        .addStringOption((option) =>
-            option
-                .setName("powód")
-                .setDescription("Powód zablokowania.")
-                .setRequired(false),
-        ),
     /**
      *
      * @param {Client} client
@@ -39,12 +23,12 @@ module.exports = {
 
                     if (
                         blockList.includes(
-                            interaction.options.get("osoba", true).value,
+                            interaction.options.get("osoba", true).value
                         )
                     ) {
                         interaction.reply({
                             content: `${customEmoticons.denided} Ta osoba jest zablokowana!`,
-                            ephemeral: true,
+                            ephemeral: interaction.guildId != null,
                         })
                         return
                     }
@@ -57,12 +41,12 @@ module.exports = {
                     if (ind == -1) ind = blockList.length
                     blockList[ind] = interaction.options.get(
                         "osoba",
-                        true,
+                        true
                     ).value
                     const embedblock = new EmbedBuilder()
                         .setTitle("Zostałeś zablokowany!")
                         .setDescription(
-                            `Od teraz nie będziesz miał dostępu do GlobalChata do odwołania!`,
+                            `Od teraz nie będziesz miał dostępu do GlobalChata do odwołania!`
                         )
                         .setColor("Red")
                         .setFields(
@@ -79,7 +63,7 @@ module.exports = {
                                     : `\`\`\`${
                                           interaction.options.get("powód").value
                                       }\`\`\``,
-                            },
+                            }
                         )
 
                     client.users.send(blockList[ind], {
@@ -88,13 +72,13 @@ module.exports = {
 
                     interaction.reply({
                         content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${blockList[ind]}> \`${blockList[ind]}\``,
-                        ephemeral: true,
+                        ephemeral: interaction.guildId != null,
                     })
                     set(
                         ref(getDatabase(firebaseApp), "globalchat/userblocks"),
-                        blockList,
+                        blockList
                     )
-                },
+                }
             )
         } catch (err) {
             console.error(err)
