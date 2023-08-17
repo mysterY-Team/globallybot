@@ -140,9 +140,37 @@ var slashList = [
                 .setDescription("Opcja przekreślenia.")
         ),
     new SlashCommandBuilder()
-        .setDMPermission(true)
+        .setDMPermission(false)
         .setName("dowcip")
         .setDescription("Generuje dowcip ze strony PERELKI.NET"),
+    new SlashCommandBuilder()
+        .setDMPermission(false)
+        .setName("mem")
+        .setDescription("Generuje mema z MEMY.PL"),
+    /*.addNumberOption((option) =>
+            option
+                .setName("źródło")
+                .setDescription("Źródło, w krórym mają być pobierane rekordy")
+                .setRequired(true)
+                .addChoices(
+                    {
+                        name: "Losowe",
+                        value: -1,
+                    },
+                    {
+                        name: "Memy.pl",
+                        value: 0,
+                    },
+                    {
+                        name: "Kwejk.pl",
+                        value: 1,
+                    },
+                    {
+                        name: "JBZD",
+                        value: 2,
+                    }
+                )
+        )*/
 ]
 //console.log(slashList)
 
