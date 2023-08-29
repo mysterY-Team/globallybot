@@ -1,11 +1,6 @@
 const axios = require("axios")
 const cheerio = require("cheerio")
-const {
-    CommandInteraction,
-    Client,
-    EmbedBuilder,
-    AttachmentBuilder,
-} = require("discord.js")
+const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { customEmoticons } = require("../config")
 
 module.exports = {
@@ -15,7 +10,7 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        //var ID = interaction.options.get("źródło", true).value
+        //var ID = Number(interaction.options.get("źródło", true).value)
         const configMeme = [
             {
                 web: "https://memy.pl/losuj",
@@ -55,8 +50,7 @@ module.exports = {
                         let $ = cheerio.load(response.data)
                         //najpierw pobiera elementy configMeme[ID].booleanReturns.img do odpowiedniej zmiennej i sprawdza, czy istnieje. Jeżeli nie, to pobiera z configMeme[ID].booleanReturns.vid. Potem pobiera proporcje elementu "src"
                         var element = $(configMeme[ID].booleanReturns.img)
-                        if (element == null)
-                            element = $(configMeme[ID].booleanReturns.vid)
+                        if (element == null) element = $(configMeme[ID].booleanReturns.vid)
                         var embed = new EmbedBuilder()
                             .setDescription(
                                 `### ${customEmoticons.info} Żródło mema: [${configMeme[ID].text}](${configMeme[ID].web})`
