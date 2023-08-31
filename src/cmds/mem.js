@@ -1,6 +1,6 @@
 const axios = require("axios")
 const cheerio = require("cheerio")
-const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
+const { CommandInteraction, Client, EmbedBuilder, AttachmentBuilder, Attachment } = require("discord.js")
 const { customEmoticons } = require("../config")
 
 module.exports = {
@@ -10,7 +10,7 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        //var ID = Number(interaction.options.get("źródło", true).value)
+        var ID = Number(interaction.options.get("źródło", true).value)
         const configMeme = [
             {
                 web: "https://memy.pl/losuj",
@@ -20,25 +20,24 @@ module.exports = {
                     vid: ".meme-primary article.meme-item.meme-preview figure a video source",
                 },
             },
-            /*{
+            {
                 web: "https://kwejk.pl/losowy",
                 text: "Kwejk.pl",
                 booleanReturns: {
-                    img: ".wrapper.content-wrapper section article .article-content .article-image img",
-                    vid: ".wrapper.content-wrapper section article .article-content .article-image .video-player .plyr__video-wrapper video source",
+                    img: ".media-element-wrapper .figure-holder figure img",
+                    vid: ".media-element-wrapper .figure-holder figure .plyr__video-wrapper video source",
                 },
             },
             {
                 web: "https://jbzd.com.pl/losowe",
                 text: "JBZD",
                 booleanReturns: {
-                    img: ".media-element-wrapper .figure-holder figure img",
-                    vid: ".media-element-wrapper .figure-holder figure .plyr__video-wrapper video source",
+                    img: ".wrapper.content-wrapper section article .article-content .article-image img",
+                    vid: ".wrapper.content-wrapper section article .article-content .article-image .video-player .plyr__video-wrapper video source",
                 },
-            },*/
+            },
         ]
-        //if (ID == -1) ID = Math.floor(Math.random() * configMeme.length)
-        ID = 0
+        if (ID == -1) ID = Math.floor(Math.random() * configMeme.length)
 
         interaction
             .reply({

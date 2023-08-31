@@ -98,8 +98,11 @@ var slashList = [
         .setDMPermission(true)
         .setName("dowcip")
         .setDescription("Generuje dowcip ze strony PERELKI.NET"),
-    new SlashCommandBuilder().setDMPermission(true).setName("mem").setDescription("Generuje mema ze strony MEMY.PL"),
-    /*.addNumberOption((option) =>
+    new SlashCommandBuilder()
+        .setDMPermission(true)
+        .setName("mem")
+        .setDescription("Generuje mema ze strony MEMY.PL")
+        .addNumberOption((option) =>
             option
                 .setName("źródło")
                 .setDescription("Źródło, w krórym mają być pobierane rekordy")
@@ -122,7 +125,11 @@ var slashList = [
                         value: 2,
                     }
                 )
-        )*/
+        ),
+    new SlashCommandBuilder()
+        .setDMPermission(true)
+        .setName("botinfo")
+        .setDescription("Generuje informacje o bocie, typu ilość serwerów, czy czas działania bota"),
 ]
 //console.log(slashList)
 

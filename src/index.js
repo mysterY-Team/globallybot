@@ -3,11 +3,15 @@ const { TOKEN, firebaseApp, customEmoticons, ownersID, supportServer } = require
 const { getDatabase, ref, get, remove } = require("@firebase/database")
 const { performance } = require("perf_hooks")
 
+const debug = false
+
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
 })
 
-function listenerLog(space, info) {
+function listenerLog(space, info, priority = false) {
+    if (!debug && !priority) return
+
     var text = ""
     for (let index = 0; index < space; index++) {
         text += "|   "
@@ -50,16 +54,12 @@ function timeLog(what, timeMS) {
     listenerLog(3, `[MSEK] ${milliseconds}`)
 }
 
-listenerLog(0, "Discord.js v.14")
-listenerLog(
-    1,
-    "⚠️ Jako, że to działa na poziomie GitHuba, jest duże prawdopodobieństwo, że się rozłączy z powodu nieaktywności."
-)
-console.log()
+listenerLog(0, "Discord.js v.14", true)
 
 client.on("ready", (log) => {
-    listenerLog(0, `✅ Zalogowany poprawnie jako ${log.user.username}#${log.user.discriminator}`)
+    listenerLog(0, `✅ Zalogowany poprawnie jako ${log.user.username}#${log.user.discriminator}`, true)
     listenerLog(1, `[+] Dodawanie komend...`)
+    client.setMaxListeners(15)
 
     const slashCommandList = require(`./slashcommands.js`)
     client.application.commands.set(slashCommandList.list).then(() => {
@@ -124,6 +124,14 @@ client.on("messageCreate", (msg) => {
                 dataObject[dataObject.indexOf(glist.location)] = null
                 var channelsSend = 1
 
+                //sprawdzanie linijek komentarzy, zaczynawszy od <##>
+                glist.text = glist.text.split("\n").filter((line) => !line.startsWith("<##> "))
+                if (glist.text.length > 0) {
+                    glist.text = glist.text.join("\n")
+                } else {
+                    return
+                }
+
                 //pobieranie bazy danych - CZARNA lista
                 get(ref(getDatabase(firebaseApp), "globalchat/userblocks")).then((bl_snpsht) => {
                     listenerLog(3, "💾 Pobrano bazę danych (Firebase/globalchat/userblocks)")
@@ -153,7 +161,7 @@ client.on("messageCreate", (msg) => {
                         return
                     }
 
-                    listenerLog(3, "🗨️ Wysyłanie do reszty kanałów...")
+                    listenerLog(3, "🗨️ Wysyłanie do kanałów GlobalChat...")
 
                     dataObject.forEach((lgchannel) => {
                         if (lgchannel == null) return
@@ -289,3 +297,7 @@ client.on("threadUpdate", (thread) => {
 })
 
 client.login(TOKEN)
+
+module.exports = {
+    codeTime: performance.now,
+}
