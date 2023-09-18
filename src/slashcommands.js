@@ -101,7 +101,7 @@ var slashList = [
     new SlashCommandBuilder()
         .setDMPermission(true)
         .setName("mem")
-        .setDescription("Generuje mema ze strony MEMY.PL")
+        .setDescription("Generuje mema z podanego źródła")
         .addNumberOption((option) =>
             option
                 .setName("źródło")

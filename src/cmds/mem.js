@@ -39,37 +39,36 @@ module.exports = {
         ]
         if (ID == -1) ID = Math.floor(Math.random() * configMeme.length)
 
-        interaction
-            .reply({
-                content: customEmoticons.loading,
-            })
-            .then(() => {
-                try {
-                    axios.get(configMeme[ID].web).then((response) => {
-                        let $ = cheerio.load(response.data)
-                        //najpierw pobiera elementy configMeme[ID].booleanReturns.img do odpowiedniej zmiennej i sprawdza, czy istnieje. Jeżeli nie, to pobiera z configMeme[ID].booleanReturns.vid. Potem pobiera proporcje elementu "src"
-                        var element = $(configMeme[ID].booleanReturns.img)
-                        if (element == null) element = $(configMeme[ID].booleanReturns.vid)
-                        var embed = new EmbedBuilder()
-                            .setDescription(
-                                `### ${customEmoticons.info} Żródło mema: [${configMeme[ID].text}](${configMeme[ID].web})`
-                            )
-                            .setColor("White")
+        interaction.deferReply().then(() => {
+            try {
+                axios.get(configMeme[ID].web).then((response) => {
+                    let $ = cheerio.load(response.data)
+                    //najpierw pobiera elementy configMeme[ID].booleanReturns.img do odpowiedniej zmiennej i sprawdza, czy istnieje. Jeżeli nie, to pobiera z configMeme[ID].booleanReturns.vid. Potem pobiera proporcje elementu "src"
+                    var element = $(configMeme[ID].booleanReturns.img)
+                    if (element == null) element = $(configMeme[ID].booleanReturns.vid)
+                    var embed = new EmbedBuilder()
+                        .setDescription(
+                            `### ${customEmoticons.info} Żródło mema: [${configMeme[ID].text}](${configMeme[ID].web})`
+                        )
+                        .setColor("White")
 
-                        var src = element.attr("src")
+                    var src = element.attr("src")
 
-                        interaction.editReply({
-                            content: "",
-                            files: [src],
-                            embeds: [embed],
-                        })
-                    })
-                } catch (error) {
-                    console.error("Wystąpił błąd:", error)
+                    if (typeof src == "undefined")
+                        return interaction.editReply(`${customEmoticons.denided} Nie udało się pobrać mema`)
+
                     interaction.editReply({
-                        content: `${customEmoticons.denided} Nie udało się pobrać mema`,
+                        content: "",
+                        files: [src],
+                        embeds: [embed],
                     })
-                }
-            })
+                })
+            } catch (error) {
+                console.error("Wystąpił błąd:", error)
+                interaction.editReply({
+                    content: `${customEmoticons.denided} Nie udało się pobrać mema`,
+                })
+            }
+        })
     },
 }
