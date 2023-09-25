@@ -2,11 +2,12 @@ const { Client, Message, EmbedBuilder, Webhook, GuildTextThreadManager } = requi
 const { getDatabase, ref, get, remove, set } = require("@firebase/database")
 const { firebaseApp, customEmoticons, ownersID } = require("./config")
 const axios = require("axios")
+const cheerio = require("cheerio")
 
-function generateGPTFormatter(DM, GCM, db) {
+function generateGPTFormatter(DM, GCM) {
     return `${GCM.text}
 [Informacje: 
-Nazwa użytkownika: ${GCM.text} ${ownersID.includes(GCM.author.id) ? "(jest właścicielem bota)" : ""}
+Nazwa użytkownika: ${GCM.author.name} ${ownersID.includes(GCM.author.id) ? "(jest właścicielem bota)" : ""}
 Nazwa serwera, gdzie pochodzi wiadomość: ${DM.guild.name}]`
 }
 
@@ -24,6 +25,122 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
             var webhooksToDelete = []
             var database = snpsht.val()
             var channelsSend = 0
+
+            var GlobalAction = {
+                dowcip: function () {
+                    try {
+                        channelsSend = 0
+                        axios.get("https://perelki.net/random").then((response) => {
+                            const $ = cheerio.load(response.data)
+                            $(".content .container:not(.cntr) .about").remove()
+                            var joke = $(".content .container:not(.cntr)")
+                                .html()
+                                .replace(/<br>/g, "\n")
+                                .replace(/\*/g, "\\*")
+                                .replace(/_/g, "\\_")
+                                .replace(/~/g, "\\~")
+                                .replace(/#/g, "\\#")
+                                .replace(/@/g, "\\@")
+                                .trim()
+                            joke = joke
+                                .split("\n")
+                                .filter((line) => line != "")
+                                .join("\n")
+                            Promise.all(gchannels.map((gch) => gch.sendTyping())).then(() => {
+                                webhooksToDelete.forEach((webhook2) => {
+                                    webhook2
+                                        .edit({
+                                            name: "Memiarz (GlobalAction)",
+                                            avatar: "https://www.pngarts.com/files/11/Haha-Emoji-Transparent-Image.png",
+                                            reason: "Użycie GlobalAction",
+                                        })
+                                        .then((wh) => {
+                                            wh.send({
+                                                content: `Udało się znaleźć dowcip ze strony [**perelki.net**](<https://perelki.net>)\n\n${joke}`,
+                                            }).then(() => {
+                                                channelsSend++
+                                                if (channelsSend >= dataObject.length) {
+                                                    set(
+                                                        ref(getDatabase(firebaseApp), "globalchat/gptUses/i"),
+                                                        database.gptUses.i + 1
+                                                    )
+                                                    webhooksToDelete.forEach((webhook2) => {
+                                                        webhook2.delete(
+                                                            `zakańczania usługi GlobalChat (wysłano do ${channelsSend} serwerów)`
+                                                        )
+                                                    })
+                                                }
+                                            })
+                                        })
+                                })
+                            })
+                        })
+                    } catch (error) {
+                        webhooksToDelete.forEach((webhook2) => {
+                            webhook2.delete(`zakańczania usługi GlobalChat (wysłano do ${channelsSend} serwerów)`)
+                        })
+                    }
+                },
+                GPT: function () {
+                    channelsSend = 0
+                    Promise.all(gchannels.map((gch) => gch.sendTyping())).then(() => {
+                        const options = {
+                            method: "GET",
+                            url: "https://chat-gpt-ai-bot.p.rapidapi.com/GenerateAIWritter",
+                            params: {
+                                prompt: generateGPTFormatter(DiscordMessage, GlobalChatMessage, database),
+                            },
+                            headers: {
+                                "X-RapidAPI-Key": "2ddf7ebb02msh1a346334811da70p11ad63jsn3982f775ddfd",
+                                "X-RapidAPI-Host": "chat-gpt-ai-bot.p.rapidapi.com",
+                            },
+                        }
+
+                        axios.request(options).then((response) => {
+                            try {
+                                webhooksToDelete.forEach((webhook2) => {
+                                    webhook2
+                                        .edit({
+                                            name: "ChatGPT (GlobalAction)",
+                                            avatar: "https://capiche.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbU5GIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--2828502fa3c2cd9130a2a1df1d35ba7b0f9270c1/openai-avatar.png",
+                                            reason: "Użycie GlobalAction",
+                                        })
+                                        .then((wh) => {
+                                            var embedReached = new EmbedBuilder()
+                                                .setColor("Orange")
+                                                .setDescription(
+                                                    `${customEmoticons.denided} Wybacz, ale jedynie mogę odpowiadać 10 razy na dzień!`
+                                                )
+                                            wh.send({
+                                                content: database.gptUses.i < 10 ? response.data : "",
+                                                embeds: database.gptUses.i < 10 ? [] : [embedReached],
+                                            }).then(() => {
+                                                channelsSend++
+                                                if (channelsSend >= dataObject.length) {
+                                                    set(
+                                                        ref(getDatabase(firebaseApp), "globalchat/gptUses/i"),
+                                                        database.gptUses.i + 1
+                                                    )
+                                                    webhooksToDelete.forEach((webhook2) => {
+                                                        webhook2.delete(
+                                                            `zakańczania usługi GlobalChat (wysłano do ${channelsSend} serwerów)`
+                                                        )
+                                                    })
+                                                }
+                                            })
+                                        })
+                                })
+                            } catch (err) {
+                                webhooksToDelete.forEach((webhook2) => {
+                                    webhook2.delete(
+                                        `zakańczania usługi GlobalChat (wysłano do ${channelsSend} serwerów)`
+                                    )
+                                })
+                            }
+                        })
+                    })
+                },
+            }
 
             //JSON => lista
             var dataObject = []
@@ -111,7 +228,10 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                         gguild.channels
                             .createWebhook({
                                 channel: gchannelID,
-                                name: `${GlobalChatMessage.author.name} (${GlobalChatMessage.author.id}) | ${GlobalChatMessage.location}`,
+                                name:
+                                    gguildID == DiscordMessage.guildId
+                                        ? `${GlobalChatMessage.author.name} | [ ten serwer ]`
+                                        : `${GlobalChatMessage.author.name} (${GlobalChatMessage.author.id}) | ${DiscordMessage.guild.name}`,
                                 avatar: GlobalChatMessage.author.avatar,
                                 reason: `użycia usługi GlobalChat przez użytkownika ${GlobalChatMessage.author.name.toUpperCase()}`,
                             })
@@ -121,87 +241,26 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                                         content:
                                             gguildID == DiscordMessage.guildId
                                                 ? DiscordMessage.content
+                                                      .replace(/@everyone/g, "||`[ niedozwolony ping ]`||")
+                                                      .replace(/@here/g, "||`[ niedozwolony ping ]`||")
                                                 : GlobalChatMessage.text,
                                         files: GlobalChatMessage.files,
                                     })
                                     .then(() => {
                                         webhooksToDelete.push(webhook)
-                                        console.log(generateGPTFormatter(DiscordMessage, GlobalChatMessage, database))
+                                        //console.log(generateGPTFormatter(DiscordMessage, GlobalChatMessage, database))
                                         channelsSend++
                                         if (channelsSend >= dataObject.length) {
                                             DiscordMessage.delete()
-                                            console.log(DiscordMessage)
-                                            if (GlobalChatMessage.text.toUpperCase().startsWith("GPT, ")) {
-                                                channelsSend = 0
-                                                Promise.all(gchannels.map((gch) => gch.sendTyping())).then(() => {
-                                                    const options = {
-                                                        method: "GET",
-                                                        url: "https://chat-gpt-ai-bot.p.rapidapi.com/GenerateAIWritter",
-                                                        params: {
-                                                            prompt: generateGPTFormatter(
-                                                                DiscordMessage,
-                                                                GlobalChatMessage,
-                                                                database
-                                                            ),
-                                                        },
-                                                        headers: {
-                                                            "X-RapidAPI-Key":
-                                                                "2ddf7ebb02msh1a346334811da70p11ad63jsn3982f775ddfd",
-                                                            "X-RapidAPI-Host": "chat-gpt-ai-bot.p.rapidapi.com",
-                                                        },
-                                                    }
-
-                                                    axios.request(options).then((response) => {
-                                                        try {
-                                                            webhooksToDelete.forEach((webhook2) => {
-                                                                webhook2
-                                                                    .edit({
-                                                                        name: "ChatGPT",
-                                                                        avatar: "https://capiche.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbU5GIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--2828502fa3c2cd9130a2a1df1d35ba7b0f9270c1/openai-avatar.png",
-                                                                    })
-                                                                    .then((wh) => {
-                                                                        var embedReached = new EmbedBuilder()
-                                                                            .setColor("Orange")
-                                                                            .setDescription(
-                                                                                `${customEmoticons.denided} Wybacz, ale jedynie mogę odpowiadać 10 razy na dzień!`
-                                                                            )
-                                                                        wh.send({
-                                                                            content:
-                                                                                database.gptUses.i < 10
-                                                                                    ? response.data
-                                                                                    : "",
-                                                                            embeds:
-                                                                                database.gptUses.i < 10
-                                                                                    ? []
-                                                                                    : [embedReached],
-                                                                        }).then(() => {
-                                                                            channelsSend++
-                                                                            if (channelsSend >= dataObject.length) {
-                                                                                set(
-                                                                                    ref(
-                                                                                        getDatabase(firebaseApp),
-                                                                                        "globalchat/gptUses/i"
-                                                                                    ),
-                                                                                    database.gptUses.i + 1
-                                                                                )
-                                                                                webhooksToDelete.forEach((webhook2) => {
-                                                                                    webhook2.delete(
-                                                                                        `zakańczania usługi GlobalChat (wysłano do ${channelsSend} serwerów)`
-                                                                                    )
-                                                                                })
-                                                                            }
-                                                                        })
-                                                                    })
-                                                            })
-                                                        } catch (err) {
-                                                            webhooksToDelete.forEach((webhook2) => {
-                                                                webhook2.delete(
-                                                                    `zakańczania usługi GlobalChat (wysłano do ${channelsSend} serwerów)`
-                                                                )
-                                                            })
-                                                        }
-                                                    })
-                                                })
+                                            //console.log(DiscordMessage)
+                                            if (GlobalChatMessage.text.toLowerCase().startsWith("gpt, ")) {
+                                                GlobalAction.GPT()
+                                            } else if (
+                                                GlobalChatMessage.text
+                                                    .toLowerCase()
+                                                    .startsWith("memiarz, opowiedz dowcip")
+                                            ) {
+                                                GlobalAction.dowcip()
                                             } else
                                                 webhooksToDelete.forEach((webhook2) => {
                                                     webhook2.delete(

@@ -3,7 +3,6 @@ const { customEmoticons } = require("../config")
 
 module.exports = {
     /**
-     *
      * @param {Client} client
      * @param {CommandInteraction} interaction
      */
@@ -18,7 +17,7 @@ module.exports = {
 
         function rgbToHex(rgb) {
             const { r, g, b } = rgb
-            return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`
+            return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`
         }
 
         function interpolateColors(color1, color2, factor) {
@@ -73,18 +72,17 @@ module.exports = {
                 continue
             }
 
-            Object.keys(formatList).forEach(typ => {
-                if (formatList[typ] != null)
-                    gradientJSON[i][typ] = formatList[typ].value
+            Object.keys(formatList).forEach((typ) => {
+                if (formatList[typ] != null) gradientJSON[i][typ] = formatList[typ].value
             })
         }
 
         // Znaczniki przy innych formatach
         var formatters = {
-            "bold": "l",
-            "italic": "o",
-            "underline": "n",
-            "strikethrough": "m"
+            bold: "l",
+            italic: "o",
+            underline: "n",
+            strikethrough: "m",
         }
 
         // Typ zwracania
@@ -108,7 +106,7 @@ module.exports = {
                         returnedText += `${prefix}${gradientJSON[i].color[j]}`
                     }
 
-                    Object.keys(formatList).forEach(typ => {
+                    Object.keys(formatList).forEach((typ) => {
                         if (typ in gradientJSON[i] && gradientJSON[i][typ])
                             returnedText += `${prefix}${formatters[typ]}`
                     })
@@ -125,9 +123,8 @@ module.exports = {
                 } else {
                     returnedText += `${prefix}${gradientJSON[i].color}${suffix}`
 
-                    Object.keys(formatList).forEach(typ => {
-                        if (typ in gradientJSON[i] && gradientJSON[i][typ])
-                            returnedText += `&${formatters[typ]}`
+                    Object.keys(formatList).forEach((typ) => {
+                        if (typ in gradientJSON[i] && gradientJSON[i][typ]) returnedText += `&${formatters[typ]}`
                     })
 
                     returnedText += gradientJSON[i].text
@@ -136,7 +133,7 @@ module.exports = {
         } else if (type == "bbcode") {
             var bblist = []
             var element = 0
-            Object.keys(formatList).forEach(typ => {
+            Object.keys(formatList).forEach((typ) => {
                 if (formatList[typ] != null && formatList[typ] != false) {
                     bblist.splice(0, 0, `[${typ.charAt(0).toUpperCase()}]`)
                     bblist[bblist.length] = `[/${typ.charAt(0).toUpperCase()}]`
@@ -157,5 +154,5 @@ module.exports = {
         }
 
         interaction.reply(`${customEmoticons.approved} Gotowe! Oto zwrócona wartość: \n\`\`\`${returnedText}\`\`\``)
-    }
+    },
 }

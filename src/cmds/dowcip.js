@@ -46,7 +46,7 @@ module.exports = {
                         })
                     })
                 } catch (error) {
-                    console.error("Wystąpił błąd:", error)
+                    console.warn("Wystąpił błąd:", error)
                     interaction.editReply({
                         content: `${customEmoticons.denided} Nie udało się pobrać dowcipu`,
                     })
