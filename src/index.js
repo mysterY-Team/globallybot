@@ -57,12 +57,15 @@ client.on("ready", (log) => {
         listenerLog(1, "✅ Ustawiono pomyślnie komendy!")
         listenerLog(1, "👂 Nasłuchiwanie akcji bota...")
     })
-    get(ref(getDatabase(firebaseApp), "globalchat/gptUses")).then((snpsht) => {
+    get(ref(getDatabase(firebaseApp), "globalchat/gpt")).then((snpsht) => {
         var data = snpsht.val()
-        if (new Date().getUTCDate() != data.day)
-            set(ref(getDatabase(firebaseApp), "globalchat/gptUses"), {
-                day: new Date().getUTCDate(),
-                i: 0,
+        if (!snpsht.exists() || new Date().getUTCDate() != data.uses.day)
+            set(ref(getDatabase(firebaseApp), "globalchat/gpt"), {
+                uses: {
+                    day: new Date().getUTCDate(),
+                    i: 0,
+                },
+                messages: [],
             })
     })
     timerToResetTheAPIInfo()
@@ -74,19 +77,14 @@ client.on("messageCreate", (msg) => {
         msgID: msg.id,
         author: {
             id: msg.author.id,
-            name:
-                msg.author.discriminator == "0"
-                    ? msg.author.username
-                    : `${msg.author.username}#${msg.author.discriminator}`,
+            name: msg.author.discriminator == "0" ? msg.author.username : `${msg.author.username}#${msg.author.discriminator}`,
             isUser: !msg.author.bot && !msg.author.system,
             avatar: msg.author.avatarURL({
                 extension: "png",
             }),
         },
         location: `${msg.guildId}/${msg.channelId}`,
-        files: msg.attachments
-            .filter((a) => a.contentType.startsWith("image") || a.contentType.startsWith("video"))
-            .map((a) => a.url),
+        files: msg.attachments.filter((a) => a.contentType.startsWith("image") || a.contentType.startsWith("video")).map((a) => a.url),
     }
 
     globalchatFunction(client, msg, glist)
@@ -145,9 +143,12 @@ function timerToResetTheAPIInfo() {
                 var data = snpsht.val()
                 if (date.getUTCDate() < data.day) {
                     //zapis w bazie danych
-                    set(ref(getDatabase(firebaseApp), "globalchat/gptUses"), {
-                        day: date.getUTCDate(),
-                        i: 0,
+                    set(ref(getDatabase(firebaseApp), "globalchat/gpt"), {
+                        uses: {
+                            day: date.getUTCDate(),
+                            i: 0,
+                        },
+                        messages: [],
                     })
                 }
             })

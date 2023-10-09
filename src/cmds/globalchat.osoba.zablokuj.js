@@ -17,16 +17,12 @@ module.exports = {
                     - Nie jesteś na liście developerów bota`,
             })
         try {
-            get(ref(getDatabase(firebaseApp), "globalchat/userblocks")).then(
-                (snapshot) => {
+            interaction.deferReply().then(() => {
+                get(ref(getDatabase(firebaseApp), "globalchat/userblocks")).then((snapshot) => {
                     blockList = snapshot.val()
 
-                    if (
-                        blockList.includes(
-                            interaction.options.get("osoba", true).value
-                        )
-                    ) {
-                        interaction.reply({
+                    if (blockList.includes(interaction.options.get("osoba", true).value)) {
+                        interaction.editReply({
                             content: `${customEmoticons.denided} Ta osoba jest zablokowana!`,
                             ephemeral: interaction.guildId != null,
                         })
@@ -39,15 +35,10 @@ module.exports = {
                         break
                     }
                     if (ind == -1) ind = blockList.length
-                    blockList[ind] = interaction.options.get(
-                        "osoba",
-                        true
-                    ).value
+                    blockList[ind] = interaction.options.get("osoba", true).value
                     const embedblock = new EmbedBuilder()
                         .setTitle("Zostałeś zablokowany!")
-                        .setDescription(
-                            `Od teraz nie będziesz miał dostępu do GlobalChata do odwołania!`
-                        )
+                        .setDescription(`Od teraz nie będziesz miał dostępu do GlobalChata do odwołania!`)
                         .setColor("Red")
                         .setFields(
                             {
@@ -60,9 +51,7 @@ module.exports = {
                                 name: "Powód",
                                 value: !interaction.options.get("powód")
                                     ? customEmoticons.denided
-                                    : `\`\`\`${
-                                          interaction.options.get("powód").value
-                                      }\`\`\``,
+                                    : `\`\`\`${interaction.options.get("powód").value}\`\`\``,
                             }
                         )
 
@@ -70,16 +59,13 @@ module.exports = {
                         embeds: [embedblock],
                     })
 
-                    interaction.reply({
+                    interaction.editReply({
                         content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${blockList[ind]}> \`${blockList[ind]}\``,
                         ephemeral: interaction.guildId != null,
                     })
-                    set(
-                        ref(getDatabase(firebaseApp), "globalchat/userblocks"),
-                        blockList
-                    )
-                }
-            )
+                    set(ref(getDatabase(firebaseApp), "globalchat/userblocks"), blockList)
+                })
+            })
         } catch (err) {
             console.error(err)
         }

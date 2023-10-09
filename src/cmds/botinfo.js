@@ -32,9 +32,7 @@ module.exports = {
                 },
                 {
                     name: "Serwery",
-                    value: `Ilość: ${String(
-                        client.guilds.cache.size
-                    )}\nNazwy: ||Wyświetlane są max. 10 serwerów|| \`\`\`${guildsName}\`\`\``,
+                    value: `Ilość: ${String(client.guilds.cache.size)}\nNazwy: ||Wyświetlane są max. 10 serwerów|| \`\`\`${guildsName}\`\`\``,
                     inline: false,
                 }
             )

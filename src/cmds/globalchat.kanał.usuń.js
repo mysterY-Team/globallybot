@@ -1,10 +1,7 @@
-const {
-    CommandInteraction,
-    Client,
-    PermissionFlagsBits,
-} = require("discord.js")
+const { CommandInteraction, Client, PermissionFlagsBits, WebhookClient } = require("discord.js")
 const { getDatabase, ref, get, remove } = require("@firebase/database")
 const { firebaseApp, ownersID, customEmoticons } = require("../config")
+const { default: axios } = require("axios")
 
 module.exports = {
     /**
@@ -13,21 +10,13 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        if (interaction.guildId == null)
-            return interaction.reply(
-                `${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`,
-            )
+        if (interaction.guildId == null) return interaction.reply(`${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`)
         var guild = client.guilds.cache.get(interaction.guildId)
 
         if (
             !(
-                interaction.member.permissions.has(
-                    PermissionFlagsBits.ManageWebhooks &
-                    PermissionFlagsBits.ManageChannels,
-                ) ||
-                interaction.member.permissions.has(
-                    PermissionFlagsBits.Administrator,
-                ) ||
+                interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks & PermissionFlagsBits.ManageChannels) ||
+                interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
                 interaction.user.id == guild.ownerId ||
                 ownersID.includes(interaction.user.id)
             )
@@ -38,34 +27,27 @@ module.exports = {
                 content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:\n- Nie masz obu uprawnień: **Zarządzanie webhoookami** oraz **Zarządzanie kanałami**\n- Nie masz permisji administratora\n- Nie jesteś właścicielem serwera\n- Nie jesteś na liście developerów bota`,
             })
 
-        interaction
-            .reply(`${customEmoticons.loading} Sprawdzanie bazy danych...`)
-            .then(() => {
-                get(
-                    ref(
-                        getDatabase(firebaseApp),
-                        `globalchat/channels/${interaction.guildId}`,
-                    ),
-                ).then((snapshot) => {
-                    if (!snapshot.exists())
-                        return interaction.editReply(
-                            `${customEmoticons.denided} Nie ma ustawionego kanału!`,
-                        )
+        interaction.deferReply().then(() => {
+            get(ref(getDatabase(firebaseApp), `globalchat/channels/${interaction.guildId}`)).then((snapshot) => {
+                if (!snapshot.exists()) return interaction.editReply(`${customEmoticons.denided} Nie ma ustawionego kanału!`)
 
-                    interaction.editReply(
-                        `${customEmoticons.loading} Usuwanie danych...`,
-                    )
-                    remove(
-                        ref(
-                            getDatabase(firebaseApp),
-                            `globalchat/channels/${interaction.guildId}`,
-                        ),
-                    ).then(() => {
-                        interaction.editReply(
-                            `${customEmoticons.approved} Usunięto poprawnie kanał!`,
-                        )
+                var webhook = new WebhookClient({ url: snapshot.val().webhook })
+
+                axios
+                    .get(snapshot.val().webhook)
+                    .then((res) => {
+                        if (res.status >= 200 && res.status < 300) webhook.delete("użycia komendy /GLOBALCHAT")
+
+                        remove(ref(getDatabase(firebaseApp), `globalchat/channels/${interaction.guildId}`)).then(() => {
+                            interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
+                        })
                     })
-                })
+                    .catch((err) => {
+                        remove(ref(getDatabase(firebaseApp), `globalchat/channels/${interaction.guildId}`)).then(() => {
+                            interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
+                        })
+                    })
             })
+        })
     },
 }
