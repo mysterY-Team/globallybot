@@ -139,9 +139,9 @@ function timerToResetTheAPIInfo() {
         var date = new Date()
         if (date.getUTCHours() == 0) {
             //pobieranie bazy danych
-            get(ref(getDatabase(firebaseApp), "globalchat/gptUses")).then((snpsht) => {
+            get(ref(getDatabase(firebaseApp), "globalchat/gpt")).then((snpsht) => {
                 var data = snpsht.val()
-                if (date.getUTCDate() < data.day) {
+                if (date.getUTCDate() < data.uses.day) {
                     //zapis w bazie danych
                     set(ref(getDatabase(firebaseApp), "globalchat/gpt"), {
                         uses: {

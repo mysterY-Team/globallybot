@@ -7,7 +7,7 @@ module.exports = {
     data: {
         name: "ChatGPT",
         description:
-            "Specjalnie wyszkolona do GlobalChata potężna sztuczna inteligencja od [OpenAI](https://openai.com/).\nJako, że jest to z zewnętrznego API, można użyć **raz na dzień**",
+            "Specjalnie wyszkolona do GlobalChata potężna sztuczna inteligencja od [OpenAI](https://openai.com/).\nJako, że jest to z zewnętrznego API, można użyć **10 razy na dzień**",
         avatar: "https://capiche.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbU5GIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--2828502fa3c2cd9130a2a1df1d35ba7b0f9270c1/openai-avatar.png",
     },
     execute: async function (msg) {
