@@ -166,7 +166,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
                 if (typeof prefixes == "string") {
                     const file = require(`./globalactions/${prefixes}`)
-                    const response = await file.execute()
+                    const response = await file.execute(GlobalChatMessage.text)
 
                     webhooks.map(async function (w) {
                         await w.wh.send(
