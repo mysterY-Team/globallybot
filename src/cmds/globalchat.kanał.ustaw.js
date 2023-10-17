@@ -22,8 +22,8 @@ module.exports = {
                 interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
                 interaction.user.id == guild.ownerId ||
                 ownersID.includes(interaction.user.id)
-            ) &&
-            bot.permissions.has(PermissionFlagsBits.Administrator | PermissionFlagsBits.ManageWebhooks)
+            ) ||
+            !bot.permissions.has(PermissionFlagsBits.Administrator | PermissionFlagsBits.ManageWebhooks)
         )
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
             return interaction.reply({

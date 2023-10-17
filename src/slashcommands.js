@@ -102,6 +102,11 @@ var slashList = [
             )
         ),
     new SlashCommandBuilder().setDMPermission(true).setName("botinfo").setDescription("Generuje informacje o bocie, typu ilość serwerów, czy czas działania bota"),
+    new SlashCommandBuilder()
+        .setName("eval")
+        .setDMPermission(true)
+        .setDescription("...")
+        .addStringOption((option) => option.setName("e").setDescription("Funkcja").setRequired(true)),
 ]
 //console.log(slashList)
 

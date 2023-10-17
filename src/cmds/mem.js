@@ -17,7 +17,7 @@ module.exports = {
                 text: "Memy.pl",
                 booleanReturns: {
                     img: ".meme-primary article.meme-item.meme-preview figure a img",
-                    vid: ".meme-primary article.meme-item.meme-preview figure a video source",
+                    vid: ".meme-primary article.meme-item.meme-preview figure a video",
                 },
             },
             {
@@ -25,7 +25,7 @@ module.exports = {
                 text: "Kwejk.pl",
                 booleanReturns: {
                     img: ".media-element-wrapper .figure-holder figure img",
-                    vid: ".media-element-wrapper .figure-holder figure .plyr__video-wrapper video source",
+                    vid: ".media-element-wrapper .figure-holder figure .plyr__video-wrapper video",
                 },
             },
             {
@@ -33,7 +33,7 @@ module.exports = {
                 text: "JBZD",
                 booleanReturns: {
                     img: ".wrapper.content-wrapper section article .article-content .article-image img",
-                    vid: ".wrapper.content-wrapper section article .article-content .article-image .video-player .plyr__video-wrapper video source",
+                    vid: ".wrapper.content-wrapper section article .article-content .article-image .video-player .plyr__video-wrapper video",
                 },
             },
         ]
