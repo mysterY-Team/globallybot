@@ -141,18 +141,17 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                     })
 
                     database.gpt.messages = typeof database.gpt.messages == "undefined" ? [] : database.gpt.messages
-                    if (database.gpt.messages.length == 10) {
-                        database.gpt.messages.shift()
-                    }
-                    database.gpt.messages.push(
-                        `<${GlobalChatMessage.author.name} (ID: ${GlobalChatMessage.author.id}, Serwer: ${DiscordMessage.guild.name})> ${GlobalChatMessage.text}`
-                    )
-
-                    await set(ref(getDatabase(firebaseApp), "globalchat/gpt/messages"), database.gpt.messages)
 
                     return
                 })
             ).then(async () => {
+                if (database.gpt.messages.length == 10) {
+                    database.gpt.messages.shift()
+                }
+                database.gpt.messages.push(
+                    `<${GlobalChatMessage.author.name} (ID: ${GlobalChatMessage.author.id}, Serwer: ${DiscordMessage.guild.name})> ${GlobalChatMessage.text}`
+                )
+                await set(ref(getDatabase(firebaseApp), "globalchat/gpt/messages"), database.gpt.messages)
                 DiscordMessage.delete()
 
                 var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
@@ -177,16 +176,16 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                             })
                         )
 
-                        database.gpt.messages = typeof database.gpt.messages == "undefined" ? [] : database.gpt.messages
-                        if (database.gpt.messages.length == 10) {
-                            database.gpt.messages.shift()
-                        }
-                        database.gpt.messages.push(`<${file.data.name} (GlobalAction)> ${response}`)
-
-                        await set(ref(getDatabase(firebaseApp), "globalchat/gpt/messages"), database.gpt.messages)
-
                         return
                     })
+
+                    database.gpt.messages = typeof database.gpt.messages == "undefined" ? [] : database.gpt.messages
+                    if (database.gpt.messages.length == 10) {
+                        database.gpt.messages.shift()
+                    }
+                    database.gpt.messages.push(`<${file.data.name} (GlobalAction)> ${response.content} ${"embeds" in response ? "(Osadzeń: " + response.embeds.length + ")" : ""}`)
+
+                    await set(ref(getDatabase(firebaseApp), "globalchat/gpt/messages"), database.gpt.messages)
                 }
             })
 
