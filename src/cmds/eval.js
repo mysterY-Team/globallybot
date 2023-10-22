@@ -29,12 +29,12 @@ module.exports = {
                         },
                         {
                             name: "Konsola",
-                            value: `\`\`\`${consoled
+                            value: `\`\`\`\n${consoled
                                 .map((val) => {
                                     if (typeof val == "object") val = JSON.stringify(val)
                                     return val
                                 })
-                                .join("\n")}\`\`\``,
+                                .join("\n")}\n\`\`\``,
                         }
                     )
                 interaction.editReply({

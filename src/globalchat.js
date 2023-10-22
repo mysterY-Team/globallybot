@@ -1,6 +1,6 @@
 const { Client, Message, EmbedBuilder, WebhookClient } = require("discord.js")
 const { getDatabase, ref, get, remove, set } = require("@firebase/database")
-const { firebaseApp, customEmoticons, supportServer } = require("./config")
+const { firebaseApp, customEmoticons, supportServer, ownersID } = require("./config")
 const axios = require("axios")
 const fs = require("fs")
 
@@ -11,8 +11,12 @@ const fs = require("fs")
  * @param {{ text: string, msgID: string, author: { id: string, name: string, isUser: boolean, avatar: string | null }, location: string, files: string[] }} GlobalChatMessage
  */
 function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
-    if (GlobalChatMessage.text.includes("discord.gg/")) return
+    if ((GlobalChatMessage.text.includes("discord.gg/") || GlobalChatMessage.text.includes("disboard.org/")) && !ownersID.includes(GlobalChatMessage.author.id)) {
+        DiscordMessage.react(customEmoticons.denided)
+        return
+    }
 
+    //działanie komentarzy w wiadomości
     GlobalChatMessage.text = GlobalChatMessage.text.split("```")
     for (let i = 0; i < GlobalChatMessage.text.length; i++) {
         GlobalChatMessage.text[i] = {
@@ -33,6 +37,59 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
     GlobalChatMessage.text = GlobalChatMessage.text.map((x) => x.text).join("```")
 
     if (GlobalChatMessage.files.length == 0 && GlobalChatMessage.text == "") return
+
+    if (DiscordMessage.reference != null) {
+        var replayedMSG = DiscordMessage.channel.messages.cache.get(DiscordMessage.reference.messageId)
+        if (replayedMSG.author.bot) {
+            var rContent = replayedMSG.content
+
+            //działanie komentarzy w odpowiadanej wiadomości + cytowań
+            rContent = rContent.split("```")
+            for (let i = 0; i < rContent.length; i++) {
+                rContent[i] = {
+                    text: rContent[i],
+                    isInCode: i % 2 == 0 ? false : true,
+                }
+            }
+            rContent = rContent.map(function (x) {
+                if (!x.isInCode) {
+                    x.text = x.text
+                        .split("\n")
+                        .filter((c) => !c.startsWith("<##> ") && !c.startsWith("> "))
+                        .join("\n")
+                }
+
+                return x
+            })
+            rContent = rContent.map((x) => x.text).join("```")
+            rContent = rContent
+                .split("\n")
+                .map(function (x) {
+                    return "> " + x
+                })
+                .join("\n")
+
+            var rUser = replayedMSG.author.username.split(" | ")[0]
+            var rServer = replayedMSG.author.username.split(" | ")[1]
+            if (rServer == "[ ten serwer ]") {
+                rServer = DiscordMessage.guild.name
+            }
+            if (rUser.includes(" (")) {
+                rUser = rUser.split(" (")[0]
+            }
+            if (replayedMSG.attachments.size > 0) {
+                rContent = `${rContent != "" ? `${rContent}\n> \n` : ""}> ${replayedMSG.attachments
+                    .map(function (x) {
+                        return `[\`${x.name}\`](<${x.url}>)`
+                    })
+                    .join(" | ")}`
+            }
+            rContent += `\n>    *~${rUser} (${rServer})*`
+
+            GlobalChatMessage.text = `${rContent}${GlobalChatMessage.text == "" ? "" : `\n\n${GlobalChatMessage.text}`}`
+            DiscordMessage.content = `${rContent} [\`skocz tam\`](${replayedMSG.url})${DiscordMessage.content == "" ? "" : `\n\n${DiscordMessage.content}`}`
+        }
+    }
 
     if (GlobalChatMessage.author.isUser) {
         function wbName(gID) {
@@ -60,7 +117,10 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
             )
                 return
 
-            if (database.userblocks.includes(GlobalChatMessage.author.id)) return
+            if (database.userblocks.includes(GlobalChatMessage.author.id)) {
+                DiscordMessage.react(customEmoticons.denided)
+                return
+            }
 
             var webhooks = await Promise.all(
                 Object.keys(database.channels).map(async function (guildID) {
@@ -140,11 +200,10 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                         allowedMentions: { parse: [] },
                     })
 
-                    database.gpt.messages = typeof database.gpt.messages == "undefined" ? [] : database.gpt.messages
-
                     return
                 })
             ).then(async () => {
+                database.gpt.messages = typeof database.gpt.messages == "undefined" ? [] : database.gpt.messages
                 if (database.gpt.messages.length == 10) {
                     database.gpt.messages.shift()
                 }
@@ -152,6 +211,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                     `<${GlobalChatMessage.author.name} (ID: ${GlobalChatMessage.author.id}, Serwer: ${DiscordMessage.guild.name})> ${GlobalChatMessage.text}`
                 )
                 await set(ref(getDatabase(firebaseApp), "globalchat/gpt/messages"), database.gpt.messages)
+
                 DiscordMessage.delete()
 
                 var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
@@ -183,8 +243,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                     if (database.gpt.messages.length == 10) {
                         database.gpt.messages.shift()
                     }
-                    database.gpt.messages.push(`<${file.data.name} (GlobalAction)> ${response.content} ${"embeds" in response ? "(Osadzeń: " + response.embeds.length + ")" : ""}`)
-
+                    database.gpt.messages.push(`<${file.data.name} (GlobalAction)> ${response.content} ${"embeds" in response ? `(Osadzeń: ${response.embeds.length})` : ""}`)
                     await set(ref(getDatabase(firebaseApp), "globalchat/gpt/messages"), database.gpt.messages)
                 }
             })

@@ -84,7 +84,7 @@ client.on("messageCreate", (msg) => {
             }),
         },
         location: `${msg.guildId}/${msg.channelId}`,
-        files: msg.attachments.filter((a) => a.contentType.startsWith("image") || a.contentType.startsWith("video")).map((a) => a.url),
+        files: msg.attachments.filter((a) => a.contentType.startsWith("image") || a.contentType.startsWith("video") || a.contentType.startsWith("audio")).map((a) => a.url),
     }
 
     globalchatFunction(client, msg, glist)

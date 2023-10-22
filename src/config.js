@@ -16,6 +16,11 @@ module.exports = {
     ownersID: [
         "939641051453481020", //patyczakus
     ],
+    GCmodsID: [
+        "591915570987925506", //haker1000
+        "963847823089086524", //_dilerq23_
+        "1100856620688355415", //mikilokes
+    ],
     supportServer: {
         id: "1012079728133423115",
     },

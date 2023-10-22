@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { getDatabase, ref, set, get } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons } = require("../config")
+const { firebaseApp, ownersID, customEmoticons, GCmodsID } = require("../config")
 
 module.exports = {
     /**
@@ -9,12 +9,13 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        if (!ownersID.includes(interaction.user.id))
+        if (!ownersID.includes(interaction.user.id) && !GCmodsID.includes(interaction.user.id))
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
             return interaction.reply({
                 ephemeral: true,
                 content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:
-                    - Nie jesteś na liście developerów bota`,
+                    - Nie jesteś na liście developerów bota
+                    - Nie jesteś na liście moderatorów GlobalChata`,
             })
         try {
             interaction.deferReply().then(() => {
@@ -24,7 +25,7 @@ module.exports = {
                     if (blockList.includes(interaction.options.get("osoba", true).value)) {
                         interaction.editReply({
                             content: `${customEmoticons.denided} Ta osoba jest zablokowana!`,
-                            ephemeral: interaction.guildId != null,
+                            ephemeral: typeof interaction.guildId == "string",
                         })
                         return
                     }
@@ -43,15 +44,11 @@ module.exports = {
                         .setFields(
                             {
                                 name: "Blokowany przez",
-                                value: `${(interaction.user.discriminator = "0"
-                                    ? interaction.user.username
-                                    : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
+                                value: `${(interaction.user.discriminator = "0" ? interaction.user.username : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
                             },
                             {
                                 name: "Powód",
-                                value: !interaction.options.get("powód")
-                                    ? customEmoticons.denided
-                                    : `\`\`\`${interaction.options.get("powód").value}\`\`\``,
+                                value: !interaction.options.get("powód") ? customEmoticons.denided : `\`\`\`${interaction.options.get("powód").value}\`\`\``,
                             }
                         )
 
@@ -61,7 +58,7 @@ module.exports = {
 
                     interaction.editReply({
                         content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${blockList[ind]}> \`${blockList[ind]}\``,
-                        ephemeral: interaction.guildId != null,
+                        ephemeral: typeof interaction.guildId == "string",
                     })
                     set(ref(getDatabase(firebaseApp), "globalchat/userblocks"), blockList)
                 })
