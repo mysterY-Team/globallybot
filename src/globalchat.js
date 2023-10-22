@@ -62,6 +62,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                 return x
             })
             rContent = rContent.map((x) => x.text).join("```")
+            rContent = rContent.trim()
             rContent = rContent
                 .split("\n")
                 .map(function (x) {
