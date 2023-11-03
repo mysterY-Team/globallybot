@@ -40,7 +40,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
     if (DiscordMessage.reference != null) {
         var replayedMSG = DiscordMessage.channel.messages.cache.get(DiscordMessage.reference.messageId)
-        if (replayedMSG.author.bot) {
+        if (typeof replayedMSG != "undefined" && replayedMSG.author.bot) {
             var rContent = replayedMSG.content
 
             //działanie komentarzy w odpowiadanej wiadomości + cytowań
@@ -71,7 +71,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                 .join("\n")
 
             var rUser = replayedMSG.author.username.split(" | ")[0]
-            var rServer = replayedMSG.author.username.split(" | ")[1]
+            var rServer = replayedMSG.author.username.split(" | ")[1].split(" [")[0]
             if (rServer == "[ ten serwer ]") {
                 rServer = DiscordMessage.guild.name
             }
@@ -85,10 +85,12 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                     })
                     .join(" | ")}`
             }
-            rContent += `\n>    *~${rUser} (${rServer})*`
+            rContent += `\n>    *~${rUser} ({rServer})*`
 
-            GlobalChatMessage.text = `${rContent}${GlobalChatMessage.text == "" ? "" : `\n\n${GlobalChatMessage.text}`}`
-            DiscordMessage.content = `${rContent} [\`skocz tam\`](${replayedMSG.url})${DiscordMessage.content == "" ? "" : `\n\n${DiscordMessage.content}`}`
+            GlobalChatMessage.text = `${rContent.replace("{rServer}", `\`${rServer}\``)}${GlobalChatMessage.text == "" ? "" : `\n\n${GlobalChatMessage.text}`}`
+            DiscordMessage.content = `${rContent.replace("{rServer}", DiscordMessage.guild.name == rServer ? "tutaj" : `\`${rServer}\``)} [\`skocz tam\`](${replayedMSG.url})${
+                DiscordMessage.content == "" ? "" : `\n\n${DiscordMessage.content}`
+            }`
         }
     }
 
