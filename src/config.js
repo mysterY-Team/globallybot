@@ -15,11 +15,13 @@ module.exports = {
     firebaseApp: initializeApp(firebaseConfig),
     ownersID: [
         "939641051453481020", //patyczakus
+        "767311735819862032", //maticola
     ],
     GCmodsID: [
         "591915570987925506", //haker1000
         "963847823089086524", //_dilerq23_
         "1100856620688355415", //mikilokes
+        "696985029087068202", //klekociak
     ],
     supportServer: {
         id: "1012079728133423115",
