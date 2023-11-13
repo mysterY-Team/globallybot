@@ -15,6 +15,7 @@ module.exports = {
     firebaseApp: initializeApp(firebaseConfig),
     ownersID: [
         "939641051453481020", //patyczakus
+        "1166024655052738570", //patyczakusv2
         "767311735819862032", //maticola
     ],
     GCmodsID: [
