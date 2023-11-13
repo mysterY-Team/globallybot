@@ -14,7 +14,7 @@ module.exports = {
                 ephemeral: true,
             })
 
-        interaction.deferReply().then(() => {
+        interaction.deferReply().then(async () => {
             try {
                 var consoled = []
                 eval(interaction.options.get("e", true).value.replace("console.log(", "consoled.push("))
@@ -29,12 +29,15 @@ module.exports = {
                         },
                         {
                             name: "Konsola",
-                            value: `\`\`\`\n${consoled
-                                .map((val) => {
-                                    if (typeof val == "object") val = JSON.stringify(val)
-                                    return val
-                                })
-                                .join("\n")}\n\`\`\``,
+                            value:
+                                consoled.length > 0
+                                    ? `\`\`\`\n${consoled
+                                          .map((val) => {
+                                              if (typeof val == "object") val = JSON.stringify(val)
+                                              return val
+                                          })
+                                          .join("\n")}\n\`\`\``
+                                    : customEmoticons.denided,
                         }
                     )
                 interaction.editReply({
