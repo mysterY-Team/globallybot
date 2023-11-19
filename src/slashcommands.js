@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require("@discordjs/builders")
-const { ChannelType, PermissionFlagsBits } = require("discord.js")
+const { ChannelType } = require("discord.js")
+const fs = require("fs")
 
 var slashList = [
     new SlashCommandBuilder()
@@ -7,6 +8,7 @@ var slashList = [
         .setDescription("Komendy dotyczące GlobalChata")
         .setDMPermission(true)
         .addSubcommand((subcommand) => subcommand.setName("regulamin").setDescription("Wysyła regulamin dotyczący GlobalChata"))
+        .addSubcommand((subcommand) => subcommand.setName("emotes").setDescription("Daje listę emotek dostępnych do użycia na GlobalChacie"))
         .addSubcommandGroup((subcommand_group) =>
             subcommand_group
                 .setName("osoba")
@@ -39,7 +41,31 @@ var slashList = [
                         )
                 )
         )
-        .addSubcommand((subcommand) => subcommand.setName("globalactions").setDescription("Zwraca listę akcji dostępnych w usłudze GlobalChat")),
+        .addSubcommandGroup((subcommand_group) =>
+            subcommand_group
+                .setName("globalactions")
+                .setDescription("Akcje dostępne w usłudze GlobalChat")
+                .addSubcommand((subcommand) => subcommand.setName("about").setDescription("Informacje na temat GlobalActions"))
+                .addSubcommand((subcommand) =>
+                    subcommand
+                        .setName("info")
+                        .setDescription("Informacje na temat danej akcji w GlobalActions")
+                        .addStringOption((option) =>
+                            option
+                                .setName("ga")
+                                .setDescription("Nazwa akcji")
+                                .setRequired(true)
+                                .addChoices(
+                                    ...fs.readdirSync("./src/globalactions/").map((x) => {
+                                        x = x.replace(".js", "")
+                                        x = { name: require(`./globalactions/${x}`).data.name, value: x }
+
+                                        return x
+                                    })
+                                )
+                        )
+                )
+        ),
     new SlashCommandBuilder()
         .setName("gradientowo")
         .setDMPermission(true)
@@ -103,10 +129,15 @@ var slashList = [
         ),
     new SlashCommandBuilder().setDMPermission(true).setName("botinfo").setDescription("Generuje informacje o bocie, typu ilość serwerów, czy czas działania bota"),
     new SlashCommandBuilder()
-        .setName("eval")
+        .setName("devtools")
         .setDMPermission(true)
-        .setDescription("...")
-        .addStringOption((option) => option.setName("e").setDescription("Funkcja").setRequired(true)),
+        .setDescription("Mega tajemne komendy...")
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("eval")
+                .setDescription("Wykonuje kod [DLA DEWELOPERÓW]")
+                .addStringOption((option) => option.setName("func").setDescription("Funkcja do wykonania").setRequired(true))
+        ),
 ]
 //console.log(slashList)
 

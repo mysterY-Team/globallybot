@@ -25,13 +25,13 @@ module.exports = {
         "696985029087068202", //klekociak
     ],
     supportServer: {
-        id: "1012079728133423115",
+        id: "1173722642004574359",
     },
     botID: "1130423181900001381",
     customEmoticons: {
-        loading: "<:pixel_loading:1131168286265053276>",
-        info: "<:pixel_info:1131168434160406621>",
-        denided: "<:pixel_denided:1131168402933817364>",
-        approved: "<:pixel_approved:1131168382067159110>",
+        loading: "<:PX_loading:1174021728721195118> ",
+        info: "<:PX_info:1174022033366065162>",
+        denided: "<:PX_deny:1174021813358055454>",
+        approved: "<:PX_allow:1174021958732619838> ",
     },
 }

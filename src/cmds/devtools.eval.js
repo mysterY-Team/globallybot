@@ -17,7 +17,7 @@ module.exports = {
         interaction.deferReply().then(async () => {
             try {
                 var consoled = []
-                eval(interaction.options.get("e", true).value.replace("console.log(", "consoled.push("))
+                eval(interaction.options.get("func", true).value.replace("console.log(", "consoled.push("))
 
                 var x = new EmbedBuilder()
                     .setColor("Green")
@@ -50,7 +50,7 @@ module.exports = {
                     .setDescription(`\`\`\`${error}\`\`\``)
                     .addFields({
                         name: "Kod",
-                        value: `\`\`\`javascript\n${interaction.options.get("e", true).value.replace(/;/g, "\n")}\n\`\`\``,
+                        value: `\`\`\`javascript\n${interaction.options.get("func", true).value.replace(/;/g, "\n")}\n\`\`\``,
                     })
                 interaction.editReply({
                     embeds: [x],

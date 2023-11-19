@@ -3,6 +3,7 @@ const { getDatabase, ref, get, remove, set } = require("@firebase/database")
 const { firebaseApp, customEmoticons, supportServer, ownersID } = require("./config")
 const axios = require("axios")
 const fs = require("fs")
+const { emoticons } = require("./cmds/globalchat.emotes")
 
 /**
  * GlobalChat v2
@@ -15,8 +16,21 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
         DiscordMessage.react(customEmoticons.denided)
         return
     }
+    function wbName(gID) {
+        var a = [
+            {
+                id: supportServer.id,
+                tag: "[ support ]",
+            },
+        ]
 
-    //działanie komentarzy w wiadomości
+        a = a.filter((x) => x.id == DiscordMessage.guildId)
+
+        return DiscordMessage.guildId != gID
+            ? `${GlobalChatMessage.author.name} (${GlobalChatMessage.author.id}) || ${DiscordMessage.guild.name} ${a.length == 1 ? a[0].tag : ""}`
+            : `${GlobalChatMessage.author.name} || [ ten serwer ]`
+    }
+
     GlobalChatMessage.text = GlobalChatMessage.text.split("```")
     for (let i = 0; i < GlobalChatMessage.text.length; i++) {
         GlobalChatMessage.text[i] = {
@@ -38,78 +52,84 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
     if (GlobalChatMessage.files.length == 0 && GlobalChatMessage.text == "") return
 
-    if (DiscordMessage.reference != null) {
-        var replayedMSG = DiscordMessage.channel.messages.cache.get(DiscordMessage.reference.messageId)
-        if (typeof replayedMSG != "undefined" && replayedMSG.author.bot) {
-            var rContent = replayedMSG.content
+    /**
+     * @returns {EmbedBuilder | undefined}
+     */
+    function repliedMessage(gID) {
+        if (DiscordMessage.reference !== null) {
+            var replayedMSG = DiscordMessage.channel.messages.cache.get(DiscordMessage.reference.messageId)
+            if (typeof replayedMSG !== "undefined" && replayedMSG.author.bot) {
+                var rContent = replayedMSG.content,
+                    rAttachments
 
-            //działanie komentarzy w odpowiadanej wiadomości + cytowań
-            rContent = rContent.split("```")
-            for (let i = 0; i < rContent.length; i++) {
-                rContent[i] = {
-                    text: rContent[i],
-                    isInCode: i % 2 == 0 ? false : true,
+                //działanie komentarzy w odpowiadanej wiadomości + cytowań
+                rContent = rContent.split("```")
+                for (let i = 0; i < rContent.length; i++) {
+                    rContent[i] = {
+                        text: rContent[i],
+                        isInCode: i % 2 == 0 ? false : true,
+                    }
                 }
-            }
-            rContent = rContent.map(function (x) {
-                if (!x.isInCode) {
-                    x.text = x.text
-                        .split("\n")
-                        .filter((c) => !c.startsWith("<##> ") && !c.startsWith("> "))
-                        .join("\n")
-                }
+                rContent = rContent.map(function (x) {
+                    if (!x.isInCode) {
+                        x.text = x.text
+                            .split("\n")
+                            .filter((c) => !c.startsWith("<##> "))
+                            .join("\n")
+                    }
 
-                return x
-            })
-            rContent = rContent.map((x) => x.text).join("```")
-            rContent = rContent.trim()
-            rContent = rContent
-                .split("\n")
-                .map(function (x) {
-                    return "> " + x
+                    return x
                 })
-                .join("\n")
+                rContent = rContent.map((x) => x.text).join("```")
+                rContent = rContent.trim()
 
-            var rUser = replayedMSG.author.username.split(" | ")[0]
-            var rServer = replayedMSG.author.username.split(" | ")[1].split(" [")[0]
-            if (rServer == "[ ten serwer ]") {
-                rServer = DiscordMessage.guild.name
-            }
-            if (rUser.includes(" (")) {
-                rUser = rUser.split(" (")[0]
-            }
-            if (replayedMSG.attachments.size > 0) {
-                rContent = `${rContent != "" ? `${rContent}\n> \n` : ""}> ${replayedMSG.attachments
-                    .map(function (x) {
-                        return `[\`${x.name}\`](<${x.url}>)`
-                    })
-                    .join(" | ")}`
-            }
-            rContent += `\n>    *~${rUser} ({rServer})*`
+                const _repl = replayedMSG.author.username.split(" || ")
+                var rUser, rServer
 
-            GlobalChatMessage.text = `${rContent.replace("{rServer}", `\`${rServer}\``)}${GlobalChatMessage.text == "" ? "" : `\n\n${GlobalChatMessage.text}`}`
-            DiscordMessage.content = `${rContent.replace("{rServer}", DiscordMessage.guild.name == rServer ? "tutaj" : `\`${rServer}\``)} [\`skocz tam\`](${replayedMSG.url})${
-                DiscordMessage.content == "" ? "" : `\n\n${DiscordMessage.content}`
-            }`
+                rUser = _repl[0]
+                if (_repl.length == 1) {
+                    rServer = ""
+                } else {
+                    rServer = _repl[1].split(" [")[0]
+                    if (rServer === "[ ten serwer ]") {
+                        rServer = DiscordMessage.guild.name
+                    }
+                    if (rUser.includes(" (")) {
+                        rUser = rUser.split(" (")[0]
+                    }
+                }
+
+                var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}${rServer === "" ? "" : ` ze serwera ${rServer}`}` }
+                if (gID == DiscordMessage.guildId) embed.url = replayedMSG.url
+                embed = new EmbedBuilder().setAuthor(embed).setDescription(rContent).setTimestamp(replayedMSG.createdTimestamp)
+                if (replayedMSG.attachments.size > 0) {
+                    rAttachments = replayedMSG.attachments.map((x) => `[\`${x.name}\`](<${x.url}>)`).join("\n")
+                    embed = embed.addFields({ name: "Przesłane pliki", value: rAttachments })
+                }
+
+                return embed
+            }
+        }
+    }
+
+    //dla używania GlobalActions przez komentowanie
+    var withoutReply = GlobalChatMessage.text.toLowerCase()
+
+    var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
+    for (var i = 0; i < prefixes.length; i++) {
+        var resType = require(`./globalactions/${prefixes[i]}`).data.prompt_type
+
+        if (
+            (withoutReply.startsWith(`${prefixes[i]},`) && resType == "chat") ||
+            (withoutReply.includes(`[${prefixes[i]}]`) && resType == "chat2.0") ||
+            (withoutReply.startsWith(`${prefixes[i]}!`) && resType == "cmd")
+        ) {
+            prefixes = prefixes[i]
+            break
         }
     }
 
     if (GlobalChatMessage.author.isUser) {
-        function wbName(gID) {
-            var a = [
-                {
-                    id: supportServer.id,
-                    tag: "[ support ]",
-                },
-            ]
-
-            a = a.filter((x) => x.id == DiscordMessage.guildId)
-
-            return DiscordMessage.guildId != gID
-                ? `${GlobalChatMessage.author.name} (${GlobalChatMessage.author.id}) | ${DiscordMessage.guild.name} ${a.length == 1 ? a[0].tag : ""}`
-                : `${GlobalChatMessage.author.name} | [ ten serwer ]`
-        }
-
         get(ref(getDatabase(firebaseApp), "globalchat")).then(async (snpsht) => {
             var database = snpsht.val()
 
@@ -191,14 +211,41 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                 })
             )
 
+            for (var i = 0; i < emoticons.length; i++) {
+                var _e = emoticons[i].savenames
+                GlobalChatMessage.text = GlobalChatMessage.text.replace(
+                    new RegExp(`${_e.map((x) => `{e:${x.replace(/\./g, "\\.")}}`).join("|")}|${_e.map((x) => `{emote:${x.replace(/\./g, "\\.")}}`).join("|")}`, "g"),
+                    emoticons[i].emote
+                )
+                DiscordMessage.content = DiscordMessage.content.replace(
+                    new RegExp(`${_e.map((x) => `{e:${x.replace(/\./g, "\\.")}}`).join("|")}|${_e.map((x) => `{emote:${x.replace(/\./g, "\\.")}}`).join("|")}`, "g"),
+                    emoticons[i].emote
+                )
+            }
+
             Promise.all(
                 webhooks.map(async function (w) {
                     var HTTPWebhookInfo = await axios.get(w.wh.url)
+
+                    var a = repliedMessage(HTTPWebhookInfo.data.guild_id)
+                    a = typeof a === "undefined" ? [] : [a]
+
+                    if (typeof prefixes == "string") {
+                        var _file = require(`./globalactions/${prefixes}`)
+                        a.push(
+                            new EmbedBuilder()
+                                .setColor("#663399")
+                                .setDescription(
+                                    `Użytkownik właśnie użył GlobalAction o nazwie *${_file.data.name}*.\n\nChcesz też tego użyć? Sprawdź pod komendą bota \`globalchat globalactions info ga:${_file.data.name}\``
+                                )
+                        )
+                    }
 
                     await w.wh.send({
                         avatarURL: GlobalChatMessage.author.avatar,
                         username: wbName(HTTPWebhookInfo.data.guild_id),
                         content: HTTPWebhookInfo.data.guild_id == DiscordMessage.guildId ? DiscordMessage.content : GlobalChatMessage.text,
+                        embeds: a,
                         files: GlobalChatMessage.files,
                         allowedMentions: { parse: [] },
                     })
@@ -211,24 +258,15 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                     database.gpt.messages.shift()
                 }
                 database.gpt.messages.push(
-                    `<${GlobalChatMessage.author.name} (ID: ${GlobalChatMessage.author.id}, Serwer: ${DiscordMessage.guild.name})> ${GlobalChatMessage.text}`
+                    `<${GlobalChatMessage.author.name} (ID: ${GlobalChatMessage.author.id}, Serwer: ${DiscordMessage.guild.name})> "${GlobalChatMessage.text}" (plików: ${GlobalChatMessage.files.length})`
                 )
                 await set(ref(getDatabase(firebaseApp), "globalchat/gpt/messages"), database.gpt.messages)
 
                 DiscordMessage.delete()
 
-                var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
-
-                for (var i = 0; i < prefixes.length; i++) {
-                    if (GlobalChatMessage.text.toLowerCase().startsWith(prefixes[i] + ",")) {
-                        prefixes = prefixes[i]
-                        break
-                    }
-                }
-
                 if (typeof prefixes == "string") {
                     const file = require(`./globalactions/${prefixes}`)
-                    const response = await file.execute(GlobalChatMessage.text)
+                    const response = await file.execute(GlobalChatMessage.text, DiscordMessage.author)
 
                     webhooks.map(async function (w) {
                         await w.wh.send(
@@ -246,235 +284,10 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                     if (database.gpt.messages.length == 10) {
                         database.gpt.messages.shift()
                     }
-                    database.gpt.messages.push(`<${file.data.name} (GlobalAction)> ${response.content} ${"embeds" in response ? `(Osadzeń: ${response.embeds.length})` : ""}`)
+                    database.gpt.messages.push(`<${file.data.name} (GlobalAction)> "${response.content}"${"embeds" in response ? ` (osadzeń: ${response.embeds.length})` : ``}`)
                     await set(ref(getDatabase(firebaseApp), "globalchat/gpt/messages"), database.gpt.messages)
                 }
             })
-
-            // /*
-            //  * @type {Webhook[]}
-            //  */
-            // var webhooksList = []
-            // var database = snpsht.val()
-            // var channelsSend = 0
-
-            // var GlobalAction = {
-            //     dowcip: function () {
-            //         try {
-            //             channelsSend = 0
-            //             axios.get("https://perelki.net/random").then((response) => {
-            //                 const $ = cheerio.load(response.data)
-            //                 $(".content .container:not(.cntr) .about").remove()
-            //                 var joke = $(".content .container:not(.cntr)")
-            //                     .html()
-            //                     .replace(/<br>/g, "\n")
-            //                     .replace(/\*/g, "\\*")
-            //                     .replace(/_/g, "\\_")
-            //                     .replace(/~/g, "\\~")
-            //                     .replace(/#/g, "\\#")
-            //                     .replace(/@/g, "\\@")
-            //                     .trim()
-            //                 joke = joke
-            //                     .split("\n")
-            //                     .filter((line) => line != "")
-            //                     .join("\n")
-            //                 Promise.all(gchannels.map((gch) => gch.sendTyping())).then(() => {
-            //                     webhooksList.forEach((webhook2) => {
-            //                         webhook2
-            //                             .edit({
-            //                                 name: "Memiarz (GlobalAction)",
-            //                                 avatar: "https://www.pngarts.com/files/11/Haha-Emoji-Transparent-Image.png",
-            //                                 reason: "Użycie GlobalAction",
-            //                             })
-            //                             .then((wh) => {
-            //                                 wh.send({
-            //                                     content: `Udało się znaleźć dowcip ze strony [**perelki.net**](<https://perelki.net>)\n\n${joke}`,
-            //                                 }).then(() => {
-            //                                     channelsSend++
-            //                                     if (channelsSend >= dataObject.length) {
-            //                                         set(
-            //                                             ref(getDatabase(firebaseApp), "globalchat/gptUses/i"),
-            //                                             database.gptUses.i + 1
-            //                                         )
-            //                                         webhooksList.forEach((webhook2) => {
-            //                                             webhook2.delete(
-            //                                                 `zakańczania usługi GlobalChat (wysłano do ${channelsSend} serwerów)`
-            //                                             )
-            //                                         })
-            //                                     }
-            //                                 })
-            //                             })
-            //                     })
-            //                 })
-            //             })
-            //         } catch (error) {
-            //             webhooksList.forEach((webhook2) => {
-            //                 webhook2.delete(`zakańczania usługi GlobalChat (wysłano do ${channelsSend} serwerów)`)
-            //             })
-            //         }
-            //     },
-            //     GPT: function () {
-            //         channelsSend = 0
-            //         Promise.all(gchannels.map((gch) => gch.sendTyping())).then(() => {
-            //                 try {
-            //                     webhooksList.forEach((webhook2) => {
-            //                         webhook2
-            //                             .edit({
-            //                                 name: "ChatGPT (GlobalAction)",
-            //                                 avatar: "https://capiche.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbU5GIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--2828502fa3c2cd9130a2a1df1d35ba7b0f9270c1/openai-avatar.png",
-            //                                 reason: "Użycie GlobalAction",
-            //                             })
-            //                             .then((wh) => {
-            //                                 var embedReached = new EmbedBuilder()
-            //                                     .setColor("Orange")
-            //                                     .setDescription(
-            //                                         `${customEmoticons.denided} Wybacz, ale jedynie mogę odpowiadać 10 razy na dzień!`
-            //                                     )
-            //                                 wh.send({
-            //                                     content: database.gptUses.i < 10 ? response.data : "",
-            //                                     embeds: database.gptUses.i < 10 ? [] : [embedReached],
-            //                                 }).then(() => {
-            //                                     channelsSend++
-            //                                     if (channelsSend >= dataObject.length) {
-            //                                         set(
-            //                                             ref(getDatabase(firebaseApp), "globalchat/gptUses/i"),
-            //                                             database.gptUses.i + 1
-            //                                         )
-            //                                         webhooksList.forEach((webhook2) => {
-            //                                             webhook2.delete(
-            //                                                 `zakańczania usługi GlobalChat (wysłano do ${channelsSend} serwerów)`
-            //                                             )
-            //                                         })
-            //                                     }
-            //                                 })
-            //                             })
-            //                     })
-            //                 } catch (err) {
-            //                     webhooksList.forEach((webhook2) => {
-            //                         webhook2.delete(
-            //                             `zakańczania usługi GlobalChat (wysłano do ${channelsSend} serwerów)`
-            //                         )
-            //                     })
-            //                 }
-            //             })
-            //         })
-            //     },
-            // }
-
-            // //JSON => lista
-            // var dataObject = []
-            // Object.keys(database.channels).forEach((loc) => {
-            //     dataObject[dataObject.length] = `${loc}/${database.channels[loc]}`
-            // })
-
-            // if (dataObject.includes(GlobalChatMessage.location)) {
-            //     //sprawdzanie linijek komentarzy, zaczynawszy od <##>
-            //     GlobalChatMessage.text = GlobalChatMessage.text.split("\n").filter((line) => !line.startsWith("<##> "))
-            //     if (GlobalChatMessage.text.length > 0) {
-            //         GlobalChatMessage.text = GlobalChatMessage.text.join("\n")
-            //     } else {
-            //         return
-            //     }
-
-            //     //pobieranie bazy danych - CZARNA lista
-
-            //     if (database.userblocks.includes(GlobalChatMessage.author.id)) {
-            //         DiscordMessage.react(customEmoticons.denided)
-            //         return
-            //     }
-
-            //     //ostatnie blokady
-            //     //ewentualnie usunięcie pingów, jeżeli nie jest na liście właścicieli bota
-            //     GlobalChatMessage.text = GlobalChatMessage.text
-            //         .replace(/@everyone/g, "||`[ niedozwolony ping ]`||")
-            //         .replace(/@here/g, "||`[ niedozwolony ping ]`||")
-
-            //     //jeżeli jest to link niedozwolony (taki, który szkodzi wirusem lub zapraszający na inny serwer Discord), nie wysyła wcale do kanałów
-            //     if (
-            //         //linki zaproszeniowe
-            //         GlobalChatMessage.text.includes("discord.gg") ||
-            //         GlobalChatMessage.text.includes("disboard.com") ||
-            //         //linki z pornografią
-            //         (GlobalChatMessage.text.includes("porn") && GlobalChatMessage.text.includes(".com")) || //ogólna definicja
-            //         GlobalChatMessage.text.includes("xvideos.com") ||
-            //         GlobalChatMessage.text.includes("hanime.tv")
-            //     ) {
-            //         DiscordMessage.react(customEmoticons.denided)
-            //         return
-            //     }
-
-            //     /**
-            //      * @type {import("discord.js").GuildBasedChannel[]}
-            //      */
-            //     var gchannels = []
-
-            //     dataObject.forEach((lgchannel) => {
-            //         if (lgchannel == null) return
-
-            //         const gchannelID = lgchannel.split("/")[1]
-            //         const gguildID = lgchannel.split("/")[0]
-            //         const gguild = DiscordClient.guilds.cache.get(gguildID)
-            //         if (typeof gguild == "undefined") {
-            //             remove(ref(getDatabase(firebaseApp), `globalchat/channels/${gguildID}`))
-            //             return
-            //         }
-            //         gguild.channels.fetch(gchannelID).then((gchannel) => {
-            //             if (gchannel == null) {
-            //                 remove(ref(getDatabase(firebaseApp), `globalchat/channels/${gguildID}`)).then(() => {
-
-            //                 })
-            //                 return
-            //             }
-            //             gchannels[gchannels.length] = gchannel
-            //             gguild.channels
-            //                 .createWebhook({
-            //                     channel: gchannelID,
-            //                     name:
-            //                         gguildID == DiscordMessage.guildId
-            //                             ? `${GlobalChatMessage.author.name} | [ ten serwer ]`
-            //                             : `${GlobalChatMessage.author.name} (${GlobalChatMessage.author.id}) | ${DiscordMessage.guild.name}`,
-            //                     avatar: GlobalChatMessage.author.avatar,
-            //                     reason: `użycia usługi GlobalChat przez użytkownika ${GlobalChatMessage.author.name.toUpperCase()}`,
-            //                 })
-            //                 .then((webhook) => {
-            //                     webhook
-            //                         .send({
-            //                             content:
-            //                                 gguildID == DiscordMessage.guildId
-            //                                     ? DiscordMessage.content
-            //                                           .replace(/@everyone/g, "||`[ niedozwolony ping ]`||")
-            //                                           .replace(/@here/g, "||`[ niedozwolony ping ]`||")
-            //                                     : GlobalChatMessage.text,
-            //                             files: GlobalChatMessage.files,
-            //                         })
-            //                         .then(() => {
-            //                             webhooksList.push(webhook)
-            //                             //console.log(generateGPTFormatter(DiscordMessage, GlobalChatMessage, database))
-            //                             channelsSend++
-            //                             if (channelsSend >= dataObject.length) {
-            //                                 DiscordMessage.delete()
-            //                                 //console.log(DiscordMessage)
-            //                                 if (GlobalChatMessage.text.toLowerCase().startsWith("gpt, ")) {
-            //                                     GlobalAction.GPT()
-            //                                 } else if (
-            //                                     GlobalChatMessage.text
-            //                                         .toLowerCase()
-            //                                         .startsWith("memiarz, opowiedz dowcip")
-            //                                 ) {
-            //                                     GlobalAction.dowcip()
-            //                                 } else
-            //                                     webhooksList.forEach((webhook2) => {
-            //                                         webhook2.delete(
-            //                                             `zakańczania usługi GlobalChat (wysłano do ${channelsSend} serwerów)`
-            //                                         )
-            //                                     })
-            //                             }
-            //                         })
-            //                 })
-            //         })
-            //     })
-            // } else {
-            // }
         })
     }
 }
