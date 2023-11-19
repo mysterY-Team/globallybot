@@ -22,7 +22,7 @@ module.exports = {
         var embed = new EmbedBuilder()
             .setTitle(`${customEmoticons.info} Informacje o bocie`)
             .setDescription(
-                "Dodaj bota: [link](https://discord.com/api/oauth2/authorize?client_id=1130423181900001381&permissions=2684726360&scope=applications.commands%20bot)\nSerwer support: [link](https://discord.gg/v3w6bbtGy9)"
+                "Dodaj bota: [link](https://discord.com/api/oauth2/authorize?client_id=1130423181900001381&permissions=2684726360&scope=applications.commands%20bot)\nSerwer support: [link](https://discord.gg/7S3P2DUwAm)"
             )
             .addFields(
                 {
