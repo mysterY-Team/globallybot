@@ -12,10 +12,6 @@ const { emoticons } = require("./cmds/globalchat.emotes")
  * @param {{ text: string, msgID: string, author: { id: string, name: string, isUser: boolean, avatar: string | null }, location: string, files: string[] }} GlobalChatMessage
  */
 function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
-    if ((GlobalChatMessage.text.includes("discord.gg/") || GlobalChatMessage.text.includes("disboard.org/")) && !ownersID.includes(GlobalChatMessage.author.id)) {
-        DiscordMessage.react(customEmoticons.denided)
-        return
-    }
     function wbName(gID) {
         var a = [
             {
@@ -130,6 +126,11 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
     }
 
     if (GlobalChatMessage.author.isUser) {
+        if ((GlobalChatMessage.text.includes("discord.gg/") || GlobalChatMessage.text.includes("disboard.org/")) && !ownersID.includes(GlobalChatMessage.author.id)) {
+            DiscordMessage.react(customEmoticons.denided)
+            return
+        }
+
         get(ref(getDatabase(firebaseApp), "globalchat")).then(async (snpsht) => {
             var database = snpsht.val()
 
