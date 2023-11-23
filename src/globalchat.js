@@ -5,6 +5,9 @@ const axios = require("axios")
 const fs = require("fs")
 const { emoticons } = require("./cmds/globalchat.emotes")
 
+const timestampCooldown = new Date()
+const cooldown = 2000
+
 /**
  * GlobalChat v2
  * @param {Client<true>} DiscordClient
@@ -26,6 +29,13 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
             ? `${GlobalChatMessage.author.name} (${GlobalChatMessage.author.id}) || ${DiscordMessage.guild.name} ${a.length == 1 ? a[0].tag : ""}`
             : `${GlobalChatMessage.author.name} || [ ten serwer ]`
     }
+
+    if (GlobalChatMessage.author.isUser && timestampCooldown.getTime() + cooldown > new Date().getTime()) {
+        DiscordMessage.reply(`${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${cooldown - (new Date().getTime() - timestampCooldown.getTime())}\` ms`)
+        return
+    }
+
+    timestampCooldown.setTime(new Date().getTime())
 
     GlobalChatMessage.text = GlobalChatMessage.text.split("```")
     for (let i = 0; i < GlobalChatMessage.text.length; i++) {

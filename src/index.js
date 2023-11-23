@@ -40,28 +40,17 @@ client.on("ready", (log) => {
         .then(() => {
             var _date = new Date()
 
-            set(ref(getDatabase(firebaseApp), "dateConstr"), {
-                d: _date.getUTCDate(),
-                m: _date.getUTCMonth(),
-                y: _date.getUTCFullYear(),
+            get(ref(getDatabase(firebaseApp), "dateConstr/d")).then((data) => {
+                data = data.val()
+                if (data == _date.getUTCDate()) return
+                set(ref(getDatabase(firebaseApp), "globalchat/gpt"), {
+                    uses: 0,
+                    messages: [],
+                }).then(() => {
+                    listenerLog(2, `✅ Zresetowano bazę danych "/globalchat/gpt" (czas: ${performance.now() - _a}ms)`)
+                })
             })
         })
-
-    //
-    onValue(ref(getDatabase(firebaseApp), "dateConstr/d"), (s) => {
-        const _a = performance.now()
-        listenerLog(1, "")
-        listenerLog(1, `❗ Dostano informację o aktualizacji czasu!`)
-
-        if (s.val() == new Date().getUTCDate()) return
-
-        set(ref(getDatabase(firebaseApp), "globalchat/gpt"), {
-            uses: 0,
-            messages: [],
-        }).then(() => {
-            listenerLog(2, `✅ Zresetowano bazę danych "/globalchat/gpt" (czas: ${performance.now() - _a}ms)`)
-        })
-    })
 
     client.user.setStatus(debug ? "dnd" : "online")
     timerToResetTheAPIInfo()
@@ -138,11 +127,19 @@ function timerToResetTheAPIInfo() {
     setTimeout(() => {
         var date = new Date()
         if (date.getUTCHours() == 0) {
-            //pobieranie bazy danych
-            set(ref(getDatabase(firebaseApp), "dateConstr"), {
-                d: date.getUTCDate(),
-                m: date.getUTCMonth(),
-                y: date.getUTCFullYear(),
+            get(ref(getDatabase(firebaseApp), "dateConstr")).then((data) => {
+                data = data.val()
+                if (data.d != date.getUTCDate()) {
+                    set(ref(getDatabase(firebaseApp), "globalchat/gpt"), {
+                        uses: 0,
+                        messages: [],
+                    }).then(() => {
+                        listenerLog(2, `✅ Zresetowano bazę danych "/globalchat/gpt" (czas: ${performance.now() - _a}ms)`)
+                    })
+                    set(ref(getDatabase(firebaseApp), "dateConstr/d"), date.getUTCDate())
+                }
+                if (data.m != date.getUTCMonth()) set(ref(getDatabase(firebaseApp), "dateConstr/m"), date.getUTCMonth())
+                if (data.y != date.getUTCFullYear()) set(ref(getDatabase(firebaseApp), "dateConstr/m"), date.getUTCFullYear())
             })
         }
         timerToResetTheAPIInfo()

@@ -25,7 +25,7 @@ module.exports = {
                     if (blockList.includes(interaction.options.get("osoba", true).value)) {
                         interaction.editReply({
                             content: `${customEmoticons.denided} Ta osoba jest zablokowana!`,
-                            ephemeral: typeof interaction.guildId == "string",
+                            ephemeral: interaction.inGuild(),
                         })
                         return
                     }
@@ -58,13 +58,16 @@ module.exports = {
 
                     interaction.editReply({
                         content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${blockList[ind]}> \`${blockList[ind]}\``,
-                        ephemeral: typeof interaction.guildId == "string",
+                        ephemeral: interaction.inGuild(),
                     })
                     set(ref(getDatabase(firebaseApp), "globalchat/userblocks"), blockList)
                 })
             })
         } catch (err) {
-            console.error(err)
+            interaction.reply({
+                content: "Coś poszło nie tak... spróbuj ponownie!",
+            })
+            console.warn(err)
         }
     },
 }

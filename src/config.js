@@ -11,7 +11,7 @@ const firebaseConfig = {
 }
 
 module.exports = {
-    TOKEN: "MTEzMDQyMzE4MTkwMDAwMTM4MQ.GxXbQs.Rj_VRoSXIh1ZFYXL2f-VhSecORGnAKqQlMj9Zg",
+    TOKEN: "MTE3MzM1OTMwMDI5OTcxODY5Nw.GrwECS.MuGLpQw0xSarwhWwRio9enFiHpHzpUGX8WanuA",
     firebaseApp: initializeApp(firebaseConfig),
     ownersID: [
         "939641051453481020", //patyczakus
@@ -27,7 +27,7 @@ module.exports = {
     supportServer: {
         id: "1173722642004574359",
     },
-    botID: "1130423181900001381",
+    botID: "1173359300299718697",
     customEmoticons: {
         loading: "<:PX_loading:1174021728721195118> ",
         info: "<:PX_info:1174022033366065162>",

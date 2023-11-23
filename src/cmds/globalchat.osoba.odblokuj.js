@@ -22,10 +22,12 @@ module.exports = {
                 get(ref(getDatabase(firebaseApp), "globalchat/userblocks")).then((snapshot) => {
                     blockList = snapshot.val()
 
+                    if (blockList == null || blockList.length == 0) return interaction.reply(`${customEmoticons.denided} Nie udało się pobrać dazy danych!`)
+
                     if (!blockList.includes(interaction.options.get("osoba", true).value)) {
                         interaction.editReply({
                             content: `${customEmoticons.denided} Ta osoba nie jest zablokowana!`,
-                            ephemeral: typeof interaction.guildId == "string",
+                            ephemeral: interaction.inGuild(),
                         })
                         return
                     }
@@ -48,13 +50,16 @@ module.exports = {
                         content: `${customEmoticons.approved} Pomyślnie odblokowano użytkownika <@${interaction.options.get("osoba", true).value}> \`${
                             interaction.options.get("osoba", true).value
                         }\``,
-                        ephemeral: typeof interaction.guildId == "string",
+                        ephemeral: interaction.inGuild(),
                     })
                     set(ref(getDatabase(firebaseApp), "globalchat/userblocks"), blockList)
                 })
             })
         } catch (err) {
-            console.error(err)
+            interaction.reply({
+                content: "Coś poszło nie tak... spróbuj ponownie!",
+            })
+            console.warn(err)
         }
     },
 }
