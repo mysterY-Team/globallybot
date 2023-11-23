@@ -7,7 +7,7 @@ const { get, set, getDatabase, ref, onValue } = require("@firebase/database")
 const debug = false
 
 const client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers],
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildModeration],
 })
 
 function listenerLog(space, info, priority = false) {

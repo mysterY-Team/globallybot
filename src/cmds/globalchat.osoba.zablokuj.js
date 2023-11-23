@@ -17,6 +17,7 @@ module.exports = {
                     - Nie jesteś na liście developerów bota
                     - Nie jesteś na liście moderatorów GlobalChata`,
             })
+
         try {
             interaction.deferReply().then(() => {
                 get(ref(getDatabase(firebaseApp), "globalchat/userblocks")).then((snapshot) => {

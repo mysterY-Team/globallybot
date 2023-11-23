@@ -18,13 +18,12 @@ module.exports = {
         var bot = guild.members.cache.get(botID)
         if (
             !(
-                interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks & PermissionFlagsBits.ManageChannels) ||
-                interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
-                interaction.user.id == guild.ownerId ||
-                ownersID.includes(interaction.user.id)
-            ) ||
-            !bot.permissions.has(PermissionFlagsBits.Administrator) ||
-            !bot.permissions.has(PermissionFlagsBits.ManageWebhooks)
+                (interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks & PermissionFlagsBits.ManageChannels) ||
+                    interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
+                    interaction.user.id == guild.ownerId ||
+                    ownersID.includes(interaction.user.id)) &&
+                bot.permissions.has(PermissionFlagsBits.Administrator | PermissionFlagsBits.ManageWebhooks)
+            )
         )
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
             return interaction.reply({
@@ -34,7 +33,10 @@ module.exports = {
                     - Nie masz permisji administratora
                     - Nie jesteś właścicielem serwera
                     - Bot nie ma odpowiednich permisji administrotara lub uprawnienia **Zarządzanie Webhookami**
-                    - Nie jesteś na liście developerów bota`,
+                    - Nie jesteś na liście developerów bota`
+                    .split("\n")
+                    .map((x) => x.trim())
+                    .join("\n"),
             })
 
         interaction.deferReply().then(() => {

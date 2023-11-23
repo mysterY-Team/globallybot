@@ -36,7 +36,9 @@ module.exports = {
                 axios
                     .get(snapshot.val().webhook)
                     .then((res) => {
-                        if (res.status >= 200 && res.status < 300) webhook.delete("użycia komendy /GLOBALCHAT")
+                        try {
+                            if (res.status >= 200 && res.status < 300) webhook.delete("użycia komendy /GLOBALCHAT")
+                        } catch (e) {}
 
                         remove(ref(getDatabase(firebaseApp), `globalchat/channels/${interaction.guildId}`)).then(() => {
                             interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
