@@ -30,13 +30,6 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
             : `${GlobalChatMessage.author.name} || [ ten serwer ]`
     }
 
-    if (GlobalChatMessage.author.isUser && timestampCooldown.getTime() + cooldown > new Date().getTime()) {
-        DiscordMessage.reply(`${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${cooldown - (new Date().getTime() - timestampCooldown.getTime())}\` ms`)
-        return
-    }
-
-    timestampCooldown.setTime(new Date().getTime())
-
     GlobalChatMessage.text = GlobalChatMessage.text.split("```")
     for (let i = 0; i < GlobalChatMessage.text.length; i++) {
         GlobalChatMessage.text[i] = {
@@ -136,11 +129,6 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
     }
 
     if (GlobalChatMessage.author.isUser) {
-        if ((GlobalChatMessage.text.includes("discord.gg/") || GlobalChatMessage.text.includes("disboard.org/")) && !ownersID.includes(GlobalChatMessage.author.id)) {
-            DiscordMessage.react(customEmoticons.denided)
-            return
-        }
-
         get(ref(getDatabase(firebaseApp), "globalchat")).then(async (snpsht) => {
             var database = snpsht.val()
 
@@ -155,7 +143,16 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                 DiscordMessage.react(customEmoticons.denided)
                 return
             }
+            if ((GlobalChatMessage.text.includes("discord.gg/") || GlobalChatMessage.text.includes("disboard.org/")) && !ownersID.includes(GlobalChatMessage.author.id)) {
+                DiscordMessage.react(customEmoticons.denided)
+                return
+            }
+            if (timestampCooldown.getTime() + cooldown > new Date().getTime()) {
+                DiscordMessage.reply(`${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${cooldown - (new Date().getTime() - timestampCooldown.getTime())}\` ms`)
+                return
+            }
 
+            timestampCooldown.setTime(new Date().getTime())
             var webhooks = await Promise.all(
                 Object.keys(database.channels).map(async function (guildID) {
                     /**
