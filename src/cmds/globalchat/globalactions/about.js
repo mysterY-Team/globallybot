@@ -1,7 +1,7 @@
 //szkielet komendy, jak w całym folderze ./cmds
 const { CommandInteraction, Client, EmbedBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const fs = require("fs")
-const { customEmoticons } = require("../config")
+const { customEmoticons } = require("../../../config")
 
 module.exports = {
     /**

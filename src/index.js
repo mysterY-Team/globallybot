@@ -86,7 +86,7 @@ client.on("interactionCreate", (int) => {
 
         listenerLog(2, `⚙️ Uruchamianie pliku ${fullname}.js`)
         //console.log(int.options)
-        const file = require(`./cmds/${fullname.join(".")}`)
+        const file = require(`./cmds/${fullname.join("/")}`)
         file.execute(client, int)
     }
 })

@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, PermissionFlagsBits, WebhookClient } = require("discord.js")
 const { getDatabase, ref, get, remove } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons } = require("../config")
+const { firebaseApp, ownersID, customEmoticons } = require("../../../config")
 const { default: axios } = require("axios")
 
 module.exports = {

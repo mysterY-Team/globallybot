@@ -1,5 +1,5 @@
 const { CommandInteraction, Client } = require("discord.js")
-const { customEmoticons } = require("../config")
+const { customEmoticons } = require("../../config")
 module.exports = {
     /**
      *

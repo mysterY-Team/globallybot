@@ -3,7 +3,7 @@ const { getDatabase, ref, get, remove, set } = require("@firebase/database")
 const { firebaseApp, customEmoticons, supportServer, ownersID } = require("./config")
 const axios = require("axios")
 const fs = require("fs")
-const { emoticons } = require("./cmds/globalchat.emotes")
+const { emoticons } = require("./cmds/globalchat/emotes")
 
 const timestampCooldown = new Date()
 const cooldown = 2000

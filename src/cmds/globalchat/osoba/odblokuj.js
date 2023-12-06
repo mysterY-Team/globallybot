@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { getDatabase, ref, set, get } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons, GCmodsID } = require("../config")
+const { firebaseApp, ownersID, customEmoticons, GCmodsID } = require("../../../config")
 
 module.exports = {
     /**
@@ -17,48 +17,39 @@ module.exports = {
                     - Nie jesteś na liście developerów bota
                     - Nie jesteś na liście moderatorów GlobalChata`,
             })
-
         try {
             interaction.deferReply().then(() => {
                 get(ref(getDatabase(firebaseApp), "globalchat/userblocks")).then((snapshot) => {
                     blockList = snapshot.val()
 
-                    if (blockList.includes(interaction.options.get("osoba", true).value)) {
+                    if (blockList == null || blockList.length == 0) return interaction.reply(`${customEmoticons.denided} Nie udało się pobrać dazy danych!`)
+
+                    if (!blockList.includes(interaction.options.get("osoba", true).value)) {
                         interaction.editReply({
-                            content: `${customEmoticons.denided} Ta osoba jest zablokowana!`,
+                            content: `${customEmoticons.denided} Ta osoba nie jest zablokowana!`,
                             ephemeral: interaction.inGuild(),
                         })
                         return
                     }
 
-                    var ind = -1
-                    for (var i = 0; i < blockList.length; i++) {
-                        if (blockList[i] == null) var ind = i
-                        break
-                    }
-                    if (ind == -1) ind = blockList.length
-                    blockList[ind] = interaction.options.get("osoba", true).value
+                    blockList[blockList.indexOf(interaction.options.get("osoba", true).value)] = null
                     const embedblock = new EmbedBuilder()
-                        .setTitle("Zostałeś zablokowany!")
-                        .setDescription(`Od teraz nie będziesz miał dostępu do GlobalChata do odwołania!`)
-                        .setColor("Red")
-                        .setFields(
-                            {
-                                name: "Blokowany przez",
-                                value: `${(interaction.user.discriminator = "0" ? interaction.user.username : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
-                            },
-                            {
-                                name: "Powód",
-                                value: !interaction.options.get("powód") ? customEmoticons.denided : `\`\`\`${interaction.options.get("powód").value}\`\`\``,
-                            }
-                        )
+                        .setTitle("Zostałeś odblokowany!")
+                        .setDescription(`Od teraz będziesz miał dostęp do GlobalChata, dopóki znów nie będziesz zablokowany!`)
+                        .setColor("Green")
+                        .setFields({
+                            name: "Odblokowany przez",
+                            value: `${(interaction.user.discriminator = "0" ? interaction.user.username : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
+                        })
 
-                    client.users.send(blockList[ind], {
+                    client.users.send(interaction.options.get("osoba", true).value, {
                         embeds: [embedblock],
                     })
 
                     interaction.editReply({
-                        content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${blockList[ind]}> \`${blockList[ind]}\``,
+                        content: `${customEmoticons.approved} Pomyślnie odblokowano użytkownika <@${interaction.options.get("osoba", true).value}> \`${
+                            interaction.options.get("osoba", true).value
+                        }\``,
                         ephemeral: interaction.inGuild(),
                     })
                     set(ref(getDatabase(firebaseApp), "globalchat/userblocks"), blockList)
