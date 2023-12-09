@@ -40,6 +40,7 @@ client.on("ready", (log) => {
         .then(() => {
             var _date = new Date()
 
+            const _a = performance.now()
             get(ref(getDatabase(firebaseApp), "dateConstr/d")).then((data) => {
                 data = data.val()
                 if (data == _date.getUTCDate()) return
@@ -130,6 +131,7 @@ function timerToResetTheAPIInfo() {
             get(ref(getDatabase(firebaseApp), "dateConstr")).then((data) => {
                 data = data.val()
                 if (data.d != date.getUTCDate()) {
+                    const _a = performance.now()
                     set(ref(getDatabase(firebaseApp), "globalchat/gpt"), {
                         uses: 0,
                         messages: [],
@@ -139,7 +141,7 @@ function timerToResetTheAPIInfo() {
                     set(ref(getDatabase(firebaseApp), "dateConstr/d"), date.getUTCDate())
                 }
                 if (data.m != date.getUTCMonth()) set(ref(getDatabase(firebaseApp), "dateConstr/m"), date.getUTCMonth())
-                if (data.y != date.getUTCFullYear()) set(ref(getDatabase(firebaseApp), "dateConstr/m"), date.getUTCFullYear())
+                if (data.y != date.getUTCFullYear()) set(ref(getDatabase(firebaseApp), "dateConstr/y"), date.getUTCFullYear())
             })
         }
         timerToResetTheAPIInfo()

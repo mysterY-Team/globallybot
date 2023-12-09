@@ -25,7 +25,7 @@ module.exports = {
                     .addFields(
                         {
                             name: "Kod",
-                            value: `\`\`\`javascript\n${interaction.options.get("e", true).value.replace(/;/g, "\n")}\n\`\`\``,
+                            value: `\`\`\`javascript\n${interaction.options.get("func", true).value.replace(/;/g, "\n")}\n\`\`\``,
                         },
                         {
                             name: "Konsola",

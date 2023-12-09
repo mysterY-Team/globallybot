@@ -31,6 +31,16 @@ module.exports = {
             emote: "<:serducha:1092490017500315751>",
             server: { id: "1091809406078943422", iCode: "YhQRbnCKCF" },
         },
+        {
+            savenames: ["pixel.iLoveYou", "px.iLoveYou", "pixel.ilvu", "px.ilvu"],
+            emote: "<a:I3U:1079115912520663152>",
+            server: { id: "1034494983102791802", iCode: "X7HNvaFZ" },
+        },
+        {
+            savenames: ["minecraft.parrotRainbowDance", "mc.parrotRainbowDance", "minecraft.parrotdance+", "mc.parrotdance+"],
+            emote: "<a:minecraftpapuga:1110643419023417395>",
+            server: { id: "1044423105185075270", iCode: "xSKaqGy6Bp" },
+        },
     ],
     /**
      *
