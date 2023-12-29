@@ -57,9 +57,11 @@ module.exports = {
 
                 var $stacja = interaction.options.get("stacja", true).value
 
-                var channelsInOtherStations = Object.values(allsnpsht.val())
-                    .filter((x, y) => y == Object.keys(allsnpsht.val()).indexOf(interaction.options.get("stacja", true).value))
-                    .map((x) => x.channel)
+                if (allsnpsht.exists())
+                    var channelsInOtherStations = Object.values(allsnpsht.val())
+                        .filter((x, y) => y == Object.keys(allsnpsht.val()).indexOf(interaction.options.get("stacja", true).value))
+                        .map((x) => x.channel)
+                else var channelsInOtherStations = []
 
                 if (channelsInOtherStations.includes(channel.value)) {
                     return interaction.editReply(`${customEmoticons.denided} Ten kanał ma już odrębną stację!`)
