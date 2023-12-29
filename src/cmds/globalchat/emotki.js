@@ -84,24 +84,22 @@ module.exports = {
      */
     async execute(client, interaction) {
         if (interaction.options.get("fraza") === null)
-            interaction.reply(
-                `# Lista globalnych emotek\n${customEmoticons.info} Użycie: \`{e:<nazwa>}\` lub \`{emote:<nazwa>}\`\n${this.emoticons
+            interaction.reply({
+                content: `# Lista globalnych emotek\n${customEmoticons.info} Użycie: \`{e:<nazwa>}\` lub \`{emote:<nazwa>}\`\n${this.emoticons
                     .sort(() => Math.random() - 0.5)
-                    .filter((x, i) => i < 15)
+                    .filter((x, i) => i < 10)
                     .map((x) => {
                         return `\n${x.emote} - \`${x.savenames[0]}\` (aliasy: ${
                             x.savenames.length > 1 ? `\`${x.savenames.filter((x, i) => i > 0).join("`, `")}\`` : customEmoticons.minus
                         })${typeof x.server === "undefined" ? "" : ` *//ze serwera [${client.guilds.cache.get(x.server.id).name}](<https://discord.gg/${x.server.iCode}>)*`}`
-                    })}
-            
-            Tutaj się wyświetla maksymalnie 15 emotek. Użyj argumentu \`fraza\`, aby wyszukać emotki (20)!`
-            )
+                    })}\n\nTutaj się wyświetla maksymalnie 10 emotek. Użyj argumentu \`fraza\`, aby wyszukać emotki (16)!`,
+            })
         else {
             const emotes = this.emoticons
 
             /**
              * @param {string} savename
-             * @returns {{ emote: string, searchedSName: string, mainSName: string, distance: number, server: { id: string, iCode: string } | undefined }[]}
+             * @returns {{ emote: string, searchedSName: string, mainSName: string, distance: number, server: { id: string, iCode: string } | undefined, bestOption: boolean }[]}
              */
             function searchEmote(savename) {
                 var minDistance = Infinity
@@ -118,6 +116,7 @@ module.exports = {
                                 mainSName: emotes[i].savenames[0],
                                 distance: distance,
                                 server: undefined,
+                                bestOption: false,
                             }
                             if (typeof emotes[i].server !== "undefined") closestEmote.server = emotes[i].server
                         }
@@ -128,7 +127,12 @@ module.exports = {
                     minDistance = Infinity
                     closestEmote = null
                 }
-                return results.filter((x, i) => x.distance <= x.searchedSName.length - 3 && i < 20)
+                return results
+                    .map((x) => {
+                        x.bestOption = x.distance < x.searchedSName.length - 3
+                        return x
+                    })
+                    .filter((x, i) => i < 16)
             }
 
             function levenshteinDistance(a, b) {
@@ -166,20 +170,31 @@ module.exports = {
 
             var wyszukiwania = searchEmote(interaction.options.get("fraza").value)
 
-            if (wyszukiwania.length > 0) {
+            if (wyszukiwania.filter((x) => x.bestOption).length > 0) {
                 interaction.reply(
                     `# Lista globalnych emotek po frazie *${interaction.options.get("fraza").value}*\n${
                         customEmoticons.info
                     } Użycie: \`{e:<nazwa>}\` lub \`{emote:<nazwa>}\`\n${wyszukiwania.map((x) => {
-                        return `\n${x.emote} - \`${x.mainSName === x.searchedSName ? x.searchedSName + "`" : `${x.searchedSName}\` (główne: \`${x.mainSName}\`)`}${
-                            typeof x.server === "undefined" ? "" : ` *//ze serwera [${client.guilds.cache.get(x.server.id).name}](<https://discord.gg/${x.server.iCode}>)*`
+                        return `\n${x.bestOption ? "" : "||"}${x.emote} - \`${
+                            x.mainSName === x.searchedSName ? x.searchedSName + "`" : `${x.searchedSName}\` (główne: \`${x.mainSName}\`)`
+                        }${typeof x.server === "undefined" ? "" : ` *//ze serwera [${client.guilds.cache.get(x.server.id).name}](<https://discord.gg/${x.server.iCode}>)*`}${
+                            x.bestOption ? "" : "||"
                         }`
                     })}
                     `
                 )
             } else {
                 interaction.reply({
-                    content: `${customEmoticons.denided} Nie znaleziono emotek`,
+                    content: `${customEmoticons.denided} Nie znaleziono najlepszych emotek; oto 5 najbliższych do wyszukania:\n${wyszukiwania
+                        .filter((x, i) => i < 5)
+                        .map((x) => {
+                            return `\n${x.bestOption ? "" : "||"}${x.emote} - \`${
+                                x.mainSName === x.searchedSName ? x.searchedSName + "`" : `${x.searchedSName}\` (główne: \`${x.mainSName}\`)`
+                            }${typeof x.server === "undefined" ? "" : ` *//ze serwera [${client.guilds.cache.get(x.server.id).name}](<https://discord.gg/${x.server.iCode}>)*`}${
+                                x.bestOption ? "" : "||"
+                            }`
+                        })}
+                    `,
                     ephemeral: true,
                 })
             }
