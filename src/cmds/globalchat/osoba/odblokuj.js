@@ -13,48 +13,52 @@ module.exports = {
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
             return interaction.reply({
                 ephemeral: true,
-                content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:
-                    - Nie jesteś na liście developerów bota
-                    - Nie jesteś na liście moderatorów GlobalChata`,
+                content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:\n- Nie jesteś na liście developerów bota\n- Nie jesteś na liście moderatorów GlobalChata`,
             })
         try {
-            interaction.deferReply().then(() => {
-                get(ref(getDatabase(firebaseApp), "globalchat/userblocks")).then((snapshot) => {
-                    blockList = snapshot.val()
-
-                    if (blockList == null || blockList.length == 0) return interaction.reply(`${customEmoticons.denided} Nie udało się pobrać dazy danych!`)
-
-                    if (!blockList.includes(interaction.options.get("osoba", true).value)) {
-                        interaction.editReply({
-                            content: `${customEmoticons.denided} Ta osoba nie jest zablokowana!`,
-                            ephemeral: interaction.inGuild(),
-                        })
-                        return
-                    }
-
-                    blockList[blockList.indexOf(interaction.options.get("osoba", true).value)] = null
-                    const embedblock = new EmbedBuilder()
-                        .setTitle("Zostałeś odblokowany!")
-                        .setDescription(`Od teraz będziesz miał dostęp do GlobalChata, dopóki znów nie będziesz zablokowany!`)
-                        .setColor("Green")
-                        .setFields({
-                            name: "Odblokowany przez",
-                            value: `${(interaction.user.discriminator = "0" ? interaction.user.username : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
-                        })
-
-                    client.users.send(interaction.options.get("osoba", true).value, {
-                        embeds: [embedblock],
-                    })
-
-                    interaction.editReply({
-                        content: `${customEmoticons.approved} Pomyślnie odblokowano użytkownika <@${interaction.options.get("osoba", true).value}> \`${
-                            interaction.options.get("osoba", true).value
-                        }\``,
-                        ephemeral: interaction.inGuild(),
-                    })
-                    set(ref(getDatabase(firebaseApp), "globalchat/userblocks"), blockList)
+            interaction
+                .deferReply({
+                    ephemeral: interaction.inGuild(),
                 })
-            })
+                .then(() => {
+                    get(ref(getDatabase(firebaseApp), `userData/${interaction.options.get("osoba", true).value}/gc/block`)).then((snapshot) => {
+                        block = snapshot.val()
+
+                        if (snapshot.exists()) {
+                            interaction.editReply({
+                                content: `${customEmoticons.minus} Ta osoba jeszcze nie utworzyła profilu...`,
+                            })
+                            return
+                        }
+
+                        if (!block.is) {
+                            interaction.editReply(`${customEmoticons.denided} Ta osoba nie jest zablokowana!`)
+                            return
+                        }
+
+                        block.is = false
+                        block.reason = ""
+                        const embedblock = new EmbedBuilder()
+                            .setTitle("Zostałeś odblokowany!")
+                            .setDescription(`Od teraz będziesz miał dostęp do GlobalChata, dopóki znów nie będziesz zablokowany!`)
+                            .setColor("Green")
+                            .setFields({
+                                name: "Odblokowany przez",
+                                value: `${(interaction.user.discriminator = "0" ? interaction.user.username : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
+                            })
+
+                        client.users.send(interaction.options.get("osoba", true).value, {
+                            embeds: [embedblock],
+                        })
+
+                        interaction.editReply(
+                            `${customEmoticons.approved} Pomyślnie odblokowano użytkownika <@${interaction.options.get("osoba", true).value}> \`${
+                                interaction.options.get("osoba", true).value
+                            }\``
+                        )
+                        set(ref(getDatabase(firebaseApp), `userData/${interaction.options.get("osoba", true).value}/gc/block`), block)
+                    })
+                })
         } catch (err) {
             interaction.reply({
                 content: "Coś poszło nie tak... spróbuj ponownie!",

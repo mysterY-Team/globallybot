@@ -1,4 +1,4 @@
-const { EmbedBuilder, User, WebhookMessageCreateOptions, resolvePartialEmoji } = require("discord.js") // Embed discordowy, to można pominąć
+const { EmbedBuilder, User, WebhookMessageCreateOptions, MessageReference } = require("discord.js") // Embed discordowy, to można pominąć
 const { get, ref, getDatabase, set } = require("@firebase/database")
 const { firebaseApp } = require("../config")
 const axios = require("axios")
@@ -14,10 +14,11 @@ module.exports = {
     /**
      * @param {string} msg
      * @param {User} user
+     * @param {MessageReference | null} reference
      * @returns {Promise<WebhookMessageCreateOptions>}
      */
-    execute: async function (msg, user) {
-        var data = await get(ref(getDatabase(firebaseApp), "globalchat/gpt"))
+    execute: async function (msg, user, reference) {
+        var data = await get(ref(getDatabase(firebaseApp), "globalgpt"))
 
         if (data.val().uses < 10) {
             const options = {
@@ -30,7 +31,7 @@ module.exports = {
                 },
                 data: [
                     {
-                        content: `Na tą wiadomość twoją rolą jest odpowiadanie jako akcja ChatGPT do GlobalChata należącego do bota Globally, więc masz prawo do formatowania używanego w Discordzie (wraz z nagłówkami).\nOstre nawiasy służą do oznaczania autora wiadomości. W akcjach osadzenia mogą być nie podane, więc oznacza, że nie ma. Ogólnie bądź sobą, wiadomość ma być taka jak zwykle. Dane wiadomości czytaj od dołu do góry - na samym dole jest najnowsza, dosłownie sprzed kilka chwil. Czytaj następne, jeżeli nie możesz wyłapać potrzebnych wiadomości. Stosuj się najlepiej do stylu wiadomości.\n\nA oto baza danych ostatnich wiadomości:\n\n${data
+                        content: `Na tą wiadomość twoją rolą jest odpowiadanie jako akcja ChatGPT do GlobalChata należącego do bota Globally, więc masz prawo do formatowania używanego w Discordzie (wraz z nagłówkami).\nOstre nawiasy służą do oznaczania autora wiadomości. W akcjach pod nazwą GlobalAction osadzenia mogą być nie podane, więc oznacza, że nie ma. Ogólnie bądź sobą, wiadomość ma być taka jak zwykle. Dane wiadomości czytaj od dołu do góry - na samym dole jest najnowsza, dosłownie sprzed kilka chwil. Czytaj następne, jeżeli nie możesz wyłapać potrzebnych wiadomości. Stosuj się najlepiej do stylu wiadomości.\n\nA oto baza danych ostatnich wiadomości:\n\n${data
                             .val()
                             .messages.join("\n")}\n<ChatGPT (GlobalAction)> "..." (obsadzeń: 0)`,
                         role: "user",
@@ -50,7 +51,7 @@ module.exports = {
                 if (response.endsWith('"')) response = response.slice(0, 1)
             }
 
-            await set(ref(getDatabase(firebaseApp), "globalchat/gpt/uses"), data.val().uses + 1)
+            await set(ref(getDatabase(firebaseApp), "globalgpt/uses"), data.val().uses + 1)
             return { content: response } //content = wiadomość
         } else {
             var embedReached = new EmbedBuilder().setColor("Orange").setDescription(`${customEmoticons.denided} Wybacz, ale jedynie mogę odpowiadać 10 razy na dzień!`)

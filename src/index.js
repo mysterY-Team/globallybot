@@ -1,64 +1,33 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ChannelType, ActivityType } = require("discord.js")
-const { TOKEN, supportServer, firebaseApp } = require("./config.js")
+const { Client, GatewayIntentBits, EmbedBuilder, ChannelType } = require("discord.js")
+const { TOKEN, supportServer, firebaseApp, debug } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
-const { get, set, getDatabase, ref, onValue } = require("@firebase/database")
+const { get, set, getDatabase, ref } = require("@firebase/database")
+const { listenerLog } = require("./functions/listenerLog.js")
 
-const debug = false
+var active = false
 
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildModeration],
 })
 
-function listenerLog(space, info, priority = false) {
-    if (!debug && !priority) return
-
-    var text = ""
-    for (let index = 0; index < space; index++) {
-        text += "|   "
-    }
-    text += info
-
-    console.log(text)
-}
-
 listenerLog(0, "Discord.js v.14", true)
 
 client.on("ready", (log) => {
+    active = true
     listenerLog(0, `✅ Zalogowany poprawnie jako ${log.user.username}#${log.user.discriminator}`, true)
     listenerLog(1, `[+] Dodawanie komend...`)
     client.setMaxListeners(20)
 
-    const slashCommandList = require(`./slashcommands.js`)
-    client.application.commands
-        .set(slashCommandList.list)
-        .then(() => {
-            listenerLog(1, "")
-            listenerLog(1, "✅ Ustawiono pomyślnie komendy!")
-            listenerLog(1, "👂 Nasłuchiwanie akcji bota...")
-        })
-        .then(() => {
-            var _date = new Date()
-
-            const _a = performance.now()
-            get(ref(getDatabase(firebaseApp), "dateConstr/d")).then((data) => {
-                data = data.val()
-                if (data == _date.getUTCDate()) return
-                set(ref(getDatabase(firebaseApp), "globalchat/gpt"), {
-                    uses: 0,
-                    messages: [],
-                }).then(() => {
-                    listenerLog(2, `✅ Zresetowano bazę danych "/globalchat/gpt" (czas: ${performance.now() - _a}ms)`)
-                })
-            })
-        })
+    listenerLog(1, "👂 Nasłuchiwanie akcji bota...")
 
     client.user.setStatus(debug ? "dnd" : "online")
     timerToResetTheAPIInfo()
 })
 
 client.on("messageCreate", (msg) => {
-    listenerLog(1, "❗ Wyłapano wiadomość!")
+    listenerLog(2, "")
+    listenerLog(2, "❗ Wyłapano wiadomość!")
 
     var glist = {
         text: msg.content,
@@ -74,25 +43,36 @@ client.on("messageCreate", (msg) => {
         location: `${msg.guildId}/${msg.channelId}`,
         files: msg.attachments.filter((a) => a.contentType.startsWith("image") || a.contentType.startsWith("video") || a.contentType.startsWith("audio")).map((a) => a.url),
     }
-
     globalchatFunction(client, msg, glist)
 })
 
 client.on("interactionCreate", (int) => {
-    listenerLog(1, "❗ Wyłapano interakcję")
+    listenerLog(2, "")
+    listenerLog(2, "❗ Wyłapano interakcję")
     if (int.isCommand()) {
-        listenerLog(2, "Jest komendą")
+        listenerLog(3, "Jest komendą")
         var fullname = [int.commandName, int.options._group, int.options._subcommand]
         fullname = fullname.filter((prop) => prop != null)
 
-        listenerLog(2, `⚙️ Uruchamianie pliku ${fullname}.js`)
+        listenerLog(3, `⚙️ Uruchamianie pliku ${fullname.join("/")}.js`)
         //console.log(int.options)
         const file = require(`./cmds/${fullname.join("/")}`)
         file.execute(client, int)
+    } else if (int.isButton()) {
+        listenerLog(3, "Jest przyciskiem")
+        var args = int.customId().split(":")
+        const cmd = args[0]
+        args = args.filter((x, i) => i !== 0)
+
+        listenerLog(3, `⚙️ Uruchamianie pliku ${cmd}.js`)
+        //console.log(int.options)
+        const file = require(`./btns/${cmd}`)
+        file.execute(client, int, args)
     }
 })
 
 client.on("threadUpdate", (thread) => {
+    listenerLog(2, "❗ Wyłapano aktualizację wątku")
     if (thread.guildId == supportServer.id)
         setTimeout(() => {
             var accThread = client.channels.cache.get(thread.id)
@@ -122,28 +102,47 @@ client.on("threadUpdate", (thread) => {
         }, 500)
 })
 
+client.on("debug", (info) => {
+    if (debug) listenerLog(2 * active, "[D] " + info)
+})
+client.on("warn", (err) => {
+    if (debug) console.warn(err)
+})
+client.on("error", (err) => {
+    if (debug) console.error(err)
+})
+
 client.login(TOKEN)
 
 function timerToResetTheAPIInfo() {
+    var date = new Date()
+    if (date.getUTCHours() == 0) {
+        get(ref(getDatabase(firebaseApp), "dateConstr")).then((data) => {
+            data = data.val()
+            if (data.d != date.getUTCDate()) {
+                const _a = performance.now()
+                set(ref(getDatabase(firebaseApp), "globalgpt"), {
+                    uses: 0,
+                    messages: [],
+                }).then(() => {
+                    listenerLog(2, `✅ Zresetowano bazę danych "/globalgpt" (czas: ${performance.now() - _a}ms)`)
+                })
+                set(ref(getDatabase(firebaseApp), "dateConstr/d"), date.getUTCDate())
+            }
+            if (data.m != date.getUTCMonth()) set(ref(getDatabase(firebaseApp), "dateConstr/m"), date.getUTCMonth())
+            if (data.y != date.getUTCFullYear()) set(ref(getDatabase(firebaseApp), "dateConstr/y"), date.getUTCFullYear())
+        })
+    }
+
+    const slashCommandList = require(`./slashcommands.js`)
+    client.application.commands.set(slashCommandList.list).then(() => {
+        listenerLog(2, "")
+        listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
+    })
+
     setTimeout(() => {
-        var date = new Date()
-        if (date.getUTCHours() == 0) {
-            get(ref(getDatabase(firebaseApp), "dateConstr")).then((data) => {
-                data = data.val()
-                if (data.d != date.getUTCDate()) {
-                    const _a = performance.now()
-                    set(ref(getDatabase(firebaseApp), "globalchat/gpt"), {
-                        uses: 0,
-                        messages: [],
-                    }).then(() => {
-                        listenerLog(2, `✅ Zresetowano bazę danych "/globalchat/gpt" (czas: ${performance.now() - _a}ms)`)
-                    })
-                    set(ref(getDatabase(firebaseApp), "dateConstr/d"), date.getUTCDate())
-                }
-                if (data.m != date.getUTCMonth()) set(ref(getDatabase(firebaseApp), "dateConstr/m"), date.getUTCMonth())
-                if (data.y != date.getUTCFullYear()) set(ref(getDatabase(firebaseApp), "dateConstr/y"), date.getUTCFullYear())
-            })
-        }
+        listenerLog(2, "")
+        listenerLog(2, "❗Czas 30 minut!")
         timerToResetTheAPIInfo()
     }, 1800000)
 }

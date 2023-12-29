@@ -1,4 +1,4 @@
-const { EmbedBuilder, User, WebhookMessageCreateOptions } = require("discord.js")
+const { MessageReference, User, WebhookMessageCreateOptions } = require("discord.js")
 const axios = require("axios")
 const cheerio = require("cheerio")
 
@@ -12,9 +12,10 @@ module.exports = {
     /**
      * @param {string} msg
      * @param {User} user
+     * @param {MessageReference | null} reference
      * @returns {Promise<WebhookMessageCreateOptions>}
      */
-    execute: async function (msg, user) {
+    execute: async function (msg, user, reference) {
         var a = msg.slice(msg.split("!")[0].length + 1).split(" ")
         const cmd = a[0]
         const args = [...a.filter((x, i) => i > 0)]

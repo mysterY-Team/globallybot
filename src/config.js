@@ -29,9 +29,11 @@ module.exports = {
     },
     botID: "1173359300299718697",
     customEmoticons: {
-        loading: "<:PX_loading:1174021728721195118> ",
+        loading: "<:PX_loading:1174021728721195118>",
         info: "<:PX_info:1174022033366065162>",
         denided: "<:PX_deny:1174021813358055454>",
-        approved: "<:PX_allow:1174021958732619838> ",
+        approved: "<:PX_allow:1174021958732619838>",
+        minus: "<:PX_minus:1189586820967702613>",
     },
+    debug: false,
 }

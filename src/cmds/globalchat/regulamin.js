@@ -14,6 +14,7 @@ Pisząc wiadomość na jednym z kanałów, gdzie występuje GlobalChat, jednocze
 ## \`\u00A70\` Zanim to:
 - Użytkownik **sam** powinien pilnować swojego odblokowania, gdyby był odblokowany.
 - **Nie** jesteśmy jeszcze w stanie sami usunąć wiadomości.
+- Użytkownik, aby rozpocząć przygodę z GC, potrzebuje swojego profilu
 
 ## \`\u00A71\` Zawartość tekstu
 1. Ten GlobalChat jest stworzony dla każdego użytkownika, także nie obrażaj i nie wyzywaj którąkolwiek ze stron. Oczywiście, jeżeli nie ma nic przeciwko, to wyzywaj umiarkowanie.
@@ -37,7 +38,8 @@ będzie nakładana kara **aż do odwołania**.`
 1. Każda wysłana wiadomość osoby jest konwertowana na Webhook zawierająca ID użytkownika, kanału i serwera oraz jego nazwę użytkownika. Jesteśmy w stanie Cię namierzyć!
 2. Jeżeli wysłana wiadomość dostała reakcję X (${customEmoticons.denided}), powodem może być:
  - Zablokowanie dostępu do GlobalChata;
- - Użycie niedozwolonego linku.`
+ - Użycie niedozwolonego linku.
+ - Brak wymagań wiekowych`
 
         interaction.reply(text1).then(() => {
             interaction.followUp(text2)
