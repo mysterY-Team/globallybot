@@ -239,7 +239,6 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                         var webhook
 
                         listenerLog(4, `➡️ Dla serwera o ID ${guildID}`)
-                        console.log(getDataByServerID(guildID))
 
                         //sprawdzanie, czy wgl istnieje serwer i kanał
                         const guild_DClient = DiscordClient.guilds.cache.get(guildID)
