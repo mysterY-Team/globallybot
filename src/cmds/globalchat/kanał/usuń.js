@@ -41,24 +41,33 @@ module.exports = {
             get(ref(getDatabase(firebaseApp), `serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)).then((snapshot) => {
                 if (!snapshot.exists()) return interaction.editReply(`${customEmoticons.denided} Nie ma ustawionego kanału na tej stacji!`)
 
-                var webhook = new WebhookClient({ url: snapshot.val().webhook })
-
-                axios
-                    .get(snapshot.val().webhook)
-                    .then((res) => {
-                        try {
-                            if (res.status >= 200 && res.status < 300) webhook.delete("użycia komendy /GLOBALCHAT")
-                        } catch (e) {}
-
-                        remove(ref(getDatabase(firebaseApp), `serverData/${interaction.guildId}/gc`)).then(() => {
-                            interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
-                        })
+                function removeData() {
+                    remove(ref(getDatabase(firebaseApp), `serverData/${interaction.guildId}/gc`)).then(() => {
+                        interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
                     })
-                    .catch(() => {
-                        remove(ref(getDatabase(firebaseApp), `serverData/${interaction.guildId}/gc`)).then(() => {
-                            interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
+                }
+
+                var data = snapshot.val()
+
+                var channel = interaction.guild.channels.cache.get(data.channel)
+
+                if (typeof channel !== "undefined" || data.webhook !== "https://patyczakus.github.io") {
+                    var webhook = new WebhookClient({ url: data.webhook })
+                    axios
+                        .get(data.webhook)
+                        .then((res) => {
+                            try {
+                                if (res.status >= 200 && res.status < 300) webhook.delete("użycia komendy /GLOBALCHAT")
+                            } catch (e) {}
+
+                            removeData()
                         })
-                    })
+                        .catch(() => {
+                            removeData()
+                        })
+                } else {
+                    removeData()
+                }
             })
         })
     },
