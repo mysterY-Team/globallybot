@@ -17,12 +17,13 @@ module.exports = {
             })
 
         try {
+            var uID = interaction.options.getUser("osoba", true).id
             interaction
                 .deferReply({
                     ephemeral: interaction.inGuild(),
                 })
                 .then(() => {
-                    get(ref(getDatabase(firebaseApp), `userData/${interaction.options.get("osoba", true).value}/gc/block`)).then((snapshot) => {
+                    get(ref(getDatabase(firebaseApp), `userData/${uID}/gc/block`)).then((snapshot) => {
                         block = snapshot.val()
 
                         if (snapshot.exists()) {
@@ -58,16 +59,14 @@ module.exports = {
                                 }
                             )
 
-                        client.users.send(interaction.options.get("osoba", true).value, {
+                        client.users.send(uID, {
                             embeds: [embedblock],
                         })
 
                         interaction.editReply({
-                            content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${interaction.options.get("osoba", true).value}> \`${
-                                interaction.options.get("osoba", true).value
-                            }\``,
+                            content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${uID}> \`${uID}\``,
                         })
-                        set(ref(getDatabase(firebaseApp), `userData/${interaction.options.get("osoba", true).value}/gc/block`), block)
+                        set(ref(getDatabase(firebaseApp), `userData/${uID}/gc/block`), block)
                     })
                 })
         } catch (err) {

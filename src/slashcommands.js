@@ -28,14 +28,14 @@ var slashList = [
                     subcommand
                         .setName("zablokuj")
                         .setDescription("Dodaje osoby do czarnej listy GlobalChata.")
-                        .addStringOption((option) => option.setName("osoba").setDescription("ID osoby do zablokowania").setRequired(true))
+                        .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby do zablokowania").setRequired(true))
                         .addStringOption((option) => option.setName("powód").setDescription("Powód zablokowania"))
                 )
                 .addSubcommand((subcommand) =>
                     subcommand
                         .setName("sprawdź")
                         .setDescription("Sprawdza, czy użytkownik został zablokowany, czy nie.")
-                        .addUserOption((option) => option.setName("osoba").setDescription("ID osoby do sprawdzenia").setRequired(true))
+                        .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby do sprawdzenia").setRequired(true))
                 )
         )
         .addSubcommandGroup((subcommand_group) =>
