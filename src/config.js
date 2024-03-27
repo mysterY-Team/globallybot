@@ -36,5 +36,5 @@ module.exports = {
         minus: "<:PX_minus:1189586820967702613>",
     },
     constPremiumServersIDs: [],
-    debug: true,
+    debug: false,
 }
