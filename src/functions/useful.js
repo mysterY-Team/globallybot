@@ -12,6 +12,9 @@ var listenerLog = function (space, info, priority = false) {
     console.log(text)
 }
 
+var wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
 module.exports = {
     listenerLog: listenerLog,
+    wait,
 }

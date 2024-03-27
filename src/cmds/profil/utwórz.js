@@ -28,7 +28,6 @@ module.exports = {
                                     reason: "",
                                 },
                                 birth: `${interaction.user.createdAt.getFullYear()}-${interaction.user.createdAt.getMonth() + 1}-${interaction.user.createdAt.getDate()}`,
-                                leveling: "1|0",
                             }
                             name = "GlobalChat"
                             addMoreWordsAbout =

@@ -8,12 +8,7 @@ var slashList = [
         .setDescription("Komendy dotyczące GlobalChata")
         .setDMPermission(true)
         .addSubcommand((subcommand) => subcommand.setName("regulamin").setDescription("Wysyła regulamin dotyczący GlobalChata"))
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("emotki")
-                .setDescription("Daje listę emotek dostępnych do użycia na GlobalChacie")
-                .addStringOption((option) => option.setName("fraza").setDescription("Wyszukuje emotki po podanej frazie").setMinLength(3).setMaxLength(32))
-        )
+        .addSubcommand((subcommand) => subcommand.setName("emotki").setDescription("Daje listę emotek dostępnych do użycia na GlobalChacie"))
         .addSubcommandGroup((subcommand_group) =>
             subcommand_group
                 .setName("osoba")
@@ -22,7 +17,7 @@ var slashList = [
                     subcommand
                         .setName("odblokuj")
                         .setDescription("Usuwa osobę z czarnej listy GlobalChata.")
-                        .addStringOption((option) => option.setName("osoba").setDescription("ID osoby do odblokowania").setRequired(true))
+                        .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby do sprawdzenia").setRequired(true))
                 )
                 .addSubcommand((subcommand) =>
                     subcommand

@@ -15,13 +15,14 @@ module.exports = {
                 ephemeral: true,
                 content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:\n- Nie jesteś na liście developerów bota\n- Nie jesteś na liście moderatorów GlobalChata`,
             })
+        var uID = interaction.options.getUser("osoba", true).id
         try {
             interaction
                 .deferReply({
                     ephemeral: interaction.inGuild(),
                 })
                 .then(() => {
-                    get(ref(getDatabase(firebaseApp), `userData/${interaction.options.get("osoba", true).value}/gc/block`)).then((snapshot) => {
+                    get(ref(getDatabase(firebaseApp), `userData/${uID}/gc/block`)).then((snapshot) => {
                         block = snapshot.val()
 
                         if (snapshot.exists()) {
@@ -47,16 +48,12 @@ module.exports = {
                                 value: `${(interaction.user.discriminator = "0" ? interaction.user.username : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
                             })
 
-                        client.users.send(interaction.options.get("osoba", true).value, {
+                        client.users.send(uID, {
                             embeds: [embedblock],
                         })
 
-                        interaction.editReply(
-                            `${customEmoticons.approved} Pomyślnie odblokowano użytkownika <@${interaction.options.get("osoba", true).value}> \`${
-                                interaction.options.get("osoba", true).value
-                            }\``
-                        )
-                        set(ref(getDatabase(firebaseApp), `userData/${interaction.options.get("osoba", true).value}/gc/block`), block)
+                        interaction.editReply(`${customEmoticons.approved} Pomyślnie odblokowano użytkownika <@${uID}> \`${uID}\``)
+                        set(ref(getDatabase(firebaseApp), `userData/${uID}/gc/block`), block)
                     })
                 })
         } catch (err) {

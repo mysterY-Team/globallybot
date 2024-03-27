@@ -51,7 +51,7 @@ module.exports = {
 
                 var channel = interaction.guild.channels.cache.get(data.channel)
 
-                if (typeof channel !== "undefined" || data.webhook !== "https://patyczakus.github.io") {
+                if (typeof channel !== "undefined" && data.webhook !== "none") {
                     var webhook = new WebhookClient({ url: data.webhook })
                     axios
                         .get(data.webhook)

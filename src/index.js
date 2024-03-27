@@ -3,7 +3,7 @@ const { TOKEN, supportServer, firebaseApp, debug } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
 const { get, set, getDatabase, ref } = require("@firebase/database")
-const { listenerLog } = require("./functions/listenerLog.js")
+const { listenerLog } = require("./functions/useful.js")
 
 var active = false
 
@@ -115,24 +115,15 @@ client.on("error", (err) => {
 client.login(TOKEN)
 
 function timerToResetTheAPIInfo() {
-    var date = new Date()
+    /*var date = new Date()
     if (date.getUTCHours() == 0) {
         get(ref(getDatabase(firebaseApp), "dateConstr")).then((data) => {
             data = data.val()
-            if (data.d != date.getUTCDate()) {
-                const _a = performance.now()
-                set(ref(getDatabase(firebaseApp), "globalgpt"), {
-                    uses: 0,
-                    messages: [],
-                }).then(() => {
-                    listenerLog(2, `✅ Zresetowano bazę danych "/globalgpt" (czas: ${performance.now() - _a}ms)`)
-                })
-                set(ref(getDatabase(firebaseApp), "dateConstr/d"), date.getUTCDate())
-            }
+            if (data.d != date.getUTCDate()) set(ref(getDatabase(firebaseApp), "dateConstr/d"), date.getUTCDate())
             if (data.m != date.getUTCMonth()) set(ref(getDatabase(firebaseApp), "dateConstr/m"), date.getUTCMonth())
             if (data.y != date.getUTCFullYear()) set(ref(getDatabase(firebaseApp), "dateConstr/y"), date.getUTCFullYear())
         })
-    }
+    }*/
 
     const slashCommandList = require(`./slashcommands.js`)
     client.application.commands.set(slashCommandList.list).then(() => {

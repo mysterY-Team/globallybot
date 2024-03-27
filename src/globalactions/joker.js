@@ -1,24 +1,30 @@
-const { MessageReference, User, WebhookMessageCreateOptions } = require("discord.js")
+const { User, WebhookMessageCreateOptions } = require("discord.js")
 const axios = require("axios")
 const cheerio = require("cheerio")
+const { wait } = require("../functions/useful")
+const { customEmoticons } = require("../config")
 
 module.exports = {
     data: {
         name: "Memiarz",
         description: "Najlepszy przyjaciel z poczuciem humoru. Użyj komendy `help`/`pomoc`, abo poznać jego komendy!",
         avatar: "https://www.pngarts.com/files/11/Haha-Emoji-Transparent-Image.png",
+        /**
+         * @type {"cmd" | "chat2.0" | "chat"}
+         */
         prompt_type: "cmd",
     },
     /**
      * @param {string} msg
      * @param {User} user
-     * @param {MessageReference | null} reference
      * @returns {Promise<WebhookMessageCreateOptions>}
      */
-    execute: async function (msg, user, reference) {
+    execute: async function (msg, user) {
         var a = msg.slice(msg.split("!")[0].length + 1).split(" ")
         const cmd = a[0]
         const args = [...a.filter((x, i) => i > 0)]
+
+        await wait(1500)
 
         const cmds = ["pomoc", "help", "dowcip"]
 
@@ -26,11 +32,15 @@ module.exports = {
             case cmds[0]:
             case cmds[1]: {
                 a =
-                    "# Witaj, {uM}\nUżyłeś komendy pomocy. Oto wszystkie komendy, które na chwilę obecną posiadam:\n- `dowcip` - Dowcip z perelki.net\n\n||Pamiętaj, aby stosować poprawność w używaniu komend!||"
+                    "# Witaj, {uM}\nUżyłeś komendy pomocy. Oto wszystkie komendy, które na chwilę obecną posiadam:\n- `dowcip` - Dowcip z perelki.net\n- `mem` - Mem z memy.pl\n\n||Pamiętaj, aby stosować poprawność w używaniu komend!||"
                 break
             }
             case cmds[2]: {
                 var joke = await axios.get("https://perelki.net/random")
+                if (!joke.data) {
+                    a = `${customEmoticons.denided} Nie udało się pobrać dowcipu!`
+                    break
+                }
                 const $ = cheerio.load(joke.data)
                 $(".content .container:not(.cntr) .about").remove()
                 joke = $(".content .container:not(.cntr)")

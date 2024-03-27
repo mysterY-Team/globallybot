@@ -75,7 +75,7 @@ module.exports = {
 
                     set(ref(getDatabase(firebaseApp), `serverData/${interaction.guildId}/gc/${$stacja}`), {
                         channel: channel.value,
-                        webhook: "https://patyczakus.github.io",
+                        webhook: "none",
                     }).then(() => {
                         //informacja o zapisie
                         if (!_bool) interaction.editReply(`${customEmoticons.approved} Dodano pomyślnie kanał na stacji \`${$stacja}\`!`)

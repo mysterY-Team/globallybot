@@ -1,13 +1,13 @@
 const { Client, Message, EmbedBuilder, WebhookClient } = require("discord.js")
 const { getDatabase, ref, get, remove, set } = require("@firebase/database")
-const { firebaseApp, customEmoticons, supportServer, ownersID, GCmodsID } = require("./config")
-const axios = require("axios")
+const { firebaseApp, customEmoticons, ownersID, GCmodsID } = require("./config")
+const axios = require("axios").default
 const fs = require("fs")
 const { emoticons } = require("./cmds/globalchat/emotki")
-const { listenerLog } = require("./functions/listenerLog")
+const { listenerLog } = require("./functions/useful")
 
 const timestampCooldown = new Date()
-const cooldown = 2000
+const cooldown = 2500
 
 /**
  * GlobalChat v2
@@ -29,18 +29,13 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
     accDate = `${accDate.getFullYear()}-${accDate.getMonth() + 1}-${accDate.getDate()}`
 
     function wbName(gID) {
-        var a = [
-            {
-                id: supportServer.id,
-                tag: "[ support ]",
-            },
-        ]
-
-        a = a.filter((x) => x.id == DiscordMessage.guildId)
+        if (ownersID.includes(GlobalChatMessage.author.id)) var rank = "właściciel"
+        else if (GCmodsID.includes(GlobalChatMessage.author.id)) var rank = "moderator GC"
+        else var rank = "osoba"
 
         return DiscordMessage.guildId != gID
-            ? `${GlobalChatMessage.author.name} (${GlobalChatMessage.author.id}) || ${DiscordMessage.guild.name} ${a.length == 1 ? a[0].tag : ""}`
-            : `${GlobalChatMessage.author.name} || [ ten serwer ]`
+            ? `${GlobalChatMessage.author.name} (${rank}; ${GlobalChatMessage.author.id})`
+            : `${GlobalChatMessage.author.name} (${rank}; ten serwer)`
     }
 
     GlobalChatMessage.text = GlobalChatMessage.text.split("```")
@@ -95,23 +90,9 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                 rContent = rContent.map((x) => x.text).join("```")
                 rContent = rContent.trim()
 
-                const _repl = replayedMSG.author.username.split(" || ")
-                var rUser, rServer
+                var rUser = replayedMSG.author.username.split(" (")[0]
 
-                rUser = _repl[0]
-                if (_repl.length == 1) {
-                    rServer = ""
-                } else {
-                    rServer = _repl[1].split(" [")[0]
-                    if (rServer === "[ ten serwer ]") {
-                        rServer = DiscordMessage.guild.name
-                    }
-                    if (rUser.includes(" (")) {
-                        rUser = rUser.split(" (")[0]
-                    }
-                }
-
-                var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}${rServer === "" ? "" : ` ze serwera ${rServer}`}` }
+                var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }
                 if (gID == DiscordMessage.guildId) embed.url = replayedMSG.url
                 embed = new EmbedBuilder().setAuthor(embed).setDescription(rContent).setTimestamp(replayedMSG.createdTimestamp)
                 if (gID == DiscordMessage.guildId) embed = embed.setFooter({ text: "Kliknięcie w nagłówek spowoduje przeniesienie do odpowiadanej wiadomości" })
@@ -144,7 +125,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
     if (GlobalChatMessage.author.isUser) {
         get(ref(getDatabase(firebaseApp), "serverData")).then(async (snpsht) => {
-            var database = snpsht.val()
+            var database = snpsht.val() || {}
 
             database = Object.entries(database)
                 .filter(([n, server]) => "gc" in server)
@@ -169,32 +150,38 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
             listenerLog(3, "➿ Spełniono warunek (1/6)")
 
-            var userData = await get(ref(getDatabase(firebaseApp), `userData/${GlobalChatMessage.author.id}/gc`))
-            if (userData.exists()) userData = userData.val()
-            else {
-                DiscordMessage.author.send(`${customEmoticons.info} Nie został zarejestrowany profil GlobalChat! Utwórz pod komendą \`profil utwórz typ:GlobalChat\``)
-                DiscordMessage.react(customEmoticons.minus)
+            if (timestampCooldown.getTime() + cooldown > new Date().getTime()) {
+                DiscordMessage.reply(`${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${cooldown - (new Date().getTime() - timestampCooldown.getTime())}\` ms`)
                 return
             }
 
             listenerLog(3, "➿ Spełniono warunek (2/6)")
+
+            var userData = await get(ref(getDatabase(firebaseApp), `userData/${GlobalChatMessage.author.id}/gc`))
+            if (userData.exists()) userData = userData.val()
+            else {
+                DiscordMessage.reply(
+                    `${customEmoticons.info} Nie został zarejestrowany profil GlobalChat! Utwórz pod komendą \`profil utwórz typ:GlobalChat\`, aby móc z niego korzystać!`
+                ).then((msg) => {
+                    setTimeout(() => {
+                        if (msg.deletable) msg.delete()
+                    }, 5000)
+                })
+                DiscordMessage.react(customEmoticons.minus)
+                return
+            }
+
+            listenerLog(3, "➿ Spełniono warunek (3/6)")
 
             if (userData.block.is) {
                 DiscordMessage.react(customEmoticons.denided)
                 return
             }
 
-            listenerLog(3, "➿ Spełniono warunek (3/6)")
+            listenerLog(3, "➿ Spełniono warunek (4/6)")
 
             if ((GlobalChatMessage.text.includes("discord.gg/") || GlobalChatMessage.text.includes("disboard.org/")) && !ownersID.includes(GlobalChatMessage.author.id)) {
                 DiscordMessage.react(customEmoticons.denided)
-                return
-            }
-
-            listenerLog(3, "➿ Spełniono warunek (4/6)")
-
-            if (timestampCooldown.getTime() + cooldown > new Date().getTime()) {
-                DiscordMessage.reply(`${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${cooldown - (new Date().getTime() - timestampCooldown.getTime())}\` ms`)
                 return
             }
 
@@ -246,23 +233,49 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                             //console.log(await guild_DClient.fetchOwner())
                             const channel_DClient = guild_DClient.channels.cache.get(getDataByServerID(guildID).channel)
                             if (typeof channel_DClient != "undefined") {
-                                try {
-                                    var HTTPWebhookInfo = await axios.get(getDataByServerID(guildID).webhook)
-                                    if (HTTPWebhookInfo.status >= 200 && HTTPWebhookInfo.status < 300)
-                                        webhook = new WebhookClient({
-                                            url: getDataByServerID(guildID).webhook,
+                                const dinfo = new Date()
+                                if (getDataByServerID(guildID).webhook != "none") {
+                                    try {
+                                        var HTTPRes = await axios.get("https://discord.com/api/webhooks/" + getDataByServerID(guildID).webhook)
+                                        if (!("code" in HTTPRes.data)) {
+                                            webhook = new WebhookClient({
+                                                url: "https://discord.com/api/webhooks/" + getDataByServerID(guildID).webhook,
+                                            })
+                                        } else {
+                                            listenerLog(5, "❕ Nie wczytano webhooka, tworzenie nowego...")
+                                            webhook = await guild_DClient.channels.createWebhook({
+                                                name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
+                                                channel: getDataByServerID(guildID).channel,
+                                                reason: "wykonania usługi GlobalChat (brakujący Webhook)",
+                                            })
+                                            set(
+                                                ref(getDatabase(firebaseApp), `serverData/${guildID}/gc/${station}/webhook`),
+                                                webhook.url.replace("https://discord.com/api/webhooks/", "")
+                                            )
+                                        }
+                                    } catch (e) {
+                                        listenerLog(5, "❕ Wyłapano błąd, ignorowanie i tworzenie nowego...")
+                                        webhook = await guild_DClient.channels.createWebhook({
+                                            name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
+                                            channel: getDataByServerID(guildID).channel,
+                                            reason: "wykonania usługi GlobalChat (brakujący Webhook)",
                                         })
+                                        set(
+                                            ref(getDatabase(firebaseApp), `serverData/${guildID}/gc/${station}/webhook`),
+                                            webhook.url.replace("https://discord.com/api/webhooks/", "")
+                                        )
+                                    }
 
-                                    return { wh: webhook, toChange: true }
-                                } catch (err) {
+                                    return { wh: webhook, gid: guildID }
+                                } else {
                                     webhook = await guild_DClient.channels.createWebhook({
-                                        name: "GlobalChat",
+                                        name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                         channel: getDataByServerID(guildID).channel,
                                         reason: "wykonania usługi GlobalChat (brakujący Webhook)",
                                     })
-                                    set(ref(getDatabase(firebaseApp), `serverData/${guildID}/gc/${station}/webhook`), webhook.url)
+                                    set(ref(getDatabase(firebaseApp), `serverData/${guildID}/gc/${station}/webhook`), webhook.url.replace("https://discord.com/api/webhooks/", ""))
 
-                                    return { wh: webhook, toChange: false }
+                                    return { wh: webhook, gid: guildID }
                                 }
                             } else {
                                 guild_DClient.fetchOwner().then((gguildOwner) => {
@@ -311,9 +324,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
             Promise.all(
                 webhooks.map(async function (w) {
-                    var HTTPWebhookInfo = await axios.get(w.wh.url)
-
-                    var a = repliedMessage(HTTPWebhookInfo.data.guild_id)
+                    var a = repliedMessage(w.gid)
                     a = typeof a === "undefined" ? [] : [a]
 
                     if (typeof prefixes == "string") {
@@ -329,8 +340,8 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
                     await w.wh.send({
                         avatarURL: GlobalChatMessage.author.avatar,
-                        username: wbName(HTTPWebhookInfo.data.guild_id),
-                        content: HTTPWebhookInfo.data.guild_id == DiscordMessage.guildId ? DiscordMessage.content : GlobalChatMessage.text,
+                        username: wbName(w.gid),
+                        content: w.gid == DiscordMessage.guildId ? DiscordMessage.content : GlobalChatMessage.text,
                         embeds: a,
                         files: GlobalChatMessage.files,
                         allowedMentions: { parse: [] },
@@ -339,22 +350,11 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                     return
                 })
             ).then(async () => {
-                var gptdata = await get(ref(getDatabase(firebaseApp), "globalgpt"))
-                gptdata = gptdata.val()
-
-                gptdata.messages = typeof gptdata.messages == "undefined" ? [] : gptdata.messages
-                if (gptdata.messages.length == 10) {
-                    gptdata.messages.shift()
-                }
-                gptdata.messages.push(
-                    `<${GlobalChatMessage.author.name} (ID: ${GlobalChatMessage.author.id}, Serwer: ${DiscordMessage.guild.name})> "${GlobalChatMessage.text}" (plików: ${GlobalChatMessage.files.length})`
-                )
-
                 DiscordMessage.delete()
 
                 if (typeof prefixes == "string") {
                     const file = require(`./globalactions/${prefixes}`)
-                    const response = await file.execute(GlobalChatMessage.text, DiscordMessage.author, DiscordMessage.reference)
+                    const response = await file.execute(GlobalChatMessage.text, DiscordMessage.author)
 
                     webhooks.map(async function (w) {
                         await w.wh.send(
@@ -367,13 +367,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
                         return
                     })
-
-                    if (gptdata.messages.length == 10) {
-                        gptdata.messages.shift()
-                    }
-                    gptdata.messages.push(`<${file.data.name} (GlobalAction)> "${response.content}"${"embeds" in response ? ` (osadzeń: ${response.embeds.length})` : ``}`)
                 }
-                await set(ref(getDatabase(firebaseApp), "globalgpt/messages"), gptdata.messages)
             })
         })
     }
