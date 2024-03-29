@@ -93,17 +93,15 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
+        this.emoticons = this.emoticons.filter((x) => typeof x.server === "undefined" || typeof client.guilds.cache.get(x.server.id) !== "undefined")
+
         interaction.reply({
             content: `# Lista globalnych emotek\n${customEmoticons.info} Użycie: \`{e:<nazwa>}\` lub \`{emote:<nazwa>}\`\n${this.emoticons
                 .sort(() => Math.random() - 0.5)
                 .filter((x, i) => i < 10)
                 .map((x) => {
                     return `\n${x.emote} - \`${x.savenames[0]}\` (aliasy: ${
-                        x.savenames.length > 1
-                            ? `\`${x.savenames.filter((x, i) => i > 0 && i < 6).join("`, `")}\`` + x.savenames.length > 6
-                                ? " (i więcej)"
-                                : ""
-                            : customEmoticons.minus
+                        x.savenames.length > 1 ? `${customEmoticons.approved}, ilość: ${x.savenames.length - 1}` : customEmoticons.denided
                     })${typeof x.server === "undefined" ? "" : ` *//ze serwera [${client.guilds.cache.get(x.server.id).name}](<https://discord.gg/${x.server.iCode}>)*`}`
                 })}\n\nTutaj się wyświetla maksymalnie 10 emotek, użyj ponownie komendy dla innych.`,
         })

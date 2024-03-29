@@ -139,5 +139,7 @@ function timerToResetTheAPIInfo() {
 }
 
 module.exports = {
-    codeTime: performance.now,
+    codeTime: () => {
+        return performance.now()
+    },
 }
