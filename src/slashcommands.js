@@ -135,30 +135,6 @@ var slashList = [
         .addBooleanOption((option) => option.setName("podkreślony").setDescription("Opcja podkreślenia"))
         .addBooleanOption((option) => option.setName("przekreślony").setDescription("Opcja przekreślenia")),
     new SlashCommandBuilder().setDMPermission(true).setName("dowcip").setDescription("Generuje dowcip ze strony PERELKI.NET"),
-    new SlashCommandBuilder()
-        .setDMPermission(true)
-        .setName("mem")
-        .setDescription("Generuje mema z podanego źródła")
-        .addNumberOption((option) =>
-            option.setName("źródło").setDescription("Źródło, w krórym mają być pobierane rekordy").setRequired(true).addChoices(
-                {
-                    name: "Losowe",
-                    value: -1,
-                },
-                {
-                    name: "Memy.pl",
-                    value: 0,
-                },
-                {
-                    name: "Kwejk.pl",
-                    value: 1,
-                },
-                {
-                    name: "JBZD",
-                    value: 2,
-                }
-            )
-        ),
     new SlashCommandBuilder().setDMPermission(true).setName("botinfo").setDescription("Generuje informacje o bocie"),
     new SlashCommandBuilder()
         .setName("devtools")
