@@ -9,9 +9,6 @@ module.exports = {
         name: "Memiarz",
         description: "Najlepszy przyjaciel z poczuciem humoru. Użyj komendy `help`/`pomoc`, abo poznać jego komendy!",
         avatar: "https://www.pngarts.com/files/11/Haha-Emoji-Transparent-Image.png",
-        /**
-         * @type {"cmd" | "chat2.0" | "chat"}
-         */
         prompt_type: "cmd",
     },
     /**
@@ -24,7 +21,7 @@ module.exports = {
         const cmd = a[0]
         const args = [...a.filter((x, i) => i > 0)]
 
-        await wait(1500)
+        await wait(750)
 
         const cmds = ["pomoc", "help", "dowcip"]
 
@@ -32,7 +29,7 @@ module.exports = {
             case cmds[0]:
             case cmds[1]: {
                 a =
-                    "# Witaj, {uM}\nUżyłeś komendy pomocy. Oto wszystkie komendy, które na chwilę obecną posiadam:\n- `dowcip` - Dowcip z perelki.net\n- `mem` - Mem z memy.pl\n\n||Pamiętaj, aby stosować poprawność w używaniu komend!||"
+                    "# Witaj, {uM}\nUżyłeś komendy pomocy. Oto wszystkie komendy, które na chwilę obecną posiadam:\n- `dowcip` - Dowcip z perelki.net\n\n||Pamiętaj, aby stosować poprawność w używaniu komend!||"
                 break
             }
             case cmds[2]: {

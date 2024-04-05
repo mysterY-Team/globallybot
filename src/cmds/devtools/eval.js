@@ -8,6 +8,9 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
+        var thisGuild = interaction.guild
+        var thisChannel = interaction.channel
+
         if (!ownersID.includes(interaction.user.id))
             return interaction.reply({
                 content: `${customEmoticons.denided} Nie jesteś właścicielem bota!`,

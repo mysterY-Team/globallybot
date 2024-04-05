@@ -42,7 +42,7 @@ module.exports = {
                 if (!snapshot.exists()) return interaction.editReply(`${customEmoticons.denided} Nie ma ustawionego kanału na tej stacji!`)
 
                 function removeData() {
-                    remove(ref(getDatabase(firebaseApp), `serverData/${interaction.guildId}/gc`)).then(() => {
+                    remove(ref(getDatabase(firebaseApp), `serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)).then(() => {
                         interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
                     })
                 }

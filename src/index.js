@@ -46,7 +46,7 @@ client.on("messageCreate", (msg) => {
     globalchatFunction(client, msg, glist)
 })
 
-client.on("interactionCreate", (int) => {
+client.on("interactionCreate", async (int) => {
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano interakcję")
     if (int.isCommand()) {
@@ -68,10 +68,22 @@ client.on("interactionCreate", (int) => {
         //console.log(int.options)
         const file = require(`./btns/${cmd}`)
         file.execute(client, int, args)
+    } else if (int.isAutocomplete()) {
+        listenerLog(3, "Jest uzupełnianiem dla komendy")
+
+        var fullname = [int.commandName, int.options._group, int.options._subcommand]
+        fullname = fullname.filter((prop) => prop != null)
+
+        listenerLog(3, `⚙️ Uruchamianie pliku ${fullname.join("/")}.js`)
+        const file = require(`./cmds/${fullname.join("/")}`)
+
+        const choices = file.autocomplete(int.options.getFocused(true))
+        await int.respond(choices.map((choice) => ({ name: choice, value: choice })))
     }
 })
 
 client.on("threadUpdate", (thread) => {
+    listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano aktualizację wątku")
     if (thread.guildId == supportServer.id)
         setTimeout(() => {
@@ -115,16 +127,6 @@ client.on("error", (err) => {
 client.login(TOKEN)
 
 function timerToResetTheAPIInfo() {
-    /*var date = new Date()
-    if (date.getUTCHours() == 0) {
-        get(ref(getDatabase(firebaseApp), "dateConstr")).then((data) => {
-            data = data.val()
-            if (data.d != date.getUTCDate()) set(ref(getDatabase(firebaseApp), "dateConstr/d"), date.getUTCDate())
-            if (data.m != date.getUTCMonth()) set(ref(getDatabase(firebaseApp), "dateConstr/m"), date.getUTCMonth())
-            if (data.y != date.getUTCFullYear()) set(ref(getDatabase(firebaseApp), "dateConstr/y"), date.getUTCFullYear())
-        })
-    }*/
-
     const slashCommandList = require(`./slashcommands.js`)
     client.application.commands.set(slashCommandList.list).then(() => {
         listenerLog(2, "")

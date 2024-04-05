@@ -12,6 +12,11 @@ var listenerLog = function (space, info, priority = false) {
     console.log(text)
 }
 
+/**
+ *
+ * @param {number} ms
+ * @returns {Promise<void>}
+ */
 var wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 module.exports = {

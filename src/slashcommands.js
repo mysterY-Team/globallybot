@@ -8,7 +8,12 @@ var slashList = [
         .setDescription("Komendy dotyczące GlobalChata")
         .setDMPermission(true)
         .addSubcommand((subcommand) => subcommand.setName("regulamin").setDescription("Wysyła regulamin dotyczący GlobalChata"))
-        .addSubcommand((subcommand) => subcommand.setName("emotki").setDescription("Daje listę emotek dostępnych do użycia na GlobalChacie"))
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("emotki")
+                .setDescription("Daje listę emotek dostępnych do użycia na GlobalChacie")
+                .addStringOption((option) => option.setName("query").setDescription("Wyszukiwanie nazwy emotek").setAutocomplete(true).setMinLength(3))
+        )
         .addSubcommandGroup((subcommand_group) =>
             subcommand_group
                 .setName("osoba")
