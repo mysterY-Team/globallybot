@@ -7,7 +7,13 @@ const { emoticons } = require("./cmds/globalchat/emotki")
 const { listenerLog } = require("./functions/useful")
 
 const timestampCooldown = new Date()
-const cooldown = 2500
+const globalCooldown = 1000
+const channelCooldown = 3000
+const userCooldown = 4500
+let cooldownList = {
+    channel: [],
+    user: [],
+}
 
 function formatText(text) {
     text = text.replace(/{(?:emote|e):([^`\n}\s]+)}/g, (match, arg1) => {
@@ -318,8 +324,28 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
             listenerLog(3, "➿ Spełniono warunek (1/6)")
 
-            if (timestampCooldown.getTime() + cooldown > new Date().getTime()) {
-                DiscordMessage.reply(`${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${cooldown - (new Date().getTime() - timestampCooldown.getTime())}\` ms`)
+            {
+                const idCheck = cooldownList.user.map((x) => x.id).findIndex((x) => x === GlobalChatMessage.author.id)
+                if (idCheck > -1) {
+                    DiscordMessage.reply(
+                        `${customEmoticons.denided} Osobisty cooldown! Zaczekaj jeszcze \`${userCooldown - (Date.now() - cooldownList.user[idCheck].timestamp)}\` ms`
+                    )
+                    return
+                }
+            }
+
+            {
+                const idCheck = cooldownList.channel.map((x) => x.loc).findIndex((x) => x === GlobalChatMessage.location)
+                if (idCheck > -1) {
+                    DiscordMessage.reply(
+                        `${customEmoticons.denided} Cooldown na kanale! Zaczekaj jeszcze \`${channelCooldown - (Date.now() - cooldownList.channel[idCheck].timestamp)}\` ms`
+                    )
+                    return
+                }
+            }
+
+            if (timestampCooldown.getTime() + globalCooldown > Date.now()) {
+                DiscordMessage.reply(`${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${globalCooldown - (Date.now() - timestampCooldown.getTime())}\` ms`)
                 return
             }
 
@@ -333,7 +359,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                 ).then((msg) => {
                     setTimeout(() => {
                         if (msg.deletable) msg.delete()
-                    }, 5000)
+                    }, 10000)
                 })
                 DiscordMessage.react(customEmoticons.minus)
                 return
@@ -510,6 +536,24 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                 })
             ).then(async () => {
                 DiscordMessage.delete()
+
+                cooldownList.channel.push({ loc: GlobalChatMessage.location, timestamp: Date.now() })
+                setTimeout(
+                    (ind) => {
+                        cooldownList.channel = cooldownList.channel.filter((x, i) => x.loc !== ind)
+                    },
+                    userCooldown,
+                    GlobalChatMessage.location
+                )
+
+                cooldownList.user.push({ id: GlobalChatMessage.author.id, timestamp: Date.now() })
+                setTimeout(
+                    (ind) => {
+                        cooldownList.user = cooldownList.user.filter((x, i) => x.id !== ind)
+                    },
+                    userCooldown,
+                    GlobalChatMessage.author.id
+                )
 
                 if (typeof prefixes == "string") {
                     const file = require(`./globalactions/${prefixes}`)
