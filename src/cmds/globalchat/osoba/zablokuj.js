@@ -26,7 +26,7 @@ module.exports = {
                     get(ref(getDatabase(firebaseApp), `userData/${uID}/gc/block`)).then((snapshot) => {
                         block = snapshot.val()
 
-                        if (snapshot.exists()) {
+                        if (!snapshot.exists()) {
                             interaction.editReply({
                                 content: `${customEmoticons.minus} Ta osoba jeszcze nie utworzyła profilu...`,
                             })
