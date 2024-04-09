@@ -52,7 +52,9 @@ module.exports = {
                 var channel = interaction.guild.channels.cache.get(data.channel)
 
                 if (typeof channel !== "undefined" && data.webhook !== "none") {
-                    var webhook = new WebhookClient({ url: data.webhook })
+                    var webhook = new WebhookClient({ 
+                                                url: "https://discord.com/api/webhooks/" + getDataByServerID(guildID).webhook, 
+ })
                     axios
                         .get(data.webhook)
                         .then((res) => {
