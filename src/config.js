@@ -14,15 +14,14 @@ module.exports = {
     TOKEN: "MTE3MzM1OTMwMDI5OTcxODY5Nw.GrwECS.MuGLpQw0xSarwhWwRio9enFiHpHzpUGX8WanuA",
     firebaseApp: initializeApp(firebaseConfig),
     ownersID: [
-        "939641051453481020", //patyczakus
-        "1166024655052738570", //patyczakusv2
+        "1166024655052738570", //patyczakus
         "767311735819862032", //maticola
     ],
     GCmodsID: [
-        "1100856620688355415", //mikilokes
-        "696985029087068202", //klekociak
         "1151184281440374926", //bermuda
         "810956435709231144", //samurara
+        "1197864787200180224", //calebinioziom
+        "442781147685191700", //chudoku
     ],
     supportServer: {
         id: "1173722642004574359",
