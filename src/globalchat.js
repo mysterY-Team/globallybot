@@ -505,6 +505,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                             return
                         }
                     })
+                    .filter((x) => typeof x != "undefined")
             )
 
             GlobalChatMessage.text = formatText(GlobalChatMessage.text)
