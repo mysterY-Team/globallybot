@@ -1,5 +1,5 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { customEmoticons, ownersID } = require("../../config")
+const { customEmoticons, ownersID, _bot } = require("../../config")
 
 module.exports = {
     /**

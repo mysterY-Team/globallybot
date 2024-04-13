@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { getDatabase, ref, set, get } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons, GCmodsID } = require("../../../config")
+const { firebaseApp, ownersID, customEmoticons, GCmodsID, _bot } = require("../../../config")
 
 module.exports = {
     /**
@@ -23,7 +23,7 @@ module.exports = {
                     ephemeral: interaction.inGuild(),
                 })
                 .then(() => {
-                    get(ref(getDatabase(firebaseApp), `userData/${uID}/gc/block`)).then((snapshot) => {
+                    get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc/block`)).then((snapshot) => {
                         block = snapshot.val()
 
                         if (!snapshot.exists()) {
@@ -66,7 +66,7 @@ module.exports = {
                         interaction.editReply({
                             content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${uID}> \`${uID}\``,
                         })
-                        set(ref(getDatabase(firebaseApp), `userData/${uID}/gc/block`), block)
+                        set(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc/block`), block)
                     })
                 })
         } catch (err) {

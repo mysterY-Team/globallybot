@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, PermissionFlagsBits, WebhookClient } = require("discord.js")
 const { getDatabase, ref, get, remove } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons, botID } = require("../../../config")
+const { firebaseApp, ownersID, customEmoticons, _bot } = require("../../../config")
 const { default: axios } = require("axios")
 
 module.exports = {
@@ -12,9 +12,9 @@ module.exports = {
     async execute(client, interaction) {
         if (interaction.guildId == null) return interaction.reply(`${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`)
         var guild = client.guilds.cache.get(interaction.guildId)
-        var bot = guild.members.cache.get(botID)
+        var bot = guild.members.cache.get(_bot.id)
 
-                if (
+        if (
             !(
                 (interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks & PermissionFlagsBits.ManageChannels) ||
                     interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
@@ -38,11 +38,11 @@ module.exports = {
             })
 
         interaction.deferReply().then(() => {
-            get(ref(getDatabase(firebaseApp), `serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)).then((snapshot) => {
+            get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)).then((snapshot) => {
                 if (!snapshot.exists()) return interaction.editReply(`${customEmoticons.denided} Nie ma ustawionego kanału na tej stacji!`)
 
                 function removeData() {
-                    remove(ref(getDatabase(firebaseApp), `serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)).then(() => {
+                    remove(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)).then(() => {
                         interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
                     })
                 }
@@ -52,9 +52,9 @@ module.exports = {
                 var channel = interaction.guild.channels.cache.get(data.channel)
 
                 if (typeof channel !== "undefined" && data.webhook !== "none") {
-                    var webhook = new WebhookClient({ 
-                                                url: "https://discord.com/api/webhooks/" + data.webhook, 
- })
+                    var webhook = new WebhookClient({
+                        url: "https://discord.com/api/webhooks/" + data.webhook,
+                    })
                     axios
                         .get(data.webhook)
                         .then((res) => {

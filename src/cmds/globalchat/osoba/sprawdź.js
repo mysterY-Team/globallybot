@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { getDatabase, ref, set, get } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons, GCmodsID } = require("../../../config")
+const { getDatabase, ref, get } = require("@firebase/database")
+const { firebaseApp, customEmoticons, _bot } = require("../../../config")
 
 module.exports = {
     /**
@@ -10,7 +10,7 @@ module.exports = {
      */
     async execute(client, interaction) {
         interaction.deferReply().then(() => {
-            get(ref(getDatabase(firebaseApp), `userData/${interaction.options.getUser("osoba", true).id}/gc/block`)).then((snapshot) => {
+            get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${interaction.options.getUser("osoba", true).id}/gc/block`)).then((snapshot) => {
                 block = snapshot.val()
 
                 if (!snapshot.exists()) var msg = `Jest zablokowany: ${customEmoticons.minus} (brak profilu)`

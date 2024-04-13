@@ -162,6 +162,12 @@ var slashList = [
                 .addStringOption((option) =>
                     option.setName("typ").setDescription("Typ usługi dla tworzenia profilu").setRequired(true).addChoices({ name: "GlobalChat", value: "gc" })
                 )
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("info")
+                .setDescription("Sprawdza informacje o użytkowniku")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby"))
         ),
 ]
 //console.log(slashList)

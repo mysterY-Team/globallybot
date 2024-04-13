@@ -1,6 +1,6 @@
 const { Client, Message, EmbedBuilder, WebhookClient } = require("discord.js")
 const { getDatabase, ref, get, remove, set } = require("@firebase/database")
-const { firebaseApp, customEmoticons, ownersID, GCmodsID } = require("./config")
+const { firebaseApp, customEmoticons, ownersID, GCmodsID, _bot } = require("./config")
 const axios = require("axios").default
 const fs = require("fs")
 const { emoticons } = require("./cmds/globalchat/emotki")
@@ -298,7 +298,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
     }
 
     if (GlobalChatMessage.author.isUser) {
-        get(ref(getDatabase(firebaseApp), "serverData")).then(async (snpsht) => {
+        get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData`)).then(async (snpsht) => {
             var database = snpsht.val() || {}
 
             database = Object.entries(database)
@@ -351,7 +351,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
             listenerLog(3, "➿ Spełniono warunek (2/6)")
 
-            var userData = await get(ref(getDatabase(firebaseApp), `userData/${GlobalChatMessage.author.id}/gc`))
+            var userData = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${GlobalChatMessage.author.id}/gc`))
             if (userData.exists()) userData = userData.val()
             else {
                 DiscordMessage.reply(
@@ -443,7 +443,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                                                 reason: "wykonania usługi GlobalChat (brakujący Webhook)",
                                             })
                                             set(
-                                                ref(getDatabase(firebaseApp), `serverData/${guildID}/gc/${station}/webhook`),
+                                                ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${guildID}/gc/${station}/webhook`),
                                                 webhook.url.replace("https://discord.com/api/webhooks/", "")
                                             )
                                         }
@@ -455,7 +455,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                                             reason: "wykonania usługi GlobalChat (brakujący Webhook)",
                                         })
                                         set(
-                                            ref(getDatabase(firebaseApp), `serverData/${guildID}/gc/${station}/webhook`),
+                                            ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${guildID}/gc/${station}/webhook`),
                                             webhook.url.replace("https://discord.com/api/webhooks/", "")
                                         )
                                     }
@@ -467,7 +467,10 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                                         channel: getDataByServerID(guildID).channel,
                                         reason: "wykonania usługi GlobalChat (brakujący Webhook)",
                                     })
-                                    set(ref(getDatabase(firebaseApp), `serverData/${guildID}/gc/${station}/webhook`), webhook.url.replace("https://discord.com/api/webhooks/", ""))
+                                    set(
+                                        ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${guildID}/gc/${station}/webhook`),
+                                        webhook.url.replace("https://discord.com/api/webhooks/", "")
+                                    )
 
                                     return { wh: webhook, gid: guildID }
                                 }
@@ -493,12 +496,12 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                                         embeds: [embedError],
                                     })
 
-                                    remove(ref(getDatabase(firebaseApp), `serverData/${guildID}/gc/${station}`))
+                                    remove(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${guildID}/gc/${station}`))
                                     return
                                 })
                             }
                         } else {
-                            remove(ref(getDatabase(firebaseApp), `serverData/${guildID}/gc/${station}`))
+                            remove(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${guildID}/gc/${station}`))
                             return
                         }
                     })

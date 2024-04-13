@@ -107,8 +107,7 @@ module.exports = {
                     }
 
                     Object.keys(formatList).forEach((typ) => {
-                        if (typ in gradientJSON[i] && gradientJSON[i][typ])
-                            returnedText += `${prefix}${formatters[typ]}`
+                        if (typ in gradientJSON[i] && gradientJSON[i][typ]) returnedText += `${prefix}${formatters[typ]}`
                     })
                     returnedText += gradientJSON[i].text
                 }

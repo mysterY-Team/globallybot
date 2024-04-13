@@ -1,8 +1,9 @@
-const { User, WebhookMessageCreateOptions } = require("discord.js")
-const axios = require("axios")
+const { User, WebhookMessageCreateOptions, AttachmentBuilder, EmbedBuilder } = require("discord.js")
+const { default: axios } = require("axios")
 const cheerio = require("cheerio")
 const { wait } = require("../functions/useful")
 const { customEmoticons } = require("../config")
+const { Octokit } = require("@octokit/rest")
 
 module.exports = {
     data: {
@@ -21,18 +22,29 @@ module.exports = {
         const cmd = a[0]
         const args = [...a.filter((x, i) => i > 0)]
 
+        /**
+         * @type {WebhookMessageCreateOptions}
+         */
+        var main = { content: "" }
+
         await wait(750)
 
-        const cmds = ["pomoc", "help", "dowcip"]
+        const cmds = ["pomoc", "help", "dowcip", "suchar", "mem", "janusz"]
 
         switch (cmd) {
             case cmds[0]:
             case cmds[1]: {
-                a =
-                    "# Witaj, {uM}\nUżyłeś komendy pomocy. Oto wszystkie komendy, które na chwilę obecną posiadam:\n- `dowcip` - Dowcip z perelki.net\n\n||Pamiętaj, aby stosować poprawność w używaniu komend!||"
+                main.content = [
+                    "# Witaj, {uM}\nUżyłeś komendy pomocy. Oto wszystkie komendy, które na chwilę obecną posiadam:",
+                    "- `dowcip` - Dowcip z perelki.net",
+                    "- `mem` - Mem z repo memów ze serwera Memhub",
+                    "- `janusz` - Mem z nieoficjalnego NosaczAPI",
+                    "\n||Pamiętaj, aby stosować poprawność w używaniu komend!||",
+                ].join("\n")
                 break
             }
-            case cmds[2]: {
+            case cmds[2]:
+            case cmds[3]: {
                 var joke = await axios.get("https://perelki.net/random")
                 if (!joke.data) {
                     a = `${customEmoticons.denided} Nie udało się pobrać dowcipu!`
@@ -51,20 +63,51 @@ module.exports = {
                     .trim()
                 joke = joke
                     .split("\n")
-                    .filter((line) => line != "")
+                    .filter((line) => line.trim() != "")
                     .join("\n")
 
-                a = `Udało się znaleźć dowcip ze strony [**perelki.net**](<https://perelki.net>)\n\n${joke}`
+                main.content = joke
+                main.embeds = [new EmbedBuilder().setDescription("### Źródło: [perelki.net](<https://perelki.net>)")]
+                break
+            }
+            case cmds[4]: {
+                //pobieranie wszystkich memów z repozytorium "patYczakus/Memhub-API-filesystem" na GitHubie (@octokit/rest)
+                const octokit = new Octokit()
+                const { data } = await octokit.repos.getContent({ owner: "patYczakus", repo: "Memhub-API-filesystem", path: "images" })
+                var files = data.filter((it) => it.type == "file").map((it) => it.name)
+                files = files[Math.floor(Math.random() * files.length)]
+                var ext = files.split(".")
+                ext = ext[ext.length - 1]
+
+                main.embeds = [
+                    new EmbedBuilder().setDescription(
+                        "### Źródło: [Memhub](<https://discord.gg/memhub>), za pomocą repo [patYczakus/Memhub-API-filesystem](<https://github.com/patYczakus/Memhub-API-filesystem>)"
+                    ),
+                ]
+                main.files = [
+                    new AttachmentBuilder().setFile("https://raw.githubusercontent.com/patYczakus/Memhub-API-filesystem/main/images/" + files).setName(`mem_memhub.` + ext),
+                ]
+
+                break
+            }
+            case cmds[5]: {
+                var x = await axios.get("https://raw.githubusercontent.com/OpenMemes/nosaczapi-unofficial/master/data.json")
+                x = x.data
+                const file = x.url + String(Math.round(Math.random() * x.last - x.first) + x.first) + x.filetype
+
+                main.files = [new AttachmentBuilder().setFile(file).setName(`mem_nosacz.` + x.filetype)]
+                main.embeds = [new EmbedBuilder().setDescription("### Źródło: nieoficjalne repo z NosaczAPI - [MrBoombastic/nosaczapi-unofficial](<https://discord.gg/memhub>)")]
+
                 break
             }
             default: {
-                a = [
+                main.content = [
                     { core: "Próbujesz się zapytać umierającego, czy żyje. Ja nie mam tej komendy!", proposition: "Może chodzi Ci o `{closeCmd}`?" },
                     { core: "Wybacz, nie mam tej komendy na liście.", proposition: "Bliska jest komenda `{closeCmd}`, jak Ci o nią chodziło - nie dziękuj \\;)" },
                     { core: "(ㆆ_ㆆ)", proposition: "`Joker!{closeCmd}`\\*\\*\\*\\*" },
                     { core: "404 - Not found! (Nie znaleziono!)", proposition: "> Czy chodziło Ci o: *Joker!{closeCmd}*?" },
                 ]
-                a = a[Math.floor(Math.random() * a.length)]
+                main.content = main.content[Math.floor(Math.random() * main.content.length)]
 
                 const commands = cmds
                 const input = cmd
@@ -84,6 +127,7 @@ module.exports = {
                             endOverlap = end.length
                         }
                     }
+
                     const overlap = startOverlap + endOverlap
                     if (overlap > maxOverlap && overlap > 2) {
                         closestCommand = command
@@ -92,13 +136,15 @@ module.exports = {
                 }
 
                 if (closestCommand !== "") {
-                    a = `${a.core}\n${a.proposition.replace("{closeCmd}", closestCommand)}`
+                    main.content = `${main.content.core}\n${main.content.proposition.replace("{closeCmd}", closestCommand)}`
                 } else {
-                    a = a.core
+                    main.content = main.content.core
                 }
             }
         }
 
-        return { content: a.replace(/{uM}/g, `<@${user.id}>`) }
+        main.content = main.content.replace(/{uM}/g, `<@${user.id}>`)
+
+        return main
     },
 }

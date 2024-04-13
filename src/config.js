@@ -1,4 +1,5 @@
 const { initializeApp } = require("@firebase/app")
+const loc = require("locallium")
 
 const firebaseConfig = {
     apiKey: "AIzaSyAi7Xst1KS8bKKD8T05tIs7Ind_TzTBFEY",
@@ -10,8 +11,12 @@ const firebaseConfig = {
     databaseURL: "https://globally2137-default-rtdb.europe-west1.firebasedatabase.app",
 }
 
+const debug = true
+
+const ldb = new loc.Database("env")
+
 module.exports = {
-    TOKEN: "MTE3MzM1OTMwMDI5OTcxODY5Nw.GrwECS.MuGLpQw0xSarwhWwRio9enFiHpHzpUGX8WanuA",
+    TOKEN: ldb.get("token").val ?? "MTE3MzM1OTMwMDI5OTcxODY5Nw.GrwECS.MuGLpQw0xSarwhWwRio9enFiHpHzpUGX8WanuA",
     firebaseApp: initializeApp(firebaseConfig),
     ownersID: [
         "1166024655052738570", //patyczakus
@@ -26,7 +31,10 @@ module.exports = {
     supportServer: {
         id: "1173722642004574359",
     },
-    botID: "1173359300299718697",
+    _bot: {
+        id: ldb.get("bid").val ?? "1173359300299718697",
+        type: ldb.get("dbPathStart").val ?? "stable",
+    },
     customEmoticons: {
         loading: "<:PX_loading:1174021728721195118>",
         info: "<:PX_info:1174022033366065162>",
@@ -35,5 +43,5 @@ module.exports = {
         minus: "<:PX_minus:1189586820967702613>",
     },
     constPremiumServersIDs: ["1159191121939923026"],
-    debug: false,
+    debug,
 }

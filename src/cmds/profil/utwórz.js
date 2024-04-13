@@ -1,6 +1,6 @@
 const { CommandInteraction, Client } = require("discord.js")
 const { getDatabase, ref, get, set } = require("@firebase/database")
-const { firebaseApp, customEmoticons } = require("../../config")
+const { firebaseApp, customEmoticons, _bot } = require("../../config")
 
 module.exports = {
     /**
@@ -14,7 +14,7 @@ module.exports = {
                 ephemeral: true,
             })
             .then(() => {
-                get(ref(getDatabase(firebaseApp), `userData/${interaction.user.id}/${interaction.options.get("typ", true).value}`)).then((snpsht) => {
+                get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${interaction.user.id}/${interaction.options.get("typ", true).value}`)).then((snpsht) => {
                     if (snpsht.exists()) return interaction.editReply(`${customEmoticons.denided} Ty już masz ten profil utworzony!`)
 
                     var structure
@@ -35,7 +35,7 @@ module.exports = {
                             break
                         }
                     }
-                    set(ref(getDatabase(firebaseApp), `userData/${interaction.user.id}/${interaction.options.get("typ", true).value}`), structure).then(() => {
+                    set(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${interaction.user.id}/${interaction.options.get("typ", true).value}`), structure).then(() => {
                         interaction.editReply(
                             `${customEmoticons.approved} Dodano pomyślnie profil do usługi *${name}*${
                                 addMoreWordsAbout === "" ? "" : `\n${customEmoticons.info} ${addMoreWordsAbout}`

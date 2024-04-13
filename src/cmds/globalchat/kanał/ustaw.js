@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js")
 const { getDatabase, ref, get, set } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons, botID, supportServer, debug, constPremiumServersIDs } = require("../../../config")
+const { firebaseApp, ownersID, customEmoticons, _bot, supportServer, debug, constPremiumServersIDs } = require("../../../config")
 
 module.exports = {
     /**
@@ -22,7 +22,7 @@ module.exports = {
         //argument kanału i serwer
         var channel = interaction.options.get("kanał", true)
         var guild = client.guilds.cache.get(interaction.guildId)
-        var bot = guild.members.cache.get(botID)
+        var bot = guild.members.cache.get(_bot.id)
         if (
             !(
                 (interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks & PermissionFlagsBits.ManageChannels) ||
@@ -48,7 +48,7 @@ module.exports = {
 
         interaction.deferReply().then(() => {
             //wczytywanie danych
-            get(ref(getDatabase(firebaseApp), `serverData/${interaction.guildId}/gc`)).then((allsnpsht) => {
+            get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc`)).then((allsnpsht) => {
                 var gccount = allsnpsht.exists() ? Object.keys(allsnpsht.val()).length : 0
 
                 if (gccount > 0 && supportServer.id !== interaction.guildId && !constPremiumServersIDs.includes(interaction.guildId)) {
@@ -66,14 +66,14 @@ module.exports = {
                 if (channelsInOtherStations.includes(channel.value)) {
                     return interaction.editReply(`${customEmoticons.denided} Ten kanał ma już odrębną stację!`)
                 }
-                get(ref(getDatabase(firebaseApp), `serverData/${interaction.guildId}/gc/${$stacja}`)).then((snapshot) => {
+                get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${$stacja}`)).then((snapshot) => {
                     //sprawdzanie, czy już jest w bazie danych serwer i czy zawiera ten kanał bazie
                     var _bool = snapshot.exists()
                     var data = snapshot.val()
 
                     if (_bool && data.channel == channel.value) return interaction.editReply(`${customEmoticons.denided} Na tym kanale jest już ustawiony GlobalChat o tej stacji!`)
 
-                    set(ref(getDatabase(firebaseApp), `serverData/${interaction.guildId}/gc/${$stacja}`), {
+                    set(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${$stacja}`), {
                         channel: channel.value,
                         webhook: "none",
                     }).then(() => {
