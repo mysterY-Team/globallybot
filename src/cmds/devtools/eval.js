@@ -8,9 +8,6 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        var thisGuild = interaction.guild
-        var thisChannel = interaction.channel
-
         if (!ownersID.includes(interaction.user.id))
             return interaction.reply({
                 content: `${customEmoticons.denided} Nie jesteś właścicielem bota!`,
@@ -20,7 +17,11 @@ module.exports = {
         interaction.deferReply().then(async () => {
             try {
                 var consoled = []
-                eval(interaction.options.get("func", true).value.replace("console.log(", "consoled.push("))
+                var x = async function () {}
+                var thisGuild = interaction.guild
+                var thisChannel = interaction.channel
+                eval(`x = async function() { interaction.options.get("func", true).value.replace("console.log(", "consoled.push(") }`)
+                await x()
 
                 var x = new EmbedBuilder()
                     .setColor("Green")
@@ -53,7 +54,11 @@ module.exports = {
                     .setDescription(`\`\`\`${error}\`\`\``)
                     .addFields({
                         name: "Kod",
-                        value: `\`\`\`javascript\n${interaction.options.get("func", true).value.replace(/;/g, "\n")}\n\`\`\``,
+                        value: `\`\`\`javascript\n${interaction.options
+                            .get("func", true)
+                            .value.split(";")
+                            .map((y) => y.trim())
+                            .join("\n")}\n\`\`\``,
                     })
                 interaction.editReply({
                     embeds: [x],
