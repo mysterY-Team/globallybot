@@ -16,12 +16,13 @@ module.exports = {
 
         interaction.deferReply().then(async () => {
             try {
-                var consoled = []
-                var x = async function () {}
                 var thisGuild = interaction.guild
                 var thisChannel = interaction.channel
-                eval(`x = async function() { interaction.options.get("func", true).value.replace("console.log(", "consoled.push(") }`)
-                await x()
+
+                var consoled = []
+                var func = async function () {}
+                eval(`func = async function() { ${interaction.options.get("func", true).value.replace("console.log(", "consoled.push(")} }`)
+                await func()
 
                 var x = new EmbedBuilder()
                     .setColor("Green")
