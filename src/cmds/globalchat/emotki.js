@@ -1,5 +1,8 @@
 const { Client, CommandInteraction, AutocompleteFocusedOption } = require("discord.js")
 const { customEmoticons } = require("../../config")
+const { servers } = require("../../functions/useful")
+
+const ServersNotUsingTheirEmotesFeature = ["1173361427159994478"]
 
 module.exports = {
     emoticons: [
@@ -193,9 +196,16 @@ module.exports = {
 
     /**
      * @param {AutocompleteFocusedOption} acFocusedInformation
+     * @param {Client<true>} client
      */
-    autocomplete(acFocusedInformation) {
+    autocomplete(acFocusedInformation, client) {
         var options = this.emoticons.map((x) => x.savenames).flat()
+        options.push(
+            ...servers
+                .get()
+                .filter((x) => !ServersNotUsingTheirEmotesFeature.includes(x.id))
+                .map((x) => `serwer=${x.id}`)
+        )
         options = options.filter((x) => x.includes(acFocusedInformation.value)).filter((x, i) => i < 25)
         return options
     },
@@ -218,6 +228,24 @@ module.exports = {
                         })${typeof x.server === "undefined" ? "" : ` *//ze serwera [${client.guilds.cache.get(x.server.id).name}](<https://discord.gg/${x.server.iCode}>)*`}`
                     })}\n\nTutaj się wyświetla maksymalnie 10 emotek. Możesz użyć parametru \`query\`, aby wyszukać emotki`,
             })
+        } else if (queryOption.value.startsWith("serwer=")) {
+            const ServersWithTheirEmotesFeature = servers.get().filter((x) => !ServersNotUsingTheirEmotesFeature.includes(x.id))
+            const sid = queryOption.value.split("=")[1]
+
+            if (ServersWithTheirEmotesFeature.map((x) => x.id).includes(sid)) {
+                await interaction.deferReply()
+                var server = await client.guilds.fetch(sid)
+                const sName = server.name
+                const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`)
+                delete server
+
+                interaction.editReply(
+                    `## Lista emotek ze serwera *\`${sName}\`*\nUżycie: \`{serverEmote.${sid}:<nazwa emotki>}\` lub \`{se.${sid}:<nazwa emotki>}\`\n${allEmotes.join(" \\| ")}`
+                )
+            } else {
+                interaction.reply(`${customEmoticons.denided} Nie widzę takiego serwera. Odświeżę teraz listę serwerów, a Ty spróbuj użyć komendy ponownie!`)
+                servers.fetch(client)
+            }
         } else {
             const queryVal = queryOption.value
             var query = this.emoticons.filter((x) => {

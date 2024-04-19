@@ -3,7 +3,7 @@ const { TOKEN, supportServer, firebaseApp, debug } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
 const { get, set, getDatabase, ref } = require("@firebase/database")
-const { listenerLog } = require("./functions/useful.js")
+const { listenerLog, servers } = require("./functions/useful.js")
 
 var active = false
 
@@ -77,7 +77,7 @@ client.on("interactionCreate", async (int) => {
         listenerLog(3, `⚙️ Uruchamianie pliku ${fullname.join("/")}.js`)
         const file = require(`./cmds/${fullname.join("/")}`)
 
-        const choices = file.autocomplete(int.options.getFocused(true))
+        const choices = file.autocomplete(int.options.getFocused(true), client)
         await int.respond(choices.map((choice) => ({ name: choice, value: choice })))
     }
 })
@@ -131,6 +131,11 @@ function timerToResetTheAPIInfo() {
     client.application.commands.set(slashCommandList.list).then(() => {
         listenerLog(2, "")
         listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
+    })
+
+    servers.fetch(client).then((x) => {
+        listenerLog(2, "")
+        listenerLog(2, "✅ Zapisano serwery na lokalnej zmiennej. Liczba oznaczająca zmianę: " + x)
     })
 
     setTimeout(() => {

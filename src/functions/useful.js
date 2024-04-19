@@ -1,4 +1,10 @@
+const { Client, OAuth2Guild } = require("discord.js")
 const { debug } = require("../config")
+
+/**
+ * @type {OAuth2Guild[]}
+ */
+var __servers = []
 
 var listenerLog = function (space, info, priority = false) {
     if (!debug && !priority) return
@@ -12,6 +18,22 @@ var listenerLog = function (space, info, priority = false) {
     console.log(text)
 }
 
+const servers = {
+    /**
+     *
+     * @param {Client<true>} client
+     * @returns {Promise<number>}
+     */
+    async fetch(client) {
+        const oldL = __servers.length
+        __servers = (await client.guilds.fetch()).map((x) => x)
+        return __servers.length - oldL
+    },
+    get() {
+        return __servers
+    },
+}
+
 /**
  *
  * @param {number} ms
@@ -22,4 +44,5 @@ var wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 module.exports = {
     listenerLog: listenerLog,
     wait,
+    servers,
 }

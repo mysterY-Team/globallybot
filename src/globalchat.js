@@ -1,4 +1,4 @@
-const { Client, Message, EmbedBuilder, WebhookClient } = require("discord.js")
+const { Client, Message, EmbedBuilder, WebhookClient, parseResponse } = require("discord.js")
 const { getDatabase, ref, get, remove, set } = require("@firebase/database")
 const { firebaseApp, customEmoticons, ownersID, GCmodsID, _bot } = require("./config")
 const axios = require("axios").default
@@ -7,15 +7,62 @@ const { emoticons } = require("./cmds/globalchat/emotki")
 const { listenerLog } = require("./functions/useful")
 
 const timestampCooldown = new Date()
-const globalCooldown = 1000
+const globalCooldown = 1200
 const channelCooldown = 3000
-const userCooldown = 4500
+const userCooldown = 5000
 let cooldownList = {
     channel: [],
     user: [],
 }
 
-function formatText(text) {
+/**
+ *
+ * @param {string} text
+ */
+function sprawdzNiedozwoloneLinki(text) {
+    /**
+     * @type {(RegExp | string)[]}
+     */
+    const linkList = [
+        // blokada linków zaproszeniowych
+        /(?:http[s]?:\/\/)?(?:www.|ptb.|canary.)?(?:discord(?:app)?.(?:(?:com|gg)\/(?:invite|servers)\/[a-z0-9-_]+)|discord.gg\/[a-z0-9-_]+)|(?:http[s]?:\/\/)?(?:www.)?(?:dsc.gg|invite.gg+|discord.link|(?:discord.(gg|io|me|li|id))|disboard.org)\/[a-z0-9-_\/]+/gim,
+
+        // blokada linków do stron dla dorosłych
+        "pornhub.com",
+        "xvideos.com",
+        "xhamster.com",
+        "xnxx.com",
+        "youporn.com",
+        "redtube.com",
+        "porn.com",
+        "hentaihaven.xxx",
+        "ichatonline.com",
+        "toppornsites.com",
+        "tube8.com",
+        "ixxx.com",
+        "sunporno.com",
+        "pornhat.com",
+        "sunporno.com",
+        "mypornbible.com",
+        "badjojo.com",
+        "nutaku.net",
+    ]
+
+    for (let i = 0; i < linkList.length; i++) {
+        if (typeof linkList[i] === "string" && text.includes(linkList[i])) return true
+        else if (typeof linkList[i] === "object" && linkList[i] instanceof RegExp && linkList[i].test(text)) return true
+    }
+
+    return false
+}
+
+/**
+ *
+ * @param {string} text
+ * @param {Client<true>} client
+ * @returns {string}
+ */
+async function formatText(text, client) {
     text = text.replace(/{(?:emote|e):([^`\n}\s]+)}/g, (match, arg1) => {
         var info = {}
         emoticons.forEach((emoteInfo) => {
@@ -26,7 +73,7 @@ function formatText(text) {
 
         return info[arg1] ?? customEmoticons.minus
     })
-    text = text.replace(/{(?:textFormat|txf).mix:([^`\n}]+)}/g, (match, arg1) => {
+    text = text.replace(/{(?:textFormat|txf)\.mix:([^`\n}]+)}/g, (match, arg1) => {
         var text = ""
         for (let i = 0; i < arg1.length; i++) {
             if (i % 2) text += arg1[i].toUpperCase()
@@ -34,7 +81,7 @@ function formatText(text) {
         }
         return text
     })
-    text = text.replace(/{(?:textFormat|txf).doubleline:([^`\n}]+)}/g, (match, arg1) => {
+    text = text.replace(/{(?:textFormat|txf)\.doubleline:([^`\n}]+)}/g, (match, arg1) => {
         const formatRay = {
             A: "𝔸",
             B: "𝔹",
@@ -106,7 +153,7 @@ function formatText(text) {
 
         return rtext
     })
-    text = text.replace(/{(?:textFormat|txf).gothic:([^`\n}]+)}/g, (match, arg1) => {
+    text = text.replace(/{(?:textFormat|txf)\.gothic:([^`\n}]+)}/g, (match, arg1) => {
         const formatRay = {
             A: "𝕬",
             B: "𝕭",
@@ -178,6 +225,20 @@ function formatText(text) {
 
         return rtext
     })
+
+    let matches = text.match(/{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/g)
+    if (matches) {
+        for (let match of matches) {
+            let [, arg1, arg2] = /{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/.exec(match)
+            const emojis = await (await client.guilds.fetch(arg1)).emojis.fetch()
+            if (emojis.map((x) => x.name).includes(arg2)) {
+                const emoji = emojis.map((x) => x)[emojis.map((x) => x.name).indexOf(arg2)]
+                text = text.replace(match, `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>`)
+            } else {
+                text = text.replace(match, customEmoticons.minus)
+            }
+        }
+    }
 
     return text
 }
@@ -374,7 +435,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
             listenerLog(3, "➿ Spełniono warunek (4/6)")
 
-            if ((GlobalChatMessage.text.includes("discord.gg/") || GlobalChatMessage.text.includes("disboard.org/")) && !ownersID.includes(GlobalChatMessage.author.id)) {
+            if (sprawdzNiedozwoloneLinki(GlobalChatMessage.text) && !ownersID.includes(GlobalChatMessage.author.id)) {
                 DiscordMessage.react(customEmoticons.denided)
                 return
             }
@@ -508,8 +569,8 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                     .filter((x) => typeof x != "undefined")
             )
 
-            GlobalChatMessage.text = formatText(GlobalChatMessage.text)
-            DiscordMessage.content = formatText(DiscordMessage.content)
+            GlobalChatMessage.text = await formatText(GlobalChatMessage.text, DiscordClient)
+            DiscordMessage.content = await formatText(DiscordMessage.content, DiscordClient)
 
             Promise.all(
                 webhooks.map(async function (w) {
@@ -539,8 +600,6 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                     return
                 })
             ).then(async () => {
-                DiscordMessage.delete()
-
                 cooldownList.channel.push({ loc: GlobalChatMessage.location, timestamp: Date.now() })
                 setTimeout(
                     (ind) => {
@@ -558,6 +617,8 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                     userCooldown,
                     GlobalChatMessage.author.id
                 )
+
+                if (DiscordMessage.deletable) DiscordMessage.delete()
 
                 if (typeof prefixes == "string") {
                     const file = require(`./globalactions/${prefixes}`)
