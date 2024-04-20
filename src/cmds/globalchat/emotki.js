@@ -241,7 +241,17 @@ module.exports = {
                 var moreEmojis = false
                 if (showedEmotes.length > 15) {
                     //usunięcie nadmiaru po 1600 znaków
-                    showedEmotes = showedEmotes.filter((X, i) => i < 15)
+                    showedEmotes = showedEmotes
+                        .filter((X, i) => i < 15)
+                        .sort((a, b) => {
+                            if (a.animated && !b.animated) {
+                                return -1
+                            } else if (!a.animated && b.animated) {
+                                return 1
+                            } else {
+                                return 0
+                            }
+                        })
                     moreEmojis = true
                 }
                 delete server
