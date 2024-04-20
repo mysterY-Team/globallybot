@@ -239,7 +239,7 @@ module.exports = {
                 const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`)
                 var showedEmotes = allEmotes
                 var moreEmojis = false
-                if (showedEmotes.length.join(" \\| ") > 1500) {
+                if (showedEmotes.join(" \\| ").length > 1500) {
                     //usunięcie nadmiaru po 1500 znaków
                     showedEmotes = showedEmotes
                         .join("-----")
