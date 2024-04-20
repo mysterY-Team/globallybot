@@ -237,10 +237,23 @@ module.exports = {
                 var server = await client.guilds.fetch(sid)
                 const sName = server.name
                 const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`)
+                var showedEmotes = allEmotes
+                var moreEmojis = false
+                if (showedEmotes.length.join(" \\| ") > 1500) {
+                    //usunięcie nadmiaru po 1500 znaków
+                    showedEmotes = showedEmotes
+                        .join("-----")
+                        .slice(0, showedEmotes.length - 1500)
+                        .split("-----")
+                    moreEmojis = true
+                    if (!showedEmotes[showedEmotes.length - 1].endsWith(">")) showedEmotes.pop()
+                }
                 delete server
 
                 interaction.editReply(
-                    `## Lista emotek ze serwera *\`${sName}\`*\nUżycie: \`{serverEmote.${sid}:<nazwa emotki>}\` lub \`{se.${sid}:<nazwa emotki>}\`\n${allEmotes.join(" \\| ")}`
+                    `## Lista emotek ze serwera *\`${sName}\`*\nUżycie: \`{serverEmote.${sid}:<nazwa emotki>}\` lub \`{se.${sid}:<nazwa emotki>}\`\n${showedEmotes.join(" \\| ")}${
+                        moreEmojis ? ` (+${allEmotes.length - showedEmotes.length} emotek)` : ""
+                    }`
                 )
             } else {
                 interaction.reply(`${customEmoticons.denided} Nie widzę takiego serwera. Odświeżę teraz listę serwerów, a Ty spróbuj użyć komendy ponownie!`)
