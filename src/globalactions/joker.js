@@ -96,7 +96,7 @@ module.exports = {
                 const file = x.url + String(Math.round(Math.random() * x.last - x.first) + x.first) + x.filetype
 
                 main.files = [new AttachmentBuilder().setFile(file).setName(`mem_nosacz.` + x.filetype)]
-                main.embeds = [new EmbedBuilder().setDescription("### Źródło: nieoficjalne repo z NosaczAPI - [MrBoombastic/nosaczapi-unofficial](<https://discord.gg/memhub>)")]
+                main.embeds = [new EmbedBuilder().setDescription("### Źródło: nieoficjalne repo z NosaczAPI - [OpenMemes/nosaczapi-unofficial](<https://github.com/OpenMemes/nosaczapi-unofficial>)")]
 
                 break
             }
