@@ -2,6 +2,16 @@ const { ButtonInteraction, Client, EmbedBuilder, EmbedType } = require("discord.
 const { customEmoticons, firebaseApp, _bot } = require("../config")
 const { get, ref, getDatabase } = require("@firebase/database")
 
+var users = {
+    inCooldown: [],
+    blockedToReply: [],
+}
+
+const times = {
+    cooldown: 300,
+    blockrepl: 60,
+}
+
 module.exports = {
     /**
      * @param {Client} client
@@ -9,8 +19,15 @@ module.exports = {
      * @param {string[]} args
      */
     async execute(client, interaction, ...args) {
+        if (users.inCooldown.includes(interaction.user.id)) {
+            interaction.reply({
+                content: `${customEmoticons.minus} Jesteś jeszcze na cooldownie!`,
+                ephemeral: true,
+            })
+            return
+        }
         var uid = args[0]
-        if (interaction.user.id === uid) {
+        if (interaction.user.id === uid || users.blockedToReply.includes(uid)) {
             interaction.deferUpdate()
             return
         }
@@ -41,7 +58,26 @@ module.exports = {
 
             var user = await client.users.fetch(uid)
             await user.send({ embeds: [embed] })
-            interaction.editReply(`${customEmoticons.approved} Wysłano pomyślnie zaczepkę!`)
+            interaction.editReply(
+                `${customEmoticons.approved} Wysłano pomyślnie zaczepkę! Zaczekaj do <t:${Math.floor(Date.now() / 1000) + times.cooldown + 3}:t> na następną zaczepkę!`
+            )
+
+            users.inCooldown.push(interaction.user.id)
+            setTimeout(
+                (id) => {
+                    users.inCooldown = users.inCooldown.filter((x) => x !== id)
+                },
+                times.cooldown * 1000,
+                interaction.user.id
+            )
+            users.blockedToReply.push(uid)
+            setTimeout(
+                (id) => {
+                    users.blockedToReply = users.blockedToReply.filter((x) => x !== id)
+                },
+                times.blockrepl * 1000,
+                uid
+            )
         } catch (err) {
             interaction.editReply(`${customEmoticons.denided} Nie udało się wysłać zaczepki!`)
         }

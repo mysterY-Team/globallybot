@@ -1,8 +1,7 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ChannelType, MessageActivityType } = require("discord.js")
-const { TOKEN, supportServer, firebaseApp, debug } = require("./config.js")
+const { Client, GatewayIntentBits, EmbedBuilder, ChannelType } = require("discord.js")
+const { TOKEN, supportServer, debug, customEmoticons } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
-const { get, set, getDatabase, ref } = require("@firebase/database")
 const { listenerLog, servers } = require("./functions/useful.js")
 
 var active = false
@@ -29,22 +28,31 @@ client.on("messageCreate", (msg) => {
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano wiadomość!")
 
-    var glist = {
-        text: msg.content,
-        msgID: msg.id,
-        author: {
-            id: msg.author.id,
-            name: msg.author.discriminator == "0" ? msg.author.username : `${msg.author.username}#${msg.author.discriminator}`,
-            isUser: !msg.author.bot && !msg.author.system,
-            avatar: msg.author.avatarURL({
-                extension: "webp",
-            }),
-        },
-        location: `${msg.guildId}/${msg.channelId}`,
-        files: msg.attachments.filter((a) => a.contentType.startsWith("image") || a.contentType.startsWith("video") || a.contentType.startsWith("audio")).map((a) => a.url),
-    }
+    try {
+        var glist = {
+            text: msg.content,
+            msgID: msg.id,
+            author: {
+                id: msg.author.id,
+                name: msg.author.discriminator == "0" ? msg.author.username : `${msg.author.username}#${msg.author.discriminator}`,
+                isUser: !msg.author.bot && !msg.author.system,
+                avatar: msg.author.avatarURL({
+                    extension: "webp",
+                }),
+            },
+            location: `${msg.guildId}/${msg.channelId}`,
+            files: msg.attachments
+                .filter((a) => a.contentType !== null && (a.contentType.startsWith("image") || a.contentType.startsWith("video") || a.contentType.startsWith("audio")))
+                .map((a) => a.url),
+        }
 
-    globalchatFunction(client, msg, glist)
+        globalchatFunction(client, msg, glist)
+    } catch (err) {
+        msg.reply(
+            `${customEmoticons.denided} Nie mogłem przetworzyć Twojego rządania! Natrafiłeś na bardzo ciekawy błąd ze strony trzeciej (API Discorda). Spróbuj wysłać jeszcze raz, w razie czego zastanów się nad zmniejszeniem kontentu`
+        )
+        if (debug) console.warn(err)
+    }
 })
 
 client.on("interactionCreate", async (int) => {
