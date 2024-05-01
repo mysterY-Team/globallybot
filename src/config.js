@@ -11,7 +11,7 @@ const firebaseConfig = {
     databaseURL: "https://globally2137-default-rtdb.europe-west1.firebasedatabase.app",
 }
 
-const debug = true
+const debug = false
 
 const ldb = new loc.Database("env")
 
