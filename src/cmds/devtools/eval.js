@@ -14,57 +14,56 @@ module.exports = {
                 ephemeral: true,
             })
 
-        interaction.deferReply().then(async () => {
-            try {
-                var thisGuild = interaction.guild
-                var thisChannel = interaction.channel
+        await interaction.deferReply()
+        try {
+            var thisGuild = interaction.guild
+            var thisChannel = interaction.channel
 
-                var consoled = []
-                var func = async function () {}
-                eval(`func = async function() { ${interaction.options.get("func", true).value.replace("console.log(", "consoled.push(")} }`)
-                await func()
+            var consoled = []
+            var func = async function () {}
+            eval(`func = async function() { ${interaction.options.get("func", true).value.replace("console.log(", "consoled.push(")} }`)
+            await func()
 
-                var x = new EmbedBuilder()
-                    .setColor("Green")
-                    .setTitle(`${customEmoticons.approved} \`/eval\` wykonany poprawnie!`)
-                    .addFields(
-                        {
-                            name: "Kod",
-                            value: `\`\`\`javascript\n${interaction.options.get("func", true).value.replace(/;/g, "\n")}\n\`\`\``,
-                        },
-                        {
-                            name: "Konsola",
-                            value:
-                                consoled.length > 0
-                                    ? `\`\`\`\n${consoled
-                                          .map((val) => {
-                                              if (typeof val == "object") val = JSON.stringify(val)
-                                              return val
-                                          })
-                                          .join("\n")}\n\`\`\``
-                                    : customEmoticons.denided,
-                        }
-                    )
-                interaction.editReply({
-                    embeds: [x],
-                })
-            } catch (error) {
-                var x = new EmbedBuilder()
-                    .setColor("Red")
-                    .setTitle(`${customEmoticons.approved} \`/eval\` zwrócił błąd!`)
-                    .setDescription(`\`\`\`${error}\`\`\``)
-                    .addFields({
+            var x = new EmbedBuilder()
+                .setColor("Green")
+                .setTitle(`${customEmoticons.approved} \`/eval\` wykonany poprawnie!`)
+                .addFields(
+                    {
                         name: "Kod",
-                        value: `\`\`\`javascript\n${interaction.options
-                            .get("func", true)
-                            .value.split(";")
-                            .map((y) => y.trim())
-                            .join("\n")}\n\`\`\``,
-                    })
-                interaction.editReply({
-                    embeds: [x],
+                        value: `\`\`\`javascript\n${interaction.options.get("func", true).value.replace(/;/g, "\n")}\n\`\`\``,
+                    },
+                    {
+                        name: "Konsola",
+                        value:
+                            consoled.length > 0
+                                ? `\`\`\`\n${consoled
+                                      .map((val) => {
+                                          if (typeof val == "object") val = JSON.stringify(val)
+                                          return val
+                                      })
+                                      .join("\n")}\n\`\`\``
+                                : customEmoticons.denided,
+                    }
+                )
+            interaction.editReply({
+                embeds: [x],
+            })
+        } catch (error) {
+            var x = new EmbedBuilder()
+                .setColor("Red")
+                .setTitle(`${customEmoticons.approved} \`/eval\` zwrócił błąd!`)
+                .setDescription(`\`\`\`${error}\`\`\``)
+                .addFields({
+                    name: "Kod",
+                    value: `\`\`\`javascript\n${interaction.options
+                        .get("func", true)
+                        .value.split(";")
+                        .map((y) => y.trim())
+                        .join("\n")}\n\`\`\``,
                 })
-            }
-        })
+            interaction.editReply({
+                embeds: [x],
+            })
+        }
     },
 }

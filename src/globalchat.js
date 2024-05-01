@@ -1,4 +1,4 @@
-const { Client, Message, EmbedBuilder, WebhookClient, parseResponse } = require("discord.js")
+const { Client, Message, EmbedBuilder, WebhookClient, WebhookMessageCreateOptions, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const { getDatabase, ref, get, remove, set } = require("@firebase/database")
 const { firebaseApp, customEmoticons, ownersID, GCmodsID, _bot } = require("./config")
 const axios = require("axios").default
@@ -14,6 +14,7 @@ let cooldownList = {
     channel: [],
     user: [],
 }
+let lastUser = ""
 
 /**
  *
@@ -324,7 +325,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                 rContent = rContent.map((x) => x.text).join("```")
                 rContent = rContent.trim()
 
-                var rUser = replayedMSG.author.username.split(" (")[0]
+                var rUser = replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.author.username : replayedMSG.author.username.split(" (")[0]
 
                 var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }
                 if (gID == DiscordMessage.guildId) embed.url = replayedMSG.url
@@ -577,15 +578,30 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                     var a = repliedMessage(w.gid)
                     a = typeof a === "undefined" ? [] : [a]
 
-                    if (typeof prefixes == "string") {
-                        var _file = require(`./globalactions/${prefixes}`)
-                        a.push(
-                            new EmbedBuilder()
-                                .setColor("#663399")
-                                .setDescription(
-                                    `Użytkownik właśnie użył GlobalAction o nazwie *${_file.data.name}*. Możesz się o nich dowiedzieć więcej pod komendą \`globalchat globalactions about\``
-                                )
-                        )
+                    if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
+                    var comp = {
+                        global: [
+                            [
+                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("fs").setDisabled(true).setLabel(`Ze serwera: ${DiscordMessage.guild.name}`),
+                                typeof prefixes == "string"
+                                    ? new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)
+                                    : null,
+                            ],
+                            lastUser !== `${GlobalChatMessage.location}:${GlobalChatMessage.author.id}`
+                                ? [new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gctab\u0000${GlobalChatMessage.author.id}`).setEmoji("👉")]
+                                : [],
+                        ]
+                            .filter((row) => row && row.filter((x) => x).length > 0)
+                            .map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x))),
+                        server: [
+                            [
+                                typeof prefixes == "string"
+                                    ? new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)
+                                    : null,
+                            ],
+                        ]
+                            .filter((row) => row.filter((x) => x).length > 0)
+                            .map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x))),
                     }
 
                     await w.wh.send({
@@ -595,11 +611,13 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                         embeds: a,
                         files: GlobalChatMessage.files,
                         allowedMentions: { parse: [] },
+                        components: w.gid == DiscordMessage.guildId ? comp.server : comp.global,
                     })
 
                     return
                 })
             ).then(async () => {
+                lastUser = `${GlobalChatMessage.location}:${GlobalChatMessage.author.id}`
                 cooldownList.channel.push({ loc: GlobalChatMessage.location, timestamp: Date.now() })
                 setTimeout(
                     (ind) => {
@@ -622,16 +640,17 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
                 if (typeof prefixes == "string") {
                     const file = require(`./globalactions/${prefixes}`)
-                    const response = await file.execute(GlobalChatMessage.text, DiscordMessage.author)
+                    /**
+                     * @type {WebhookMessageCreateOptions}
+                     */
+                    var response = await file.execute(GlobalChatMessage.text, DiscordMessage.author)
+                    response.avatarURL ??= file.data.avatar
+                    response.username ??= file.data.name
+                    response.username += ` (${response.username === file.data.name ? "" : `"${file.data.name}", `}GlobalAction)`
+                    response.allowedMentions = { parse: [] }
 
                     webhooks.map(async function (w) {
-                        await w.wh.send(
-                            Object.assign(response, {
-                                avatarURL: file.data.avatar,
-                                username: `${file.data.name} (GlobalAction)`,
-                                allowedMentions: { parse: [] },
-                            })
-                        )
+                        await w.wh.send(Object.assign(response))
 
                         return
                     })

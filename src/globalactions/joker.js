@@ -67,7 +67,7 @@ module.exports = {
                     .join("\n")
 
                 main.content = joke
-                main.embeds = [new EmbedBuilder().setDescription("### Źródło: [perelki.net](<https://perelki.net>)")]
+                main.embeds = [new EmbedBuilder().setDescription("**Źródło:** [perelki.net](<https://perelki.net>)")]
                 break
             }
             case cmds[4]: {
@@ -81,7 +81,7 @@ module.exports = {
 
                 main.embeds = [
                     new EmbedBuilder().setDescription(
-                        "### Źródło: [Memhub](<https://discord.gg/memhub>), za pomocą repo [patYczakus/Memhub-API-filesystem](<https://github.com/patYczakus/Memhub-API-filesystem>)"
+                        "**Źródło:** [Memhub](<https://discord.gg/memhub>), za pomocą repo [patYczakus/Memhub-API-filesystem](<https://github.com/patYczakus/Memhub-API-filesystem>)"
                     ),
                 ]
                 main.files = [
@@ -95,8 +95,14 @@ module.exports = {
                 x = x.data
                 const file = x.url + String(Math.round(Math.random() * x.last - x.first) + x.first) + x.filetype
 
+                main.avatarURL = "https://i.pinimg.com/736x/be/ad/57/bead57094937ca072fac9de82ab382fb--ugly-animals-strange-animals.jpg"
+                main.username = "Janusz"
                 main.files = [new AttachmentBuilder().setFile(file).setName(`mem_nosacz.` + x.filetype)]
-                main.embeds = [new EmbedBuilder().setDescription("### Źródło: nieoficjalne repo z NosaczAPI - [OpenMemes/nosaczapi-unofficial](<https://github.com/OpenMemes/nosaczapi-unofficial>)")]
+                main.embeds = [
+                    new EmbedBuilder().setDescription(
+                        "**Źródło:** nieoficjalne repo z NosaczAPI - [OpenMemes/nosaczapi-unofficial](<https://github.com/OpenMemes/nosaczapi-unofficial>)"
+                    ),
+                ]
 
                 break
             }

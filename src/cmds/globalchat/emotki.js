@@ -1,5 +1,5 @@
-const { Client, CommandInteraction, AutocompleteFocusedOption } = require("discord.js")
-const { customEmoticons } = require("../../config")
+const { Client, CommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
+const { customEmoticons, _bot } = require("../../config")
 const { servers } = require("../../functions/useful")
 
 const ServersNotUsingTheirEmotesFeature = ["1173361427159994478"]
@@ -235,7 +235,7 @@ module.exports = {
             if (ServersWithTheirEmotesFeature.map((x) => x.id).includes(sid)) {
                 await interaction.deferReply()
                 var server = await client.guilds.fetch(sid)
-                const sName = server.name
+                var sName = server.name
                 const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`)
                 var showedEmotes = allEmotes
                 var moreEmojis = false
@@ -256,11 +256,32 @@ module.exports = {
                 }
                 delete server
 
-                interaction.editReply(
-                    `## Lista emotek ze serwera *\`${sName}\`*\nUżycie: \`{serverEmote.${sid}:<nazwa emotki>}\` lub \`{se.${sid}:<nazwa emotki>}\`\n${showedEmotes.join(" \\| ")}${
-                        moreEmojis ? ` (+${allEmotes.length - showedEmotes.length} emotek)` : ""
-                    }`
-                )
+                const inv = await server.invites.fetch()
+                var invition = inv.map((x) => x).filter((x) => x.inviterId === _bot.id)[0] ?? ""
+                var channels = (await server.channels.fetch()).map((x) => x)
+                var i = 0
+                while (i < channels.length && !invition) {
+                    try {
+                        invition = (await server.invites.create(channels[i].id, { maxAge: 0 })).code
+                    } catch (err) {
+                        i++
+                    }
+                }
+
+                const comp = !invition
+                    ? []
+                    : [
+                          new ActionRowBuilder().addComponents([
+                              new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(`https://discord.gg/${invition}`).setLabel("Dołącz do serwera"),
+                          ]),
+                      ]
+
+                interaction.editReply({
+                    content: `## Lista emotek ze serwera *\`${sName}\`* \nUżycie: \`{serverEmote.${sid}:<nazwa emotki>}\` lub \`{se.${sid}:<nazwa emotki>}\`\n${showedEmotes.join(
+                        " \\| "
+                    )}${moreEmojis ? ` (+${allEmotes.length - showedEmotes.length} emotek)` : ""}`,
+                    components: comp,
+                })
             } else {
                 interaction.reply(`${customEmoticons.denided} Nie widzę takiego serwera. Odświeżę teraz listę serwerów, a Ty spróbuj użyć komendy ponownie!`)
                 servers.fetch(client)

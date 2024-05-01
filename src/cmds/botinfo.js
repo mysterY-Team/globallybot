@@ -19,6 +19,11 @@ module.exports = {
             i++
         })
 
+        var uCount = 0
+        client.guilds.cache.forEach((serv) => {
+            uCount += serv.memberCount
+        })
+
         var embed = new EmbedBuilder()
             .setTitle(`${customEmoticons.info} Informacje o bocie`)
             .setDescription(
@@ -32,7 +37,7 @@ module.exports = {
                 },
                 {
                     name: "Serwery",
-                    value: `Ilość: ${String(client.guilds.cache.size)}\nNazwy: ||Wyświetlane są max. 10 serwerów|| \`\`\`${guildsName}\`\`\``,
+                    value: `Ilość: ${client.guilds.cache.size}\nIlość osób: ${uCount}\nNazwy: ||Wyświetlane są max. 10 serwerów|| \`\`\`${guildsName}\`\`\``,
                     inline: false,
                 }
             )

@@ -1,5 +1,5 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { getDatabase, ref, get, set } = require("@firebase/database")
+const { getDatabase, ref, get } = require("@firebase/database")
 const { firebaseApp, customEmoticons, _bot, ownersID, GCmodsID } = require("../../config")
 
 module.exports = {

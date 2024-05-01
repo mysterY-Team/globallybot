@@ -46,47 +46,43 @@ module.exports = {
                     .join("\n"),
             })
 
-        interaction.deferReply().then(() => {
-            //wczytywanie danych
-            get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc`)).then((allsnpsht) => {
-                var gccount = allsnpsht.exists() ? Object.keys(allsnpsht.val()).length : 0
+        await interaction.deferReply()
+        //wczytywanie danych
+        var allsnpsht = await get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc`))
+        var gccount = allsnpsht.exists() ? Object.keys(allsnpsht.val()).length : 0
 
-                if (gccount > 0 && supportServer.id !== interaction.guildId && !constPremiumServersIDs.includes(interaction.guildId)) {
-                    return interaction.editReply(`${customEmoticons.denided} Przekroczony został limit ustawionych stacji!`)
-                }
+        if (gccount > 0 && supportServer.id !== interaction.guildId && !constPremiumServersIDs.includes(interaction.guildId)) {
+            return interaction.editReply(`${customEmoticons.denided} Przekroczony został limit ustawionych stacji!`)
+        }
 
-                var $stacja = interaction.options.get("stacja", true).value
+        var $stacja = interaction.options.get("stacja", true).value
 
-                if (allsnpsht.exists())
-                    var channelsInOtherStations = Object.values(allsnpsht.val())
-                        .filter((x, y) => y == Object.keys(allsnpsht.val()).indexOf(interaction.options.get("stacja", true).value))
-                        .map((x) => x.channel)
-                else var channelsInOtherStations = []
+        if (allsnpsht.exists())
+            var channelsInOtherStations = Object.values(allsnpsht.val())
+                .filter((x, y) => y == Object.keys(allsnpsht.val()).indexOf(interaction.options.get("stacja", true).value))
+                .map((x) => x.channel)
+        else var channelsInOtherStations = []
 
-                if (channelsInOtherStations.includes(channel.value)) {
-                    return interaction.editReply(`${customEmoticons.denided} Ten kanał ma już odrębną stację!`)
-                }
-                get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${$stacja}`)).then((snapshot) => {
-                    //sprawdzanie, czy już jest w bazie danych serwer i czy zawiera ten kanał bazie
-                    var _bool = snapshot.exists()
-                    var data = snapshot.val()
+        if (channelsInOtherStations.includes(channel.value)) {
+            return interaction.editReply(`${customEmoticons.denided} Ten kanał ma już odrębną stację!`)
+        }
+        var snapshot = await get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${$stacja}`))
+        //sprawdzanie, czy już jest w bazie danych serwer i czy zawiera ten kanał bazie
+        var _bool = snapshot.exists()
+        var data = snapshot.val()
 
-                    if (_bool && data.channel == channel.value) return interaction.editReply(`${customEmoticons.denided} Na tym kanale jest już ustawiony GlobalChat o tej stacji!`)
+        if (_bool && data.channel == channel.value) return interaction.editReply(`${customEmoticons.denided} Na tym kanale jest już ustawiony GlobalChat o tej stacji!`)
 
-                    set(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${$stacja}`), {
-                        channel: channel.value,
-                        webhook: "none",
-                    }).then(() => {
-                        //informacja o zapisie
-                        if (!_bool) interaction.editReply(`${customEmoticons.approved} Dodano pomyślnie kanał na stacji \`${$stacja}\`!`)
-                        else {
-                            interaction.editReply(
-                                `${customEmoticons.info} Jako że ten serwer już miał ustawiony kanał GlobalChata na kanale <#${data.channel}> (stacja \`${$stacja}\`), spowodowało to nadpis na nowy kanał.`
-                            )
-                        }
-                    })
-                })
-            })
+        await set(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${$stacja}`), {
+            channel: channel.value,
+            webhook: "none",
         })
+        //informacja o zapisie
+        if (!_bool) interaction.editReply(`${customEmoticons.approved} Dodano pomyślnie kanał na stacji \`${$stacja}\`!`)
+        else {
+            interaction.editReply(
+                `${customEmoticons.info} Jako że ten serwer już miał ustawiony kanał GlobalChata na kanale <#${data.channel}> (stacja \`${$stacja}\`), spowodowało to nadpis na nowy kanał.`
+            )
+        }
     },
 }

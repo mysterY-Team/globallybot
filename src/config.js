@@ -11,12 +11,12 @@ const firebaseConfig = {
     databaseURL: "https://globally2137-default-rtdb.europe-west1.firebasedatabase.app",
 }
 
-const debug = false
+const debug = true
 
 const ldb = new loc.Database("env")
 
 module.exports = {
-    TOKEN: ldb.get("token").val ?? "MTE3MzM1OTMwMDI5OTcxODY5Nw.GrwECS.MuGLpQw0xSarwhWwRio9enFiHpHzpUGX8WanuA",
+    TOKEN: ldb.get("token").val,
     firebaseApp: initializeApp(firebaseConfig),
     ownersID: [
         "1166024655052738570", //patyczakus
@@ -32,7 +32,7 @@ module.exports = {
         id: "1173722642004574359",
     },
     _bot: {
-        id: ldb.get("bid").val ?? "1173359300299718697",
+        id: ldb.get("bid").val,
         type: ldb.get("dbPathStart").val ?? "stable",
     },
     customEmoticons: {

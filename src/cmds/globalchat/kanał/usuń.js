@@ -37,40 +37,38 @@ module.exports = {
                     .join("\n"),
             })
 
-        interaction.deferReply().then(() => {
-            get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)).then((snapshot) => {
-                if (!snapshot.exists()) return interaction.editReply(`${customEmoticons.denided} Nie ma ustawionego kanału na tej stacji!`)
+        await interaction.deferReply()
+        var snapshot = await get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`))
+        if (!snapshot.exists()) return interaction.editReply(`${customEmoticons.denided} Nie ma ustawionego kanału na tej stacji!`)
 
-                function removeData() {
-                    remove(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)).then(() => {
-                        interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
-                    })
-                }
-
-                var data = snapshot.val()
-
-                var channel = interaction.guild.channels.cache.get(data.channel)
-
-                if (typeof channel !== "undefined" && data.webhook !== "none") {
-                    var webhook = new WebhookClient({
-                        url: "https://discord.com/api/webhooks/" + data.webhook,
-                    })
-                    axios
-                        .get(data.webhook)
-                        .then((res) => {
-                            try {
-                                if (res.status >= 200 && res.status < 300) webhook.delete("użycia komendy /GLOBALCHAT")
-                            } catch (e) {}
-
-                            removeData()
-                        })
-                        .catch(() => {
-                            removeData()
-                        })
-                } else {
-                    removeData()
-                }
+        function removeData() {
+            remove(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)).then(() => {
+                interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
             })
-        })
+        }
+
+        var data = snapshot.val()
+
+        var channel = interaction.guild.channels.cache.get(data.channel)
+
+        if (typeof channel !== "undefined" && data.webhook !== "none") {
+            var webhook = new WebhookClient({
+                url: "https://discord.com/api/webhooks/" + data.webhook,
+            })
+            axios
+                .get(data.webhook)
+                .then((res) => {
+                    try {
+                        if (res.status >= 200 && res.status < 300) webhook.delete("użycia komendy /GLOBALCHAT")
+                    } catch (e) {}
+
+                    removeData()
+                })
+                .catch(() => {
+                    removeData()
+                })
+        } else {
+            removeData()
+        }
     },
 }

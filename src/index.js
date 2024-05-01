@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ChannelType } = require("discord.js")
+const { Client, GatewayIntentBits, EmbedBuilder, ChannelType, MessageActivityType } = require("discord.js")
 const { TOKEN, supportServer, firebaseApp, debug } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
@@ -37,12 +37,13 @@ client.on("messageCreate", (msg) => {
             name: msg.author.discriminator == "0" ? msg.author.username : `${msg.author.username}#${msg.author.discriminator}`,
             isUser: !msg.author.bot && !msg.author.system,
             avatar: msg.author.avatarURL({
-                extension: "png",
+                extension: "webp",
             }),
         },
         location: `${msg.guildId}/${msg.channelId}`,
         files: msg.attachments.filter((a) => a.contentType.startsWith("image") || a.contentType.startsWith("video") || a.contentType.startsWith("audio")).map((a) => a.url),
     }
+
     globalchatFunction(client, msg, glist)
 })
 
@@ -58,16 +59,16 @@ client.on("interactionCreate", async (int) => {
         //console.log(int.options)
         const file = require(`./cmds/${fullname.join("/")}`)
         file.execute(client, int)
-    } else if (int.isButton()) {
+    } else if (int.isMessageComponent()) {
         listenerLog(3, "Jest przyciskiem")
-        var args = int.customId().split(":")
+        var args = int.customId.split("\u0000")
         const cmd = args[0]
         args = args.filter((x, i) => i !== 0)
 
         listenerLog(3, `⚙️ Uruchamianie pliku ${cmd}.js`)
         //console.log(int.options)
         const file = require(`./btns/${cmd}`)
-        file.execute(client, int, args)
+        file.execute(client, int, ...args)
     } else if (int.isAutocomplete()) {
         listenerLog(3, "Jest uzupełnianiem dla komendy")
 
