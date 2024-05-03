@@ -5,7 +5,6 @@ const axios = require("axios").default
 const fs = require("fs")
 const { emoticons } = require("./cmds/globalchat/emotki")
 const { listenerLog } = require("./functions/useful")
-const { gcdata } = require("./functions/dbs")
 
 const timestampCooldown = new Date()
 const globalCooldown = 1300
@@ -421,6 +420,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                 var userData = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${GlobalChatMessage.author.id}/gc`))
                 if (userData.exists()) {
                     const oldUData = userData.val()
+                    const { gcdata } = require("./functions/dbs")
                     userData = gcdata.encode(oldUData)
                     if (typeof oldUData === "object") set(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${GlobalChatMessage.author.id}/gc`), gcdata.decode(userData))
                 } else {
