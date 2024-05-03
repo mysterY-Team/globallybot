@@ -26,9 +26,7 @@ module.exports = {
 
         var embed = new EmbedBuilder()
             .setTitle(`${customEmoticons.info} Informacje o bocie`)
-            .setDescription(
-                "Dodaj bota: [link](https://discord.com/api/oauth2/authorize?client_id=1173734205855911987&permissions=2684726360&scope=applications.commands%20bot)\nSerwer support: [link](https://discord.gg/7S3P2DUwAm)"
-            )
+            .setDescription("Dodaj bota: [link](https://discord.com/oauth2/authorize?client_id=1173359300299718697)\nSerwer support: [link](https://discord.gg/7S3P2DUwAm)")
             .addFields(
                 {
                     name: "Czasy",

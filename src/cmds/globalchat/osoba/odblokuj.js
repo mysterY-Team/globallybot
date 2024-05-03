@@ -1,6 +1,7 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { getDatabase, ref, set, get } = require("@firebase/database")
 const { firebaseApp, ownersID, customEmoticons, GCmodsID, _bot } = require("../../../config")
+const { gcdata } = require("../../../functions/dbs")
 
 module.exports = {
     /**
@@ -17,45 +18,42 @@ module.exports = {
             })
         var uID = interaction.options.getUser("osoba", true).id
         try {
-            interaction
-                .deferReply({
-                    ephemeral: interaction.inGuild(),
+            await interaction.deferReply({
+                ephemeral: interaction.inGuild(),
+            })
+            var snapshot = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc/block`))
+
+            if (!snapshot.exists()) {
+                interaction.editReply({
+                    content: `${customEmoticons.minus} Ta osoba jeszcze nie utworzyła profilu...`,
                 })
-                .then(() => {
-                    get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc/block`)).then((snapshot) => {
-                        block = snapshot.val()
+                return
+            }
 
-                        if (!snapshot.exists()) {
-                            interaction.editReply({
-                                content: `${customEmoticons.minus} Ta osoba jeszcze nie utworzyła profilu...`,
-                            })
-                            return
-                        }
+            var info = gcdata.encode(snapshot.val())
 
-                        if (!block.is) {
-                            interaction.editReply(`${customEmoticons.denided} Ta osoba nie jest zablokowana!`)
-                            return
-                        }
+            if (!info.isBlocked) {
+                interaction.editReply(`${customEmoticons.denided} Ta osoba nie jest zablokowana!`)
+                return
+            }
 
-                        block.is = false
-                        block.reason = ""
-                        const embedblock = new EmbedBuilder()
-                            .setTitle("Zostałeś odblokowany!")
-                            .setDescription(`Od teraz będziesz miał dostęp do GlobalChata, dopóki znów nie będziesz zablokowany!`)
-                            .setColor("Green")
-                            .setFields({
-                                name: "Odblokowany przez",
-                                value: `${(interaction.user.discriminator = "0" ? interaction.user.username : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
-                            })
-
-                        client.users.send(uID, {
-                            embeds: [embedblock],
-                        })
-
-                        interaction.editReply(`${customEmoticons.approved} Pomyślnie odblokowano użytkownika <@${uID}> \`${uID}\``)
-                        set(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc/block`), block)
-                    })
+            info.isBlocked = false
+            info.blockReason = ""
+            const embedblock = new EmbedBuilder()
+                .setTitle("Zostałeś odblokowany!")
+                .setDescription(`Od teraz będziesz miał dostęp do GlobalChata, dopóki znów nie będziesz zablokowany!`)
+                .setColor("Green")
+                .setFields({
+                    name: "Odblokowany przez",
+                    value: `${(interaction.user.discriminator = "0" ? interaction.user.username : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
                 })
+
+            client.users.send(uID, {
+                embeds: [embedblock],
+            })
+
+            interaction.editReply(`${customEmoticons.approved} Pomyślnie odblokowano użytkownika <@${uID}> \`${uID}\``)
+            set(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc`), gcdata.decode(info))
         } catch (err) {
             interaction.reply({
                 content: "Coś poszło nie tak... spróbuj ponownie!",

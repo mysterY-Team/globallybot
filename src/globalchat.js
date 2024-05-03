@@ -5,10 +5,11 @@ const axios = require("axios").default
 const fs = require("fs")
 const { emoticons } = require("./cmds/globalchat/emotki")
 const { listenerLog } = require("./functions/useful")
+const { gcdata } = require("./functions/dbs")
 
 const timestampCooldown = new Date()
-const globalCooldown = 1200
-const channelCooldown = 3000
+const globalCooldown = 1300
+const channelCooldown = 2800
 const userCooldown = 5000
 let cooldownList = {
     channel: [],
@@ -418,8 +419,11 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                 listenerLog(3, "➿ Spełniono warunek (2/6)")
 
                 var userData = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${GlobalChatMessage.author.id}/gc`))
-                if (userData.exists()) userData = userData.val()
-                else {
+                if (userData.exists()) {
+                    const oldUData = userData.val()
+                    userData = gcdata.encode(oldUData)
+                    if (typeof oldUData === "object") set(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${GlobalChatMessage.author.id}/gc`), gcdata.decode(userData))
+                } else {
                     DiscordMessage.reply(
                         `${customEmoticons.info} Nie został zarejestrowany profil GlobalChat! Utwórz pod komendą \`profil utwórz typ:GlobalChat\`, aby móc z niego korzystać!`
                     ).then((msg) => {
@@ -433,7 +437,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
                 listenerLog(3, "➿ Spełniono warunek (3/6)")
 
-                if (userData.block.is) {
+                if (userData.isBlocked) {
                     DiscordMessage.react(customEmoticons.denided)
                     return
                 }
@@ -577,6 +581,25 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                 GlobalChatMessage.text = await formatText(GlobalChatMessage.text, DiscordClient)
                 DiscordMessage.content = await formatText(DiscordMessage.content, DiscordClient)
 
+                lastUser = `${GlobalChatMessage.location}:${GlobalChatMessage.author.id}`
+                cooldownList.channel.push({ loc: GlobalChatMessage.location, timestamp: Date.now() })
+                setTimeout(
+                    (ind) => {
+                        cooldownList.channel = cooldownList.channel.filter((x, i) => x.loc !== ind)
+                    },
+                    userCooldown,
+                    GlobalChatMessage.location
+                )
+
+                cooldownList.user.push({ id: GlobalChatMessage.author.id, timestamp: Date.now() })
+                setTimeout(
+                    (ind) => {
+                        cooldownList.user = cooldownList.user.filter((x, i) => x.id !== ind)
+                    },
+                    userCooldown,
+                    GlobalChatMessage.author.id
+                )
+
                 Promise.all(
                     webhooks.map(async function (w) {
                         var a = repliedMessage(w.gid)
@@ -621,25 +644,6 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                         return
                     })
                 ).then(async () => {
-                    lastUser = `${GlobalChatMessage.location}:${GlobalChatMessage.author.id}`
-                    cooldownList.channel.push({ loc: GlobalChatMessage.location, timestamp: Date.now() })
-                    setTimeout(
-                        (ind) => {
-                            cooldownList.channel = cooldownList.channel.filter((x, i) => x.loc !== ind)
-                        },
-                        userCooldown,
-                        GlobalChatMessage.location
-                    )
-
-                    cooldownList.user.push({ id: GlobalChatMessage.author.id, timestamp: Date.now() })
-                    setTimeout(
-                        (ind) => {
-                            cooldownList.user = cooldownList.user.filter((x, i) => x.id !== ind)
-                        },
-                        userCooldown,
-                        GlobalChatMessage.author.id
-                    )
-
                     if (DiscordMessage.deletable) DiscordMessage.delete()
 
                     if (typeof prefixes == "string") {

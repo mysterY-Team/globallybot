@@ -1,6 +1,7 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { getDatabase, ref, get } = require("@firebase/database")
 const { firebaseApp, customEmoticons, _bot, ownersID, GCmodsID } = require("../../config")
+const { gcdata } = require("../../functions/dbs")
 
 module.exports = {
     /**
@@ -35,13 +36,15 @@ module.exports = {
 
         if (!user.bot && !user.system) {
             if (modules.length > 0) embed.addFields({ name: "Podpięte moduły", value: modules.join("\n") })
-            if (modules.includes("GlobalChat"))
+            if (modules.includes("GlobalChat")) {
+                data.gc = gcdata.encode(data.gc)
                 embed.addFields({
                     name: "Moduł *GlobalChat*",
                     value: `Moderator: ${ownersID.includes(user.id) || GCmodsID.includes(user.id) ? customEmoticons.approved : customEmoticons.denided}\nZablokowany: ${
-                        data.gc.block.is ? customEmoticons.approved : customEmoticons.denided
+                        data.gc.isBlocked ? customEmoticons.approved : customEmoticons.denided
                     }`,
                 })
+            }
         }
 
         return interaction.editReply({ embeds: [embed] })

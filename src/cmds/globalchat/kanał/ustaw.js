@@ -59,7 +59,7 @@ module.exports = {
 
         if (allsnpsht.exists())
             var channelsInOtherStations = Object.values(allsnpsht.val())
-                .filter((x, y) => y == Object.keys(allsnpsht.val()).indexOf(interaction.options.get("stacja", true).value))
+                .filter((x, y) => y !== Object.keys(allsnpsht.val()).indexOf(interaction.options.get("stacja", true).value))
                 .map((x) => x.channel)
         else var channelsInOtherStations = []
 

@@ -1,6 +1,7 @@
 const { ButtonInteraction, Client, EmbedBuilder, EmbedType } = require("discord.js")
 const { customEmoticons, firebaseApp, _bot } = require("../config")
-const { get, ref, getDatabase } = require("@firebase/database")
+const { get, ref, getDatabase, set } = require("@firebase/database")
+const { gcdata } = require("../functions/dbs")
 
 var users = {
     inCooldown: [],
@@ -37,8 +38,11 @@ module.exports = {
             interaction.editReply(`${customEmoticons.denided} Wymagany jest profil, aby użyć tej funkcji! Utworzysz pod komendą \`profil utwórz typ:GlobalChat\``)
             return
         }
-        if (userData.val().block.is) {
+        if (gcdata.encode(userData.val()).isBlocked) {
             interaction.editReply(`${customEmoticons.denided} Jesteś zablokowany w usłudze GlobalChat!`)
+            if (typeof userData.val() === "object")
+                await set(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${interaction.user.id}/gc`), gcdata.decode(gcdata.encode(userData)))
+            return
         }
         try {
             const embed = new EmbedBuilder()

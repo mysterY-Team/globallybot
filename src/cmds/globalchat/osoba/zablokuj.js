@@ -1,6 +1,7 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { getDatabase, ref, set, get } = require("@firebase/database")
 const { firebaseApp, ownersID, customEmoticons, GCmodsID, _bot } = require("../../../config")
+const { gcdata } = require("../../../functions/dbs")
 
 module.exports = {
     /**
@@ -18,57 +19,52 @@ module.exports = {
 
         try {
             var uID = interaction.options.getUser("osoba", true).id
-            interaction
-                .deferReply({
-                    ephemeral: interaction.inGuild(),
+            await interaction.deferReply({
+                ephemeral: interaction.inGuild(),
+            })
+
+            var snapshot = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc`))
+            if (!snapshot.exists()) {
+                interaction.editReply({
+                    content: `${customEmoticons.minus} Ta osoba jeszcze nie utworzyła profilu...`,
                 })
-                .then(() => {
-                    get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc/block`)).then((snapshot) => {
-                        block = snapshot.val()
+                return
+            }
 
-                        if (!snapshot.exists()) {
-                            interaction.editReply({
-                                content: `${customEmoticons.minus} Ta osoba jeszcze nie utworzyła profilu...`,
-                            })
-                            return
-                        }
+            var info = gcdata.encode(snapshot.val())
 
-                        if (block.is) {
-                            interaction.editReply({
-                                content: `${customEmoticons.denided} Ta osoba jest zablokowana!`,
-                            })
-                            return
-                        }
-
-                        block.is = true
-                        block.reason = interaction.options.get("powód") == null ? "" : interaction.options.get("powód").value
-                        const embedblock = new EmbedBuilder()
-                            .setTitle("Zostałeś zablokowany!")
-                            .setDescription(`Od teraz nie będziesz miał dostępu do GlobalChata do odwołania!`)
-                            .setColor("Red")
-                            .setFields(
-                                {
-                                    name: "Blokowany przez",
-                                    value: `${(interaction.user.discriminator = "0"
-                                        ? interaction.user.username
-                                        : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
-                                },
-                                {
-                                    name: "Powód",
-                                    value: interaction.options.get("powód") == null ? customEmoticons.denided : `\`\`\`${interaction.options.get("powód", false).value}\`\`\``,
-                                }
-                            )
-
-                        client.users.send(uID, {
-                            embeds: [embedblock],
-                        })
-
-                        interaction.editReply({
-                            content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${uID}> \`${uID}\``,
-                        })
-                        set(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc/block`), block)
-                    })
+            if (info.isBlocked) {
+                interaction.editReply({
+                    content: `${customEmoticons.denided} Ta osoba jest zablokowana!`,
                 })
+                return
+            }
+
+            info.isBlocked = true
+            info.blockReason = interaction.options.get("powód") == null ? "" : interaction.options.get("powód").value
+            const embedblock = new EmbedBuilder()
+                .setTitle("Zostałeś zablokowany!")
+                .setDescription(`Od teraz nie będziesz miał dostępu do GlobalChata do odwołania!`)
+                .setColor("Red")
+                .setFields(
+                    {
+                        name: "Blokowany przez",
+                        value: `${(interaction.user.discriminator = "0" ? interaction.user.username : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
+                    },
+                    {
+                        name: "Powód",
+                        value: interaction.options.get("powód") == null ? customEmoticons.denided : `\`\`\`${interaction.options.get("powód", false).value}\`\`\``,
+                    }
+                )
+
+            client.users.send(uID, {
+                embeds: [embedblock],
+            })
+
+            interaction.editReply({
+                content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${uID}> \`${uID}\``,
+            })
+            set(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc`), gcdata.decode(info))
         } catch (err) {
             interaction.reply({
                 content: "Coś poszło nie tak... spróbuj ponownie!",
