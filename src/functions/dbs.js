@@ -14,49 +14,33 @@ const $$ = {
     },
 }
 
-const gcdata = {
-    create: (accountCreated) => {
-function gccreate(accountCreated) {
+function gcdata_create(accountCreated) {
     return {
         isBlocked: false,
         blockReason: "",
         birth: accountCreated,
     }
 }
-function gcencode(data) {
-    if (typeof data === "object") {
-        var newData = gccreate(data.birth)
-        newData.isBlocked = data.block.is
-        newData.blockReason = data.block.reason
-        return newData
-    }
-    var obj = data.split("{=·}")
-    var newData = gccreate(obj[2])
-    newData.isBlocked = $$.stob(obj[0]) ?? newData.isBlocked
-    newData.blockReason = obj[1] ?? newData.blockReason
-    return newData
-}
-function gcdecode(data) {
-    return Object.values(data).join("{=·}")
-}
+
+const imacaData = {
+    create: () => {
         return {
-            isBlocked: false,
-            blockReason: "",
-            birth: accountCreated,
+            cardID: 0,
+            name: "Użytkownik ImaCarrrd",
+            description: "Brak podanego opisu.",
+            nameGradient1: "#0B8553",
+            nameGradient2: "#74B198",
+            bannerURL: null,
         }
     },
     encode: (data) => {
-        if (typeof data === "object") {
-            var newData = gcdata.create(data.birth)
-            newData.isBlocked = data.block.is
-            newData.blockReason = data.block.reason
-            return newData
-        }
         var obj = data.split("{=·}")
-        var newData = gcdata.create(obj[2])
-        newData.isBlocked = $$.stob(obj[0]) ?? newData.isBlocked
-        newData.blockReason = obj[1] ?? newData.blockReason
-        return newData
+        var newData = imacaData.create()
+        return {
+            isBlocked: $$.stob(obj[0]),
+            blockReason: obj[1],
+            birth: obj[2],
+        }
     },
     decode: (data) => {
         return Object.values(data).join("{=·}")
@@ -65,8 +49,22 @@ function gcdecode(data) {
 
 module.exports = {
     gcdata: {
-        create: gccreate,
-        encode: gcencode,
-        decode: gcdecode,
+        create: gcdata_create,
+        encode: (data) => {
+            if (typeof data === "object") {
+                var newData = gcdata_create(data.birth)
+                newData.isBlocked = data.block.is
+                newData.blockReason = data.block.reason
+                return newData
+            }
+            var obj = data.split("{=·}")
+            var newData = gcdata_create(obj[2])
+            newData.isBlocked = $$.stob(obj[0]) ?? newData.isBlocked
+            newData.blockReason = obj[1] ?? newData.blockReason
+            return newData
+        },
+        decode: (data) => {
+            return Object.values(data).join("{=·}")
+        },
     },
 }
