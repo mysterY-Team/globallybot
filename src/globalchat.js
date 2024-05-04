@@ -14,7 +14,7 @@ let cooldownList = {
     channel: [],
     user: [],
 }
-let lastUser = ""
+let lastUser = "unknown"
 
 /**
  *
@@ -581,7 +581,9 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                 GlobalChatMessage.text = await formatText(GlobalChatMessage.text, DiscordClient)
                 DiscordMessage.content = await formatText(DiscordMessage.content, DiscordClient)
 
+                const prevLastUser = lastUser
                 lastUser = `${GlobalChatMessage.location}:${GlobalChatMessage.author.id}`
+
                 cooldownList.channel.push({ loc: GlobalChatMessage.location, timestamp: Date.now() })
                 setTimeout(
                     (ind) => {
@@ -614,7 +616,7 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                                         ? new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)
                                         : null,
                                 ],
-                                lastUser !== `${GlobalChatMessage.location}:${GlobalChatMessage.author.id}`
+                                prevLastUser !== `${GlobalChatMessage.location}:${GlobalChatMessage.author.id}`
                                     ? [new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gctab\u0000${GlobalChatMessage.author.id}`).setEmoji("👉")]
                                     : [],
                             ]
