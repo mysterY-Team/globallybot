@@ -22,29 +22,15 @@ function gcdata_create(accountCreated) {
     }
 }
 
-const imacaData = {
-    create: () => {
-        return {
-            cardID: 0,
-            name: "Użytkownik ImaCarrrd",
-            description: "Brak podanego opisu.",
-            nameGradient1: "#0B8553",
-            nameGradient2: "#74B198",
-            bannerURL: null,
-        }
-    },
-    encode: (data) => {
-        var obj = data.split("{=·}")
-        var newData = imacaData.create()
-        return {
-            isBlocked: $$.stob(obj[0]),
-            blockReason: obj[1],
-            birth: obj[2],
-        }
-    },
-    decode: (data) => {
-        return Object.values(data).join("{=·}")
-    },
+function imacaData_create() {
+    return {
+        cardID: 0,
+        name: "Użytkownik ImaCarrrd",
+        description: "Brak podanego opisu.",
+        nameGradient1: "#0B8553",
+        nameGradient2: "#74B198",
+        bannerURL: null,
+    }
 }
 
 module.exports = {
@@ -61,6 +47,23 @@ module.exports = {
             var newData = gcdata_create(obj[2])
             newData.isBlocked = $$.stob(obj[0]) ?? newData.isBlocked
             newData.blockReason = obj[1] ?? newData.blockReason
+            return newData
+        },
+        decode: (data) => {
+            return Object.values(data).join("{=·}")
+        },
+    },
+    imacaData: {
+        create: imacaData_create,
+        encode: (data) => {
+            var obj = data.split("{=·}")
+            var newData = imacaData_create()
+            newData.cardID = (isNaN(Number(obj[0])) ? null : Number(obj[0])) ?? newData.cardID
+            newData.name = obj[1] ?? newData.name
+            newData.description = obj[2] ?? newData.description
+            newData.nameGradient1 = obj[3] ?? newData.nameGradient1
+            newData.nameGradient2 = obj[4] ?? newData.nameGradient2
+            newData.bannerURL = !obj[5] ? null : obj[5]
             return newData
         },
         decode: (data) => {

@@ -611,7 +611,10 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                         var comp = {
                             global: [
                                 [
-                                    new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("fs").setDisabled(true).setLabel(`Ze serwera: ${DiscordMessage.guild.name}`),
+                                    new ButtonBuilder()
+                                        .setStyle(ButtonStyle.Secondary)
+                                        .setCustomId(`getemotes\u0000${DiscordMessage.guildId}`)
+                                        .setLabel(`Ze serwera: ${DiscordMessage.guild.name}`),
                                     typeof prefixes == "string"
                                         ? new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)
                                         : null,

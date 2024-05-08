@@ -20,6 +20,12 @@ module.exports = {
      * @param {string[]} args
      */
     async execute(client, interaction, ...args) {
+        if (users.inCooldown.length >= 30 || users.blockedToReply.length >= 40) {
+            interaction.reply({
+                content: `${customEmoticons.loading} Zaczepianie zostało automatycznie wyłączone z powodu przeciążenia, sprawdź później`,
+                ephemeral: true,
+            })
+        }
         if (users.inCooldown.includes(interaction.user.id)) {
             interaction.reply({
                 content: `${customEmoticons.minus} Jesteś jeszcze na cooldownie!`,

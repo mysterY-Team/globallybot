@@ -3,6 +3,7 @@ const { TOKEN, supportServer, debug, customEmoticons } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
 const { listenerLog, servers } = require("./functions/useful.js")
+const { GlobalFonts } = require("@napi-rs/canvas")
 
 var active = false
 
@@ -11,6 +12,11 @@ const client = new Client({
 })
 
 listenerLog(0, "Discord.js v.14", true)
+
+GlobalFonts.registerFromPath("./src/others/novasq.ttf", "Nova Square")
+GlobalFonts.registerFromPath("./src/others/jersey10.ttf", "Jersey 10")
+GlobalFonts.registerFromPath("./src/others/notoemoji.ttf", "Noto Emoji")
+GlobalFonts.registerFromPath("./src/others/audiowide.ttf", "Audiowide")
 
 client.on("ready", (log) => {
     active = true
@@ -88,6 +94,16 @@ client.on("interactionCreate", async (int) => {
 
         const choices = file.autocomplete(int.options.getFocused(true), client)
         await int.respond(choices.map((choice) => ({ name: choice, value: choice })))
+    } else if (int.isModalSubmit()) {
+        listenerLog(3, "Został wywołany za pomocą formularza")
+        var args = int.customId.split("\u0000")
+        const cmd = args[0]
+        args = args.filter((x, i) => i !== 0)
+
+        listenerLog(3, `⚙️ Uruchamianie pliku ${cmd}.js`)
+        //console.log(int.options)
+        const file = require(`./modals/${cmd}`)
+        file.execute(client, int, ...args)
     }
 })
 

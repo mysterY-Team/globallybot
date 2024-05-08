@@ -1,6 +1,7 @@
 > GlobalChat, usługa między-serwerowa, stawia misję stworzenia miejsca w którym to każdy mógłby się poczuć bezpiecznie i otworzyć się na ludzi. Chcąc utrzymać więc ład i harmonię, wytyczonych jest kilka zasad - stojących ponad regulaminy innych serwerów, ale tylko obowiązujących na kanałach do tego przeznaczonych; surowych, ale potrzebnych do spełnienia misji; ograniczających zachowania niestosowne, ale gwarantujących wolność użytkownika.
 # §1 - Zasady wstępne
 1. Regulamin stoi ponad regulaminy wszystkich serwerów.
+1. Regulamin może być zmieniony w każdej chwili, użytkownicy zostaną poinformowani.
 1. Utworzenie profilu wiąże się z automatyczną akceptacją regulaminu.
 1. Użytkownik przy czasowej blokadzie SAM powinien się upomnieć o odblokowanie konta.
 1. NIE jesteśmy w stanie usunąć wiadomości wysłanych za pomocą GlobalChat.
@@ -9,9 +10,9 @@
 1. Niektóre zasady MOGĄ być nadpisane tzw. dekretem - może być stałe lub na określony czas. Każdy dekret będzie informowany na bieżąco na serwerze support.
 1. ZABRONIONE jest tworzenie wielu kont w celach omijania blokady.
 # §2 - Zarząd GlobalChata
-1. Moderator MOŻE zablokować osobę za coś, co nie jest napisane w regulaminie, ALE tylko wtedy, gdy dzieją się nieprzyjemne sytuacje.
+1. Moderator MOŻE zablokować osobę za coś, co nie jest napisane w regulaminie, ALE tylko wtedy, gdy uważane jest za słuszne.
 1. Blokada użytkownika NIE MUSI mieć sprecyzowanego powodu zablokowania.
-1. Moderator, który się nie wywiązuje ze swoich obowiązków i/lub nakłada/znosi blokadę użytkownikowi, któremu nie powinien się zmienić jego status blokady w GlobalChacie, zostanie wydalony w mniej niż 48 godzin. Czas może się wydłużyć lub skrócić w zależności od dostępności deweloperów.
+1. Moderator, który się nie wywiązuje ze swoich obowiązków i/lub nakłada/znosi blokadę użytkownikowi, któremu nie powinien się zmienić jego status blokady w GlobalChacie, zostanie wydalony w mniej niż 48 godzin (sprawdź: §5 ptk. 3).
 1. Zdanie deweloperów ZAWSZE jest ostateczne, lecz w razie omyłki (bowiem deweloper też jest człowiekiem) można zwrócić uwagę, lecz NIE NALEŻY krytykować publicznie. Za to może pójść blokada użytkownika.
 #--#
 # §3 - Wiadomości a GlobalChat
@@ -29,8 +30,9 @@
 # §4 - Inne funkcje w GlobalChacie
 1. NIE wolno używać emotek NSFW z innych serwerów, za to grozi blokada AŻ DO ODWOŁANIA.
 1. GlobalActions mogą mieć własne warunki użytkowania, gdzie się godzisz wraz z ich użyciem.
-1. Za używanie nadmiernej ilości "zaczep" wiąże się blokada do 5 dni, lub AŻ DO ODWOŁANIA w przypadku powtórzenia tego wyczynu.
+1. Za uciążliwe "zaczepianie" (m.in. spam zaczepiania bez powodu konkretnego) wiąże się blokada do 5 dni, lub AŻ DO ODWOŁANIA w przypadku powtórzenia tego wyczynu.
 #--#
-# §5 - Znaczenia
-1. Reakcja X ({{custom.deny}}) przy niewysłanej wiadomości oznacza brak odpowiedniego wieku (w przypadku stacji `pl-a`), brak dostępu do usługi LUB użyciem niedozwolonego linku.
-1. Reakcja minusa ({{custom.minus}}) przy niewysłanej wiadomości oznacza brak profilu.
+# §5 - Dodatkowe informacje
+1. Reakcja X ({{custom:denided}}) przy niewysłanej wiadomości oznacza brak odpowiedniego wieku (w przypadku stacji `pl-a`), brak dostępu do usługi LUB użyciem niedozwolonego linku.
+1. Reakcja minusa ({{custom:minus}}) przy niewysłanej wiadomości oznacza brak profilu.
+1. Czas może się wydłużyć w zależności od dostępności deweloperów

@@ -1,7 +1,7 @@
 const { CommandInteraction, Client } = require("discord.js")
 const { getDatabase, ref, get, set } = require("@firebase/database")
 const { firebaseApp, customEmoticons, _bot } = require("../../config")
-const { gcdata } = require(`../../functions/dbs`)
+const { gcdata, imacaData } = require(`../../functions/dbs`)
 
 module.exports = {
     /**

@@ -160,7 +160,11 @@ var slashList = [
                 .setName("utwórz")
                 .setDescription("Tworzy profil danej usługi")
                 .addStringOption((option) =>
-                    option.setName("typ").setDescription("Typ usługi dla tworzenia profilu").setRequired(true).addChoices({ name: "GlobalChat", value: "gc" })
+                    option
+                        .setName("typ")
+                        .setDescription("Typ usługi dla tworzenia profilu")
+                        .setRequired(true)
+                        .addChoices({ name: "GlobalChat", value: "gc" }, { name: "ImaCarrrd", value: "imaca" })
                 )
         )
         .addSubcommand((subcommand) =>
@@ -168,6 +172,17 @@ var slashList = [
                 .setName("info")
                 .setDescription("Sprawdza informacje o użytkowniku")
                 .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby"))
+        ),
+    new SlashCommandBuilder()
+        .setName("imacarrrd")
+        .setDescription("Karty użytkownika na nowym poziomie")
+        .addSubcommand((subcommand) => subcommand.setName("pokaż").setDescription("Pokazuje kartę ImaCarrrd użytkownika"))
+        .addSubcommand((subcommand) => subcommand.setName("konfiguruj").setDescription("Pozwala na edycję informacji karty ImaCarrrd użytkownika"))
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("zmieństyl")
+                .setDescription("Zmienia styl karty ImaCarrrd użytkownika")
+                .addStringOption((option) => option.setName("styl").setDescription("Nazwa stylu").setAutocomplete(true).setRequired(true))
         ),
 ]
 //console.log(slashList)

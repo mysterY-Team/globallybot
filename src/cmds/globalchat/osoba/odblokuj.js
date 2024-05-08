@@ -21,7 +21,7 @@ module.exports = {
             await interaction.deferReply({
                 ephemeral: interaction.inGuild(),
             })
-            var snapshot = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc/block`))
+            var snapshot = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc`))
 
             if (!snapshot.exists()) {
                 interaction.editReply({

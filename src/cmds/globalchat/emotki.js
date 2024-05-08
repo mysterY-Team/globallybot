@@ -236,22 +236,11 @@ module.exports = {
                 await interaction.deferReply()
                 var server = await client.guilds.fetch(sid)
                 var sName = server.name
-                const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`)
+                const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`).sort(() => Math.random() - 0.5)
                 var showedEmotes = allEmotes
                 var moreEmojis = false
-                if (showedEmotes.length > 15) {
-                    //usunięcie nadmiaru po 1600 znaków
-                    showedEmotes = showedEmotes
-                        .filter((X, i) => i < 15)
-                        .sort((a, b) => {
-                            if (a.animated && !b.animated) {
-                                return -1
-                            } else if (!a.animated && b.animated) {
-                                return 1
-                            } else {
-                                return 0
-                            }
-                        })
+                if (showedEmotes.length > 16) {
+                    showedEmotes = showedEmotes.filter((X, i) => i < 16)
                     moreEmojis = true
                 }
                 delete server
@@ -277,9 +266,9 @@ module.exports = {
                       ]
 
                 interaction.editReply({
-                    content: `## Lista emotek ze serwera *\`${sName}\`* \nUżycie: \`{serverEmote.${sid}:<nazwa emotki>}\` lub \`{se.${sid}:<nazwa emotki>}\`\n${showedEmotes.join(
+                    content: `# Lista emotek ze serwera *\`${sName}\`* \nUżycie: \`{serverEmote.${sid}:<nazwa emotki>}\` lub \`{se.${sid}:<nazwa emotki>}\`\n${showedEmotes.join(
                         " \\| "
-                    )}${moreEmojis ? ` (+${allEmotes.length - showedEmotes.length} emotek)` : ""}`,
+                    )}## ${moreEmojis ? ` (+${allEmotes.length - showedEmotes.length} emotek)` : ""}`,
                     components: comp,
                 })
             } else {
