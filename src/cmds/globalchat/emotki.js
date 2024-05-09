@@ -266,9 +266,9 @@ module.exports = {
                       ]
 
                 interaction.editReply({
-                    content: `# Lista emotek ze serwera *\`${sName}\`* \nUżycie: \`{serverEmote.${sid}:<nazwa emotki>}\` lub \`{se.${sid}:<nazwa emotki>}\`\n${showedEmotes.join(
-                        " \\| "
-                    )}## ${moreEmojis ? ` (+${allEmotes.length - showedEmotes.length} emotek)` : ""}`,
+                    content: `# Lista emotek ze serwera *\`${sName}\`* \nUżycie: \`{serverEmote.${sid}:<nazwa emotki>}\` lub \`{se.${sid}:<nazwa emotki>}\`\n## ${showedEmotes.join(
+                        " | "
+                    )} ${moreEmojis ? ` (+${allEmotes.length - showedEmotes.length} emotek)` : ""}`,
                     components: comp,
                 })
             } else {

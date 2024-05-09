@@ -17,7 +17,7 @@ module.exports = {
             $(".content .container:not(.cntr) .about").remove()
             var joke = $(".content .container:not(.cntr)")
                 .html()
-                .replace(/<br>/g, "\n")
+                .replace(/<br>|<br \/>/g, "\n")
                 .replace(/\*/g, "\\*")
                 .replace(/_/g, "\\_")
                 .replace(/~/g, "\\~")
