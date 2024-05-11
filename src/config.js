@@ -27,6 +27,7 @@ module.exports = {
         "810956435709231144", //samurara
         "1197864787200180224", //calebinioziom
         "442781147685191700", //chudoku
+        "1229391384054726717", //panmysz
     ],
     supportServers: [
         "1173722642004574359", //type-y
