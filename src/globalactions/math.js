@@ -41,8 +41,18 @@ module.exports = {
             }
             case cmds[2]:
             case cmds[3]: {
-                // może policzyć proste działania, m.in 2+3*5
-                function calculate(expr = "NaN") {
+                function calculate(expr = "NaN", nawiasy = true) {
+                    if (nawiasy) {
+                        expr = expr.replace(/([0-9])\(/g, "$1*(")
+                        expr = expr.replace(/\)([0-9])/g, ")*$1")
+                        var oldExpr = ""
+                        do {
+                            oldExpr = (() => expr)()
+                            expr = expr.replace(/\(([0-9+\-*\/^,.e ]+)\)/g, (match, p1) => {
+                                return calculate(p1, false)
+                            })
+                        } while (oldExpr !== expr)
+                    }
                     var exprList = [""]
                     for (var i = 0; i < expr.length; i++) {
                         if (expr[i].match(/[0-9.]/)) {
@@ -56,9 +66,8 @@ module.exports = {
                     }
                     exprList = exprList.map((x) => (x ? x : "NaN"))
 
-                    // lecimy od prawej do lewej, gdyż tak działa potęgowanie
+                    // Obliczenia z uwzględnieniem nawiasów
                     for (var i = exprList.length - 1; i >= 0; i--) {
-                        // zaczynamy od mnożenia i dzielenia
                         if (String(exprList[i]).match(/(?:\^)/)) {
                             var op = exprList[i]
                             var num1 = Number(exprList[i - 1])
@@ -68,9 +77,7 @@ module.exports = {
                         }
                     }
 
-                    //a tu od lewej do prawej
                     for (var i = 0; i < exprList.length; i++) {
-                        // zaczynamy od mnożenia i dzielenia
                         if (String(exprList[i]).match(/(?:\*|\/)/)) {
                             var op = exprList[i]
                             var num1 = Number(exprList[i - 1])
@@ -84,8 +91,8 @@ module.exports = {
                             i--
                         }
                     }
+
                     for (var i = 0; i < exprList.length; i++) {
-                        // zaczynamy od dodawania i odejmowania
                         if (String(exprList[i]).match(/(?:\+|\-)/)) {
                             var op = exprList[i]
                             var num1 = Number(exprList[i - 1])

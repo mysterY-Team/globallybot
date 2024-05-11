@@ -28,9 +28,10 @@ module.exports = {
         "1197864787200180224", //calebinioziom
         "442781147685191700", //chudoku
     ],
-    supportServer: {
-        id: "1173722642004574359",
-    },
+    supportServers: [
+        "1173722642004574359", //type-y
+        "1237862291580653638", //globally
+    ],
     _bot: {
         id: ldb.get("bid").val,
         type: ldb.get("dbPathStart").val ?? "stable",

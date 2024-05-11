@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js")
 const { getDatabase, ref, get, set } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons, _bot, supportServer, debug, constPremiumServersIDs } = require("../../../config")
+const { firebaseApp, ownersID, customEmoticons, _bot, supportServers, debug, constPremiumServersIDs } = require("../../../config")
 
 module.exports = {
     /**
@@ -51,7 +51,7 @@ module.exports = {
         var allsnpsht = await get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc`))
         var gccount = allsnpsht.exists() ? Object.keys(allsnpsht.val()).length : 0
 
-        if (gccount > 0 && supportServer.id !== interaction.guildId && !constPremiumServersIDs.includes(interaction.guildId)) {
+        if (gccount > 0 && !supportServers.includes(interaction.guildId) && !constPremiumServersIDs.includes(interaction.guildId)) {
             return interaction.editReply(`${customEmoticons.denided} Przekroczony został limit ustawionych stacji!`)
         }
 

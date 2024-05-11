@@ -16,8 +16,10 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
+        var user = interaction.options.getUser("osoba") || interaction.user
+
         await interaction.deferReply()
-        var snpsht = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${interaction.user.id}/imaca`))
+        var snpsht = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${user.id}/imaca`))
         if (!snpsht.exists()) {
             interaction.editReply(`${customEmoticons.minus} Nie masz profilu, aby wyświetlić kartę...\n${customEmoticons.info} Załóż pod \`profil utwórz typ:ImaCarrrd\``)
             return
@@ -90,10 +92,10 @@ module.exports = {
                 backgroundImage0.src = background0
                 context.drawImage(backgroundImage0, 0, 0, canvas.width, canvas.height)
 
-                await setImageInCircle(context, 23, 123, 210, interaction.user.displayAvatarURL({ format: "png", size: 512 }))
+                await setImageInCircle(context, 23, 123, 210, user.displayAvatarURL({ format: "png", size: 512 }))
 
                 createGradientText(context, 23, 396, data.name, [data.nameGradient1, data.nameGradient2, "#FFFFFF"], "68px Jersey 10")
-                createGradientText(context, 23, 443, interaction.user.username, [data.nameGradient1, data.nameGradient2, "#FFFFFF"], "34px Jersey 10")
+                createGradientText(context, 23, 443, user.username, [data.nameGradient1, data.nameGradient2, "#FFFFFF"], "34px Jersey 10")
 
                 drawText(context, data.description, {
                     x: 23,
@@ -133,10 +135,10 @@ module.exports = {
                 backgroundImage1.src = background1
                 context.drawImage(backgroundImage1, 0, 0, 700, 1000)
 
-                await setImageInCircle(context, 8, 73, 160, interaction.user.displayAvatarURL({ format: "png", size: 512 }))
+                await setImageInCircle(context, 8, 73, 160, user.displayAvatarURL({ format: "png", size: 512 }))
 
                 createGradientText(context, 23, 355, data.name, [data.nameGradient1, data.nameGradient2, "#000000"], "44px Audiowide")
-                createGradientText(context, 140, 295, interaction.user.username, [data.nameGradient1, data.nameGradient2, "#000000"], "21px Audiowide")
+                createGradientText(context, 140, 295, user.username, [data.nameGradient1, data.nameGradient2, "#000000"], "21px Audiowide")
 
                 drawText(context, data.description, {
                     x: 23,
@@ -153,7 +155,7 @@ module.exports = {
                 break
         }
 
-        const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"), { name: `imacarrd_${interaction.user.id}.png` })
+        const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"), { name: `imacarrd_${user.id}.png` })
 
         interaction.editReply({ files: [attachment] })
     },

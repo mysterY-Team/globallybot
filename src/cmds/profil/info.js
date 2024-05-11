@@ -18,6 +18,7 @@ module.exports = {
         const modules = Object.keys(data).map((x) => {
             const _x = {
                 gc: "GlobalChat",
+                imaca: "ImaCarrrd",
             }
             return _x[x] || x
         })

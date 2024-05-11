@@ -176,7 +176,12 @@ var slashList = [
     new SlashCommandBuilder()
         .setName("imacarrrd")
         .setDescription("Karty użytkownika na nowym poziomie")
-        .addSubcommand((subcommand) => subcommand.setName("pokaż").setDescription("Pokazuje kartę ImaCarrrd użytkownika"))
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("pokaż")
+                .setDescription("Pokazuje kartę ImaCarrrd użytkownika")
+                .addUserOption((option) => option.setName("osoba").description("Osoba z aktywnym modułem ImaCarrrd"))
+        )
         .addSubcommand((subcommand) => subcommand.setName("konfiguruj").setDescription("Pozwala na edycję informacji karty ImaCarrrd użytkownika"))
         .addSubcommand((subcommand) =>
             subcommand

@@ -609,20 +609,21 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
 
                         if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
                         var comp = {
-                            global: [
-                                [
-                                    new ButtonBuilder()
-                                        .setStyle(ButtonStyle.Secondary)
-                                        .setCustomId(`getemotes\u0000${DiscordMessage.guildId}`)
-                                        .setLabel(`Ze serwera: ${DiscordMessage.guild.name}`),
-                                    typeof prefixes == "string"
-                                        ? new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)
-                                        : null,
-                                ],
-                                prevLastUser !== `${GlobalChatMessage.location}:${GlobalChatMessage.author.id}`
-                                    ? [new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gctab\u0000${GlobalChatMessage.author.id}`).setEmoji("👉")]
-                                    : [],
-                            ]
+                            global: (prevLastUser !== `${GlobalChatMessage.location}:${GlobalChatMessage.author.id}`
+                                ? [
+                                      [
+                                          new ButtonBuilder()
+                                              .setStyle(ButtonStyle.Secondary)
+                                              .setCustomId(`getemotes\u0000${DiscordMessage.guildId}`)
+                                              .setLabel(`Ze serwera: ${DiscordMessage.guild.name}`),
+                                          typeof prefixes == "string"
+                                              ? new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)
+                                              : null,
+                                      ],
+                                      [new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gctab\u0000${GlobalChatMessage.author.id}`).setEmoji("👉")],
+                                  ]
+                                : []
+                            )
                                 .filter((row) => row && row.filter((x) => x).length > 0)
                                 .map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x))),
                             server: [
