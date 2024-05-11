@@ -622,7 +622,11 @@ function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
                                       ],
                                       [new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gctab\u0000${GlobalChatMessage.author.id}`).setEmoji("👉")],
                                   ]
-                                : []
+                                : [
+                                      typeof prefixes == "string"
+                                          ? new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)
+                                          : null,
+                                  ]
                             )
                                 .filter((row) => row && row.filter((x) => x).length > 0)
                                 .map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x))),
