@@ -11,7 +11,7 @@ module.exports = {
      */
     async execute(client, interaction) {
         await interaction.deferReply()
-        var snapshot = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${interaction.options.getUser("osoba", true).id}/gc/block`))
+        var snapshot = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${interaction.options.getUser("osoba", true).id}/gc`))
 
         if (!snapshot.exists()) var msg = `Jest zablokowany: ${customEmoticons.minus} (brak profilu)`
         else {
