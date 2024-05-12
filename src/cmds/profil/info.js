@@ -25,7 +25,7 @@ module.exports = {
 
         var embed = new EmbedBuilder()
             .setAuthor({
-                iconURL: user.avatarURL({ size: 32, extension: "webp" }),
+                iconURL: user.displayAvatarURL({ size: 32, extension: "webp" }),
                 name: `${user.displayName} (${user.discriminator === "0" ? user.username : `${user.username}#${user.discriminator}`})`,
             })
             .setFields({

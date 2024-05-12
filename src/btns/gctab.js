@@ -56,9 +56,9 @@ module.exports = {
                     name: interaction.user.discriminator === "0" ? interaction.user.username : `${interaction.user.username}#${interaction.user.discriminator}`,
                     iconURL: (() => {
                         var pp = interaction.user.defaultAvatarURL
-                        if (interaction.user.avatar !== null) pp = interaction.user.avatarURL({ size: 32, extension: "webp" })
+                        if (interaction.user.avatar !== null) pp = interaction.user.displayAvatarURL({ size: 32, extension: "webp" })
                         if (interaction.member.avatar !== null && interaction.member.avatar !== interaction.user.avatar)
-                            pp = interaction.member.avatarURL({ size: 32, extension: "webp" })
+                            pp = interaction.member.displayAvatarURL({ size: 32, extension: "webp" })
 
                         return pp
                     })(),

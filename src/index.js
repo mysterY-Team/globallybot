@@ -42,7 +42,7 @@ client.on("messageCreate", (msg) => {
                 id: msg.author.id,
                 name: msg.author.discriminator == "0" ? msg.author.username : `${msg.author.username}#${msg.author.discriminator}`,
                 isUser: !msg.author.bot && !msg.author.system,
-                avatar: msg.author.avatarURL({
+                avatar: msg.author.displayAvatarURL({
                     extension: "webp",
                 }),
             },

@@ -21,7 +21,9 @@ module.exports = {
         await interaction.deferReply()
         var snpsht = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${user.id}/imaca`))
         if (!snpsht.exists()) {
-            interaction.editReply(`${customEmoticons.minus} Nie masz profilu, aby wyświetlić kartę...\n${customEmoticons.info} Załóż pod \`profil utwórz typ:ImaCarrrd\``)
+            if (user.id == interaction.user.id)
+                interaction.editReply(`${customEmoticons.minus} Nie masz profilu, aby wyświetlić kartę...\n${customEmoticons.info} Załóż pod \`profil utwórz typ:ImaCarrrd\``)
+            else interaction.editReply(`${customEmoticons.minus} Ta osoba nie ma profilu!`)
             return
         }
         var data = imacaData.encode(snpsht.val())
