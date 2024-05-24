@@ -388,7 +388,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
 
             listenerLog(3, "➿ Spełniono warunek (1/6)")
 
-            if (freemem() > totalmem() * 0.2) {
+            if (freemem() < totalmem() * 0.1) {
                 DiscordMessage.reply(`${customEmoticons.loading} Pamięć została przekroczona, czekam na wolne miejsce...`)
                 listenerLog(3, "")
                 return
