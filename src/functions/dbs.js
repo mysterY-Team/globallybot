@@ -49,7 +49,7 @@ module.exports = {
             var newData = gcdata_create(obj[2])
             newData.isBlocked = $$.stob(obj[0]) ?? newData.isBlocked
             newData.blockReason = obj[1] ?? newData.blockReason
-            newData.timestampToSendMessage = obj[3] ?? newData.timestampToSendMessage
+            newData.timestampToSendMessage = obj[3] ?? Date.now() - 2
             newData.messagesToDelete = obj[4] ?? newData.messagesToDelete
             return newData
         },
