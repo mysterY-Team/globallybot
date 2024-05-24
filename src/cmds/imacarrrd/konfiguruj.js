@@ -1,6 +1,5 @@
-const { get, ref, getDatabase } = require("@firebase/database")
 const { CommandInteraction, Client, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require("discord.js")
-const { firebaseApp, _bot, customEmoticons } = require("../../config")
+const { db, customEmoticons } = require("../../config")
 const { imacaData } = require("../../functions/dbs")
 
 module.exports = {
@@ -10,14 +9,14 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        var snpsht = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${interaction.user.id}/imaca`))
-        if (!snpsht.exists()) {
+        var snpsht = db.get(`userData/${interaction.user.id}/imaca`)
+        if (!snpsht.exists) {
             return interaction.reply({
                 content: `${customEmoticons.info} Do konfiguracji potrzebny jest profil - \`profil utwórz typ:ImaCarrrd\``,
                 ephemeral: true,
             })
         }
-        var data = imacaData.encode(snpsht.val())
+        var data = imacaData.encode(snpsht.val)
         const modal = new ModalBuilder()
             .setTitle("Edycja informacji ImaCarrrd")
             .setCustomId(`imacaedit\u0000${interaction.user.id}`)

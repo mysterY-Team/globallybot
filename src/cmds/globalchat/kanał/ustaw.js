@@ -1,6 +1,5 @@
 const { CommandInteraction, Client, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js")
-const { getDatabase, ref, get, set } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons, _bot, supportServers, debug, constPremiumServersIDs } = require("../../../config")
+const { db, ownersID, customEmoticons, _bot, supportServers, debug, constPremiumServersIDs } = require("../../../config")
 
 module.exports = {
     /**
@@ -21,7 +20,7 @@ module.exports = {
 
         //argument kanału i serwer
         var channel = interaction.options.get("kanał", true)
-        var guild = client.guilds.cache.get(interaction.guildId)
+        var guild = interaction.guild
         var bot = guild.members.cache.get(_bot.id)
         if (
             !(
@@ -47,9 +46,14 @@ module.exports = {
             })
 
         await interaction.deferReply()
+        //sprawdzanie widoczności kanału
+        if (!channel.channel || !channel.channel.permissionsFor(guild.members.me).has(PermissionFlagsBits.ViewChannel)) {
+            return interaction.editReply(`${customEmoticons.denided} Kanał jest niedostępny! Czy na pewno mam do niego dostęp?`)
+        }
+
         //wczytywanie danych
-        var allsnpsht = await get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc`))
-        var gccount = allsnpsht.exists() ? Object.keys(allsnpsht.val()).length : 0
+        var allsnpsht = db.get(`serverData/${interaction.guildId}/gc`)
+        var gccount = allsnpsht.exists ? Object.keys(allsnpsht.val).length : 0
 
         if (gccount > 0 && !supportServers.includes(interaction.guildId) && !constPremiumServersIDs.includes(interaction.guildId)) {
             return interaction.editReply(`${customEmoticons.denided} Przekroczony został limit ustawionych stacji!`)
@@ -57,23 +61,23 @@ module.exports = {
 
         var $stacja = interaction.options.get("stacja", true).value
 
-        if (allsnpsht.exists())
-            var channelsInOtherStations = Object.values(allsnpsht.val())
-                .filter((x, y) => y !== Object.keys(allsnpsht.val()).indexOf(interaction.options.get("stacja", true).value))
+        if (allsnpsht.exists)
+            var channelsInOtherStations = Object.values(allsnpsht.val)
+                .filter((x, y) => y !== Object.keys(allsnpsht.val).indexOf(interaction.options.get("stacja", true).value))
                 .map((x) => x.channel)
         else var channelsInOtherStations = []
 
         if (channelsInOtherStations.includes(channel.value)) {
             return interaction.editReply(`${customEmoticons.denided} Ten kanał ma już odrębną stację!`)
         }
-        var snapshot = await get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${$stacja}`))
+        var snapshot = db.get(`serverData/${interaction.guildId}/gc/${$stacja}`)
         //sprawdzanie, czy już jest w bazie danych serwer i czy zawiera ten kanał bazie
-        var _bool = snapshot.exists()
-        var data = snapshot.val()
+        var _bool = snapshot.exists
+        var data = snapshot.val
 
         if (_bool && data.channel == channel.value) return interaction.editReply(`${customEmoticons.denided} Na tym kanale jest już ustawiony GlobalChat o tej stacji!`)
 
-        await set(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${$stacja}`), {
+        db.set(`serverData/${interaction.guildId}/gc/${$stacja}`, {
             channel: channel.value,
             webhook: "none",
         })

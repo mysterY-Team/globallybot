@@ -1,6 +1,5 @@
-const { get, ref, getDatabase, set } = require("@firebase/database")
 const { Client, CommandInteraction, AutocompleteFocusedOption } = require("discord.js")
-const { customEmoticons, firebaseApp, _bot } = require("../../config")
+const { customEmoticons, db } = require("../../config")
 const { imacaData } = require("../../functions/dbs")
 const { classes } = require("../../functions/imaca")
 
@@ -26,18 +25,18 @@ module.exports = {
         }
 
         await interaction.deferReply()
-        var snpsht = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${interaction.user.id}/imaca`))
+        var snpsht = db.get(`userData/${interaction.user.id}/imaca`)
 
-        if (!snpsht.exists()) {
+        if (!snpsht.exists) {
             return interaction.editReply(`${customEmoticons.denided} Wymagany jest profil, aby zmienić kartę!`)
         }
 
-        var data = imacaData.encode(snpsht.val())
+        var data = imacaData.encode(snpsht.val)
 
         data.cardID = sid
         data.description = data.description.replace(/\n/g, " ")
 
-        await set(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${interaction.user.id}/imaca`), imacaData.decode(data))
+        db.set(`userData/${interaction.user.id}/imaca`, imacaData.decode(data))
 
         interaction.editReply(
             `${customEmoticons.approved} Zmieniono styl karty\n${customEmoticons.info} Aby uniknąć ewentualnych problemów renderowania, zamieniono wszystkie nowe linie spacjami. Możesz uruchomić ponownie komendę \`imacarrrd konfiguruj\` i zedytować swój opis`

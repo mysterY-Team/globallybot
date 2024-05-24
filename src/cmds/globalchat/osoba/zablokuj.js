@@ -1,6 +1,5 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { getDatabase, ref, set, get } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons, GCmodsID, _bot } = require("../../../config")
+const { db, ownersID, customEmoticons, GCmodsID } = require("../../../config")
 const { gcdata } = require("../../../functions/dbs")
 
 module.exports = {
@@ -23,15 +22,15 @@ module.exports = {
                 ephemeral: interaction.inGuild(),
             })
 
-            var snapshot = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc`))
-            if (!snapshot.exists()) {
+            var snapshot = db.get(`userData/${uID}/gc`)
+            if (!snapshot.exists) {
                 interaction.editReply({
                     content: `${customEmoticons.minus} Ta osoba jeszcze nie utworzyła profilu...`,
                 })
                 return
             }
 
-            var info = gcdata.encode(snapshot.val())
+            var info = gcdata.encode(snapshot.val)
 
             if (info.isBlocked) {
                 interaction.editReply({
@@ -64,7 +63,7 @@ module.exports = {
             interaction.editReply({
                 content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${uID}> \`${uID}\``,
             })
-            set(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${uID}/gc`), gcdata.decode(info))
+            db.set(`userData/${uID}/gc`, gcdata.decode(info))
         } catch (err) {
             interaction.reply({
                 content: "Coś poszło nie tak... spróbuj ponownie!",

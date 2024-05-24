@@ -5,8 +5,7 @@ const { readFile } = require("fs/promises")
 const { request } = require("undici")
 const { generateGradientText } = require("../../functions/gradient")
 const imacaInfo = require("../../functions/imaca")
-const { get, ref, getDatabase } = require("@firebase/database")
-const { firebaseApp, customEmoticons, _bot } = require("../../config")
+const { db, customEmoticons } = require("../../config")
 const { imacaData } = require("../../functions/dbs")
 
 module.exports = {
@@ -19,14 +18,14 @@ module.exports = {
         var user = interaction.options.getUser("osoba") || interaction.user
 
         await interaction.deferReply()
-        var snpsht = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${user.id}/imaca`))
-        if (!snpsht.exists()) {
+        var snpsht = db.get(`userData/${user.id}/imaca`)
+        if (!snpsht.exists) {
             if (user.id == interaction.user.id)
                 interaction.editReply(`${customEmoticons.minus} Nie masz profilu, aby wyświetlić kartę...\n${customEmoticons.info} Załóż pod \`profil utwórz typ:ImaCarrrd\``)
             else interaction.editReply(`${customEmoticons.minus} Ta osoba nie ma profilu!`)
             return
         }
-        var data = imacaData.encode(snpsht.val())
+        var data = imacaData.encode(snpsht.val)
         const canvas = createCanvas(700, 1000)
         const context = canvas.getContext("2d")
 

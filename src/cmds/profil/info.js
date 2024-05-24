@@ -1,6 +1,5 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { getDatabase, ref, get } = require("@firebase/database")
-const { firebaseApp, customEmoticons, _bot, ownersID, GCmodsID } = require("../../config")
+const { db, customEmoticons, ownersID, GCmodsID } = require("../../config")
 const { gcdata } = require("../../functions/dbs")
 
 module.exports = {
@@ -13,8 +12,8 @@ module.exports = {
         const user = interaction.options.getUser("osoba") || interaction.user
 
         await interaction.deferReply()
-        const fdb = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${user.id}`))
-        var data = fdb.val() ?? {}
+        const fdb = db.get(`userData/${user.id}`)
+        var data = fdb.val ?? {}
         const modules = Object.keys(data).map((x) => {
             const _x = {
                 gc: "GlobalChat",

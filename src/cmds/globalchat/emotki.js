@@ -1,4 +1,4 @@
-const { Client, CommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
+const { Client, CommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle, GuildNSFWLevel } = require("discord.js")
 const { customEmoticons, _bot } = require("../../config")
 const { servers } = require("../../functions/useful")
 
@@ -192,6 +192,33 @@ module.exports = {
             emote: "<:SCARYEMERGENCYFOOD:1012412288856240148>",
             server: { id: "883761027836178502", iCode: "Dec9wvCaBp" },
         },
+        {
+            savenames: ["genshin.kokomiCry"],
+            emote: "<:Kokomi_Fish_Cry_Moothify:1226270778463617205>",
+            server: { id: "1199605405245001838", iCode: "kaneami" },
+        },
+        {
+            savenames: ["genshin.kokomiFullOfHearts", "genshin.kokomiHearts"],
+            emote: "<:kokomi_hearts:1226271152771563561>",
+            server: { id: "1199605405245001838", iCode: "kaneami" },
+        },
+        {
+            savenames: ["genshin.nahidaWink"],
+            emote: "<:Nahida_Wink:1226271383856873542>",
+            server: { id: "1199605405245001838", iCode: "kaneami" },
+        },
+        {
+            savenames: ["starcieInternetu.botekSkull", "stin.botekSkull"],
+            emote: "<:StIn_botekSkull:1240889285734039622>",
+        },
+        {
+            savenames: ["starcieInternetu.patyArguing", "stin.patyArguing"],
+            emote: "<:StIn_patyArguing:1240889327064453161>",
+        },
+        {
+            savenames: ["starcieInternetu.szymekDymekChilling", "stin.szymekDymekChilling", "starcieInternetu.szymekDymekChill", "stin.szymekDymekChill"],
+            emote: "<:StIn_szymekDymekChill:1240889372610396180>",
+        },
     ],
 
     /**
@@ -235,6 +262,8 @@ module.exports = {
             if (ServersWithTheirEmotesFeature.map((x) => x.id).includes(sid)) {
                 await interaction.deferReply()
                 var server = await client.guilds.fetch(sid)
+                var _perms = (await server.members.fetchMe()).permissions
+                const permsToInvite = _perms.has("Administrator") || _perms.has("CreateInstantInvite")
                 var sName = server.name
                 const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`).sort(() => Math.random() - 0.5)
                 var showedEmotes = allEmotes
@@ -249,6 +278,9 @@ module.exports = {
                 var invition = inv.map((x) => x).filter((x) => x.inviterId === _bot.id)[0] ?? ""
                 var channels = (await server.channels.fetch()).map((x) => x)
                 var i = 0
+                if (server.vanityURLCode) {
+                    invition = server.vanityURLCode
+                }
                 while (i < channels.length && !invition) {
                     try {
                         invition = (await server.invites.create(channels[i].id, { maxAge: 0 })).code

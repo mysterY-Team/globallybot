@@ -1,23 +1,13 @@
-const { initializeApp } = require("@firebase/app")
 const loc = require("locallium")
 
-const firebaseConfig = {
-    apiKey: "AIzaSyAi7Xst1KS8bKKD8T05tIs7Ind_TzTBFEY",
-    authDomain: "globally2137.firebaseapp.com",
-    projectId: "globally2137",
-    storageBucket: "globally2137.appspot.com",
-    messagingSenderId: "1031570970953",
-    appId: "1:1031570970953:web:a21bb74cbe90400cfde298",
-    databaseURL: "https://globally2137-default-rtdb.europe-west1.firebasedatabase.app",
-}
-
-const debug = false
+const debug = true
 
 const ldb = new loc.Database("env")
 
+loc.Database
 module.exports = {
     TOKEN: ldb.get("token").val,
-    firebaseApp: initializeApp(firebaseConfig),
+    db: new loc.Database("db/main.db", new loc.DatabaseFlags({ keySeparator: "/" })),
     ownersID: [
         "1166024655052738570", //patyczakus
         "767311735819862032", //maticola
@@ -35,7 +25,6 @@ module.exports = {
     ],
     _bot: {
         id: ldb.get("bid").val,
-        type: ldb.get("dbPathStart").val ?? "stable",
     },
     customEmoticons: {
         loading: "<:PX_loading:1174021728721195118>",

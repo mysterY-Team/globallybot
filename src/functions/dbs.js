@@ -19,6 +19,8 @@ function gcdata_create(accountCreated) {
         isBlocked: false,
         blockReason: "",
         birth: accountCreated,
+        timestampToSendMessage: Date.now() + 2000,
+        messagesToDelete: "",
     }
 }
 
@@ -47,6 +49,8 @@ module.exports = {
             var newData = gcdata_create(obj[2])
             newData.isBlocked = $$.stob(obj[0]) ?? newData.isBlocked
             newData.blockReason = obj[1] ?? newData.blockReason
+            newData.timestampToSendMessage = obj[3] ?? newData.timestampToSendMessage
+            newData.messagesToDelete = obj[4] ?? newData.messagesToDelete
             return newData
         },
         decode: (data) => {

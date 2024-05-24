@@ -1,8 +1,7 @@
 const { Client, ModalSubmitInteraction } = require("discord.js")
 const { createCanvas } = require("@napi-rs/canvas")
 const { drawText } = require("canvas-txt")
-const { get, ref, getDatabase, set } = require("@firebase/database")
-const { firebaseApp, _bot, customEmoticons } = require("../config")
+const { db, customEmoticons } = require("../config")
 const { imacaData } = require("../functions/dbs")
 const imacaInfo = require("../functions/imaca")
 
@@ -19,8 +18,8 @@ module.exports = {
         const context = canvas.getContext("2d")
         var txt = interaction.fields.getTextInputValue("description")
 
-        var snpsht = await get(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${interaction.user.id}/imaca`))
-        const data = imacaData.encode(snpsht.val())
+        var snpsht = db.get(`userData/${interaction.user.id}/imaca`)
+        const data = imacaData.encode(snpsht.val)
         var newData = imacaData.create()
         newData.cardID = data.cardID
         newData.description = interaction.fields.getTextInputValue("description")
@@ -56,7 +55,7 @@ module.exports = {
             interaction.editReply(`${customEmoticons.denided} Któryś argument koloru **nie jest** kolorem HEX, sprawdź poprawność i użyj komendy jeszcze raz!`)
             return
         }
-        await set(ref(getDatabase(firebaseApp), `${_bot.type}/userData/${interaction.user.id}/imaca`), imacaData.decode(newData))
+        db.set(`userData/${interaction.user.id}/imaca`, imacaData.decode(newData))
         interaction.editReply(`${customEmoticons.approved} Dane zostały zaktualizowane!`)
     },
 }

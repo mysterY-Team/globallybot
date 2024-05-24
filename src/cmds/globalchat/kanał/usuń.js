@@ -1,6 +1,5 @@
 const { CommandInteraction, Client, PermissionFlagsBits, WebhookClient } = require("discord.js")
-const { getDatabase, ref, get, remove } = require("@firebase/database")
-const { firebaseApp, ownersID, customEmoticons, _bot } = require("../../../config")
+const { db, ownersID, customEmoticons, _bot } = require("../../../config")
 const { default: axios } = require("axios")
 
 module.exports = {
@@ -38,16 +37,15 @@ module.exports = {
             })
 
         await interaction.deferReply()
-        var snapshot = await get(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`))
-        if (!snapshot.exists()) return interaction.editReply(`${customEmoticons.denided} Nie ma ustawionego kanału na tej stacji!`)
+        var snapshot = db.get(`serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)
+        if (!snapshot.exists) return interaction.editReply(`${customEmoticons.denided} Nie ma ustawionego kanału na tej stacji!`)
 
         function removeData() {
-            remove(ref(getDatabase(firebaseApp), `${_bot.type}/serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)).then(() => {
-                interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
-            })
+            db.delete(`serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)
+            interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
         }
 
-        var data = snapshot.val()
+        var data = snapshot.val
 
         var channel = interaction.guild.channels.cache.get(data.channel)
 
