@@ -45,8 +45,10 @@ module.exports = {
                     if (channel && channel.type === ChannelType.GuildText) {
                         listenerLog(5, `Kanał istnieje`)
                         const message = await channel.messages.fetch(location[2])
-                        if (message) listenerLog(5, `Wiadomość istnieje`)
-                        if (message?.deletable) message.delete()
+                        if (message?.deletable) {
+                            listenerLog(5, `Wiadomość istnieje i jest możliwa do usunięcia`)
+                            await message.delete()
+                        }
                     }
                 } catch (e) {}
 
