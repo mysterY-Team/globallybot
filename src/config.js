@@ -33,6 +33,6 @@ module.exports = {
         approved: "<:PX_allow:1174021958732619838>",
         minus: "<:PX_minus:1189586820967702613>",
     },
-    constPremiumServersIDs: ["1159191121939923026"],
+    constPremiumServersIDs: ["1159191121939923026", "1245039603635716179"],
     debug,
 }
