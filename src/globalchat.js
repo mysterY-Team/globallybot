@@ -564,7 +564,8 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                                 })
                             }
                         } catch (err) {
-                            db.delete(`serverData/${guildID}/gc/${station}`)
+                            //console.warn(err)
+                            db.delete(`serverData/${guildID || "und"}`)
                             return
                         }
                     })
