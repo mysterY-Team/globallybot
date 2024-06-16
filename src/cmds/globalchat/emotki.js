@@ -1,10 +1,13 @@
-const { Client, CommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle, GuildNSFWLevel } = require("discord.js")
+const { Client, CommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle, Snowflake } = require("discord.js")
 const { customEmoticons, _bot } = require("../../config")
 const { servers } = require("../../functions/useful")
 
 const ServersNotUsingTheirEmotesFeature = ["1173361427159994478"]
 
 module.exports = {
+    /**
+     * @type {{savenames: string[], emote: string, server?: { id: Snowflake, iCode: string } | undefined }[]}
+     */
     emoticons: [
         { savenames: ["pixel.kekw", "px.kekw"], emote: "<:PX_kekw:1182025687566123078>" },
         {
@@ -218,6 +221,31 @@ module.exports = {
         {
             savenames: ["starcieInternetu.szymekDymekChilling", "stin.szymekDymekChilling", "starcieInternetu.szymekDymekChill", "stin.szymekDymekChill"],
             emote: "<:StIn_szymekDymekChill:1240889372610396180>",
+        },
+        {
+            savenames: ["kanae.angry"],
+            emote: "<:Kanae_Angry_NF2U:1244393682644500583>",
+            server: { id: "1199605405245001838", iCode: "WkYHb57jw7" },
+        },
+        {
+            savenames: ["kanae.confused", "kanae.loading"],
+            emote: "<:Kanae_Confused_NF2U:1244393436623405146>",
+            server: { id: "1199605405245001838", iCode: "WkYHb57jw7" },
+        },
+        {
+            savenames: ["kanae.laughing"],
+            emote: "<:Kanae_lol_NF2U:1244394393423581255>",
+            server: { id: "1199605405245001838", iCode: "WkYHb57jw7" },
+        },
+        {
+            savenames: ["kanae.scared", "kanae.traumatized"],
+            emote: "<:Kanae_Traumatized_NF2U:1244394437237276782>",
+            server: { id: "1199605405245001838", iCode: "WkYHb57jw7" },
+        },
+        {
+            savenames: ["kanae.holdingHeart", "kanae.love"],
+            emote: "<:Kanae_Love_NF2U:1244393501274144768>",
+            server: { id: "1199605405245001838", iCode: "WkYHb57jw7" },
         },
     ],
 

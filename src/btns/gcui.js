@@ -1,5 +1,6 @@
 const { Client, ButtonInteraction, EmbedBuilder, UserPremiumType } = require("discord.js")
 const { customEmoticons, ownersID, GCmodsID, db } = require("../config")
+const { gcdata } = require("../functions/dbs")
 
 module.exports = {
     /**
@@ -13,6 +14,7 @@ module.exports = {
 
         const booltext = (x) => (x ? customEmoticons.approved : customEmoticons.denided)
 
+        var data = gcdata.encode(db.get(`userData/${args[0]}/imaca`).val)
         var haveImacarrrd = db.get(`userData/${args[0]}/imaca`).exists
 
         var embed = new EmbedBuilder()
@@ -24,7 +26,7 @@ module.exports = {
                     ownersID.includes(args[0])
                 )}\nModerator GlobalChat: ${booltext(ownersID.includes(args[0]) || GCmodsID.includes(args[0]))}${
                     haveImacarrrd ? `\n\n*Ten użytkownik posiada ImaCarrrd! Sprawdź pod komendą \`imacarrrd pokaż osoba:${args[0]}\`*` : ""
-                }\nKarma: **${data.gc.karma.toString()}**`
+                }\nKarma: **${data.karma.toString()}**`
             )
             .setFooter({ text: 'Złamał regulamin? Skontaktuj się do serwera support - komenda "botinfo"' })
             .setColor("Random")
