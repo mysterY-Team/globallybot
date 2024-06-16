@@ -14,7 +14,7 @@ module.exports = {
 
         const booltext = (x) => (x ? customEmoticons.approved : customEmoticons.denided)
 
-        var data = gcdata.encode(db.get(`userData/${args[0]}/imaca`).val)
+        var data = gcdata.encode(db.get(`userData/${args[0]}/gc`).val)
         var haveImacarrrd = db.get(`userData/${args[0]}/imaca`).exists
 
         var embed = new EmbedBuilder()
