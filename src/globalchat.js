@@ -704,11 +704,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
             })
         }
     } catch (err) {
-        // DiscordMessage.reply(
-        //     `${customEmoticons.denided} Nie mogłem przetworzyć Twojego rządania! Bardzo możliwe że to po prostu moja wina, rozważ napisanie o tym błędzie do serwera support`
-        // ).then(() => {
-        //     if (debug) console.error(err)
-        // })
+        if (debug) console.error(err)
     }
 }
 
