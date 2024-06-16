@@ -1,7 +1,8 @@
-const { Client, ButtonInteraction, ChannelType } = require("discord.js")
+const { Client, ButtonInteraction, ChannelType, EmbedBuilder } = require("discord.js")
 const { customEmoticons, db } = require("../config")
 const { gcdata } = require("../functions/dbs")
 const { listenerLog } = require("../functions/useful")
+const { lastUserHandler } = require("../globalchat")
 
 module.exports = {
     /**
@@ -16,25 +17,36 @@ module.exports = {
                 ephemeral: true,
             })
         }
-        const comp = interaction.message.components
         await interaction.deferReply({
             ephemeral: true,
         })
-        const msgid = interaction.message.id
-        const snpsht = db.get(`userData/${interaction.user.id}/gc`)
-        var data = gcdata.encode(snpsht.val)
-
-        data.messagesToDelete = data.messagesToDelete.split("|")
-        console.log(`${interaction.guildId}/${interaction.channelId}/${msgid}\n${data.messagesToDelete}`)
-        if (!data.messagesToDelete.includes(`${interaction.guildId}/${interaction.channelId}/${msgid}`)) {
+        var $channel = await client.channels.fetch("1251618649425449072")
+        if ($channel && $channel.type == ChannelType.GuildText) {
+            try {
+                var $message = await $channel.messages.fetch(args[1])
+                var messagesToDelete = $message.content.split("|")
+            } catch (err) {
+                interaction.editReply("Możliwość usunięcia tej wiadomości wygasła!")
+                return
+            }
+        } else {
             interaction.editReply("Możliwość usunięcia tej wiadomości wygasła!")
             return
         }
 
-        interaction.editReply(`${customEmoticons.loading} Usuwanie...`)
+        var lastUser = lastUserHandler.get()
+        if (lastUser === `${interaction.guildId}/${interaction.channelId}:${args[0]}[true]`) {
+            lastUserHandler.reset()
+        }
+
+        await interaction.editReply(`${customEmoticons.loading} Usuwanie...`)
+        {
+            let embed = new EmbedBuilder($message.embeds[0]).setFields({ name: "Stan", value: "Usuwanie" }).setColor("Orange")
+            await $message.edit({ embeds: [embed] })
+        }
 
         await Promise.all(
-            data.messagesToDelete.map(async (location, i) => {
+            messagesToDelete.map(async (location, i) => {
                 listenerLog(4, `Lokalizacja nr. ${i}`)
                 location = location.split("/")
 
@@ -55,6 +67,16 @@ module.exports = {
                 return
             })
         )
+
+        var data = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
+        data.timestampToSendMessage = Math.max(data.timestampToSendMessage + 3000, Date.now() + 5000)
+        db.set(`userData/${interaction.user.id}/gc`, gcdata.decode(data))
+
+        {
+            let embed = new EmbedBuilder($message.embeds[0]).setFields({ name: "Stan", value: `Usunięto <t:${Math.floor(Date.now() / 1000)}:R>` }).setColor("Red")
+            await $message.edit({ content: "", embeds: [embed] })
+        }
+
         interaction.editReply(`${customEmoticons.approved} Usunięto pomyślnie!`)
     },
 }

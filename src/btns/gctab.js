@@ -2,11 +2,6 @@ const { ButtonInteraction, Client, EmbedBuilder, EmbedType } = require("discord.
 const { customEmoticons, db } = require("../config")
 const { gcdata } = require("../functions/dbs")
 
-var users = {
-    inCooldown: [],
-    blockedToReply: [],
-}
-
 const times = {
     cooldown: 300,
     blockrepl: 60,
@@ -19,35 +14,42 @@ module.exports = {
      * @param {string[]} args
      */
     async execute(client, interaction, ...args) {
-        if (users.inCooldown.length >= 30 || users.blockedToReply.length >= 40) {
-            interaction.reply({
-                content: `${customEmoticons.loading} Zaczepianie zostało automatycznie wyłączone z powodu przeciążenia, sprawdź później`,
-                ephemeral: true,
-            })
-        }
-        if (users.inCooldown.includes(interaction.user.id)) {
-            interaction.reply({
-                content: `${customEmoticons.minus} Jesteś jeszcze na cooldownie!`,
-                ephemeral: true,
-            })
-            return
-        }
         var uid = args[0]
+
         if (interaction.user.id === uid || users.blockedToReply.includes(uid)) {
             interaction.deferUpdate()
             return
         }
+
         await interaction.deferReply({ ephemeral: true })
-        var userData = db.get(`userData/${interaction.user.id}/gc`)
-        if (!userData.exists) {
+
+        var userData1 = db.get(`userData/${interaction.user.id}/gc`)
+        if (!userData1.exists) {
             interaction.editReply(`${customEmoticons.denided} Wymagany jest profil, aby użyć tej funkcji! Utworzysz pod komendą \`profil utwórz typ:GlobalChat\``)
             return
         }
-        if (gcdata.encode(userData.val).isBlocked) {
+
+        var data1 = gcdata.encode(userData1.val)
+        if (data1.isBlocked) {
             interaction.editReply(`${customEmoticons.denided} Jesteś zablokowany w usłudze GlobalChat!`)
-            if (typeof userData.val === "object") db.set(`userData/${interaction.user.id}/gc`, gcdata.decode(gcdata.encode(userData)))
             return
         }
+        if (data1.timestampToTab > Math.floor(Date.now() / 1000)) {
+            interaction.editReply(`${customEmoticons.denided} Jeszcze musisz poczekać; już wysłałeś zaczepkę!`)
+            return
+        }
+
+        var userData2 = db.get(`userData/${uid}/gc`)
+        var data2 = gcdata.encode(userData2)
+        if (data2.isBlocked) {
+            interaction.editReply(`${customEmoticons.denided} Użytkownik jest zablokowany! Daj mu spokój!`)
+            return
+        }
+        if (data2.blockTimestampToTab > Math.floor(Date.now() / 1000)) {
+            interaction.editReply(`${customEmoticons.loading} Ktoś już mu wysłał zaczepkę, poczekaj chwilkę...`)
+            return
+        }
+
         try {
             const embed = new EmbedBuilder()
                 .setAuthor({
@@ -70,22 +72,11 @@ module.exports = {
                 `${customEmoticons.approved} Wysłano pomyślnie zaczepkę! Zaczekaj do <t:${Math.floor(Date.now() / 1000) + times.cooldown + 3}:t> na następną zaczepkę!`
             )
 
-            users.inCooldown.push(interaction.user.id)
-            setTimeout(
-                (id) => {
-                    users.inCooldown = users.inCooldown.filter((x) => x !== id)
-                },
-                times.cooldown * 1000,
-                interaction.user.id
-            )
-            users.blockedToReply.push(uid)
-            setTimeout(
-                (id) => {
-                    users.blockedToReply = users.blockedToReply.filter((x) => x !== id)
-                },
-                times.blockrepl * 1000,
-                uid
-            )
+            data1.timestampToTab += times.cooldown
+            data2.blockTimestampToTab += times.blockrepl
+
+            db.set(`userData/${interaction.user.id}/gc`, gcdata.decode(data1))
+            db.set(`userData/${uid}/gc`, gcdata.decode(data2))
         } catch (err) {
             interaction.editReply(`${customEmoticons.denided} Nie udało się wysłać zaczepki!`)
         }

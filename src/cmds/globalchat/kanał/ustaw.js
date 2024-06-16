@@ -1,5 +1,6 @@
 const { CommandInteraction, Client, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js")
 const { db, ownersID, customEmoticons, _bot, supportServers, debug, constPremiumServersIDs } = require("../../../config")
+const { gcdataGuild } = require("../../../functions/dbs")
 
 module.exports = {
     /**
@@ -9,6 +10,7 @@ module.exports = {
      */
     async execute(client, interaction) {
         const supportButton = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Bądź na bieżąco z botem!").setURL("https://discord.gg/7S3P2DUwAm")
+        const pwd = interaction.options.get("passwd")?.value
 
         if (debug && !ownersID.includes(interaction.user.id))
             return interaction.reply({
@@ -45,42 +47,54 @@ module.exports = {
                     .join("\n"),
             })
 
-        await interaction.deferReply()
+        await interaction.deferReply({ ephemeral: Boolean(pwd) })
         //sprawdzanie widoczności kanału
+
         if (!channel.channel || !channel.channel.permissionsFor(guild.members.me).has(PermissionFlagsBits.ViewChannel)) {
             return interaction.editReply(`${customEmoticons.denided} Kanał jest niedostępny! Czy na pewno mam do niego dostęp?`)
         }
 
         //wczytywanie danych
         var allsnpsht = db.get(`serverData/${interaction.guildId}/gc`)
-        var gccount = allsnpsht.exists ? Object.keys(allsnpsht.val).length : 0
+        allsnpsht.val ??= ""
+        var gccount = allsnpsht.exists ? Object.keys(gcdataGuild.encode(allsnpsht.val)).length : 0
 
-        if (gccount > 0 && !supportServers.includes(interaction.guildId) && !constPremiumServersIDs.includes(interaction.guildId)) {
+        if (gccount >= 3 + 4 * constPremiumServersIDs.includes(interaction.guildId) && !supportServers.includes(interaction.guildId)) {
             return interaction.editReply(`${customEmoticons.denided} Przekroczony został limit ustawionych stacji!`)
         }
 
         var $stacja = interaction.options.get("stacja", true).value
+        // Daj listę stacji
+        var stationData = db.get(`stations/${$stacja}`).val
 
-        if (allsnpsht.exists)
-            var channelsInOtherStations = Object.values(allsnpsht.val)
-                .filter((x, y) => y !== Object.keys(allsnpsht.val).indexOf(interaction.options.get("stacja", true).value))
-                .map((x) => x.channel)
-        else var channelsInOtherStations = []
+        if (!stationData) {
+            return interaction.editReply(`${customEmoticons.denided} Nie ma takiej stacji!`)
+        }
 
-        if (channelsInOtherStations.includes(channel.value)) {
+        stationData = stationData.split("|")
+        if (!pwd && stationData[1]) {
+            return interaction.editReply(`${customEmoticons.info} Ta stacja wymaga użycia argumentu \`passwd\``)
+        }
+        if (pwd !== stationData[1]) {
+            return interaction.editReply(`${customEmoticons.denided} Niepoprawne hasło!`)
+        }
+
+        var _bool = allsnpsht.val.includes(channel.value)
+
+        var data = gcdataGuild.encode(allsnpsht.val)
+        if (data[$stacja]?.channel == channel.value) return interaction.editReply(`${customEmoticons.denided} Na tym kanale jest już ustawiony GlobalChat o tej stacji!`)
+
+        if (_bool) {
             return interaction.editReply(`${customEmoticons.denided} Ten kanał ma już odrębną stację!`)
         }
-        var snapshot = db.get(`serverData/${interaction.guildId}/gc/${$stacja}`)
-        //sprawdzanie, czy już jest w bazie danych serwer i czy zawiera ten kanał bazie
-        var _bool = snapshot.exists
-        var data = snapshot.val
 
-        if (_bool && data.channel == channel.value) return interaction.editReply(`${customEmoticons.denided} Na tym kanale jest już ustawiony GlobalChat o tej stacji!`)
-
-        db.set(`serverData/${interaction.guildId}/gc/${$stacja}`, {
+        data[$stacja] = {
             channel: channel.value,
             webhook: "none",
-        })
+            timestamp: data[$stacja]?.timestamp ?? Date.now() - 1,
+        }
+
+        db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
         //informacja o zapisie
         if (!_bool) interaction.editReply(`${customEmoticons.approved} Dodano pomyślnie kanał na stacji \`${$stacja}\`!`)
         else {

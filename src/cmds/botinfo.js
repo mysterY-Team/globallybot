@@ -1,6 +1,7 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { customEmoticons } = require("../config")
 const { codeTime } = require("..")
+const { freemem, totalmem } = require("os")
 
 module.exports = {
     /**
@@ -32,12 +33,16 @@ module.exports = {
             .addFields(
                 {
                     name: "Czasy",
-                    value: `Uruchomienia bota: <t:${time}:F> (<t:${time}:R>)\nGotowości bota: <t:${readyTime}:F> (<t:${readyTime}:R>)`,
+                    value: `Uruchomienia bota: **<t:${time}:F> (<t:${time}:R>)**\nGotowości bota: **<t:${readyTime}:F> (<t:${readyTime}:R>)**`,
                     inline: false,
                 },
                 {
+                    name: "Pamięci",
+                    value: `RAM: **${Math.round(totalmem() * 10 * 2 ** -20) / 10}** MB (**${Math.round(((totalmem() - freemem()) / totalmem()) * 10000) / 100}%** zajęte)`,
+                },
+                {
                     name: "Serwery",
-                    value: `Ilość: ${client.guilds.cache.size}\nIlość osób: ${uCount}\nNazwy: ||Wyświetlane są max. 10 serwerów|| \`\`\`${guildsName}\`\`\``,
+                    value: `Ilość: **${client.guilds.cache.size}**\nIlość osób: **${uCount}**\nNazwy: ||Wyświetlane są max. 10 serwerów|| \`\`\`${guildsName}\`\`\``,
                     inline: false,
                 }
             )

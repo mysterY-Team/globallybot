@@ -14,13 +14,13 @@ const $$ = {
     },
 }
 
-function gcdata_create(accountCreated) {
+function gcdata_create() {
     return {
         isBlocked: false,
         blockReason: "",
-        birth: accountCreated,
-        timestampToSendMessage: Date.now() + 2000,
-        messagesToDelete: "",
+        timestampToSendMessage: Date.now() + 3000,
+        timestampToTab: Math.floor(Date.now() / 1000),
+        blockTimestampToTab: Math.floor(Date.now() / 1000),
     }
 }
 
@@ -35,34 +35,57 @@ function imacaData_create() {
     }
 }
 
+function gcdataGuildS(data) {
+    data = data.split(",")
+    return {
+        channel: data[0],
+        webhook: data[1] ?? "none",
+        timestamp: Number(data[2]) || Date.now() - 1,
+    }
+}
+
 module.exports = {
     gcdata: {
         create: gcdata_create,
         encode: (data) => {
-            if (typeof data === "object") {
-                var newData = gcdata_create(data.birth)
-                newData.isBlocked = data.block.is
-                newData.blockReason = data.block.reason
-                return newData
-            }
             var obj = data.split("{=·}")
-            var newData = gcdata_create(obj[2])
+            var newData = gcdata_create()
+
             newData.isBlocked = $$.stob(obj[0]) ?? newData.isBlocked
             newData.blockReason = obj[1] ?? newData.blockReason
-            newData.timestampToSendMessage = obj[3] ?? Date.now() - 2
-            newData.messagesToDelete = obj[4] ?? newData.messagesToDelete
+            newData.timestampToSendMessage = Number(obj[2]) ?? Date.now() - 2
+            newData.timestampToTab = Number(obj[3]) ?? newData.timestampToTab
+            newData.blockTimestampToTab = Number(obj[4]) ?? newData.blockTimestampToTab
+
             return newData
         },
         decode: (data) => {
             return Object.values(data).join("{=·}")
         },
     },
+    gcdataGuild: {
+        encode: (data) => {
+            //console.log(data)
+            data = data.split("}")
+            data = data.filter((x) => x).map((item) => item.split("{"))
+            var newData = {}
+            data.forEach((item) => (newData[item[0]] = gcdataGuildS(item[1])))
+            return newData
+        },
+        decode: (data) => {
+            var newData = []
+            for (const [key, value] of Object.entries(data)) {
+                newData.push(`${key}{${Object.values(value).join(",")}}`)
+            }
+            return newData.join("")
+        },
+    },
     imacaData: {
         create: imacaData_create,
         encode: (data) => {
-            var obj = data.split("{=·}")
+            var obj = data.split(/{=·}|\u0000/g)
             var newData = imacaData_create()
-            newData.cardID = (isNaN(Number(obj[0])) ? null : Number(obj[0])) ?? newData.cardID
+            newData.cardID = Number(obj[0]) ?? newData.cardID
             newData.name = obj[1] ?? newData.name
             newData.description = obj[2] ?? newData.description
             newData.nameGradient1 = obj[3] ?? newData.nameGradient1
@@ -71,7 +94,7 @@ module.exports = {
             return newData
         },
         decode: (data) => {
-            return Object.values(data).join("{=·}")
+            return Object.values(data).join("\u0000")
         },
     },
 }

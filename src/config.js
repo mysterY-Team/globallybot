@@ -1,13 +1,20 @@
 const loc = require("locallium")
 
-const debug = false
+const debug = true
 
 const ldb = new loc.Database("env")
 
 loc.Database
 module.exports = {
     TOKEN: ldb.get("token").val,
-    db: new loc.Database("db/main.db", new loc.DatabaseFlags({ keySeparator: "/" })),
+    db: new loc.Database(
+        "db/main.db",
+        new loc.DatabaseFlags({
+            keySeparator: "/",
+            getAdvancedWarns: debug,
+            keepEmptyKeysWhileDeleting: true,
+        })
+    ),
     ownersID: [
         "1166024655052738570", //patyczakus
         "767311735819862032", //maticola

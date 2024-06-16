@@ -46,16 +46,8 @@ var slashList = [
                     subcommand
                         .setName("usuń")
                         .setDescription("Usuwa GlobalChat na serwerze")
-                        .addStringOption((option) =>
-                            option
-                                .setName("stacja")
-                                .setDescription("Nazwa tzw. stacji - odpowiada ona za inne dobieranie serwerów")
-                                .setRequired(true)
-                                .addChoices(
-                                    { name: "Polski ogólny #1 (pl-o1)", value: "pl-o1" },
-                                    { name: "Polski ogólny #2 (pl-o2)", value: "pl-o2" },
-                                    { name: "Polski pełnoletni (pl-a)", value: "pl-a" }
-                                )
+                        .addChannelOption((option) =>
+                            option.setName("kanał").setDescription("Kanał, na którym się znajduje GlobalChat").setRequired(true).addChannelTypes(ChannelType.GuildText)
                         )
                 )
                 .addSubcommand((subcommand) =>
@@ -70,11 +62,11 @@ var slashList = [
                                 .setName("stacja")
                                 .setDescription("Nazwa tzw. stacji - odpowiada ona za inne dobieranie serwerów")
                                 .setRequired(true)
-                                .addChoices(
-                                    { name: "Polski ogólny #1 (pl-o1)", value: "pl-o1" },
-                                    { name: "Polski ogólny #2 (pl-o2)", value: "pl-o2" },
-                                    { name: "Polski pełnoletni (pl-a)", value: "pl-a" }
-                                )
+                                .setMinLength(4)
+                                .setMaxLength(8)
+                        )
+                        .addStringOption((option) =>
+                            option.setName("passwd").setDescription("Hasło do stacji, jeżeli takową posiada").setMinLength(8).setMaxLength(30).setRequired(false)
                         )
                 )
         )
@@ -102,6 +94,13 @@ var slashList = [
                                 )
                         )
                 )
+        )
+        .addSubcommandGroup((subcommand_group) =>
+            subcommand_group
+                .setName("stacja")
+                .setDescription("Stacje pozwalające na dobieranie innych serwerów")
+                .addSubcommand((subcommand) => subcommand.setName("załóż").setDescription("Tworzy stację do GlobalChata"))
+                .addSubcommand((subcommand) => subcommand.setName("lista").setDescription("Informacje o dostępnych stacjach w GlobalChacie"))
         ),
     new SlashCommandBuilder()
         .setName("gradient")

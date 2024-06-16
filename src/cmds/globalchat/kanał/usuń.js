@@ -1,6 +1,7 @@
 const { CommandInteraction, Client, PermissionFlagsBits, WebhookClient } = require("discord.js")
 const { db, ownersID, customEmoticons, _bot } = require("../../../config")
 const { default: axios } = require("axios")
+const { gcdataGuild } = require("../../../functions/dbs")
 
 module.exports = {
     /**
@@ -37,15 +38,20 @@ module.exports = {
             })
 
         await interaction.deferReply()
-        var snapshot = db.get(`serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)
-        if (!snapshot.exists) return interaction.editReply(`${customEmoticons.denided} Nie ma ustawionego kanału na tej stacji!`)
+        var snapshot = db.get(`serverData/${interaction.guildId}/gc`)
+        var key = Object.entries(gcdataGuild.encode(snapshot.val ?? "")).find((x) => x[1].channel === interaction.options.get("kanał", true).value)
+        if (!key) return interaction.editReply(`${customEmoticons.denided} Nie ma ustawionego kanału na tej stacji!`)
+
+        var $stacja = key[0]
+
+        var data = gcdataGuild.encode(snapshot.val)
 
         function removeData() {
-            db.delete(`serverData/${interaction.guildId}/gc/${interaction.options.get("stacja", true).value}`)
+            delete data[$stacja]
+            if (Object.keys(data).length > 0) db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
+            else db.delete(`serverData/${interaction.guildId}/gc`)
             interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
         }
-
-        var data = snapshot.val
 
         var channel = interaction.guild.channels.cache.get(data.channel)
 
@@ -54,7 +60,7 @@ module.exports = {
                 url: "https://discord.com/api/webhooks/" + data.webhook,
             })
             axios
-                .get(data.webhook)
+                .get("https://discord.com/api/webhooks/" + data.webhook)
                 .then((res) => {
                     try {
                         if (res.status >= 200 && res.status < 300) webhook.delete("użycia komendy /GLOBALCHAT")
