@@ -21,6 +21,7 @@ function gcdata_create() {
         timestampToSendMessage: Date.now() + 3000,
         timestampToTab: Math.floor(Date.now() / 1000),
         blockTimestampToTab: Math.floor(Date.now() / 1000),
+        karma: 0n,
     }
 }
 
@@ -53,14 +54,32 @@ module.exports = {
 
             newData.isBlocked = $$.stob(obj[0]) ?? newData.isBlocked
             newData.blockReason = obj[1] ?? newData.blockReason
-            newData.timestampToSendMessage = Number(obj[2]) ?? Date.now() - 2
-            newData.timestampToTab = Number(obj[3]) ?? newData.timestampToTab
-            newData.blockTimestampToTab = Number(obj[4]) ?? newData.blockTimestampToTab
+            newData.timestampToSendMessage = Number(obj[2] ?? Date.now() - 2)
+            newData.timestampToTab = Number(obj[3] ?? newData.timestampToTab)
+            newData.blockTimestampToTab = Number(obj[4] ?? newData.blockTimestampToTab)
+            newData.karma = BigInt(obj[5] ?? 0n)
 
             return newData
         },
         decode: (data) => {
-            return Object.values(data).join("{=·}")
+            return Object.values(data)
+                .map((x) => {
+                    var n = ""
+                    switch (typeof x) {
+                        case "bigint":
+                            n = x.toString()
+                            break
+                        case "symbol":
+                            n = x.toString()
+                            break
+                        default:
+                            n = x
+                            break
+                    }
+
+                    return n
+                })
+                .join("{=·}")
         },
     },
     gcdataGuild: {

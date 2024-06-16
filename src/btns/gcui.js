@@ -24,7 +24,7 @@ module.exports = {
                     ownersID.includes(args[0])
                 )}\nModerator GlobalChat: ${booltext(ownersID.includes(args[0]) || GCmodsID.includes(args[0]))}${
                     haveImacarrrd ? `\n\n*Ten użytkownik posiada ImaCarrrd! Sprawdź pod komendą \`imacarrrd pokaż osoba:${args[0]}\`*` : ""
-                }`
+                }\nKarma: **${data.gc.karma.toString()}**`
             )
             .setFooter({ text: 'Złamał regulamin? Skontaktuj się do serwera support - komenda "botinfo"' })
             .setColor("Random")

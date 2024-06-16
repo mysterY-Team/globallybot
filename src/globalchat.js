@@ -403,11 +403,11 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                 .indexOf(DiscordMessage.channelId)
             station = Object.keys(serverdata.gc)[station]
 
-            var userData = db.get(`userData/${GlobalChatMessage.author.id}/gc`)
+            var userSnpsht = db.get(`userData/${GlobalChatMessage.author.id}/gc`)
 
-            if (userData.exists) {
-                const oldUData = userData.val
-                userData = gcdata.encode(oldUData)
+            if (userSnpsht.exists) {
+                const oldUData = userSnpsht.val
+                var userData = gcdata.encode(oldUData)
             } else {
                 DiscordMessage.reply(
                     `${customEmoticons.info} Nie został zarejestrowany profil GlobalChat! Utwórz pod komendą \`profil utwórz typ:GlobalChat\`, aby móc z niego korzystać!`
@@ -574,7 +574,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                             return
                         }
                     })
-                    .filter((x) => typeof x != "undefined")
+                    .filter((x) => x)
             )
 
             GlobalChatMessage.text = await formatText(GlobalChatMessage.text, DiscordClient)
@@ -677,7 +677,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                                 name: GlobalChatMessage.author.name,
                                 iconURL: DiscordMessage.author.displayAvatarURL({ extension: "webp", size: 64 }),
                             })
-                            .setDescription(GlobalChatMessage.text)
+                            .setDescription(GlobalChatMessage.text || "[ brak tekstu ]")
                             .setFields({
                                 name: "Stan",
                                 value: "Nie usunięto",
@@ -697,6 +697,10 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                         })
                     }
                 }
+
+                userData.karma += 1n
+                userData.karma += BigInt(typeof prefixes == "string" || GlobalChatMessage.files.length > 0)
+                db.set(`userData/${GlobalChatMessage.author.id}/gc`, gcdata.decode(userData))
             })
         }
     } catch (err) {

@@ -42,7 +42,7 @@ module.exports = {
                     name: "Moduł *GlobalChat*",
                     value: `Moderator: ${ownersID.includes(user.id) || GCmodsID.includes(user.id) ? customEmoticons.approved : customEmoticons.denided}\nZablokowany: ${
                         data.gc.isBlocked ? customEmoticons.approved : customEmoticons.denided
-                    }`,
+                    }\nKarma: **${data.gc.karma.toString()}**`,
                 })
             }
         }
