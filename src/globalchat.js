@@ -428,7 +428,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
             }
 
             var ddata = gcdataGuild.encode(snpsht.val[DiscordMessage.guildId].gc)
-            console.log(ddata, station)
+            // console.log(ddata, station)
             if (ddata[station].timestamp > Date.now()) {
                 DiscordMessage.reply(`${customEmoticons.denided} Cooldown na kanale! Zaczekaj jeszcze \`${ddata[station].timestamp - Date.now()}\` ms`)
                 return
