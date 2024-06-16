@@ -75,7 +75,7 @@ module.exports = {
         if (!pwd && stationData[1]) {
             return interaction.editReply(`${customEmoticons.info} Ta stacja wymaga użycia argumentu \`passwd\``)
         }
-        if (pwd !== stationData[1]) {
+        if (stationData[1] && pwd !== stationData[1]) {
             return interaction.editReply(`${customEmoticons.denided} Niepoprawne hasło!`)
         }
 
