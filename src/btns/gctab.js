@@ -40,7 +40,7 @@ module.exports = {
         }
 
         var userData2 = db.get(`userData/${uid}/gc`)
-        var data2 = gcdata.encode(userData2)
+        var data2 = gcdata.encode(userData2.val)
         if (data2.isBlocked) {
             interaction.editReply(`${customEmoticons.denided} Użytkownik jest zablokowany! Daj mu spokój!`)
             return
