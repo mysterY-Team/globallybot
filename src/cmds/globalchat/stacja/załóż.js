@@ -1,5 +1,6 @@
 const { CommandInteraction, Client, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require("discord.js")
 const { db, customEmoticons } = require("../../../config")
+const { servers } = require("../../../functions/useful")
 
 module.exports = {
     /**
@@ -8,6 +9,25 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
+        const repeats = (...args) => {
+            const count = {}
+
+            // Iteruj przez wszystkie argumenty
+            args.forEach((value) => {
+                count[value] = (count[value] || 0) + 1
+            })
+
+            // Zlicz ilość powtórzeń dla każdej wartości
+            const result = {}
+            for (const key in count) {
+                if (count.hasOwnProperty(key)) {
+                    result[key] = count[key]
+                }
+            }
+
+            return result
+        }
+
         var snpsht = db.get(`userData/${interaction.user.id}/gc`)
         if (!snpsht.exists) {
             return interaction.reply({
@@ -15,6 +35,14 @@ module.exports = {
                 ephemeral: true,
             })
         }
+        const stationsMakers = Object.values(db.get("stations").val).map((x) => x.split("|")[0])
+        if (Object.keys(repeats(stationsMakers)).length == servers.get().length) {
+            return interaction.reply({
+                content: `${customEmoticons.minus} Stacji jest już za dużo, spróbuj ponownie później!`,
+                ephemeral: true,
+            })
+        }
+
         const modal = new ModalBuilder()
             .setTitle("Konfiguracja stacji GC")
             .setCustomId("requeststation")
