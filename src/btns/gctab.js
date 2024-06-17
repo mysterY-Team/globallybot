@@ -16,7 +16,7 @@ module.exports = {
     async execute(client, interaction, ...args) {
         var uid = args[0]
 
-        if (interaction.user.id === uid || users.blockedToReply.includes(uid)) {
+        if (interaction.user.id === uid) {
             interaction.deferUpdate()
             return
         }
