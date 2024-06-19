@@ -44,6 +44,7 @@ client.on("messageCreate", (msg) => {
                 isUser: !msg.author.bot && !msg.author.system,
                 avatar: msg.author.displayAvatarURL({
                     extension: "webp",
+                    forceStatic: false,
                 }),
             },
             location: `${msg.guildId}/${msg.channelId}`,

@@ -48,8 +48,15 @@ module.exports = {
             })
 
         await interaction.deferReply({ ephemeral: Boolean(pwd) })
-        //sprawdzanie widoczności kanału
 
+        var serverData = Object.values(db.get("serverData").val || {})
+        serverData = serverData.filter((x) => x.gc && x.gc.includes(interaction.options.get("stacja", true).value))
+
+        if (serverData.length >= 25) {
+            interaction.editReply(`${customEmoticons.denided} Ta stacja została przepełniona! Podłączyło się już 25 serwerów`)
+        }
+
+        //sprawdzanie widoczności kanału
         if (!channel.channel || !channel.channel.permissionsFor(guild.members.me).has(PermissionFlagsBits.ViewChannel)) {
             return interaction.editReply(`${customEmoticons.denided} Kanał jest niedostępny! Czy na pewno mam do niego dostęp?`)
         }

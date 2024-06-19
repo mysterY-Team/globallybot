@@ -1,4 +1,15 @@
-const { Client, Message, EmbedBuilder, WebhookClient, WebhookMessageCreateOptions, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType } = require("discord.js")
+const {
+    Client,
+    Message,
+    EmbedBuilder,
+    WebhookClient,
+    WebhookMessageCreateOptions,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ChannelType,
+    DiscordAPIError,
+} = require("discord.js")
 const { db, customEmoticons, ownersID, GCmodsID, debug } = require("./config")
 const axios = require("axios").default
 const fs = require("fs")
@@ -250,15 +261,6 @@ async function formatText(text, client) {
  */
 async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
     try {
-        function calculateAge(birthDate, otherDate) {
-            birthDate = new Date(birthDate)
-            otherDate = new Date(otherDate)
-            var years = otherDate.getFullYear() - birthDate.getFullYear()
-            if (otherDate.getMonth() < birthDate.getMonth() || (otherDate.getMonth() == birthDate.getMonth() && otherDate.getDate() < birthDate.getDate())) {
-                years--
-            }
-            return years
-        }
         var accDate = new Date()
         accDate = `${accDate.getFullYear()}-${accDate.getMonth() + 1}-${accDate.getDate()}`
 
@@ -548,11 +550,11 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                                     const embedError = new EmbedBuilder()
                                         .setTitle("Nieznaleziony kanał")
                                         .setDescription(
-                                            "W trakcie wykonywania usługi GlobalChat, nie udało mi się znaleźć kanału, do którego był ono przypisany - dzieje się tak, gdy kanał został usunięty. Usunięto przed chwilą z bazy danych informacje dla tego serwera i należy jeszcze raz ustawić kanał pod komendą `globalchat kanał ustaw`."
+                                            "W trakcie wykonywania usługi GlobalChat, nie udało mi się znaleźć kanału, do którego był ono przypisany - dzieje się tak, gdy kanał został usunięty. Usunięto przed chwilą z bazy danych informacje dla tego serwera i należy jeszcze raz ustawić pod komendą `globalchat kanał ustaw` wszystie kanały, które były podpięte."
                                         )
                                         .addFields({
                                             name: "`Q:` Kanał przypisany do GlobalChata dalej istnieje, nie został on usunięty.",
-                                            value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanał, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do twórców** - do właściciela `patyczakus`, czy do [serwera support](https://discord.gg/536TSYqT)",
+                                            value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do twórców** - do właściciela `patyczakus`, czy do [serwera support](https://discord.gg/536TSYqT)",
                                         })
                                         .setFooter({
                                             text: "Globally, powered by patYczakus",
@@ -564,13 +566,38 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                                         embeds: [embedError],
                                     })
 
-                                    db.delete(`serverData/${guildID}/gc/${station}`)
+                                    db.delete(`serverData/${guildID}/gc`)
                                     return
                                 })
                             }
                         } catch (err) {
-                            //console.warn(err)
-                            db.delete(`serverData/${guildID || "und"}`)
+                            if (err instanceof DiscordAPIError && err.code === 30007) {
+                                guild_DClient.fetchOwner().then((gguildOwner) => {
+                                    //embed z informacją o braku kanału
+                                    const embedError = new EmbedBuilder()
+                                        .setTitle("Za duża ilość Webhooków")
+                                        .setDescription(
+                                            "W trakcie wykonywania usługi GlobalChat, API Discorda zwrócił błąd o przekroczeniu liczby Webhooków. Musiałem usunąć całą ową konfigurację z bazy danych. Zwolnij miejsce i ustaw ponownie wszystkie kanały (`globalchat kanał ustaw`)"
+                                        )
+                                        .addFields({
+                                            name: "`Q:` Jak mam usunąć nieużywane webhooki?",
+                                            value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i, przypatrując się po datach utworzenia, usuń wcześniej utworzone webhooki. Zazwyczaj ten najnowszy może być jeszcze używany.',
+                                        })
+                                        .setFooter({
+                                            text: "Globally, powered by patYczakus",
+                                        })
+                                        .setColor("Orange")
+
+                                    gguildOwner.send({
+                                        content: `${customEmoticons.info} Tu bot Globally. Jako, że jesteś właścicielem serwera *${guild_DClient.name}*, jest bardzo ważna informacja dla Ciebie!`,
+                                        embeds: [embedError],
+                                    })
+                                    db.delete(`serverData/${guildID}/gc`)
+                                })
+                            } else {
+                                console.warn(err)
+                                db.delete(`serverData/${guildID || "und"}`)
+                            }
                             return
                         }
                     })
@@ -647,6 +674,9 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                     return
                 })
             ).then(async () => {
+                const channelid = "1251618649425449072"
+                const channel = await DiscordClient.channels.fetch(channelid)
+
                 if (DiscordMessage.deletable) DiscordMessage.delete()
 
                 if (typeof prefixes == "string") {
@@ -660,6 +690,20 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                     response.username += ` (${response.username === file.data.name ? "" : `"${file.data.name}", `}GlobalAction)`
                     response.allowedMentions = { parse: [] }
 
+                    if (channel && channel.type === ChannelType.GuildText) {
+                        const embed = new EmbedBuilder()
+                            .setColor("Blue")
+                            .setAuthor({
+                                name: GlobalChatMessage.author.name,
+                                iconURL: DiscordMessage.author.displayAvatarURL({ extension: "webp", size: 64 }),
+                            })
+                            .setDescription(`Wykonanie akcji *${file.data.name}* \`\`\`${GlobalChatMessage.text}\`\`\``)
+                            .setFooter({ text: `${response.username} | ${station}`, iconURL: response.avatarURL })
+                        channel.send({
+                            embeds: [embed],
+                        })
+                    }
+
                     webhooks.map(async function (w) {
                         await w.wh.send(Object.assign(response))
 
@@ -668,9 +712,8 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                 } else {
                     listenerLog(3, `🌐 Zapisano informację o wiadomości użytkownika`)
 
-                    const channelid = "1251618649425449072"
-                    const channel = await DiscordClient.channels.fetch(channelid)
                     if (channel && channel.type === ChannelType.GuildText) {
+                        let embeds = []
                         const embed = new EmbedBuilder()
                             .setColor("Green")
                             .setAuthor({
@@ -683,8 +726,13 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                                 value: "Nie usunięto",
                             })
                             .setFooter({ text: `${station}` })
+                        embeds.push(embed)
+                        if (GlobalChatMessage.files.length > 0) {
+                            const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(GlobalChatMessage.files.join("\n"))
+                            embeds.push(mediaEmbed)
+                        }
                         var msg = await channel.send({
-                            embeds: [embed],
+                            embeds,
                             content: messages.join("|"),
                         })
 

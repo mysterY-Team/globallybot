@@ -1,4 +1,4 @@
-const { Client, ModalSubmitInteraction, ChannelType, channelLink } = require("discord.js")
+const { Client, ModalSubmitInteraction, EmbedBuilder } = require("discord.js")
 const { db, customEmoticons, supportServers, _bot, ownersID } = require("../config")
 const { gcdataGuild } = require("../functions/dbs")
 
@@ -19,10 +19,6 @@ module.exports = {
         if (modalArgs.passwd.match(/[^a-zA-Z0-9._@!]/g)) return interaction.reply(`${customEmoticons.denided} Hasło zawiera niedozwolone znaki!`)
 
         await interaction.deferReply()
-        const catid = {
-            public: "1251840847901757441",
-            private: "1251840967489749055",
-        }
 
         var stations = db.get(`stations`).val ?? {}
 
@@ -33,16 +29,11 @@ module.exports = {
 
         var s = gcdataGuild.encode(db.get(`serverData/${supportServers[1]}/gc`).val ?? "")
         db.set(`stations/${modalArgs.id}`, `${interaction.user.id}|${modalArgs.passwd}`)
-        const x = await (
-            await client.guilds.fetch(supportServers[1])
-        ).channels.create({
-            type: ChannelType.GuildText,
-            name: modalArgs.id,
-            parent: modalArgs.passwd ? catid.private : catid.public,
-            topic: `Stacja stworzona przez <@${interaction.user.id}> w bocie <@${_bot.id}>`,
-        })
-        s[modalArgs.id] = { channel: x.id }
-        db.set(`serverData/${supportServers[1]}/gc`, gcdataGuild.decode(s))
+
+        const emb = new EmbedBuilder()
+            .setTitle("Nowa stacja!")
+            .setDescription(`ID: \`${modalArgs.id}\`\nHasłowane: ${modalArgs.passwd ? customEmoticons.approved : customEmoticons.denided}\nKreator: <@${interaction.user.id}>`)
+        await (await (await client.guilds.fetch(supportServers[1])).channels.fetch("1251618649425449072")).send({ embeds: [emb] })
 
         interaction.editReply(`${customEmoticons.approved} Utworzono stację poprawnie!`)
     },

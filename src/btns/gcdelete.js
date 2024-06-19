@@ -41,8 +41,10 @@ module.exports = {
 
         await interaction.editReply(`${customEmoticons.loading} Usuwanie...`)
         {
+            let embeds = $message.embeds
             let embed = new EmbedBuilder($message.embeds[0]).setFields({ name: "Stan", value: "Usuwanie" }).setColor("Orange")
-            await $message.edit({ embeds: [embed] })
+            embeds[0] = embed
+            await $message.edit({ embeds })
         }
 
         await Promise.all(
@@ -74,8 +76,10 @@ module.exports = {
         db.set(`userData/${interaction.user.id}/gc`, gcdata.decode(data))
 
         {
+            let embeds = $message.embeds
             let embed = new EmbedBuilder($message.embeds[0]).setFields({ name: "Stan", value: `Usunięto <t:${Math.floor(Date.now() / 1000)}:R>` }).setColor("Red")
-            await $message.edit({ content: "", embeds: [embed] })
+            embeds[0] = embed
+            await $message.edit({ content: "", embeds })
         }
 
         interaction.editReply(`${customEmoticons.approved} Usunięto pomyślnie!`)
