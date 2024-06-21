@@ -79,10 +79,12 @@ module.exports = {
             })
         )
 
-        var data = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
-        data.timestampToSendMessage = Math.max(data.timestampToSendMessage + 3000, Date.now() + 5000)
-        data.karma--
-        db.set(`userData/${interaction.user.id}/gc`, gcdata.decode(data))
+        if (args[0] !== interaction.user.id) {
+            var data = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
+            data.timestampToSendMessage = Math.max(data.timestampToSendMessage + 3000, Date.now() + 5000)
+            data.karma--
+            db.set(`userData/${interaction.user.id}/gc`, gcdata.decode(data))
+        }
 
         {
             let embeds = $message.embeds
