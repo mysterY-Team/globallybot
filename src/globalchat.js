@@ -20,8 +20,8 @@ const { gcdata, gcdataGuild } = require("./functions/dbs")
 
 const timestampCooldown = new Date()
 const globalCooldown = 1500
-const channelCooldown = 3000
-const userCooldown = 5000
+const channelCooldown = (amount) => 2500 + amount * 150
+const userCooldown = (amount) => 3000 + amount * 300
 let cooldownChannelList = []
 let lastUser = "unknown"
 
@@ -441,10 +441,12 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                 return
             }
 
+            database = database.filter((x) => Object.keys(x.gc).includes(station)).map((x) => Object.assign(x.gc[station], { serverID: x.id }))
+
             listenerLog(3, "➿ Spełniono warunek (3/5)")
-            userData.timestampToSendMessage = Date.now() + userCooldown
+            userData.timestampToSendMessage = Date.now() + userCooldown(database.length)
             db.set(`userData/${GlobalChatMessage.author.id}/gc`, gcdata.decode(userData))
-            ddata[station].timestamp = Date.now() + channelCooldown
+            ddata[station].timestamp = Date.now() + channelCooldown(database.length)
             db.set(`serverData/${DiscordMessage.guildId}/gc`, gcdataGuild.decode(ddata))
             delete ddata
 
@@ -470,7 +472,6 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                     `➡️ Zawiera odpowiedź na wiadomość (${DiscordMessage.reference.guildId}/${DiscordMessage.reference.channelId}/${DiscordMessage.reference.messageId})`
                 )
 
-            database = database.filter((x) => Object.keys(x.gc).includes(station)).map((x) => Object.assign(x.gc[station], { serverID: x.id }))
             //console.log(database)
 
             listenerLog(4, `📌 Stacja "${station}"`)
@@ -734,6 +735,15 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                         var msg = await channel.send({
                             embeds,
                             content: messages.join("|"),
+                        })
+                        msg.edit({
+                            components: [
+                                new ActionRowBuilder().addComponents(
+                                    new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${DiscordMessage.guildId}`).setEmoji(`ℹ️`),
+                                    new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${DiscordMessage.author.id}`).setEmoji(`👤`),
+                                    new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${DiscordMessage.author.id}\u0000${msg.id}`).setEmoji("🗑️")
+                                ),
+                            ],
                         })
 
                         editLater.wh.editMessage(editLater.message, {
