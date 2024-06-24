@@ -14,7 +14,7 @@ module.exports = {
 
         if (file.data.prompt_type == "cmd") use = "```{nazwa_wywoławcza}!<komenda>```"
         if (file.data.prompt_type == "chat") use = "```{nazwa_wywoławcza}, <polecenie>```"
-        if (file.data.prompt_type == "chat2.0") use = "Wystarczy użyć w kwadratowe nawiasy nazwę wywoławczą (tutaj: `[{nazwa_wywoławcza}]`)"
+        if (file.data.prompt_type == "chat2.0") use = "Wystarczy użyć w kwadratowe nawiasy nazwę wywoławczą (tutaj: `[{nazwa_wywoławcza}]`) lub odpowiedzieć na jego wiadomość"
 
         var embed = new EmbedBuilder()
             .setTitle(`${file.data.name}`)

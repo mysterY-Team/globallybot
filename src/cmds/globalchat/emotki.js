@@ -1,4 +1,4 @@
-const { Client, CommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle, Snowflake } = require("discord.js")
+const { Client, CommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle, Snowflake, PermissionsBitField } = require("discord.js")
 const { customEmoticons, _bot } = require("../../config")
 const { servers } = require("../../functions/useful")
 
@@ -288,49 +288,56 @@ module.exports = {
             const sid = queryOption.value.split("=")[1]
 
             if (ServersWithTheirEmotesFeature.map((x) => x.id).includes(sid)) {
-                await interaction.deferReply()
-                var server = await client.guilds.fetch(sid)
-                var _perms = (await server.members.fetchMe()).permissions
-                const permsToInvite = _perms.has("Administrator") || _perms.has("CreateInstantInvite")
-                var sName = server.name
-                const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`).sort(() => Math.random() - 0.5)
-                var showedEmotes = allEmotes
-                var moreEmojis = false
-                if (showedEmotes.length > 16) {
-                    showedEmotes = showedEmotes.filter((X, i) => i < 16)
-                    moreEmojis = true
-                }
-                delete server
-
-                const inv = await server.invites.fetch()
-                var invition = inv.map((x) => x).filter((x) => x.inviterId === _bot.id)[0] ?? ""
-                var channels = (await server.channels.fetch()).map((x) => x)
-                var i = 0
-                if (server.vanityURLCode) {
-                    invition = server.vanityURLCode
-                }
-                while (i < channels.length && !invition) {
-                    try {
-                        invition = (await server.invites.create(channels[i].id, { maxAge: 0 })).code
-                    } catch (err) {
-                        i++
+                try {
+                    await interaction.deferReply()
+                    var server = await client.guilds.fetch(sid)
+                    var _perms = (await server.members.fetchMe()).permissions
+                    const permsToInvite = _perms.has("Administrator") || _perms.has("CreateInstantInvite")
+                    var sName = server.name
+                    const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`).sort(() => Math.random() - 0.5)
+                    var showedEmotes = allEmotes
+                    var moreEmojis = false
+                    if (showedEmotes.length > 16) {
+                        showedEmotes = showedEmotes.filter((X, i) => i < 16)
+                        moreEmojis = true
                     }
+                    delete server
+
+                    const inv = await server.invites.fetch()
+                    var invition = inv.map((x) => x).filter((x) => x.inviterId === _bot.id)[0] ?? ""
+                    var channels = (await server.channels.fetch()).map((x) => x)
+                    var i = 0
+                    if (server.vanityURLCode) {
+                        invition = server.vanityURLCode
+                    }
+                    if (permsToInvite)
+                        while (i < channels.length && !invition) {
+                            try {
+                                invition = (await server.invites.create(channels[i].id, { maxAge: 0 })).code
+                            } catch (err) {
+                                i++
+                            }
+                        }
+
+                    const comp = !invition
+                        ? []
+                        : [
+                              new ActionRowBuilder().addComponents([
+                                  new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(`https://discord.gg/${invition}`).setLabel("Dołącz do serwera"),
+                              ]),
+                          ]
+
+                    interaction.editReply({
+                        content: `# Lista emotek ze serwera *\`${sName}\`* \nUżycie: \`{serverEmote.${sid}:<nazwa emotki>}\` lub \`{se.${sid}:<nazwa emotki>}\`\n## ${
+                            showedEmotes.join(" | ") || "||Tutaj jakieś powinny być? Nie ma żadnych na tą chwilę||"
+                        } ${moreEmojis ? ` (+${allEmotes.length - showedEmotes.length} emotek)` : ""}`,
+                        components: comp,
+                    })
+                } catch (err) {
+                    interaction.editReply({
+                        content: `## <:84710joesad:1249316152341958756> Ojoj...\nPoszedł jakiś błąd, przypatrzymy się temu`,
+                    })
                 }
-
-                const comp = !invition
-                    ? []
-                    : [
-                          new ActionRowBuilder().addComponents([
-                              new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(`https://discord.gg/${invition}`).setLabel("Dołącz do serwera"),
-                          ]),
-                      ]
-
-                interaction.editReply({
-                    content: `# Lista emotek ze serwera *\`${sName}\`* \nUżycie: \`{serverEmote.${sid}:<nazwa emotki>}\` lub \`{se.${sid}:<nazwa emotki>}\`\n## ${showedEmotes.join(
-                        " | "
-                    )} ${moreEmojis ? ` (+${allEmotes.length - showedEmotes.length} emotek)` : ""}`,
-                    components: comp,
-                })
             } else {
                 interaction.reply(`${customEmoticons.denided} Nie widzę takiego serwera. Odświeżę teraz listę serwerów, a Ty spróbuj użyć komendy ponownie!`)
                 servers.fetch(client)
