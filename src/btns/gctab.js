@@ -1,6 +1,6 @@
 const { ButtonInteraction, Client, EmbedBuilder, EmbedType } = require("discord.js")
 const { customEmoticons, db } = require("../config")
-const { gcdata } = require("../functions/dbs")
+const { gcdata, gcdataGuild } = require("../functions/dbs")
 
 const times = {
     cooldown: 300,
@@ -50,6 +50,16 @@ module.exports = {
             return
         }
 
+        var station = Object.values(db.get("serverData").val)
+            .filter((x) => "gc" in x)
+            .map((x) => Object.entries(gcdataGuild.encode(x.gc)))
+            .flat()
+            .find((x) => x[1].channel === interaction.channel.id)?.[0]
+
+        if (!station) {
+            interaction.editReply(`${customEmoticons.minus} Ten kanał już nie jest podpięty GlobalChatem!`)
+        }
+
         try {
             const embed = new EmbedBuilder()
                 .setAuthor({
@@ -63,7 +73,7 @@ module.exports = {
                         return pp
                     })(),
                 })
-                .setDescription(`Użytkownik <@${interaction.user.id}> zaczepił/-a Cię na GlobalChacie! Sprawdź, co się tam dzieje!`)
+                .setDescription(`Użytkownik <@${interaction.user.id}> zaczepił/-a Cię na GlobalChacie, pod stacją \`${station}\`! Sprawdź, co się tam dzieje!`)
                 .setColor("Random")
 
             var user = await client.users.fetch(uid)
