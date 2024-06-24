@@ -292,7 +292,7 @@ module.exports = {
                     await interaction.deferReply()
                     var server = await client.guilds.fetch(sid)
                     var _perms = (await server.members.fetchMe()).permissions
-                    const permsToInvite = _perms.has("Administrator") || _perms.has("CreateInstantInvite")
+                    const permsToInvite = _perms.has("Administrator") || (_perms.has("CreateInstantInvite") && _perms.has("ManageGuild"))
                     var sName = server.name
                     const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`).sort(() => Math.random() - 0.5)
                     var showedEmotes = allEmotes
@@ -303,14 +303,14 @@ module.exports = {
                     }
                     delete server
 
-                    const inv = await server.invites.fetch()
-                    var invition = inv.map((x) => x).filter((x) => x.inviterId === _bot.id)[0] ?? ""
-                    var channels = (await server.channels.fetch()).map((x) => x)
-                    var i = 0
                     if (server.vanityURLCode) {
                         invition = server.vanityURLCode
                     }
-                    if (permsToInvite)
+                    if (permsToInvite && !invition) {
+                        const inv = await server.invites.fetch()
+                        var invition = inv.map((x) => x).filter((x) => x.inviterId === _bot.id)[0] ?? ""
+                        var channels = (await server.channels.fetch()).map((x) => x)
+                        var i = 0
                         while (i < channels.length && !invition) {
                             try {
                                 invition = await server.invites.create(channels[i].id, { maxAge: 0 })
@@ -319,6 +319,7 @@ module.exports = {
                                 i++
                             }
                         }
+                    }
 
                     const comp = !invition
                         ? []
