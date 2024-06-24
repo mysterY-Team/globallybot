@@ -1,5 +1,5 @@
 const { Client, CommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle, Snowflake, PermissionsBitField } = require("discord.js")
-const { customEmoticons, _bot } = require("../../config")
+const { customEmoticons, _bot, debug } = require("../../config")
 const { servers } = require("../../functions/useful")
 
 const ServersNotUsingTheirEmotesFeature = ["1173361427159994478"]
@@ -313,7 +313,8 @@ module.exports = {
                     if (permsToInvite)
                         while (i < channels.length && !invition) {
                             try {
-                                invition = (await server.invites.create(channels[i].id, { maxAge: 0 })).code
+                                invition = await server.invites.create(channels[i].id, { maxAge: 0 })
+                                invition = invition.code
                             } catch (err) {
                                 i++
                             }
@@ -334,6 +335,7 @@ module.exports = {
                         components: comp,
                     })
                 } catch (err) {
+                    console.warn(err)
                     interaction.editReply({
                         content: `## <:84710joesad:1249316152341958756> Ojoj...\nPoszedł jakiś błąd, przypatrzymy się temu`,
                     })
