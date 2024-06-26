@@ -18,7 +18,12 @@ module.exports = {
 
         await interaction.reply(textes[0])
         for (let i = 1; i < textes.length; i++) {
-            await interaction.channel.send(textes[i])
+            try {
+                if (interaction.channel !== null) interaction.channel.send(textes[i])
+                else await interaction.user.send(textes[i])
+            } catch (e) {
+                await interaction.followUp(textes[i])
+            }
         }
     },
 }

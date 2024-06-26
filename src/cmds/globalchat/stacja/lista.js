@@ -12,7 +12,7 @@ module.exports = {
         var guilds = Object.values(db.get("serverData").val)
             .filter((x) => "gc" in x)
             .map((x) => x.gc)
-        console.log(guilds.length)
+        //console.log(guilds.length)
         var stations = Object.entries(db.get("stations").val ?? {})
             .sort(() => Math.random() - 0.5)
             .map((x) => {
