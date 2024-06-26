@@ -324,8 +324,10 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
 
                         var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }
                         if (gID == DiscordMessage.guildId) embed.url = replayedMSG.url
-                        embed = new EmbedBuilder().setAuthor(embed).setTimestamp(replayedMSG.createdTimestamp)
-                        if (rContent) embed = embed.setDescription(rContent)
+                        embed = new EmbedBuilder()
+                            .setAuthor(embed)
+                            .setTimestamp(replayedMSG.createdTimestamp)
+                            .setDescription(rContent ?? "")
                         if (gID == DiscordMessage.guildId) embed = embed.setFooter({ text: "Kliknięcie w nagłówek spowoduje przeniesienie do odpowiadanej wiadomości" })
                         if (replayedMSG.attachments.size > 0) {
                             rAttachments = replayedMSG.attachments.map((x) => `[\`${x.name}\`](${x.url})`).join("\n")
