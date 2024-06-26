@@ -615,7 +615,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
             Promise.all(
                 webhooks.map(async function (w) {
                     var a = repliedMessage(w.gid)
-                    a = typeof a === "undefined" ? [] : [a]
+                    a = typeof a === "undefined" ? undefined : [a]
 
                     if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
                     var comp = {
