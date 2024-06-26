@@ -90,141 +90,147 @@ async function formatText(text, client) {
         }
         return text
     })
-    text = text.replace(/{(?:textFormat|txf)\.(doubleline|gothic):([^`\n}]+)}/g, (match, arg1, arg2) => {
-        const formatLetters = {
-            doubleline: {
-                A: "𝔸",
-                B: "𝔹",
-                C: "ℂ",
-                D: "𝔻",
-                E: "𝔼",
-                F: "𝔽",
-                G: "𝔾",
-                H: "ℍ",
-                I: "𝕀",
-                J: "𝕁",
-                K: "𝕂",
-                L: "𝕃",
-                M: "𝕄",
-                N: "ℕ",
-                O: "𝕆",
-                P: "ℙ",
-                Q: "ℚ",
-                R: "ℝ",
-                S: "𝕊",
-                T: "𝕋",
-                U: "𝕌",
-                V: "𝕍",
-                W: "𝕎",
-                X: "𝕏",
-                Y: "𝕐",
-                Z: "ℤ",
-                a: "𝕒",
-                b: "𝕓",
-                c: "𝕔",
-                d: "𝕕",
-                e: "𝕖",
-                f: "𝕗",
-                g: "𝕘",
-                h: "𝕙",
-                i: "𝕚",
-                j: "𝕛",
-                k: "𝕜",
-                l: "𝕝",
-                m: "𝕞",
-                n: "𝕟",
-                o: "𝕠",
-                p: "𝕡",
-                q: "𝕢",
-                r: "𝕣",
-                s: "𝕤",
-                t: "𝕥",
-                u: "𝕦",
-                v: "𝕧",
-                w: "𝕨",
-                x: "𝕩",
-                y: "𝕪",
-                z: "𝕫",
-                0: "𝟘",
-                1: "𝟙",
-                2: "𝟚",
-                3: "𝟛",
-                4: "𝟜",
-                5: "𝟝",
-                6: "𝟞",
-                7: "𝟟",
-                8: "𝟠",
-                9: "𝟡",
-            },
-            gothic: {
-                A: "𝕬",
-                B: "𝕭",
-                C: "𝕮",
-                D: "𝕯",
-                E: "𝕰",
-                F: "𝕱",
-                G: "𝕲",
-                H: "𝕳",
-                I: "𝕴",
-                J: "𝕵",
-                K: "𝕶",
-                L: "𝕷",
-                M: "𝕸",
-                N: "𝕹",
-                O: "𝕺",
-                P: "𝕻",
-                Q: "𝕼",
-                R: "𝕽",
-                S: "𝕾",
-                T: "𝕿",
-                U: "𝖀",
-                V: "𝖁",
-                W: "𝖂",
-                X: "𝖃",
-                Y: "𝖄",
-                Z: "𝖅",
-                a: "𝖆",
-                b: "𝖇",
-                c: "𝖈",
-                d: "𝖉",
-                e: "𝖊",
-                f: "𝖋",
-                g: "𝖌",
-                h: "𝖍",
-                i: "𝖎",
-                j: "𝖏",
-                k: "𝖐",
-                l: "𝖑",
-                m: "𝖒",
-                n: "𝖓",
-                o: "𝖔",
-                p: "𝖕",
-                q: "𝖖",
-                r: "𝖗",
-                s: "𝖘",
-                t: "𝖙",
-                u: "𝖚",
-                v: "𝖛",
-                w: "𝖜",
-                x: "𝖝",
-                y: "𝖞",
-                z: "𝖟",
-                0: "𝟎",
-                1: "𝟏",
-                2: "𝟐",
-                3: "𝟑",
-                4: "𝟒",
-                5: "𝟓",
-                6: "𝟔",
-                7: "𝟕",
-                8: "𝟖",
-                9: "𝟗",
-            },
+    text = text.replace(/{(?:textFormat|txf)\.doubleline:([^`\n}]+)}/g, (match, arg1) => {
+        const formatRay = {
+            A: "𝔸",
+            B: "𝔹",
+            C: "ℂ",
+            D: "𝔻",
+            E: "𝔼",
+            F: "𝔽",
+            G: "𝔾",
+            H: "ℍ",
+            I: "𝕀",
+            J: "𝕁",
+            K: "𝕂",
+            L: "𝕃",
+            M: "𝕄",
+            N: "ℕ",
+            O: "𝕆",
+            P: "ℙ",
+            Q: "ℚ",
+            R: "ℝ",
+            S: "𝕊",
+            T: "𝕋",
+            U: "𝕌",
+            V: "𝕍",
+            W: "𝕎",
+            X: "𝕏",
+            Y: "𝕐",
+            Z: "ℤ",
+            a: "𝕒",
+            b: "𝕓",
+            c: "𝕔",
+            d: "𝕕",
+            e: "𝕖",
+            f: "𝕗",
+            g: "𝕘",
+            h: "𝕙",
+            i: "𝕚",
+            j: "𝕛",
+            k: "𝕜",
+            l: "𝕝",
+            m: "𝕞",
+            n: "𝕟",
+            o: "𝕠",
+            p: "𝕡",
+            q: "𝕢",
+            r: "𝕣",
+            s: "𝕤",
+            t: "𝕥",
+            u: "𝕦",
+            v: "𝕧",
+            w: "𝕨",
+            x: "𝕩",
+            y: "𝕪",
+            z: "𝕫",
+            0: "𝟘",
+            1: "𝟙",
+            2: "𝟚",
+            3: "𝟛",
+            4: "𝟜",
+            5: "𝟝",
+            6: "𝟞",
+            7: "𝟟",
+            8: "𝟠",
+            9: "𝟡",
         }
 
         let rtext = ""
 
-        for (let i = 0; i < arg2.length; i++) rtext += formatLetters[arg1][arg2[i]] ?? arg2[i]
+        for (let i = 0; i < arg1.length; i++) rtext += formatRay[arg1[i]] ?? arg1[i]
+
+        return rtext
+    })
+    text = text.replace(/{(?:textFormat|txf)\.gothic:([^`\n}]+)}/g, (match, arg1) => {
+        const formatRay = {
+            A: "𝕬",
+            B: "𝕭",
+            C: "𝕮",
+            D: "𝕯",
+            E: "𝕰",
+            F: "𝕱",
+            G: "𝕲",
+            H: "𝕳",
+            I: "𝕴",
+            J: "𝕵",
+            K: "𝕶",
+            L: "𝕷",
+            M: "𝕸",
+            N: "𝕹",
+            O: "𝕺",
+            P: "𝕻",
+            Q: "𝕼",
+            R: "𝕽",
+            S: "𝕾",
+            T: "𝕿",
+            U: "𝖀",
+            V: "𝖁",
+            W: "𝖂",
+            X: "𝖃",
+            Y: "𝖄",
+            Z: "𝖅",
+            a: "𝖆",
+            b: "𝖇",
+            c: "𝖈",
+            d: "𝖉",
+            e: "𝖊",
+            f: "𝖋",
+            g: "𝖌",
+            h: "𝖍",
+            i: "𝖎",
+            j: "𝖏",
+            k: "𝖐",
+            l: "𝖑",
+            m: "𝖒",
+            n: "𝖓",
+            o: "𝖔",
+            p: "𝖕",
+            q: "𝖖",
+            r: "𝖗",
+            s: "𝖘",
+            t: "𝖙",
+            u: "𝖚",
+            v: "𝖛",
+            w: "𝖜",
+            x: "𝖝",
+            y: "𝖞",
+            z: "𝖟",
+            0: "𝟎",
+            1: "𝟏",
+            2: "𝟐",
+            3: "𝟑",
+            4: "𝟒",
+            5: "𝟓",
+            6: "𝟔",
+            7: "𝟕",
+            8: "𝟖",
+            9: "𝟗",
+        }
+
+        let rtext = ""
+
+        for (let i = 0; i < arg1.length; i++) rtext += formatRay[arg1[i]] ?? arg1[i]
 
         return rtext
     })
@@ -289,57 +295,53 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
         if (GlobalChatMessage.files.length == 0 && GlobalChatMessage.text == "") return
 
         /**
-         * @returns {Promise<EmbedBuilder | undefined>}
+         * @returns {EmbedBuilder | undefined}
          */
-        async function repliedMessage(gID) {
+        function repliedMessage(gID) {
             if (DiscordMessage.reference !== null) {
-                try {
-                    var replayedMSG = await DiscordMessage.channel.messages.fetch(DiscordMessage.reference.messageId)
-                    if (typeof replayedMSG !== "undefined" && replayedMSG.author.bot) {
-                        var rContent = replayedMSG.content,
-                            rAttachments
+                var replayedMSG = DiscordMessage.channel.messages.cache.get(DiscordMessage.reference.messageId)
+                if (typeof replayedMSG !== "undefined" && replayedMSG.author.bot) {
+                    var rContent = replayedMSG.content,
+                        rAttachments
 
-                        //działanie komentarzy w odpowiadanej wiadomości
-                        rContent = rContent.split("```")
-                        for (let i = 0; i < rContent.length; i++) {
-                            rContent[i] = {
-                                text: rContent[i],
-                                isInCode: i % 2 == 0 ? false : true,
-                            }
+                    //działanie komentarzy w odpowiadanej wiadomości
+                    rContent = rContent.split("```")
+                    for (let i = 0; i < rContent.length; i++) {
+                        rContent[i] = {
+                            text: rContent[i],
+                            isInCode: i % 2 == 0 ? false : true,
                         }
-                        rContent = rContent.map(function (x) {
-                            if (!x.isInCode) {
-                                x.text = x.text
-                                    .split("\n")
-                                    .filter((c) => !c.startsWith("<##> "))
-                                    .join("\n")
-                            }
-
-                            return x
-                        })
-                        rContent = rContent.map((x) => x.text).join("```")
-                        rContent = rContent.trim()
-
-                        var rUser = replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.author.username : replayedMSG.author.username.split(" (")[0]
-
-                        var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }
-                        if (gID == DiscordMessage.guildId) embed.url = replayedMSG.url
-                        embed = new EmbedBuilder()
-                            .setAuthor(embed)
-                            .setTimestamp(replayedMSG.createdTimestamp)
-                            .setDescription(rContent ?? "")
-                        if (gID == DiscordMessage.guildId) embed = embed.setFooter({ text: "Kliknięcie w nagłówek spowoduje przeniesienie do odpowiadanej wiadomości" })
-                        if (replayedMSG.attachments.size > 0) {
-                            rAttachments = replayedMSG.attachments.map((x) => `[\`${x.name}\`](${x.url})`).join("\n")
-                            if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => x.url).join("\n")
-                            if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => `\`${x.name}\``).join("\n")
-                            if (rAttachments.length > 1000) rAttachments = `[ plików: ${replayedMSG.attachments.size} ]`
-                            embed = embed.addFields({ name: "Przesłane pliki", value: rAttachments })
-                        }
-
-                        return embed
                     }
-                } catch (e) {}
+                    rContent = rContent.map(function (x) {
+                        if (!x.isInCode) {
+                            x.text = x.text
+                                .split("\n")
+                                .filter((c) => !c.startsWith("<##> "))
+                                .join("\n")
+                        }
+
+                        return x
+                    })
+                    rContent = rContent.map((x) => x.text).join("```")
+                    rContent = rContent.trim()
+
+                    var rUser = replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.author.username : replayedMSG.author.username.split(" (")[0]
+
+                    var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }
+                    if (gID == DiscordMessage.guildId) embed.url = replayedMSG.url
+                    embed = new EmbedBuilder().setAuthor(embed).setTimestamp(replayedMSG.createdTimestamp)
+                    if (rContent) embed = embed.setDescription(rContent)
+                    if (gID == DiscordMessage.guildId) embed = embed.setFooter({ text: "Kliknięcie w nagłówek spowoduje przeniesienie do odpowiadanej wiadomości" })
+                    if (replayedMSG.attachments.size > 0) {
+                        rAttachments = replayedMSG.attachments.map((x) => `[\`${x.name}\`](${x.url})`).join("\n")
+                        if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => x.url).join("\n")
+                        if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => `\`${x.name}\``).join("\n")
+                        if (rAttachments.length > 1000) rAttachments = `[ plików: ${replayedMSG.attachments.size} ]`
+                        embed = embed.addFields({ name: "Przesłane pliki", value: rAttachments })
+                    }
+
+                    return embed
+                }
             }
         }
 
@@ -615,7 +617,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
             Promise.all(
                 webhooks.map(async function (w) {
                     var a = repliedMessage(w.gid)
-                    a = typeof a === "undefined" ? undefined : [a]
+                    a = typeof a === "undefined" ? [] : [a]
 
                     if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
                     var comp = {
