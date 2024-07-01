@@ -723,22 +723,22 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                         console.warn(e)
                     }
 
+                var measuringTime = {
+                    ends: false,
+                    mustPing: false,
+                    startTimestamp: Date.now(),
+                    endTimestamp: 0,
+                    msg: null,
+                }
+
                 if (typeof prefixes == "string") {
                     const file = require(`./globalactions/${prefixes}`)
                     try {
-                        var measuringTime = {
-                            ends: false,
-                            mustPing: false,
-                            startTimestamp: Date.now(),
-                            endTimestamp: 0,
-                            msg: null,
-                        }
-
                         setTimeout(() => {
                             if (!measuringTime.ends) {
                                 measuringTime.mustPing = true
                                 DiscordMessage.channel.send(
-                                    `<@${DiscordMessage.author.id}>, od 10 sekund akcja nie odpowiada, jako że nie ma limitu, dostaniesz ping na kanale z odpowiedzią!`
+                                    `<@${DiscordMessage.author.id}>, od 10 sekund akcja nie odpowiada, jako że nie ma limitu czasowego, dostaniesz ping na kanale z odpowiedzią!`
                                 )
                             }
                         }, 10_000)
@@ -777,6 +777,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                             })
                         }
                     } catch (err) {
+                        measuringTime.ends = true
                         if (channel && channel.type === ChannelType.GuildText) {
                             const embed = new EmbedBuilder()
                                 .setColor("DarkRed")
