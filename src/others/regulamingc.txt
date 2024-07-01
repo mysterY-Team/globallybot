@@ -32,7 +32,7 @@
 1. Za uciążliwe "zaczepianie" (m.in. spam zaczepiania bez powodu konkretnego) wiąże się blokada do 5 dni, lub AŻ DO ODWOŁANIA w przypadku powtórzenia tego wyczynu.
 #--#
 # §5 - Dodatkowe informacje
-1. Reakcja X ({{custom:denided}}) przy niewysłanej wiadomości oznacza brak odpowiedniego wieku (w przypadku stacji `pl-a`), brak dostępu do usługi LUB użyciem niedozwolonego linku. Podczas używania tagu `<p>` oznacza ona błąd podczas konwertowania wiadomości.
+1. Reakcja X ({{custom:denided}}) przy niewysłanej wiadomości oznacza brak dostępu do usługi (blokada) LUB użyciem niedozwolonego linku. Podczas używania tagu `<p>` oznacza ona błąd podczas konwertowania wiadomości.
 1. Reakcja minusa ({{custom:minus}}) przy niewysłanej wiadomości oznacza brak profilu. Podczas używania tagu `<p>` oznacza ona brak wiadomości zablokowanej przez cooldown.
 1. Czas może się wydłużyć w zależności od dostępności deweloperów.
 1. Jedna gwiazdka oznacza możliwość wysłania w celach humorystycznych, __W PRZYPADKU pornograficznego tematu/materiału__ mogą być wysyłanie humorystycznie TYLKO w spoilerze, nie może też przedstawiać ŻADNEJ części intymnej.

@@ -5,7 +5,8 @@ const { debug } = require("../config")
 module.exports = {
     data: {
         name: "Gemini",
-        description: "Sztuczna inteligencja od Google!",
+        description:
+            "Sztuczna inteligencja, która pomoże Ci rozwijać pomysły. Pobudź swoją kreatywność i zwiększ produktywność!\n*Warto zapoznać się z [prywatnością i warunkami](https://policies.google.com/) usługi Google*",
         avatar: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/BB1i0xCB.img?w=512&h=512&m=6.png",
         prompt_type: "chat2.0",
     },
