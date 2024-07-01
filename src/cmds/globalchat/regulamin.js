@@ -19,10 +19,14 @@ module.exports = {
         await interaction.reply(textes[0])
         for (let i = 1; i < textes.length; i++) {
             try {
-                if (interaction.channel !== null) interaction.channel.send(textes[i])
+                if (interaction.channel !== null) await interaction.channel.send(textes[i])
                 else await interaction.user.send(textes[i])
             } catch (e) {
-                await interaction.followUp(textes[i])
+                try {
+                    await interaction.followUp(textes[i])
+                } catch (f) {
+                    await interaction.editReply("Nie udało się wysłać reszty regulaminu!")
+                }
             }
         }
     },

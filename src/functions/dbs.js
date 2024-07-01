@@ -22,6 +22,7 @@ function gcdata_create() {
         timestampToTab: Math.floor(Date.now() / 1000),
         blockTimestampToTab: Math.floor(Date.now() / 1000),
         karma: 0n,
+        messageID_bbc: "",
     }
 }
 
@@ -58,6 +59,7 @@ module.exports = {
             newData.timestampToTab = Number(obj[3] ?? newData.timestampToTab)
             newData.blockTimestampToTab = Number(obj[4] ?? newData.blockTimestampToTab)
             newData.karma = BigInt(obj[5] ?? 0n)
+            newData.messageID_bbc = obj[6] ?? newData.messageID_bbc
 
             return newData
         },

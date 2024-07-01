@@ -15,9 +15,10 @@ module.exports = {
     /**
      * @param {string} msg
      * @param {User} user
+     * @param {{ text: string, author: { name: string, id: string }, isGA: boolean } | null} reply
      * @returns {Promise<WebhookMessageCreateOptions>}
      */
-    execute: async function (msg, user) {
+    execute: async function (msg, user, reply) {
         var a = msg.slice(msg.split("!")[0].length + 1).split(" ")
         const cmd = a[0]
         const args = [...a.filter((x, i) => i > 0)]

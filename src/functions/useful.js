@@ -35,6 +35,26 @@ const servers = {
 }
 
 /**
+ * @param {string} bgHEX
+ */
+function checkFontColor(bgHEX) {
+    // Zamień kolor tła na wartość liczbową RGB
+    const r = parseInt(bgHEX.slice(1, 3), 16)
+    const g = parseInt(bgHEX.slice(3, 5), 16)
+    const b = parseInt(bgHEX.slice(5, 7), 16)
+
+    // Oblicz jasność tła (średnią arytmetyczną kanałów RGB)
+    const jasnosc = (r + g + b) / 3
+
+    // Wybierz kolor czcionki na podstawie jasności tła
+    if (jasnosc > 128) {
+        return "black" // Czarna czcionka na jasnym tle
+    } else {
+        return "white" // Biała czcionka na ciemnym tle
+    }
+}
+
+/**
  *
  * @param {number} ms
  * @returns {Promise<void>}
@@ -44,5 +64,6 @@ var wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 module.exports = {
     listenerLog: listenerLog,
     wait,
+    checkFontColor,
     servers,
 }

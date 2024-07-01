@@ -247,46 +247,52 @@ async function formatText(text, client) {
 }
 
 /**
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function deleteComments(text) {
+    text = text.split("```")
+    for (let i = 0; i < text.length; i++) {
+        text[i] = {
+            text: text[i],
+            isInCode: i % 2 == 0 ? false : true,
+        }
+    }
+    text = text.map(function (x) {
+        if (!x.isInCode) {
+            x.text = x.text
+                .split("\n")
+                .filter((c) => !c.startsWith("<##> "))
+                .join("\n")
+        }
+
+        return x
+    })
+    text = text.map((x) => x.text).join("```")
+
+    return text
+}
+/**
  * GlobalChat v2
  * @param {Client<true>} DiscordClient
  * @param {Message<true>} DiscordMessage
- * @param {{ text: string, msgID: string, author: { id: string, name: string, isUser: boolean, avatar: string | null }, location: string, files: string[] }} GlobalChatMessage
  */
-async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessage) {
+async function globalchatFunction(DiscordClient, DiscordMessage) {
     try {
+        const GClocation = `${DiscordMessage.guildId}/${DiscordMessage.channelId}`
         var accDate = new Date()
         accDate = `${accDate.getFullYear()}-${accDate.getMonth() + 1}-${accDate.getDate()}`
 
         function wbName(gID) {
-            if (ownersID.includes(GlobalChatMessage.author.id)) var rank = "właściciel"
-            else if (GCmodsID.includes(GlobalChatMessage.author.id)) var rank = "moderator GC"
+            if (ownersID.includes(DiscordMessage.author.id)) var rank = "właściciel"
+            else if (GCmodsID.includes(DiscordMessage.author.id)) var rank = "moderator GC"
             else var rank = "osoba"
 
             return DiscordMessage.guildId != gID
-                ? `${GlobalChatMessage.author.name} (${rank}; ${GlobalChatMessage.author.id})`
-                : `${GlobalChatMessage.author.name} (${rank}; ten serwer)`
+                ? `${DiscordMessage.author.username} (${rank}; ${DiscordMessage.author.id})`
+                : `${DiscordMessage.author.username} (${rank}; ten serwer)`
         }
-
-        GlobalChatMessage.text = GlobalChatMessage.text.split("```")
-        for (let i = 0; i < GlobalChatMessage.text.length; i++) {
-            GlobalChatMessage.text[i] = {
-                text: GlobalChatMessage.text[i],
-                isInCode: i % 2 == 0 ? false : true,
-            }
-        }
-        GlobalChatMessage.text = GlobalChatMessage.text.map(function (x) {
-            if (!x.isInCode) {
-                x.text = x.text
-                    .split("\n")
-                    .filter((c) => !c.startsWith("<##> "))
-                    .join("\n")
-            }
-
-            return x
-        })
-        GlobalChatMessage.text = GlobalChatMessage.text.map((x) => x.text).join("```")
-
-        if (GlobalChatMessage.files.length == 0 && GlobalChatMessage.text == "") return
 
         /**
          * @returns {Promise<EmbedBuilder | undefined>}
@@ -300,25 +306,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                             rAttachments
 
                         //działanie komentarzy w odpowiadanej wiadomości
-                        rContent = rContent.split("```")
-                        for (let i = 0; i < rContent.length; i++) {
-                            rContent[i] = {
-                                text: rContent[i],
-                                isInCode: i % 2 == 0 ? false : true,
-                            }
-                        }
-                        rContent = rContent.map(function (x) {
-                            if (!x.isInCode) {
-                                x.text = x.text
-                                    .split("\n")
-                                    .filter((c) => !c.startsWith("<##> "))
-                                    .join("\n")
-                            }
-
-                            return x
-                        })
-                        rContent = rContent.map((x) => x.text).join("```")
-                        rContent = rContent.trim()
+                        rContent = deleteComments(rContent)
 
                         var rUser = replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.author.username : replayedMSG.author.username.split(" (")[0]
 
@@ -341,25 +329,15 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
             }
         }
 
-        //dla używania GlobalActions przez komentowanie
-        var withoutReply = GlobalChatMessage.text.toLowerCase()
+        if (
+            !deleteComments(DiscordMessage.content) &&
+            DiscordMessage.attachments.filter(
+                (a) => a.contentType !== null && (a.contentType.startsWith("image") || a.contentType.startsWith("video") || a.contentType.startsWith("audio"))
+            ).size == 0
+        )
+            return
 
-        var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
-        for (var i = 0; i < prefixes.length; i++) {
-            var quickdata = require(`./globalactions/${prefixes[i]}`).data
-
-            if (
-                (withoutReply.startsWith(`${prefixes[i]},`) && quickdata.prompt_type == "chat") ||
-                ((withoutReply.includes(`[${prefixes[i]}]`) || DiscordMessage.mentions.repliedUser?.displayName.startsWith(quickdata.name)) &&
-                    quickdata.prompt_type == "chat2.0") ||
-                (withoutReply.startsWith(`${prefixes[i]}!`) && quickdata.prompt_type == "cmd")
-            ) {
-                prefixes = prefixes[i]
-                break
-            }
-        }
-
-        if (GlobalChatMessage.author.isUser) {
+        if (!DiscordMessage.author.bot && !DiscordMessage.author.system) {
             var snpsht = db.get(`serverData`)
             var database = snpsht.val || {}
 
@@ -400,7 +378,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                 .indexOf(DiscordMessage.channelId)
             station = Object.keys(serverdata.gc)[station]
 
-            var userSnpsht = db.get(`userData/${GlobalChatMessage.author.id}/gc`)
+            var userSnpsht = db.get(`userData/${DiscordMessage.author.id}/gc`)
 
             if (userSnpsht.exists) {
                 const oldUData = userSnpsht.val
@@ -421,6 +399,8 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
 
             if (userData.timestampToSendMessage > Date.now()) {
                 DiscordMessage.reply(`${customEmoticons.denided} Osobisty cooldown! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms`)
+                userData.messageID_bbc = DiscordMessage.id
+                db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
                 return
             }
 
@@ -428,19 +408,21 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
             // console.log(ddata, station)
             if (ddata[station].timestamp > Date.now()) {
                 DiscordMessage.reply(`${customEmoticons.denided} Cooldown na kanale! Zaczekaj jeszcze \`${ddata[station].timestamp - Date.now()}\` ms`)
+                userData.messageID_bbc = DiscordMessage.id
+                db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
                 return
             }
 
             if (timestampCooldown.getTime() + globalCooldown > Date.now()) {
                 DiscordMessage.reply(`${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${globalCooldown - (Date.now() - timestampCooldown.getTime())}\` ms`)
+                userData.messageID_bbc = DiscordMessage.id
+                db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
                 return
             }
 
             database = database.filter((x) => Object.keys(x.gc).includes(station)).map((x) => Object.assign(x.gc[station], { serverID: x.id }))
 
             listenerLog(3, "➿ Spełniono warunek (3/5)")
-            userData.timestampToSendMessage = Date.now() + userCooldown(database.length)
-            db.set(`userData/${GlobalChatMessage.author.id}/gc`, gcdata.decode(userData))
             ddata[station].timestamp = Date.now() + channelCooldown(database.length)
             db.set(`serverData/${DiscordMessage.guildId}/gc`, gcdataGuild.decode(ddata))
             delete ddata
@@ -452,7 +434,25 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
 
             listenerLog(3, "➿ Spełniono warunek (4/5)")
 
-            if (sprawdzNiedozwoloneLinki(GlobalChatMessage.text) && !ownersID.includes(GlobalChatMessage.author.id)) {
+            if (DiscordMessage.content === "<p>" && userData.messageID_bbc) {
+                try {
+                    const msg = await DiscordMessage.channel.messages.fetch(userData.messageID_bbc)
+
+                    DiscordMessage = msg
+                    userData.messageID_bbc = ""
+                } catch (e) {
+                    DiscordMessage.react(customEmoticons.denided)
+                    return
+                }
+            } else if (DiscordMessage.content === "<p>" && !userData.messageID_bbc) {
+                DiscordMessage.react(customEmoticons.minus)
+                return
+            }
+            userData.timestampToSendMessage = Date.now() + userCooldown(database.length)
+            userData.messageID_bbc = ""
+            db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+
+            if (sprawdzNiedozwoloneLinki(deleteComments(DiscordMessage.content)) && !ownersID.includes(DiscordMessage.author.id)) {
                 DiscordMessage.react(customEmoticons.denided)
                 return
             }
@@ -460,7 +460,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
             listenerLog(3, "➿ Spełniono warunek (5/5)")
             listenerLog(4, `✅ Ma możliwość wysłania wiadomości do GC`)
             listenerLog(5, `Informacje o wiadomości: `)
-            listenerLog(5, `📌 ${GlobalChatMessage.location}/${DiscordMessage.id}`)
+            listenerLog(5, `📌 ${GClocation}/${DiscordMessage.id}`)
             if (DiscordMessage.reference !== null)
                 listenerLog(
                     5,
@@ -599,20 +599,54 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                     })
                     .filter((x) => x)
             )
+            //dla używania GlobalActions przez komentowanie
+            var withoutReply = deleteComments(DiscordMessage.content).toLowerCase()
 
-            GlobalChatMessage.text = await formatText(GlobalChatMessage.text, DiscordClient)
+            var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
+            for (var i = 0; i < prefixes.length; i++) {
+                var quickdata = require(`./globalactions/${prefixes[i]}`).data
+
+                if (
+                    (withoutReply.startsWith(`${prefixes[i]},`) && quickdata.prompt_type == "chat") ||
+                    ((withoutReply.includes(`[${prefixes[i]}]`) || DiscordMessage.mentions.repliedUser?.displayName.startsWith(quickdata.name)) &&
+                        quickdata.prompt_type == "chat2.0") ||
+                    (withoutReply.startsWith(`${prefixes[i]}!`) && quickdata.prompt_type == "cmd")
+                ) {
+                    prefixes = prefixes[i]
+                    break
+                }
+            }
+
             DiscordMessage.content = await formatText(DiscordMessage.content, DiscordClient)
 
-            const isHisFirstMessage = !lastUser.startsWith(`${GlobalChatMessage.location}:${GlobalChatMessage.author.id}`)
-            lastUser = `${GlobalChatMessage.location}:${GlobalChatMessage.author.id}[${isHisFirstMessage}]`
+            const isHisFirstMessage = !lastUser.startsWith(`${GClocation}:${DiscordMessage.author.id}`)
+            lastUser = `${GClocation}:${DiscordMessage.author.id}[${isHisFirstMessage}]`
             listenerLog(3, 'ℹ️ Zmienna "lastUser" jest równa "' + lastUser + '"')
 
             var messages = []
             var editLater = {}
 
+            /**
+             * @type {{ text: string, author: , isGA: boolean } | null}
+             */
+            var replyJSON = null
+
             Promise.all(
                 webhooks.map(async function (w) {
                     var a = await repliedMessage(w.gid)
+
+                    if (a && w.gid == DiscordMessage.guildId)
+                        replyJSON = {
+                            text: a.toJSON().description,
+                            authorName: (() => {
+                                const wbname = a.toJSON().author.name.replace("W odpowiedzi do ", "")
+                                if (wbname.endsWith(", GlobalAction)")) return wbname.split(" (")[1].split(",")[0].replace(/"/g, "")
+                                else if (wbname.endsWith("GlobalAction)")) return wbname.split(" (")[0]
+                                else return wbname
+                            })(),
+                            isGA: a.toJSON().author.name.endsWith("GlobalAction)"),
+                        }
+
                     a = typeof a === "undefined" ? [] : [a]
 
                     if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
@@ -622,7 +656,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                                 ? [
                                       new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${DiscordMessage.guildId}`).setEmoji(`ℹ️`),
                                       new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${DiscordMessage.author.id}`).setEmoji(`👤`),
-                                      new ButtonBuilder().setStyle(ButtonStyle.Primary).setCustomId(`gctab\u0000${GlobalChatMessage.author.id}`).setEmoji("👉"),
+                                      new ButtonBuilder().setStyle(ButtonStyle.Primary).setCustomId(`gctab\u0000${DiscordMessage.author.id}`).setEmoji("👉"),
                                   ]
                                 : [],
                             [
@@ -650,11 +684,20 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                     }
 
                     var x = await w.wh.send({
-                        avatarURL: GlobalChatMessage.author.avatar,
+                        avatarURL: DiscordMessage.author.displayAvatarURL({ size: 64, extension: "webp", forceStatic: true }),
                         username: wbName(w.gid),
-                        content: w.gid == DiscordMessage.guildId ? DiscordMessage.content : GlobalChatMessage.text,
+                        content: w.gid == DiscordMessage.guildId ? DiscordMessage.content : deleteComments(DiscordMessage.content),
                         embeds: a,
-                        files: GlobalChatMessage.files,
+                        files:
+                            w.gid == DiscordMessage.guildId
+                                ? DiscordMessage.attachments.map((x) => x)
+                                : DiscordMessage.attachments
+                                      .filter(
+                                          (a) =>
+                                              a.contentType !== null &&
+                                              (a.contentType.startsWith("image") || a.contentType.startsWith("video") || a.contentType.startsWith("audio"))
+                                      )
+                                      .map((x) => x),
                         allowedMentions: { parse: [] },
                         components: w.gid == DiscordMessage.guildId ? comp.server : comp.global,
                     })
@@ -673,48 +716,75 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                 const channelid = "1251618649425449072"
                 const channel = await DiscordClient.channels.fetch(channelid)
 
-                if (DiscordMessage.deletable) DiscordMessage.delete()
+                if (DiscordMessage.deletable)
+                    try {
+                        DiscordMessage.delete()
+                    } catch (e) {
+                        console.warn(e)
+                    }
 
                 if (typeof prefixes == "string") {
                     const file = require(`./globalactions/${prefixes}`)
                     try {
+                        var measuringTime = {
+                            ends: false,
+                            mustPing: false,
+                            startTimestamp: Date.now(),
+                            endTimestamp: 0,
+                            msg: null,
+                        }
+
+                        setTimeout(() => {
+                            if (!measuringTime.ends) {
+                                measuringTime.mustPing = true
+                                DiscordMessage.channel.send(
+                                    `<@${DiscordMessage.author.id}>, od 10 sekund akcja nie odpowiada, jako że nie ma limitu, dostaniesz ping na kanale z odpowiedzią!`
+                                )
+                            }
+                        }, 10_000)
                         /**
                          * @type {WebhookMessageCreateOptions}
                          */
-                        var response = await file.execute(GlobalChatMessage.text, DiscordMessage.author)
+                        var response = await file.execute(deleteComments(DiscordMessage.content), DiscordMessage.author, replyJSON)
                         response.avatarURL ??= file.data.avatar
                         response.username ??= file.data.name
                         response.username += ` (${response.username === file.data.name ? "" : `"${file.data.name}", `}GlobalAction)`
                         response.allowedMentions = { parse: [] }
 
+                        measuringTime.ends = true
+
+                        webhooks.map(async function (w) {
+                            var msg = await w.wh.send(response)
+                            if (measuringTime.mustPing && w.gid === DiscordMessage.guildId) measuringTime.msg = msg.id
+                        })
+
+                        if (measuringTime.mustPing) {
+                            var message = await DiscordMessage.channel.messages.fetch(measuringTime.msg)
+                            message.reply(`<@${DiscordMessage.author.id}>`)
+                        }
+
                         if (channel && channel.type === ChannelType.GuildText) {
                             const embed = new EmbedBuilder()
                                 .setColor("Blue")
                                 .setAuthor({
-                                    name: GlobalChatMessage.author.name,
+                                    name: DiscordMessage.author.username,
                                     iconURL: DiscordMessage.author.displayAvatarURL({ extension: "webp", size: 64 }),
                                 })
-                                .setDescription(`Wykonanie akcji *${file.data.name}* \`\`\`${GlobalChatMessage.text}\`\`\``)
+                                .setDescription(`Wykonanie akcji *${file.data.name}* \`\`\`${deleteComments(DiscordMessage.content)}\`\`\``)
                                 .setFooter({ text: `${response.username} | ${station}`, iconURL: response.avatarURL })
                             channel.send({
                                 embeds: [embed],
                             })
                         }
-
-                        webhooks.map(async function (w) {
-                            await w.wh.send(response)
-
-                            return
-                        })
                     } catch (err) {
                         if (channel && channel.type === ChannelType.GuildText) {
                             const embed = new EmbedBuilder()
                                 .setColor("DarkRed")
                                 .setAuthor({
-                                    name: GlobalChatMessage.author.name,
+                                    name: DiscordMessage.author.username,
                                     iconURL: DiscordMessage.author.displayAvatarURL({ extension: "webp", size: 64 }),
                                 })
-                                .setDescription(`Niepowodzenie wykonania akcji *${file.data.name}* \`\`\`${GlobalChatMessage.text}\`\`\``)
+                                .setDescription(`Niepowodzenie wykonania akcji *${file.data.name}* \`\`\`${deleteComments(DiscordMessage.content)}\`\`\``)
                                 .setFields({ name: "Błąd", value: `\`\`\`${err.message}\`\`\`` })
                                 .setFooter({ text: `${station}` })
                             channel.send({
@@ -722,7 +792,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                             })
                         }
                         console.error(err)
-                        DiscordMessage.channel.send(`Ojoj <@${GlobalChatMessage.author.id}>, złe wieści - owy GlobalAction nie został wykonany zgodnie z oczekiwaniami...`)
+                        DiscordMessage.channel.send(`Ojoj <@${DiscordMessage.author.id}>, złe wieści - owy GlobalAction nie został wykonany zgodnie z oczekiwaniami...`)
                     }
                 } else {
                     listenerLog(3, `🌐 Zapisano informację o wiadomości użytkownika`)
@@ -732,25 +802,34 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                         const embed = new EmbedBuilder()
                             .setColor("Green")
                             .setAuthor({
-                                name: GlobalChatMessage.author.name,
+                                name: DiscordMessage.author.username,
                                 iconURL: DiscordMessage.author.displayAvatarURL({ extension: "webp", size: 64 }),
                             })
-                            .setDescription(GlobalChatMessage.text || "[ brak tekstu ]")
+                            .setDescription(deleteComments(DiscordMessage.content) || "[ brak tekstu ]")
                             .setFields({
                                 name: "Stan",
                                 value: "Nie usunięto",
                             })
                             .setFooter({ text: `${station}` })
                         embeds.push(embed)
-                        if (GlobalChatMessage.files.length > 0) {
-                            const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(GlobalChatMessage.files.join("\n"))
+                        if (
+                            DiscordMessage.attachments.filter(
+                                (x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio"))
+                            ).size > 0
+                        ) {
+                            const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(
+                                DiscordMessage.attachments
+                                    .filter((x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio")))
+                                    .map((x) => x.url)
+                                    .join("\n")
+                            )
                             embeds.push(mediaEmbed)
                         }
                         var msg = await channel.send({
                             embeds,
                             content: messages.join("|"),
                         })
-                        msg.edit({
+                        await msg.edit({
                             components: [
                                 new ActionRowBuilder().addComponents(
                                     new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${DiscordMessage.guildId}`).setEmoji(`ℹ️`),
@@ -763,7 +842,11 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                         editLater.wh.editMessage(editLater.message, {
                             components: [
                                 new ActionRowBuilder().addComponents([
-                                    new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${DiscordMessage.author.id}\u0000${msg.id}`).setEmoji("🗑️"),
+                                    new ButtonBuilder()
+                                        .setStyle(ButtonStyle.Danger)
+                                        .setCustomId(`gcdelete\u0000${DiscordMessage.author.id}\u0000${msg.id}`)
+                                        .setEmoji("🗑️")
+                                        .setDisabled(false),
                                 ]),
                             ],
                         })
@@ -771,8 +854,13 @@ async function globalchatFunction(DiscordClient, DiscordMessage, GlobalChatMessa
                 }
 
                 userData.karma += 1n
-                userData.karma += BigInt(typeof prefixes == "string" || GlobalChatMessage.files.length > 0)
-                db.set(`userData/${GlobalChatMessage.author.id}/gc`, gcdata.decode(userData))
+                userData.karma += BigInt(
+                    typeof prefixes == "string" ||
+                        DiscordMessage.attachments.filter(
+                            (x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio"))
+                        ).size > 0
+                )
+                db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
             })
         }
     } catch (err) {

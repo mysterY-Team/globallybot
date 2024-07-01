@@ -13,10 +13,17 @@ const client = new Client({
 
 listenerLog(0, "Discord.js v.14", true)
 
-GlobalFonts.registerFromPath("./src/others/novasq.ttf", "Nova Square")
-GlobalFonts.registerFromPath("./src/others/jersey10.ttf", "Jersey 10")
-GlobalFonts.registerFromPath("./src/others/notoemoji.ttf", "Noto Emoji")
-GlobalFonts.registerFromPath("./src/others/audiowide.ttf", "Audiowide")
+GlobalFonts.registerFromPath("./src/others/fonts/outfit.ttf", "sans-serif")
+
+GlobalFonts.registerFromPath("./src/others/fonts/novasq.ttf", "Nova Square")
+GlobalFonts.registerFromPath("./src/others/fonts/jersey10.ttf", "Jersey 10")
+GlobalFonts.registerFromPath("./src/others/fonts/audiowide.ttf", "Audiowide")
+GlobalFonts.registerFromPath("./src/others/fonts/spacemono.ttf", "Space Mono")
+GlobalFonts.registerFromPath("./src/others/fonts/galiver.ttf", "Galiver Sans")
+
+GlobalFonts.registerFromPath("./src/others/efonts/notoemoji.ttf", "Noto Emoji")
+GlobalFonts.registerFromPath("./src/others/efonts/firefoxemoji.ttf", "Firefox Emoji")
+GlobalFonts.registerFromPath("./src/others/efonts/docomoji.ttf", "DoCoMo Emoji")
 
 client.on("ready", (log) => {
     active = true
@@ -35,25 +42,7 @@ client.on("messageCreate", (msg) => {
     listenerLog(2, "❗ Wyłapano wiadomość!")
 
     try {
-        var glist = {
-            text: msg.content,
-            msgID: msg.id,
-            author: {
-                id: msg.author.id,
-                name: msg.author.discriminator == "0" ? msg.author.username : `${msg.author.username}#${msg.author.discriminator}`,
-                isUser: !msg.author.bot && !msg.author.system,
-                avatar: msg.author.displayAvatarURL({
-                    extension: "webp",
-                    forceStatic: false,
-                }),
-            },
-            location: `${msg.guildId}/${msg.channelId}`,
-            files: msg.attachments
-                .filter((a) => a.contentType !== null && (a.contentType.startsWith("image") || a.contentType.startsWith("video") || a.contentType.startsWith("audio")))
-                .map((a) => a.url),
-        }
-
-        globalchatFunction(client, msg, glist)
+        globalchatFunction(client, msg)
     } catch (err) {
         msg.reply(
             `${customEmoticons.denided} Nie mogłem przetworzyć Twojego rządania! Natrafiłeś na bardzo ciekawy błąd ze strony trzeciej (API Discorda). Spróbuj wysłać jeszcze raz, w razie czego zastanów się nad zmniejszeniem kontentu`
