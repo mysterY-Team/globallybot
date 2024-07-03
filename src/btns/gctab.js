@@ -16,10 +16,10 @@ module.exports = {
     async execute(client, interaction, ...args) {
         var uid = args[0]
 
-        if (interaction.user.id === uid) {
-            interaction.deferUpdate()
-            return
-        }
+        // if (interaction.user.id === uid) {
+        //     interaction.deferUpdate()
+        //     return
+        // }
 
         await interaction.deferReply({ ephemeral: true })
 
@@ -49,6 +49,8 @@ module.exports = {
             interaction.editReply(`${customEmoticons.loading} Ktoś już mu wysłał zaczepkę, poczekaj chwilkę...`)
             return
         }
+
+        // console.log(data2.blockTimestampToTab, data1.timestampToTab, Math.floor(Date.now() / 1000))
 
         var station = Object.values(db.get("serverData").val)
             .filter((x) => "gc" in x)
@@ -82,8 +84,8 @@ module.exports = {
                 `${customEmoticons.approved} Wysłano pomyślnie zaczepkę! Zaczekaj do <t:${Math.floor(Date.now() / 1000) + times.cooldown + 3}:t> na następną zaczepkę!`
             )
 
-            data1.timestampToTab += times.cooldown
-            data2.blockTimestampToTab += times.blockrepl
+            data1.timestampToTab = Math.floor(Date.now() / 1000) + times.cooldown
+            data2.blockTimestampToTab = Math.floor(Date.now() / 1000) + times.blockrepl
 
             db.set(`userData/${interaction.user.id}/gc`, gcdata.decode(data1))
             db.set(`userData/${uid}/gc`, gcdata.decode(data2))
