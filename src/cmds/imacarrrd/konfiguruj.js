@@ -1,6 +1,7 @@
 const { CommandInteraction, Client, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require("discord.js")
 const { db, customEmoticons } = require("../../config")
 const { imacaData } = require("../../functions/dbs")
+const { checkUserInSupport } = require("../../functions/useful")
 
 module.exports = {
     /**
@@ -9,13 +10,13 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        var snpsht = db.get(`userData/${interaction.user.id}/imaca`)
-        if (!snpsht.exists) {
+        if (!(await checkUserInSupport(client, interaction.user.id))) {
             return interaction.reply({
-                content: `${customEmoticons.info} Do konfiguracji potrzebny jest profil - \`profil utwórz typ:ImaCarrrd\``,
+                content: `${customEmoticons.info} Aby móc korzystać z całego potencjału ImaCarrrd, musisz dołączyć na serwer support! Możesz znaleźć link pod \`botinfo\`.`,
                 ephemeral: true,
             })
         }
+        var snpsht = db.get(`userData/${interaction.user.id}/imaca`)
         var data = imacaData.encode(snpsht.val)
         const modal = new ModalBuilder()
             .setTitle("Edycja informacji ImaCarrrd")

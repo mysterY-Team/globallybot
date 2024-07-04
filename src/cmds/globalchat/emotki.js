@@ -1,5 +1,5 @@
-const { Client, CommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle, Snowflake, PermissionsBitField } = require("discord.js")
-const { customEmoticons, _bot, debug } = require("../../config")
+const { Client, CommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle, Snowflake } = require("discord.js")
+const { customEmoticons, _bot } = require("../../config")
 const { servers } = require("../../functions/useful")
 
 const ServersNotUsingTheirEmotesFeature = ["1173361427159994478"]

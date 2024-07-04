@@ -14,54 +14,33 @@ const $$ = {
     },
 }
 
-function gcdata_create() {
-    return {
-        isBlocked: false,
-        blockReason: "",
-        timestampToSendMessage: Date.now() + 3000,
-        timestampToTab: Math.floor(Date.now() / 1000),
-        blockTimestampToTab: Math.floor(Date.now() / 1000),
-        karma: 0n,
-        messageID_bbc: "",
-    }
-}
-
-function imacaData_create() {
-    return {
-        cardID: 0,
-        name: "Użytkownik ImaCarrrd",
-        description: "Brak podanego opisu.",
-        nameGradient1: "#0B8553",
-        nameGradient2: "#74B198",
-        bannerURL: null,
-    }
-}
-
 function gcdataGuildS(data) {
     data = data.split(",")
     return {
         channel: data[0],
         webhook: data[1] ?? "none",
         timestamp: Number(data[2]) || Date.now() - 1,
+        createdTimestamp: Number(data[3]) || 0,
     }
 }
 
 module.exports = {
     gcdata: {
-        create: gcdata_create,
         encode: (data) => {
-            var obj = data.split("{=·}")
-            var newData = gcdata_create()
-
-            newData.isBlocked = $$.stob(obj[0]) ?? newData.isBlocked
-            newData.blockReason = obj[1] ?? newData.blockReason
-            newData.timestampToSendMessage = Number(obj[2] ?? Date.now() - 2)
-            newData.timestampToTab = Number(obj[3] ?? newData.timestampToTab)
-            newData.blockTimestampToTab = Number(obj[4] ?? newData.blockTimestampToTab)
-            newData.karma = BigInt(obj[5] ?? 0n)
-            newData.messageID_bbc = obj[6] ?? newData.messageID_bbc
-
-            return newData
+            var obj = (data ?? "").split("{=·}")
+            return {
+                isBlocked: $$.stob(obj[0]) ?? false,
+                blockReason: obj[1] ?? "",
+                timestampToSendMessage: Number(obj[2] ?? Date.now() - 2),
+                timestampToTab: Number(obj[3] ?? Math.floor(Date.now() / 1000) - 1),
+                blockTimestampToTab: Number(obj[4] ?? Math.floor(Date.now() / 1000) - 1),
+                karma: BigInt(obj[5] ?? 0n),
+                messageID_bbc: obj[6] ?? "",
+                /**
+                 * @type {0 | 1 | 2}
+                 */
+                modPerms: Number(obj[7] ?? 0),
+            }
         },
         decode: (data) => {
             return Object.values(data)
@@ -102,17 +81,16 @@ module.exports = {
         },
     },
     imacaData: {
-        create: imacaData_create,
         encode: (data) => {
-            var obj = data.split(/{=·}|\u0000/g)
-            var newData = imacaData_create()
-            newData.cardID = Number(obj[0]) ?? newData.cardID
-            newData.name = obj[1] ?? newData.name
-            newData.description = obj[2] ?? newData.description
-            newData.nameGradient1 = obj[3] ?? newData.nameGradient1
-            newData.nameGradient2 = obj[4] ?? newData.nameGradient2
-            newData.bannerURL = !obj[5] ? null : obj[5]
-            return newData
+            var obj = (data ?? "").split(/{=·}|\u0000/g)
+            return {
+                cardID: Number(obj[0] ?? 0),
+                name: obj[1] ?? "Użytkownik ImaCarrrd",
+                description: obj[2] ?? "Brak podanego opisu.",
+                nameGradient1: obj[3] ?? "#0B8553",
+                nameGradient2: obj[4] ?? "#74B198",
+                bannerURL: !obj[5] ? null : obj[5],
+            }
         },
         decode: (data) => {
             return Object.values(data).join("\u0000")

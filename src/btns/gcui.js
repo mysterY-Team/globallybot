@@ -1,5 +1,5 @@
 const { Client, ButtonInteraction, EmbedBuilder, UserPremiumType } = require("discord.js")
-const { customEmoticons, ownersID, GCmodsID, db } = require("../config")
+const { customEmoticons, ownersID, db } = require("../config")
 const { gcdata } = require("../functions/dbs")
 
 module.exports = {
@@ -24,7 +24,7 @@ module.exports = {
             .setDescription(
                 `ID: \`${args[0]}\`\nUtworzenie konta: **<t:${Math.floor(user.createdTimestamp / 1000)}:R>**\nWłaściciel bota: ${booltext(
                     ownersID.includes(args[0])
-                )}\nModerator GlobalChat: ${booltext(ownersID.includes(args[0]) || GCmodsID.includes(args[0]))}${
+                )}\nModerator GlobalChat: ${booltext(ownersID.includes(args[0]) || data.modPerms > 0)}${
                     haveImacarrrd ? `\n\n*Ten użytkownik posiada ImaCarrrd! Sprawdź pod komendą \`imacarrrd pokaż osoba:${args[0]}\`*` : ""
                 }\nKarma: **${data.karma.toString()}**`
             )

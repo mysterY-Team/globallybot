@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { db, customEmoticons, ownersID, GCmodsID } = require("../../config")
-const { gcdata } = require("../../functions/dbs")
+const { db, customEmoticons, ownersID } = require("../config")
+const { gcdata } = require("../functions/dbs")
 
 module.exports = {
     /**
@@ -9,7 +9,7 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        const user = interaction.options.getUser("osoba") || interaction.user
+        const user = interaction.options.get("osoba").user || interaction.user
 
         await interaction.deferReply()
         const fdb = db.get(`userData/${user.id}`)
@@ -40,7 +40,7 @@ module.exports = {
                 data.gc = gcdata.encode(data.gc)
                 embed.addFields({
                     name: "Moduł *GlobalChat*",
-                    value: `Moderator: ${ownersID.includes(user.id) || GCmodsID.includes(user.id) ? customEmoticons.approved : customEmoticons.denided}\nZablokowany: ${
+                    value: `Moderator: ${ownersID.includes(user.id) || data.gc.modPerms > 0 ? customEmoticons.approved : customEmoticons.denided}\nZablokowany: ${
                         data.gc.isBlocked ? customEmoticons.approved : customEmoticons.denided
                     }\nKarma: **${data.gc.karma.toString()}**`,
                 })

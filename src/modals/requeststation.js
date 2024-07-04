@@ -1,5 +1,5 @@
 const { Client, ModalSubmitInteraction, EmbedBuilder } = require("discord.js")
-const { db, customEmoticons, supportServers, _bot, ownersID } = require("../config")
+const { db, customEmoticons, supportServer, ownersID } = require("../config")
 const { gcdataGuild } = require("../functions/dbs")
 
 module.exports = {
@@ -27,13 +27,12 @@ module.exports = {
 
         if (Object.keys(stations).includes(modalArgs.id)) return interaction.editReply(`${customEmoticons.denided} Już istnieje taka stacja!`)
 
-        var s = gcdataGuild.encode(db.get(`serverData/${supportServers[1]}/gc`).val ?? "")
         db.set(`stations/${modalArgs.id}`, `${interaction.user.id}|${modalArgs.passwd}`)
 
         const emb = new EmbedBuilder()
             .setTitle("Nowa stacja!")
             .setDescription(`ID: \`${modalArgs.id}\`\nHasłowane: ${modalArgs.passwd ? customEmoticons.approved : customEmoticons.denided}\nKreator: <@${interaction.user.id}>`)
-        await (await (await client.guilds.fetch(supportServers[1])).channels.fetch("1251618649425449072")).send({ embeds: [emb] })
+        await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogID)).send({ embeds: [emb] })
 
         interaction.editReply(`${customEmoticons.approved} Utworzono stację poprawnie!`)
     },

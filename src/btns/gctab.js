@@ -1,6 +1,7 @@
-const { ButtonInteraction, Client, EmbedBuilder, EmbedType } = require("discord.js")
+const { ButtonInteraction, Client, EmbedBuilder } = require("discord.js")
 const { customEmoticons, db } = require("../config")
 const { gcdata, gcdataGuild } = require("../functions/dbs")
+const { checkUserInSupport } = require("../functions/useful")
 
 const times = {
     cooldown: 300,
@@ -16,19 +17,25 @@ module.exports = {
     async execute(client, interaction, ...args) {
         var uid = args[0]
 
-        // if (interaction.user.id === uid) {
-        //     interaction.deferUpdate()
-        //     return
-        // }
+        if (interaction.user.id === uid) {
+            interaction.deferUpdate()
+            return
+        }
+        var repliedMessageTimestamp = interaction.message.createdTimestamp
 
         await interaction.deferReply({ ephemeral: true })
 
-        var userData1 = db.get(`userData/${interaction.user.id}/gc`)
-        if (!userData1.exists) {
-            interaction.editReply(`${customEmoticons.denided} Wymagany jest profil, aby użyć tej funkcji! Utworzysz pod komendą \`profil utwórz typ:GlobalChat\``)
+        if (!(await checkUserInSupport(client, interaction.user.id))) {
+            interaction.editReply(
+                `${customEmoticons.info} Aby móc korzystać z całego potencjału GlobalChata, musisz dołączyć na serwer support! Możesz znaleźć link pod \`botinfo\`.`
+            )
             return
         }
-
+        var userData1 = db.get(`userData/${interaction.user.id}/gc`)
+        if (!userData1.exists) {
+            interaction.editReply(`${customEmoticons.denided} Musisz napisać jakąś wiadomość`)
+            return
+        }
         var data1 = gcdata.encode(userData1.val)
         if (data1.isBlocked) {
             interaction.editReply(`${customEmoticons.denided} Jesteś zablokowany w usłudze GlobalChat!`)
@@ -56,10 +63,16 @@ module.exports = {
             .filter((x) => "gc" in x)
             .map((x) => Object.entries(gcdataGuild.encode(x.gc)))
             .flat()
-            .find((x) => x[1].channel === interaction.channel.id)?.[0]
+            .find((x) => x[1].channel === interaction.channel.id)
 
         if (!station) {
             interaction.editReply(`${customEmoticons.minus} Ten kanał już nie jest podpięty GlobalChatem!`)
+            return
+        }
+
+        if (station[1].createdTimestamp < repliedMessageTimestamp) {
+            interaction.editReply("Ta wiadomość powstała ze wcześniejszego podpięcia kamału do GlobalChatu, nie możesz już więc tego użytkownika zaczepić!")
+            return
         }
 
         try {

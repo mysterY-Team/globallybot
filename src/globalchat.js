@@ -10,11 +10,11 @@ const {
     ChannelType,
     DiscordAPIError,
 } = require("discord.js")
-const { db, customEmoticons, ownersID, GCmodsID, debug } = require("./config")
+const { db, customEmoticons, ownersID, debug, supportServer } = require("./config")
 const axios = require("axios").default
 const fs = require("fs")
 const { emoticons } = require("./cmds/globalchat/emotki")
-const { listenerLog } = require("./functions/useful")
+const { listenerLog, checkUserInSupport, servers } = require("./functions/useful")
 const { freemem, totalmem } = require("os")
 const { gcdata, gcdataGuild } = require("./functions/dbs")
 
@@ -274,7 +274,7 @@ function deleteComments(text) {
     return text
 }
 /**
- * GlobalChat v2
+ * GlobalChat, edycja czwarta, wersja druga systemu
  * @param {Client<true>} DiscordClient
  * @param {Message<true>} DiscordMessage
  */
@@ -284,9 +284,10 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
         var accDate = new Date()
         accDate = `${accDate.getFullYear()}-${accDate.getMonth() + 1}-${accDate.getDate()}`
 
-        function wbName(gID) {
-            if (ownersID.includes(DiscordMessage.author.id)) var rank = "właściciel"
-            else if (GCmodsID.includes(DiscordMessage.author.id)) var rank = "moderator GC"
+        function wbName(gID, modPerm) {
+            if (ownersID.includes(DiscordMessage.author.id)) var rank = "twórca"
+            else if (modPerm === 2) var rank = "naczelnik"
+            else if (modPerm === 1) var rank = "moderator"
             else var rank = "osoba"
 
             return DiscordMessage.guildId != gID
@@ -365,6 +366,8 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
             )
                 return
 
+            listenerLog(2, "")
+            listenerLog(2, "❗ Wyłapano wiadomość do GC!")
             listenerLog(3, "➿ Spełniono warunek (1/5)")
 
             if (freemem() < totalmem() * 0.05 * !debug) {
@@ -378,14 +381,9 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                 .indexOf(DiscordMessage.channelId)
             station = Object.keys(serverdata.gc)[station]
 
-            var userSnpsht = db.get(`userData/${DiscordMessage.author.id}/gc`)
-
-            if (userSnpsht.exists) {
-                const oldUData = userSnpsht.val
-                var userData = gcdata.encode(oldUData)
-            } else {
+            if (!(await checkUserInSupport(DiscordClient, DiscordMessage.author.id))) {
                 DiscordMessage.reply(
-                    `${customEmoticons.info} Nie został zarejestrowany profil GlobalChat! Utwórz pod komendą \`profil utwórz typ:GlobalChat\`, aby móc z niego korzystać!`
+                    `${customEmoticons.info} Aby móc korzystać z całego potencjału GlobalChata, musisz dołączyć na serwer support! Możesz znaleźć link pod \`botinfo\`.`
                 ).then((msg) => {
                     setTimeout(() => {
                         if (msg.deletable) msg.delete()
@@ -394,13 +392,17 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                 DiscordMessage.react(customEmoticons.minus)
                 return
             }
+            const oldUData = db.get(`userData/${DiscordMessage.author.id}/gc`).val
+            var userData = gcdata.encode(oldUData)
 
             listenerLog(3, "➿ Spełniono warunek (2/5)")
 
             if (userData.timestampToSendMessage > Date.now()) {
                 DiscordMessage.reply(`${customEmoticons.denided} Osobisty cooldown! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms`)
-                userData.messageID_bbc = DiscordMessage.id
-                db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+                if (DiscordMessage.content !== "<p>") {
+                    userData.messageID_bbc = DiscordMessage.id
+                    db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+                }
                 return
             }
 
@@ -408,15 +410,19 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
             // console.log(ddata, station)
             if (ddata[station].timestamp > Date.now()) {
                 DiscordMessage.reply(`${customEmoticons.denided} Cooldown na kanale! Zaczekaj jeszcze \`${ddata[station].timestamp - Date.now()}\` ms`)
-                userData.messageID_bbc = DiscordMessage.id
-                db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+                if (DiscordMessage.content !== "<p>") {
+                    userData.messageID_bbc = DiscordMessage.id
+                    db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+                }
                 return
             }
 
             if (timestampCooldown.getTime() + globalCooldown > Date.now()) {
                 DiscordMessage.reply(`${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${globalCooldown - (Date.now() - timestampCooldown.getTime())}\` ms`)
-                userData.messageID_bbc = DiscordMessage.id
-                db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+                if (DiscordMessage.content !== "<p>") {
+                    userData.messageID_bbc = DiscordMessage.id
+                    db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+                }
                 return
             }
 
@@ -435,6 +441,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
             listenerLog(3, "➿ Spełniono warunek (4/5)")
 
             if (DiscordMessage.content === "<p>" && userData.messageID_bbc) {
+                if (DiscordMessage.deletable) DiscordMessage.delete()
                 try {
                     const msg = await DiscordMessage.channel.messages.fetch(userData.messageID_bbc)
 
@@ -576,8 +583,8 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                                             "W trakcie wykonywania usługi GlobalChat, API Discorda zwrócił błąd o przekroczeniu liczby Webhooków. Musiałem usunąć całą ową konfigurację z bazy danych. Zwolnij miejsce i ustaw ponownie wszystkie kanały (`globalchat kanał ustaw`)"
                                         )
                                         .addFields({
-                                            name: "`Q:` Jak mam usunąć nieużywane webhooki?",
-                                            value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i, przypatrując się po datach utworzenia, usuń wcześniej utworzone webhooki. Zazwyczaj ten najnowszy może być jeszcze używany.',
+                                            name: "`Q:` Jak mam usunąć webhooki?",
+                                            value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i usuń wcześniej utworzone Webhooki. ',
                                         })
                                         .setFooter({
                                             text: "Globally, powered by patYczakus",
@@ -713,7 +720,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                     return
                 })
             ).then(async () => {
-                const channelid = "1251618649425449072"
+                const channelid = supportServer.gclogID
                 const channel = await DiscordClient.channels.fetch(channelid)
 
                 if (DiscordMessage.deletable)
@@ -796,8 +803,6 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                         DiscordMessage.channel.send(`Ojoj <@${DiscordMessage.author.id}>, złe wieści - owy GlobalAction nie został wykonany zgodnie z oczekiwaniami...`)
                     }
                 } else {
-                    listenerLog(3, `🌐 Zapisano informację o wiadomości użytkownika`)
-
                     if (channel && channel.type === ChannelType.GuildText) {
                         let embeds = []
                         const embed = new EmbedBuilder()
@@ -840,17 +845,28 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                             ],
                         })
 
-                        editLater.wh.editMessage(editLater.message, {
-                            components: [
-                                new ActionRowBuilder().addComponents([
-                                    new ButtonBuilder()
-                                        .setStyle(ButtonStyle.Danger)
-                                        .setCustomId(`gcdelete\u0000${DiscordMessage.author.id}\u0000${msg.id}`)
-                                        .setEmoji("🗑️")
-                                        .setDisabled(false),
-                                ]),
-                            ],
-                        })
+                        listenerLog(3, "Próba zmiany przycisku webhooka")
+
+                        for (let i = 0; i < 5; i++) {
+                            listenerLog(4, "Próba nr. " + (i + 1))
+                            try {
+                                editLater.wh.editMessage(editLater.message, {
+                                    components: [
+                                        new ActionRowBuilder().addComponents([
+                                            new ButtonBuilder()
+                                                .setStyle(ButtonStyle.Danger)
+                                                .setCustomId(`gcdelete\u0000${DiscordMessage.author.id}\u0000${msg.id}`)
+                                                .setEmoji("🗑️")
+                                                .setDisabled(false),
+                                        ]),
+                                    ],
+                                })
+                                listenerLog(5, "✅ Pomyślnie zmieniono przycisk")
+                                break
+                            } catch (e) {}
+                        }
+
+                        listenerLog(3, `🌐 Zapisano informację o wiadomości użytkownika`)
                     }
                 }
 

@@ -1,5 +1,5 @@
 const { Client, OAuth2Guild } = require("discord.js")
-const { debug } = require("../config")
+const { debug, supportServer } = require("../config")
 
 /**
  * @type {OAuth2Guild[]}
@@ -56,6 +56,20 @@ function checkFontColor(bgHEX) {
 
 /**
  *
+ * @param {Client<true>} client
+ * @param {string} id
+ */
+async function checkUserInSupport(client, id) {
+    try {
+        await (await client.guilds.fetch(supportServer.id)).members.fetch(id)
+        return true
+    } catch (err) {
+        return false
+    }
+}
+
+/**
+ *
  * @param {number} ms
  * @returns {Promise<void>}
  */
@@ -66,4 +80,5 @@ module.exports = {
     wait,
     checkFontColor,
     servers,
+    checkUserInSupport,
 }

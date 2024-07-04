@@ -43,7 +43,7 @@ module.exports = {
                 },
                 {
                     name: "Emotki",
-                    value: `${showedEmotes.join(" | ")}\nIlość emotek: ${allEmotes.length}\n\n*Możesz użyć komendy \`globalchat emotki query:serwer=${
+                    value: `${showedEmotes.join(" | ")}\nIlość emotek: ${allEmotes.length}\n*Możesz użyć komendy \`globalchat emotki query:serwer=${
                         args[0]
                     }\` w celu dodatkowych informacji*`,
                     inline: false,

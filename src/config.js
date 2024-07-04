@@ -1,6 +1,6 @@
 const loc = require("locallium")
 
-const debug = false
+const debug = true
 
 const ldb = new loc.Database("env")
 
@@ -29,10 +29,10 @@ module.exports = {
         "1047887249536204822", //bagietka
         "1100856620688355415", //mikilokes
     ],
-    supportServers: [
-        "1173722642004574359", //type-y
-        "1237862291580653638", //globally
-    ],
+    supportServer: {
+        id: "1173722642004574359",
+        gclogID: "1258118372223226039",
+    },
     _bot: {
         id: ldb.get("bid").val,
     },

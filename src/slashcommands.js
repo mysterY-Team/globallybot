@@ -37,6 +37,19 @@ var slashList = [
                         .setDescription("Sprawdza, czy użytkownik został zablokowany, czy nie.")
                         .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby do sprawdzenia").setRequired(true))
                 )
+                .addSubcommand((subcommand) =>
+                    subcommand
+                        .setName("zmieńpermisję")
+                        .setDescription("Pozwala na zmianę permisji dla danej osoby w GlobalChacie")
+                        .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby do zmiany permisji").setRequired(true))
+                        .addNumberOption((option) =>
+                            option
+                                .setName("permisja")
+                                .setDescription("Nazwa permisji")
+                                .setRequired(true)
+                                .setChoices({ name: "Naczelnik GlobalChata", value: 2 }, { name: "Moderator GlobalChata", value: 1 }, { name: "Zwykła osoba", value: 0 })
+                        )
+                )
         )
         .addSubcommandGroup((subcommand_group) =>
             subcommand_group
@@ -151,27 +164,10 @@ var slashList = [
                 .addStringOption((option) => option.setName("func").setDescription("Funkcja do wykonania").setRequired(true))
         ),
     new SlashCommandBuilder()
-        .setName("profil")
+        .setName("userinfo")
         .setDMPermission(true)
-        .setDescription("Komedy związane z profilami; nie powinno być wyłączane dla GlobalChata i innych usług!")
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("utwórz")
-                .setDescription("Tworzy profil danej usługi")
-                .addStringOption((option) =>
-                    option
-                        .setName("typ")
-                        .setDescription("Typ usługi dla tworzenia profilu")
-                        .setRequired(true)
-                        .addChoices({ name: "GlobalChat", value: "gc" }, { name: "ImaCarrrd", value: "imaca" })
-                )
-        )
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("info")
-                .setDescription("Sprawdza informacje o użytkowniku")
-                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby"))
-        ),
+        .setDescription("Sprawdź użytkownika pod kątem Discorda oraz Globally")
+        .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby")),
     new SlashCommandBuilder()
         .setName("imacarrrd")
         .setDescription("Karty użytkownika na nowym poziomie")

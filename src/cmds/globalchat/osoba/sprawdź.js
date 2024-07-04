@@ -9,10 +9,11 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
+        var user = interaction.options.get("osoba", true).user
         await interaction.deferReply()
-        var snapshot = db.get(`userData/${interaction.options.getUser("osoba", true).id}/gc`)
+        var snapshot = db.get(`userData/${user.id}/gc`)
 
-        if (!snapshot.exists) var msg = `Jest zablokowany: ${customEmoticons.minus} (brak profilu)`
+        if (!snapshot.exists) var msg = `Jest zablokowany: ${customEmoticons.minus} (nie zarejestrowany)`
         else {
             var info = gcdata.encode(snapshot.val)
             if (info.isBlocked) {
@@ -22,14 +23,12 @@ module.exports = {
 
         var embed = new EmbedBuilder()
             .setAuthor({
-                name: (interaction.options.getUser("osoba", true).discriminator = "0"
-                    ? interaction.options.getUser("osoba", true).username
-                    : `${interaction.options.getUser("osoba", true).username}#${interaction.options.getUser("osoba", true).discriminator}`),
-                iconURL: interaction.options.getUser("osoba", true).displayAvatarURL({ size: 256 }),
+                name: (user.discriminator = "0" ? user.username : `${user.username}#${user.discriminator}`),
+                iconURL: user.displayAvatarURL({ size: 256 }),
             })
             .setTitle("Informacje o blokadzie")
             .setDescription(msg)
-            .setColor(typeof interaction.options.getUser("osoba", true).hexAccentColor !== "undefined" ? interaction.options.getUser("osoba", true).hexAccentColor : null)
+            .setColor(typeof user.hexAccentColor !== "undefined" ? user.hexAccentColor : null)
         interaction.editReply({
             embeds: [embed],
         })

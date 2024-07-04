@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, EmbedBuilder, ChannelType } = require("discord.js")
-const { TOKEN, supportServers, debug, customEmoticons } = require("./config.js")
+const { TOKEN, supportServer, debug, customEmoticons } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
 const { listenerLog, servers } = require("./functions/useful.js")
@@ -38,9 +38,6 @@ client.on("ready", (log) => {
 })
 
 client.on("messageCreate", (msg) => {
-    listenerLog(2, "")
-    listenerLog(2, "❗ Wyłapano wiadomość!")
-
     try {
         globalchatFunction(client, msg)
     } catch (err) {
@@ -100,7 +97,7 @@ client.on("interactionCreate", async (int) => {
 client.on("threadUpdate", (thread) => {
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano aktualizację wątku")
-    if (supportServers.includes(thread.guildId))
+    if (thread.guildId === supportServer.id)
         setTimeout(() => {
             var accThread = client.channels.cache.get(thread.id)
             const accTags = accThread.appliedTags
@@ -130,7 +127,10 @@ client.on("threadUpdate", (thread) => {
 })
 
 client.on("debug", (info) => {
-    if (debug) listenerLog(2 * active, "[D] " + info)
+    if (debug) {
+        if (active) listenerLog(2, "")
+        listenerLog(2 * active, "[D] " + info)
+    }
 })
 client.on("warn", (err) => {
     if (debug) console.warn(err)

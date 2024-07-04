@@ -1,5 +1,5 @@
 const { Client, ButtonInteraction, ChannelType, EmbedBuilder } = require("discord.js")
-const { customEmoticons, db, GCmodsID, ownersID } = require("../config")
+const { customEmoticons, db, ownersID, supportServer } = require("../config")
 const { gcdata } = require("../functions/dbs")
 const { listenerLog } = require("../functions/useful")
 const { lastUserHandler } = require("../globalchat")
@@ -14,7 +14,7 @@ module.exports = {
         await interaction.deferReply({
             ephemeral: true,
         })
-        var $channel = await client.channels.fetch("1251618649425449072")
+        var $channel = await client.channels.fetch(supportServer.gclogID)
         if ($channel && $channel.type == ChannelType.GuildText) {
             try {
                 var $message = await $channel.messages.fetch(args[1])
@@ -35,15 +35,9 @@ module.exports = {
         }
 
         var snpsht = db.get(`stations/${stationWhereItIsSent}`)
-        if (
-            args[0] !== interaction.user.id &&
-            snpsht.exists &&
-            !snpsht.val.startsWith(interaction.user.id) &&
-            !GCmodsID.includes(interaction.user.id) &&
-            !ownersID.includes(interaction.user.id)
-        ) {
+        if (args[0] !== interaction.user.id && (!snpsht.exists || !snpsht.val.startsWith(interaction.user.id)) && data.modPerms === 0 && !ownersID.includes(interaction.user.id)) {
             return interaction.editReply({
-                content: `${customEmoticons.denided} Nie jesteś właścicielem wiadomości/stacji/bota lub nie jesteś moderatorem GC!`,
+                content: `${customEmoticons.denided} Nie jesteś właścicielem wiadomości/stacji/bota lub moderatorem GC!`,
                 ephemeral: true,
             })
         }

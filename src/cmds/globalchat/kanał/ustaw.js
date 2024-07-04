@@ -1,5 +1,5 @@
 const { CommandInteraction, Client, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js")
-const { db, ownersID, customEmoticons, _bot, supportServers, debug, constPremiumServersIDs } = require("../../../config")
+const { db, ownersID, customEmoticons, _bot, supportServer, debug, constPremiumServersIDs } = require("../../../config")
 const { gcdataGuild } = require("../../../functions/dbs")
 
 module.exports = {
@@ -66,7 +66,7 @@ module.exports = {
         allsnpsht.val ??= ""
         var gccount = allsnpsht.exists ? Object.keys(gcdataGuild.encode(allsnpsht.val)).length : 0
 
-        if (gccount >= 3 + 4 * constPremiumServersIDs.includes(interaction.guildId) && !supportServers.includes(interaction.guildId)) {
+        if (gccount >= 3 + 4 * constPremiumServersIDs.includes(interaction.guildId) && interaction.guildId !== supportServer.id) {
             return interaction.editReply(`${customEmoticons.denided} Przekroczony został limit ustawionych stacji!`)
         }
 
@@ -99,6 +99,7 @@ module.exports = {
             channel: channel.value,
             webhook: "none",
             timestamp: data[$stacja]?.timestamp ?? Date.now() - 1,
+            createdTimestamp: Math.floor(Date.now() / 1000),
         }
 
         db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))

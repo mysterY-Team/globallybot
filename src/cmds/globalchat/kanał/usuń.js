@@ -16,7 +16,7 @@ module.exports = {
 
         if (
             !(
-                (interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks & PermissionFlagsBits.ManageChannels) ||
+                (interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks + PermissionFlagsBits.ManageChannels) ||
                     interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
                     interaction.user.id == guild.ownerId ||
                     ownersID.includes(interaction.user.id)) &&

@@ -1,5 +1,5 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { db, ownersID, customEmoticons, GCmodsID } = require("../../../config")
+const { db, ownersID, customEmoticons } = require("../../../config")
 const { gcdata } = require("../../../functions/dbs")
 
 module.exports = {
@@ -9,15 +9,15 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        if (!ownersID.includes(interaction.user.id) && !GCmodsID.includes(interaction.user.id))
+        if (!ownersID.includes(interaction.user.id) && gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val).modPerms === 0)
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
             return interaction.reply({
                 ephemeral: true,
-                content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:\n- Nie jesteś na liście developerów bota\n- Nie jesteś na liście moderatorów GlobalChata`,
+                content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:\n- Nie jesteś na liście developerów bota\n- Nie masz odpowiednich permisji w bocie`,
             })
 
         try {
-            var uID = interaction.options.getUser("osoba", true).id
+            var uID = interaction.options.get("osoba", true).user.id
             await interaction.deferReply({
                 ephemeral: interaction.inGuild(),
             })
@@ -25,7 +25,7 @@ module.exports = {
             var snapshot = db.get(`userData/${uID}/gc`)
             if (!snapshot.exists) {
                 interaction.editReply({
-                    content: `${customEmoticons.minus} Ta osoba jeszcze nie utworzyła profilu...`,
+                    content: `${customEmoticons.minus} Ta osoba nie pisała na GlobalChacie...`,
                 })
                 return
             }
