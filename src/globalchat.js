@@ -692,7 +692,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
 
                     var x = await w.wh.send({
                         avatarURL: DiscordMessage.author.displayAvatarURL({ size: 64, extension: "webp", forceStatic: true }),
-                        username: wbName(w.gid),
+                        username: wbName(w.gid, userData.modPerms),
                         content: w.gid == DiscordMessage.guildId ? DiscordMessage.content : deleteComments(DiscordMessage.content),
                         embeds: a,
                         files:
