@@ -1,5 +1,5 @@
 const { AttachmentBuilder } = require("discord.js")
-const { createCanvas, Image, SKRSContext2D } = require("@napi-rs/canvas")
+const { createCanvas, Image, SKRSContext2D, Path2D } = require("@napi-rs/canvas")
 const { drawText } = require("canvas-txt")
 const { readFile } = require("fs/promises")
 const { request } = require("undici")
@@ -17,7 +17,7 @@ const classes = [
         },
     },
     {
-        name: "Styl Starcia Internetu",
+        name: "Styl Starcia Internetu (twórcy patYczakus)",
         TextDesc: {
             MaxHeight: 595,
             FontName: "Audiowide,Noto Emoji",
@@ -26,12 +26,21 @@ const classes = [
         },
     },
     {
-        name: "Hackerman",
+        name: "Hackerman (twórcy patYczakus)",
         TextDesc: {
             MaxHeight: 590,
             FontName: "Space Mono,DoCoMo Emoji,Firefox Emoji",
             TextSize: 20,
             LineWidth: 24,
+        },
+    },
+    {
+        name: "Geometryczny ImaCarrrd (twórcy vehti)",
+        TextDesc: {
+            MaxHeight: 550,
+            FontName: "Source Code Pro,Noto Emoji",
+            TextSize: 20,
+            LineWidth: 25,
         },
     },
 ]
@@ -68,6 +77,7 @@ async function createCarrrd(data, user) {
      * @param {string} text
      * @param {`#${string}`[]} colors
      * @param {string} font
+     * @param {string} [alignX="left"]
      */
     function createGradientText($canvasContext, x, y, text, colors, font) {
         var info = generateGradientText(colors, text)
@@ -282,6 +292,171 @@ async function createCarrrd(data, user) {
             for (i = 0; i < 2; i++) context.drawImage(crtBG, 0, 0, 700, 2300)
 
             break
+        }
+        case 3: {
+            context.fillStyle = "white"
+            context.fillRect(0, 0, 700, 1000)
+            context.fillStyle = "black"
+            context.beginPath()
+            context.roundRect(20, 320, 660, 660, 25)
+            context.fill()
+            context.closePath()
+
+            context.fillStyle = "white"
+            context.fillRect(250, 330, 200, 70, 25)
+            context.fillStyle = "black"
+            context.beginPath()
+            context.roundRect(90, 15, 500, 50, 300)
+            context.fill()
+            context.closePath()
+
+            context.fillStyle = "black"
+            context.font = "bold 27px Source Code Pro"
+            context.textAlign = "center"
+            context.fillText("About me", canvas.width / 2, 376)
+
+            context.fillStyle = "white"
+            drawText(context, data.description, {
+                x: 30,
+                y: 410,
+                width: 640,
+                height: classes[3].TextDesc.MaxHeight,
+                fontSize: classes[3].TextDesc.TextSize,
+                fontWeight: "bold",
+                align: "center",
+                vAlign: "top",
+                font: classes[3].TextDesc.FontName,
+                lineHeight: classes[3].TextDesc.LineWidth,
+            })
+
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min)) + min
+            }
+
+            function getRandomAngle() {
+                return Math.random() * 2 * Math.PI
+            }
+
+            function isPositionValid(x, y, size) {
+                const staticShapes = [
+                    { x: 10, y: 10, width: 60, height: 60 },
+                    { x: 635, y: 10, width: 60, height: 60 },
+                    { x: 635, y: 270 - 25, width: 50, height: 50 },
+                    { x: 10, y: 270 - 25, width: 50, height: 50 },
+                    { x: 20, y: 310, width: 660, height: 660 },
+                    { x: 250, y: 330, width: 200, height: 80 },
+                ]
+
+                for (const shape of staticShapes) {
+                    if (x < shape.x + shape.width && x + size > shape.x && y < shape.y + shape.height && y + size > shape.y) {
+                        return false
+                    }
+                }
+                return true
+            }
+
+            function drawRandomShape() {
+                let x, y, size, angle
+
+                do {
+                    x = getRandomInt(20, 700 - 80)
+                    y = getRandomInt(20, 310 - 80)
+                    size = getRandomInt(50, 80)
+                } while (!isPositionValid(x, y, 80))
+
+                angle = getRandomAngle()
+                context.save()
+                context.translate(x + size / 2, y + size / 2)
+                context.rotate(angle)
+                context.translate(-(x + size / 2), -(y + size / 2))
+
+                context.beginPath()
+                context.moveTo(x, y)
+                context.lineTo(x + size, y)
+                context.lineTo(x, y + size)
+                context.closePath()
+                context.stroke()
+                context.restore()
+
+                do {
+                    x = getRandomInt(20, 700 - 80)
+                    y = getRandomInt(20, 310 - 80)
+                } while (!isPositionValid(x, y, 80))
+
+                angle = getRandomAngle()
+                context.save()
+                context.translate(x + size / 2, y + size / 2)
+                context.rotate(angle)
+                context.translate(-(x + size / 2), -(y + size / 2))
+
+                context.beginPath()
+                context.moveTo(x, y)
+                context.lineTo(x + size, y)
+                context.lineTo(x, y + size)
+                context.closePath()
+                context.stroke()
+                context.restore()
+
+                const rectangle = new Path2D()
+                rectangle.rect(10, 10, 50, 50)
+                rectangle.rect(20, 20, 50, 50)
+                rectangle.rect(635, 10, 50, 50)
+                rectangle.rect(625, 20, 50, 50)
+
+                const circle = new Path2D()
+                circle.arc(660, 280, 25, 0, 2 * Math.PI)
+                const circle1 = new Path2D()
+                circle1.arc(650, 270, 25, 0, 2 * Math.PI)
+                const circle2 = new Path2D()
+                circle2.arc(40, 280, 25, 0, 2 * Math.PI)
+                const circle3 = new Path2D()
+                circle3.arc(50, 270, 25, 0, 2 * Math.PI)
+
+                context.stroke(rectangle)
+                context.stroke(circle)
+                context.stroke(circle1)
+                context.stroke(circle2)
+                context.stroke(circle3)
+
+                do {
+                    x = getRandomInt(20, 700 - 65)
+                    y = getRandomInt(20, 310 - 65)
+                } while (!isPositionValid(x, y, 65))
+
+                angle = getRandomAngle()
+                context.save()
+                context.translate(x + 37.5, y + 32.475)
+                context.rotate(angle)
+                context.translate(-(x + 37.5), -(y + 32.475))
+
+                context.beginPath()
+                context.moveTo(x, y)
+                context.lineTo(x + 75, y)
+                context.lineTo(x + 37.5, y + 64.95)
+                context.closePath()
+                context.stroke()
+
+                context.beginPath()
+                context.moveTo(x + 37.5, y + 10)
+                context.lineTo(x + 25, y + 30)
+                context.lineTo(x + 50, y + 30)
+                context.closePath()
+                context.stroke()
+
+                context.restore()
+            }
+
+            for (let i = 0; i < 5; i++) {
+                drawRandomShape()
+            }
+
+            await setImageInCircle(context, 30, 120, 150, user.displayAvatarURL({ format: "png", size: 512 }))
+
+            //pobrać szerokość tekstu a potem wyśrodkować
+            context.font = "bold 25px Kode Mono"
+            var width = context.measureText(data.name).width
+            createGradientText(context, 340 - width / 2, 27, data.name, [data.nameGradient1, data.nameGradient2, "#FFFFFF"], "bold 25px Kode Mono")
+            context.font = createGradientText(context, 200, 175, user.username, [data.nameGradient1, data.nameGradient2, "#000000"], "bold 30px Kode Mono")
         }
     }
 

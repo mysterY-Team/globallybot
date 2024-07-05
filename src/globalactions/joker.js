@@ -1,9 +1,9 @@
 const { User, WebhookMessageCreateOptions, AttachmentBuilder, EmbedBuilder } = require("discord.js")
-const { default: axios } = require("axios")
 const cheerio = require("cheerio")
 const { wait } = require("../functions/useful")
 const { customEmoticons } = require("../config")
 const { Octokit } = require("@octokit/rest")
+const { request } = require("undici")
 
 module.exports = {
     data: {
@@ -46,12 +46,12 @@ module.exports = {
             }
             case cmds[2]:
             case cmds[3]: {
-                var joke = await axios.get("https://perelki.net/random")
-                if (!joke.data) {
+                var joke = await request("https://perelki.net/random")
+                if (!(joke.statusCode >= 200 && joke.statusCode < 300)) {
                     a = `${customEmoticons.denided} Nie udało się pobrać dowcipu!`
                     break
                 }
-                const $ = cheerio.load(joke.data)
+                const $ = cheerio.load(joke.body.text())
                 $(".content .container:not(.cntr) .about").remove()
                 joke = $(".content .container:not(.cntr)")
                     .html()
@@ -92,8 +92,8 @@ module.exports = {
                 break
             }
             case cmds[5]: {
-                var x = await axios.get("https://raw.githubusercontent.com/OpenMemes/nosaczapi-unofficial/master/data.json")
-                x = x.data
+                var x = await request("https://raw.githubusercontent.com/OpenMemes/nosaczapi-unofficial/master/data.json")
+                x = x.body.json()
                 const file = x.url + String(Math.round(Math.random() * x.last - x.first) + x.first) + x.filetype
 
                 main.avatarURL = "https://i.pinimg.com/736x/be/ad/57/bead57094937ca072fac9de82ab382fb--ugly-animals-strange-animals.jpg"

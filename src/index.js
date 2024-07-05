@@ -20,6 +20,8 @@ GlobalFonts.registerFromPath("./src/others/fonts/jersey10.ttf", "Jersey 10")
 GlobalFonts.registerFromPath("./src/others/fonts/audiowide.ttf", "Audiowide")
 GlobalFonts.registerFromPath("./src/others/fonts/spacemono.ttf", "Space Mono")
 GlobalFonts.registerFromPath("./src/others/fonts/galiver.ttf", "Galiver Sans")
+GlobalFonts.registerFromPath("./src/others/fonts/scpro.ttf", "Source Code Pro")
+GlobalFonts.registerFromPath("./src/others/fonts/kodemono.ttf", "Kode Mono")
 
 GlobalFonts.registerFromPath("./src/others/efonts/notoemoji.ttf", "Noto Emoji")
 GlobalFonts.registerFromPath("./src/others/efonts/firefoxemoji.ttf", "Firefox Emoji")

@@ -19,9 +19,7 @@ module.exports = {
         var txt = interaction.fields.getTextInputValue("description")
 
         var snpsht = db.get(`userData/${interaction.user.id}/imaca`)
-        const data = imacaData.encode(snpsht.val)
-        var newData = imacaData.create()
-        newData.cardID = data.cardID
+        var newData = imacaData.encode(snpsht.val)
         newData.description = interaction.fields.getTextInputValue("description")
         newData.name = interaction.fields.getTextInputValue("name")
         newData.nameGradient1 = `#${interaction.fields.getTextInputValue("gradient1")}`.replace("##", "#").toUpperCase()

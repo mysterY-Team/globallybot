@@ -1,7 +1,7 @@
-const axios = require("axios")
 const cheerio = require("cheerio")
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { customEmoticons } = require("../config")
+const { request } = require("undici")
 
 module.exports = {
     /**
@@ -12,8 +12,8 @@ module.exports = {
     async execute(client, interaction) {
         await interaction.deferReply()
         try {
-            var response = await axios.get("https://perelki.net/random")
-            const $ = cheerio.load(response.data)
+            var response = await request("https://perelki.net/random")
+            const $ = cheerio.load(response.body.text())
             $(".content .container:not(.cntr) .about").remove()
             var joke = $(".content .container:not(.cntr)")
                 .html()

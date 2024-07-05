@@ -1,7 +1,8 @@
 const { CommandInteraction, Client, PermissionFlagsBits, WebhookClient } = require("discord.js")
 const { db, ownersID, customEmoticons, _bot } = require("../../../config")
-const { default: axios } = require("axios")
+
 const { gcdataGuild } = require("../../../functions/dbs")
+const { request } = require("undici")
 
 module.exports = {
     /**
@@ -59,11 +60,10 @@ module.exports = {
             var webhook = new WebhookClient({
                 url: "https://discord.com/api/webhooks/" + data.webhook,
             })
-            axios
-                .get("https://discord.com/api/webhooks/" + data.webhook)
+            request("https://discord.com/api/webhooks/" + data.webhook)
                 .then((res) => {
                     try {
-                        if (res.status >= 200 && res.status < 300) webhook.delete("użycia komendy /GLOBALCHAT")
+                        if (res.statusCode >= 200 && res.statusCode < 300) webhook.delete("użycia komendy /GLOBALCHAT")
                     } catch (e) {}
 
                     removeData()

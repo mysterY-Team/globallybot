@@ -11,12 +11,12 @@ const {
     DiscordAPIError,
 } = require("discord.js")
 const { db, customEmoticons, ownersID, debug, supportServer } = require("./config")
-const axios = require("axios").default
 const fs = require("fs")
 const { emoticons } = require("./cmds/globalchat/emotki")
 const { listenerLog, servers } = require("./functions/useful")
 const { freemem, totalmem } = require("os")
 const { gcdata, gcdataGuild } = require("./functions/dbs")
+const { request } = require("undici")
 
 const timestampCooldown = new Date()
 const globalCooldown = 1000
@@ -492,8 +492,8 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                                 const dinfo = new Date()
                                 if (getDataByServerID(guildID).webhook != "none") {
                                     try {
-                                        var HTTPRes = await axios.get("https://discord.com/api/webhooks/" + getDataByServerID(guildID).webhook)
-                                        if (!("code" in HTTPRes.data)) {
+                                        var HTTPRes = await request("https://discord.com/api/webhooks/" + getDataByServerID(guildID).webhook)
+                                        if (!("code" in HTTPRes.body.json())) {
                                             webhook = new WebhookClient({
                                                 url: "https://discord.com/api/webhooks/" + getDataByServerID(guildID).webhook,
                                             })
