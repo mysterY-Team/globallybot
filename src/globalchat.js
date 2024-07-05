@@ -14,7 +14,7 @@ const { db, customEmoticons, ownersID, debug, supportServer } = require("./confi
 const axios = require("axios").default
 const fs = require("fs")
 const { emoticons } = require("./cmds/globalchat/emotki")
-const { listenerLog, checkUserInSupport, servers } = require("./functions/useful")
+const { listenerLog, servers } = require("./functions/useful")
 const { freemem, totalmem } = require("os")
 const { gcdata, gcdataGuild } = require("./functions/dbs")
 
@@ -381,17 +381,6 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                 .indexOf(DiscordMessage.channelId)
             station = Object.keys(serverdata.gc)[station]
 
-            if (!(await checkUserInSupport(DiscordClient, DiscordMessage.author.id))) {
-                DiscordMessage.reply(
-                    `${customEmoticons.info} Aby móc korzystać z całego potencjału GlobalChata, musisz dołączyć na serwer support! Możesz znaleźć link pod \`botinfo\`.`
-                ).then((msg) => {
-                    setTimeout(() => {
-                        if (msg.deletable) msg.delete()
-                    }, 10000)
-                })
-                DiscordMessage.react(customEmoticons.minus)
-                return
-            }
             const oldUData = db.get(`userData/${DiscordMessage.author.id}/gc`).val
             var userData = gcdata.encode(oldUData)
 

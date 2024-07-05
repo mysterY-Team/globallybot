@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require("discord.js")
 const { db, customEmoticons } = require("../../../config")
-const { servers, checkUserInSupport } = require("../../../functions/useful")
+const { servers } = require("../../../functions/useful")
 
 module.exports = {
     /**
@@ -28,13 +28,6 @@ module.exports = {
             return result
         }
 
-        if (!(await checkUserInSupport(client, interaction.user.id))) {
-            return interaction.reply({
-                content: `${customEmoticons.info} Aby móc korzystać z całego potencjału GlobalChata, musisz dołączyć na serwer support! Możesz znaleźć link pod \`botinfo\`.`,
-                ephemeral: true,
-            })
-        }
-        var snpsht = db.get(`userData/${interaction.user.id}/gc`)
         const stationsMakers = Object.values(db.get("stations").val).map((x) => x.split("|")[0])
         if (Object.keys(repeats(stationsMakers)).length >= servers.get().length) {
             return interaction.reply({

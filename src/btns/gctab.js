@@ -1,7 +1,6 @@
 const { ButtonInteraction, Client, EmbedBuilder } = require("discord.js")
 const { customEmoticons, db } = require("../config")
 const { gcdata, gcdataGuild } = require("../functions/dbs")
-const { checkUserInSupport } = require("../functions/useful")
 
 const times = {
     cooldown: 300,
@@ -25,12 +24,6 @@ module.exports = {
 
         await interaction.deferReply({ ephemeral: true })
 
-        if (!(await checkUserInSupport(client, interaction.user.id))) {
-            interaction.editReply(
-                `${customEmoticons.info} Aby móc korzystać z całego potencjału GlobalChata, musisz dołączyć na serwer support! Możesz znaleźć link pod \`botinfo\`.`
-            )
-            return
-        }
         var userData1 = db.get(`userData/${interaction.user.id}/gc`)
         if (!userData1.exists) {
             interaction.editReply(`${customEmoticons.denided} Musisz napisać jakąś wiadomość`)

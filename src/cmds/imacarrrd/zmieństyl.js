@@ -2,7 +2,6 @@ const { Client, CommandInteraction, AutocompleteFocusedOption } = require("disco
 const { customEmoticons, db } = require("../../config")
 const { imacaData } = require("../../functions/dbs")
 const { classes } = require("../../functions/imaca")
-const { checkUserInSupport } = require("../../functions/useful")
 
 module.exports = {
     /**
@@ -26,12 +25,6 @@ module.exports = {
         }
 
         await interaction.deferReply()
-
-        if (!(await checkUserInSupport(client, interaction.user.id))) {
-            return interaction.editReply(
-                `${customEmoticons.info} Aby móc korzystać z całego potencjału ImaCarrrd, musisz dołączyć na serwer support! Możesz znaleźć link pod \`botinfo\`.`
-            )
-        }
 
         var snpsht = db.get(`userData/${interaction.user.id}/imaca`)
         var data = imacaData.encode(snpsht.val)
