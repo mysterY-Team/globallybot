@@ -29,6 +29,7 @@ module.exports = {
             return
         }
 
+        var data = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
         var lastUser = lastUserHandler.get()
         if (lastUser === `${interaction.guildId}/${interaction.channelId}:${args[0]}[true]`) {
             lastUserHandler.reset()

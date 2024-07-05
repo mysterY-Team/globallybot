@@ -63,7 +63,7 @@ module.exports = {
             return
         }
 
-        if (station[1].createdTimestamp < repliedMessageTimestamp) {
+        if (station[1].createdTimestamp > repliedMessageTimestamp) {
             interaction.editReply("Ta wiadomość powstała ze wcześniejszego podpięcia kamału do GlobalChatu, nie możesz już więc tego użytkownika zaczepić!")
             return
         }
