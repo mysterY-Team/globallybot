@@ -294,8 +294,34 @@ async function createCarrrd(data, user) {
             break
         }
         case 3: {
-            context.fillStyle = "white"
-            context.fillRect(0, 0, 700, 1000)
+            if (data.bannerURL !== null) {
+                const minHeight = 300
+
+                const { body } = await request(data.bannerURL)
+                const banner = new Image()
+                banner.src = Buffer.from(await body.arrayBuffer())
+                var width = canvas.width
+                var height = (canvas.width / banner.width) * banner.height
+                if (height < minHeight) {
+                    width = (minHeight / height) * width
+                    height = minHeight
+                }
+                context.drawImage(banner, Math.min((canvas.width - width) / 2, 0), Math.min((minHeight - height) / 2, 0), width, height)
+
+                context.fillStyle = "rgba(255, 255, 255, 0.8)"
+                context.fillRect(0, 0, 700, 270)
+                var gradient = context.createLinearGradient(0, 270, 0, 300)
+                gradient.addColorStop(0, "rgba(255, 255, 255, 0.8)")
+                gradient.addColorStop(1, "rgba(255, 255, 255, 1)")
+                context.fillStyle = gradient
+                context.fillRect(0, 270, 700, 30)
+                context.fillStyle = "white"
+                context.fillRect(0, 300, 700, 700)
+            } else {
+                context.fillStyle = "white"
+                context.fillRect(0, 0, 700, 1000)
+            }
+
             context.fillStyle = "black"
             context.beginPath()
             context.roundRect(20, 320, 660, 660, 25)
@@ -450,13 +476,13 @@ async function createCarrrd(data, user) {
                 drawRandomShape()
             }
 
-            await setImageInCircle(context, 30, 120, 150, user.displayAvatarURL({ format: "png", size: 512 }))
+            await setImageInCircle(context, 30, 100, 150, user.displayAvatarURL({ format: "png", size: 512 }))
 
             //pobrać szerokość tekstu a potem wyśrodkować
             context.font = "bold 25px Kode Mono"
             var width = context.measureText(data.name).width
             createGradientText(context, 340 - width / 2, 27, data.name, [data.nameGradient1, data.nameGradient2, "#FFFFFF"], "bold 25px Kode Mono")
-            context.font = createGradientText(context, 200, 175, user.username, [data.nameGradient1, data.nameGradient2, "#000000"], "bold 30px Kode Mono")
+            context.font = createGradientText(context, 200, 155, user.username, [data.nameGradient1, data.nameGradient2, "#000000"], "bold 30px Kode Mono")
         }
     }
 
