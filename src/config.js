@@ -18,6 +18,7 @@ module.exports = {
     ownersID: [
         "1166024655052738570", //patyczakus
         "767311735819862032", //maticola
+        "988796644407517245", //vehti
     ],
     supportServer: {
         id: "1173722642004574359",
