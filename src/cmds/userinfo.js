@@ -9,7 +9,7 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        const user = interaction.options.get("osoba").user || interaction.user
+        const user = interaction.options.get("osoba")?.user || interaction.user
 
         await interaction.deferReply()
         const fdb = db.get(`userData/${user.id}`)

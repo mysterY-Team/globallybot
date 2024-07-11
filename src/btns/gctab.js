@@ -81,7 +81,7 @@ module.exports = {
                         return pp
                     })(),
                 })
-                .setDescription(`Użytkownik <@${interaction.user.id}> zaczepił/-a Cię na GlobalChacie, pod stacją \`${station}\`! Sprawdź, co się tam dzieje!`)
+                .setDescription(`Użytkownik <@${interaction.user.id}> zaczepił/-a Cię na GlobalChacie, pod stacją \`${station[0]}\`! Sprawdź, co się tam dzieje!`)
                 .setColor("Random")
 
             var user = await client.users.fetch(uid)
