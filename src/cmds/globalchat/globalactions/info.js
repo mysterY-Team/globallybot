@@ -9,7 +9,7 @@ module.exports = {
      */
     async execute(client, interaction) {
         var fileN = interaction.options.get("ga", true).value
-        var file = require(`../globalactions/${fileN}`)
+        var file = require(`../../../globalactions/${fileN}`)
         var use
 
         if (file.data.prompt_type == "cmd") use = "```{nazwa_wywoławcza}!<komenda>```"
