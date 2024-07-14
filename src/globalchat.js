@@ -491,7 +491,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                         return 3
                     case userData.modPerms == 2:
                         return 2
-                    case userData.karma >= 300n - BigInt(userData.modPerms == 1 * 100):
+                    case userData.karma >= 300n - BigInt(userData.modPerms == 1 * 200):
                         return 1
                     default:
                         return 0
