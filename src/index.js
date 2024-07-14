@@ -1,9 +1,10 @@
 const { Client, GatewayIntentBits, EmbedBuilder, ChannelType } = require("discord.js")
-const { TOKEN, supportServer, debug, customEmoticons } = require("./config.js")
+const { TOKEN, supportServer, debug, customEmoticons, db } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
 const { listenerLog, servers } = require("./functions/useful.js")
 const { GlobalFonts } = require("@napi-rs/canvas")
+const { gcdata } = require("./functions/dbs.js")
 
 var active = false
 
@@ -144,22 +145,32 @@ client.on("error", (err) => {
 client.login(TOKEN)
 
 function timerToResetTheAPIInfo() {
-    const slashCommandList = require(`./slashcommands.js`)
-    client.application.commands.set(slashCommandList.list).then(() => {
+    async function x() {
+        const slashCommandList = require(`./slashcommands.js`)
+        await client.application.commands.set(slashCommandList.list)
         listenerLog(2, "")
         listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
-    })
 
-    servers.fetch(client).then((x) => {
-        listenerLog(2, "")
-        listenerLog(2, "✅ Zapisano serwery na lokalnej zmiennej. Liczba oznaczająca zmianę: " + x)
-    })
+        var y = await servers.fetch(client)
+        listenerLog(2, "✅ Zapisano serwery na lokalnej zmiennej. Liczba oznaczająca zmianę: " + y)
 
+        var index = Object.entries(db.get("userData").val)
+            .filter((x) => x[1].gc)
+            .map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] }))
+        listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
+        index.forEach((x) => {
+            if (x.karma < 10n && !x.isBlocked) {
+                db.delete(`userData/${x.userID}/gc`)
+                listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
+            }
+        })
+    }
+    x()
     setTimeout(() => {
         listenerLog(2, "")
-        listenerLog(2, "❗Czas 30 minut!")
+        listenerLog(2, "❗Czas 60 minut!")
         timerToResetTheAPIInfo()
-    }, 1800000)
+    }, 3_600_000)
 }
 
 module.exports = {

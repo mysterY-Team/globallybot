@@ -13,15 +13,15 @@ const {
 const { db, customEmoticons, ownersID, debug, supportServer } = require("./config")
 const fs = require("fs")
 const { emoticons } = require("./cmds/globalchat/emotki")
-const { listenerLog, servers } = require("./functions/useful")
+const { listenerLog } = require("./functions/useful")
 const { freemem, totalmem } = require("os")
 const { gcdata, gcdataGuild } = require("./functions/dbs")
 const { request } = require("undici")
+const { checkAnyBadWords } = require("./functions/badwords")
 
 const timestampCooldown = new Date()
-const globalCooldown = 1000
-const channelCooldown = (amount) => 2000 + amount * 200
-const userCooldown = (amount) => 3000 + amount * 300
+const globalCooldown = (amount) => 750 + amount * 150
+const userCooldown = (amount, type = 0) => [4000 + amount * 300, 3000 + amount * 275, 3000 + amount * 225, 2500 + amount * 200][type]
 let lastUser = "unknown"
 
 /**
@@ -299,33 +299,31 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
          * @returns {Promise<EmbedBuilder | undefined>}
          */
         async function repliedMessage(gID) {
-            if (DiscordMessage.reference !== null) {
+            if (gID && DiscordMessage.reference) {
                 try {
-                    var replayedMSG = await DiscordMessage.channel.messages.fetch(DiscordMessage.reference.messageId)
-                    if (typeof replayedMSG !== "undefined" && replayedMSG.author.bot) {
-                        var rContent = replayedMSG.content,
-                            rAttachments
+                    var replayedMSG = await DiscordMessage.fetchReference()
+                    var rContent = replayedMSG.content,
+                        rAttachments
 
-                        //działanie komentarzy w odpowiadanej wiadomości
-                        rContent = deleteComments(rContent)
+                    //działanie komentarzy w odpowiadanej wiadomości
+                    rContent = deleteComments(rContent)
 
-                        var rUser = replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.author.username : replayedMSG.author.username.split(" (")[0]
+                    var rUser = replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.author.username : replayedMSG.author.username.split(" (")[0]
 
-                        var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }
-                        if (gID == DiscordMessage.guildId) embed.url = replayedMSG.url
-                        embed = new EmbedBuilder().setAuthor(embed).setTimestamp(replayedMSG.createdTimestamp)
-                        if (rContent) embed = embed.setDescription(rContent)
-                        if (gID == DiscordMessage.guildId) embed = embed.setFooter({ text: "Kliknięcie w nagłówek spowoduje przeniesienie do odpowiadanej wiadomości" })
-                        if (replayedMSG.attachments.size > 0) {
-                            rAttachments = replayedMSG.attachments.map((x) => `[\`${x.name}\`](${x.url})`).join("\n")
-                            if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => x.url).join("\n")
-                            if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => `\`${x.name}\``).join("\n")
-                            if (rAttachments.length > 1000) rAttachments = `[ plików: ${replayedMSG.attachments.size} ]`
-                            embed = embed.addFields({ name: "Przesłane pliki", value: rAttachments })
-                        }
-
-                        return embed
+                    var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }
+                    if (gID == DiscordMessage.guildId) embed.url = replayedMSG.url
+                    embed = new EmbedBuilder().setAuthor(embed).setTimestamp(replayedMSG.createdTimestamp)
+                    if (rContent) embed = embed.setDescription(rContent)
+                    if (gID == DiscordMessage.guildId) embed = embed.setFooter({ text: "Kliknięcie w nagłówek spowoduje przeniesienie do odpowiadanej wiadomości" })
+                    if (replayedMSG.attachments.size > 0) {
+                        rAttachments = replayedMSG.attachments.map((x) => `[\`${x.name}\`](${x.url})`).join("\n")
+                        if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => x.url).join("\n")
+                        if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => `\`${x.name}\``).join("\n")
+                        if (rAttachments.length > 1000) rAttachments = `[ plików: ${replayedMSG.attachments.size} ]`
+                        embed = embed.addFields({ name: "Przesłane pliki", value: rAttachments })
                     }
+
+                    return embed
                 } catch (e) {}
             }
         }
@@ -368,13 +366,14 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
 
             listenerLog(2, "")
             listenerLog(2, "❗ Wyłapano wiadomość do GC!")
-            listenerLog(3, "➿ Spełniono warunek (1/5)")
 
             if (freemem() < totalmem() * 0.05 * !debug) {
                 DiscordMessage.reply(`${customEmoticons.loading} Pamięć została przekroczona, czekam na wolne miejsce...`)
                 listenerLog(3, "")
                 return
             }
+
+            listenerLog(3, "➿ Spełniono warunek (1/4)")
 
             var station = Object.values(serverdata.gc)
                 .map((x) => x.channel)
@@ -383,8 +382,6 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
 
             const oldUData = db.get(`userData/${DiscordMessage.author.id}/gc`).val
             var userData = gcdata.encode(oldUData)
-
-            listenerLog(3, "➿ Spełniono warunek (2/5)")
 
             if (userData.timestampToSendMessage > Date.now()) {
                 DiscordMessage.reply(`${customEmoticons.denided} Osobisty cooldown! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms`)
@@ -395,19 +392,10 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                 return
             }
 
-            var ddata = gcdataGuild.encode(snpsht.val[DiscordMessage.guildId].gc)
-            // console.log(ddata, station)
-            if (ddata[station].timestamp > Date.now()) {
-                DiscordMessage.reply(`${customEmoticons.denided} Cooldown na kanale! Zaczekaj jeszcze \`${ddata[station].timestamp - Date.now()}\` ms`)
-                if (DiscordMessage.content !== "<p>") {
-                    userData.messageID_bbc = DiscordMessage.id
-                    db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
-                }
-                return
-            }
-
-            if (timestampCooldown.getTime() + globalCooldown > Date.now()) {
-                DiscordMessage.reply(`${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${globalCooldown - (Date.now() - timestampCooldown.getTime())}\` ms`)
+            if (timestampCooldown.getTime() + globalCooldown(database.length) > Date.now()) {
+                DiscordMessage.reply(
+                    `${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${globalCooldown(database.length) - (Date.now() - timestampCooldown.getTime())}\` ms`
+                )
                 if (DiscordMessage.content !== "<p>") {
                     userData.messageID_bbc = DiscordMessage.id
                     db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
@@ -417,17 +405,14 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
 
             database = database.filter((x) => Object.keys(x.gc).includes(station)).map((x) => Object.assign(x.gc[station], { serverID: x.id }))
 
-            listenerLog(3, "➿ Spełniono warunek (3/5)")
-            ddata[station].timestamp = Date.now() + channelCooldown(database.length)
-            db.set(`serverData/${DiscordMessage.guildId}/gc`, gcdataGuild.decode(ddata))
-            delete ddata
+            listenerLog(3, "➿ Spełniono warunek (2/4)")
 
             if (userData.isBlocked) {
                 DiscordMessage.react(customEmoticons.denided)
                 return
             }
 
-            listenerLog(3, "➿ Spełniono warunek (4/5)")
+            listenerLog(3, "➿ Spełniono warunek (3/4)")
 
             if (DiscordMessage.content === "<p>" && userData.messageID_bbc) {
                 if (DiscordMessage.deletable) DiscordMessage.delete()
@@ -444,16 +429,44 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                 DiscordMessage.react(customEmoticons.minus)
                 return
             }
-            userData.timestampToSendMessage = Date.now() + userCooldown(database.length)
-            userData.messageID_bbc = ""
-            db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+
+            //---
 
             if (sprawdzNiedozwoloneLinki(deleteComments(DiscordMessage.content)) && !ownersID.includes(DiscordMessage.author.id)) {
                 DiscordMessage.react(customEmoticons.denided)
+                try {
+                    const embed = new EmbedBuilder()
+                        .setAuthor({ name: "Blokada linku" })
+                        .setFields({ name: "Kara", value: "minuta osobistego cooldownu" })
+                        .setFooter({ text: "Globally, powered by patYczakus" })
+                        .setColor("Red")
+                    DiscordMessage.author.send({ embeds: [embed] })
+                } catch (e) {}
+                userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 60_000
+                userData.messageID_bbc = ""
+                db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
                 return
             }
 
-            listenerLog(3, "➿ Spełniono warunek (5/5)")
+            const bw = checkAnyBadWords(deleteComments(DiscordMessage.content))
+            if (bw.checked) {
+                if (DiscordMessage.deletable) DiscordMessage.delete()
+                try {
+                    const embed = new EmbedBuilder()
+                        .setAuthor({ name: "Blokada słowa" })
+                        .setFields({ name: "Wyłapane słowo", value: `\`${bw.badWord}\``, inline: true }, { name: "Kara", value: "20 sekund osobistego cooldownu", inline: true })
+                        .setFooter({ text: "Globally, powered by patYczakus" })
+                        .setColor("Red")
+                    DiscordMessage.channel.send({ embeds: [embed] })
+                } catch (e) {}
+                userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 20_000
+                userData.messageID_bbc = ""
+                db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+                return
+            }
+
+            listenerLog(3, "➿ Spełniono warunek (4/4)")
+
             listenerLog(4, `✅ Ma możliwość wysłania wiadomości do GC`)
             listenerLog(5, `Informacje o wiadomości: `)
             listenerLog(5, `📌 ${GClocation}/${DiscordMessage.id}`)
@@ -469,7 +482,27 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
 
             listenerLog(3, "")
             listenerLog(3, "♻️ Wykonywanie działania webhooków")
-            timestampCooldown.setTime(new Date().getTime())
+
+            delete ddata
+
+            function gct() {
+                switch (true) {
+                    case ownersID.includes(DiscordMessage.author.id):
+                        return 3
+                    case userData.modPerms == 2:
+                        return 2
+                    case userData.karma >= 300n - BigInt(userData.modPerms == 1 * 100):
+                        return 1
+                    default:
+                        return 0
+                }
+            }
+
+            userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct())
+            delete gct
+            userData.messageID_bbc = ""
+            db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+
             /**
              * @type {{ wh: WebhookClient, gid: string, cid: string }[]}
              */
@@ -493,7 +526,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                                 if (getDataByServerID(guildID).webhook != "none") {
                                     try {
                                         var HTTPRes = await request("https://discord.com/api/webhooks/" + getDataByServerID(guildID).webhook)
-                                        if (!("code" in HTTPRes.body.json())) {
+                                        if (!("code" in (await HTTPRes.body.json()))) {
                                             webhook = new WebhookClient({
                                                 url: "https://discord.com/api/webhooks/" + getDataByServerID(guildID).webhook,
                                             })
@@ -709,7 +742,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                     return
                 })
             ).then(async () => {
-                const channelid = supportServer.gclogID
+                const channelid = supportServer.gclogs.msg
                 const channel = await DiscordClient.channels.fetch(channelid)
 
                 if (DiscordMessage.deletable)

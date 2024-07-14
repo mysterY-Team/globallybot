@@ -153,8 +153,10 @@ module.exports = {
             case cmds[4]:
             case cmds[5]:
             case cmds[6]: {
-                const wzory = args.join("").split(/\||;/g)
-                const toDzielPrzezX = wzory.map((x) => x.match(/[0-9]\)?\/x|[0-9]\)?\/\([0-9.+^*\/\-]*x[0-9.+^*\/\-x]*\)/gm))
+                const wzory = args
+                    .join("")
+                    .split(/\||;/g)
+                    .map((x) => x.replace(/([0-9)])x/, "$1*x").replace(/x([(0-9])/, "x*$1"))
                 const kolory = ["#336699", "#f8df5f", "#0093f5", "#663399", "#f6a2b3", "#0ec22c", "#df6a3c", "#03a9c8", "#059120"]
 
                 if (wzory.length > 0 && wzory.length <= kolory.length) {
@@ -221,7 +223,7 @@ module.exports = {
                         ctx.lineWidth = 2
                         ctx.beginPath()
                         var lineTo = false
-                        for (var mx = config.xmin; mx <= config.xmax; mx += toDzielPrzezX[i] ? 0.025 : 0.5) {
+                        for (var mx = config.xmin; mx <= config.xmax; mx += 0.025) {
                             // console.log(mx * -1)
                             var my = Number(calculate(wzór.replace(/x/g, mx)))
 

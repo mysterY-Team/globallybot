@@ -2,6 +2,7 @@ const cheerio = require("cheerio")
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { customEmoticons } = require("../config")
 const { request } = require("undici")
+const { listenerLog } = require("../functions/useful")
 
 module.exports = {
     /**
@@ -13,7 +14,7 @@ module.exports = {
         await interaction.deferReply()
         try {
             var response = await request("https://perelki.net/random")
-            const $ = cheerio.load(response.body.text())
+            const $ = cheerio.load(await response.body.text())
             $(".content .container:not(.cntr) .about").remove()
             var joke = $(".content .container:not(.cntr)")
                 .html()
@@ -41,10 +42,10 @@ module.exports = {
                 embeds: [embed],
             })
         } catch (error) {
-            console.warn("Wystąpił błąd:", error)
             interaction.editReply({
                 content: `${customEmoticons.denided} Nie udało się pobrać dowcipu`,
             })
+            throw console.error(error)
         }
     },
 }

@@ -1,4 +1,4 @@
-const { Client, ButtonInteraction, ChannelType, EmbedBuilder } = require("discord.js")
+const { Client, ButtonInteraction, ChannelType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const { customEmoticons, db, ownersID, supportServer } = require("../config")
 const { gcdata } = require("../functions/dbs")
 const { listenerLog } = require("../functions/useful")
@@ -8,19 +8,20 @@ module.exports = {
     /**
      * @param {Client} client
      * @param {ButtonInteraction} interaction
-     * @param {string[]} args
+     * @param {string[]} argss
      */
     async execute(client, interaction, ...args) {
         await interaction.deferReply({
             ephemeral: true,
         })
-        var $channel = await client.channels.fetch(supportServer.gclogID)
-        if ($channel && $channel.type == ChannelType.GuildText) {
+        var $channels = [await client.channels.fetch(supportServer.gclogs.msg), await client.channels.fetch(supportServer.gclogs.main)]
+        if ($channels[0] && $channels[0].type == ChannelType.GuildText) {
             try {
-                var $message = await $channel.messages.fetch(args[1])
+                var $message = await $channels[0].messages.fetch(args[1])
                 var messagesToDelete = $message.content.split("|")
                 var stationWhereItIsSent = $message.embeds[0].footer.text
             } catch (err) {
+                console.log(err)
                 interaction.editReply("Możliwość usunięcia tej wiadomości wygasła!")
                 return
             }
@@ -82,12 +83,33 @@ module.exports = {
         }
 
         {
+            let embeds = (() => $message.embeds)()
+            embeds[0] = new EmbedBuilder()
+                .setAuthor({ iconURL: $message.embeds[0].author.iconURL, name: $message.embeds[0].author.name })
+                .setTitle("Usunięta wiadomość")
+                .setDescription($message.embeds[0].description)
+                .setColor("Red")
+                .setFooter({ text: $message.embeds[0].footer.text })
+            if ($channels[1] && $channels[1].type == ChannelType.GuildText) await $channels[1].send({ embeds })
+        }
+        {
             let embeds = $message.embeds
             let embed = new EmbedBuilder($message.embeds[0]).setFields({ name: "Stan", value: `Usunięto <t:${Math.floor(Date.now() / 1000)}:R>` }).setColor("Red")
             embeds[0] = embed
-            await $message.edit({ content: "", embeds })
+            await $message.edit({
+                content: "",
+                embeds,
+                components: [
+                    new ActionRowBuilder().setComponents(
+                        new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${args[0]}`).setEmoji(`ℹ️`),
+                        new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${args[0]}`).setEmoji(`👤`)
+                    ),
+                ],
+            })
         }
 
-        interaction.editReply(`${customEmoticons.approved} Usunięto pomyślnie!`)
+        try {
+            interaction.editReply(`${customEmoticons.approved} Usunięto pomyślnie!`)
+        } catch (e) {}
     },
 }

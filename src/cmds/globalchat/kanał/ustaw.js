@@ -1,5 +1,5 @@
-const { CommandInteraction, Client, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js")
-const { db, ownersID, customEmoticons, _bot, supportServer, debug, constPremiumServersIDs } = require("../../../config")
+const { CommandInteraction, Client, PermissionFlagsBits } = require("discord.js")
+const { db, ownersID, customEmoticons, _bot, supportServer, constPremiumServersIDs } = require("../../../config")
 const { gcdataGuild } = require("../../../functions/dbs")
 
 module.exports = {
@@ -9,15 +9,8 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        const supportButton = new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Bądź na bieżąco z botem!").setURL("https://discord.gg/7S3P2DUwAm")
         const pwd = interaction.options.get("passwd")?.value
 
-        if (debug && !ownersID.includes(interaction.user.id))
-            return interaction.reply({
-                ephemeral: true,
-                content: "Komenda jest niestety wyłączona dla każdego; bot przeszedł właśnie w tryb debugowania i trwają prace nad nim. Przepraszamy za utrudnienia!",
-                components: [new ActionRowBuilder({ components: [supportButton] })],
-            })
         if (interaction.guildId == null) return interaction.reply(`${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`)
 
         //argument kanału i serwer
@@ -26,7 +19,7 @@ module.exports = {
         var bot = guild.members.cache.get(_bot.id)
         if (
             !(
-                (interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks & PermissionFlagsBits.ManageChannels) ||
+                (interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks + PermissionFlagsBits.ManageChannels) ||
                     interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
                     interaction.user.id == guild.ownerId ||
                     ownersID.includes(interaction.user.id)) &&
@@ -41,7 +34,7 @@ module.exports = {
                     - Nie masz permisji administratora
                     - Nie jesteś właścicielem serwera
                     - Bot nie ma permisji administrotara lub uprawnienia **Zarządzanie Webhookami**
-                    - Nie jesteś na liście developerów bota`
+                    - Nie jesteś na liście twórców bota`
                     .split("\n")
                     .map((x) => x.trim())
                     .join("\n"),
@@ -98,9 +91,15 @@ module.exports = {
         data[$stacja] = {
             channel: channel.value,
             webhook: "none",
-            timestamp: data[$stacja]?.timestamp ?? Date.now() - 1,
             createdTimestamp: Math.floor(Date.now() / 1000),
         }
+
+        const emb = new EmbedBuilder()
+            .setTitle("Nowy kanał!")
+            .setDescription(
+                `ID: \`${channel.id}\`\nStacja: \`${$stacja}\`\nOsoba podłączająca: <@${interaction.user.id}> (\`${interaction.user.username}\`, \`${interaction.user.id}\`)`
+            )
+        await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })
 
         db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
         //informacja o zapisie

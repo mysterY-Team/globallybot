@@ -9,7 +9,8 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        if (!ownersID.includes(interaction.user.id) && gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val).modPerms === 0)
+        var yourInfo = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
+        if (!ownersID.includes(interaction.user.id) && yourInfo.modPerms === 0)
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
             return interaction.reply({
                 ephemeral: true,
@@ -17,11 +18,24 @@ module.exports = {
             })
         var uID = interaction.options.get("osoba", true).user.id
         try {
+            if (uID === interaction.user.id) {
+                interaction.reply({
+                    ephemeral: interaction.inGuild(),
+                    content: `Ejejej, bez przesady kolego`,
+                })
+                return
+            }
             await interaction.deferReply({
                 ephemeral: interaction.inGuild(),
             })
 
             var snapshot = db.get(`userData/${uID}/gc`)
+            if (Math.max(yourInfo.modPerms, ownersID.includes(interaction.user.id) * 11 - 1) <= info.modPerms || ownersID.includes(uID)) {
+                interaction.editReply({
+                    content: `${customEmoticons.denided} Ta osoba jest ponad/na równi twoich permisji!`,
+                })
+                return
+            }
 
             if (!snapshot.exists) {
                 interaction.editReply({

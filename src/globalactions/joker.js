@@ -51,7 +51,7 @@ module.exports = {
                     a = `${customEmoticons.denided} Nie udało się pobrać dowcipu!`
                     break
                 }
-                const $ = cheerio.load(joke.body.text())
+                const $ = cheerio.load(await joke.body.text())
                 $(".content .container:not(.cntr) .about").remove()
                 joke = $(".content .container:not(.cntr)")
                     .html()

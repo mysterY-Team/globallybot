@@ -19,8 +19,7 @@ function gcdataGuildS(data) {
     return {
         channel: data[0],
         webhook: data[1] ?? "none",
-        timestamp: Number(data[2]) || Date.now() - 1,
-        createdTimestamp: Number(data[3]) || 0,
+        createdTimestamp: Number(data[2]) || Math.floor(Date.now() / 1000),
     }
 }
 

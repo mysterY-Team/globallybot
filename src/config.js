@@ -1,6 +1,6 @@
 const loc = require("locallium")
 
-const debug = false
+const debug = true
 
 const ldb = new loc.Database("env")
 
@@ -12,7 +12,6 @@ module.exports = {
         new loc.DatabaseFlags({
             keySeparator: "/",
             getAdvancedWarns: debug,
-            keepEmptyKeysWhileDeleting: true,
         })
     ),
     ownersID: [
@@ -22,7 +21,10 @@ module.exports = {
     ],
     supportServer: {
         id: "1173722642004574359",
-        gclogID: "1258118372223226039",
+        gclogs: {
+            main: "1261992441377062933",
+            msg: "1258118372223226039",
+        },
     },
     _bot: {
         id: ldb.get("bid").val,

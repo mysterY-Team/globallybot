@@ -9,7 +9,8 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        if (!ownersID.includes(interaction.user.id) && gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val).modPerms === 0)
+        var yourInfo = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
+        if (!ownersID.includes(interaction.user.id) && yourInfo.modPerms === 0)
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
             return interaction.reply({
                 ephemeral: true,
@@ -18,6 +19,14 @@ module.exports = {
 
         try {
             var uID = interaction.options.get("osoba", true).user.id
+
+            if (uID === interaction.user.id) {
+                interaction.reply({
+                    ephemeral: interaction.inGuild(),
+                    content: `Zablokować siebie? Serio?`,
+                })
+                return
+            }
             await interaction.deferReply({
                 ephemeral: interaction.inGuild(),
             })
@@ -31,6 +40,13 @@ module.exports = {
             }
 
             var info = gcdata.encode(snapshot.val)
+
+            if (Math.max(yourInfo.modPerms, ownersID.includes(interaction.user.id) * 11 - 1) <= info.modPerms || ownersID.includes(uID)) {
+                interaction.editReply({
+                    content: `${customEmoticons.denided} Ta osoba jest ponad/na równi twoich permisji!`,
+                })
+                return
+            }
 
             if (info.isBlocked) {
                 interaction.editReply({
@@ -61,7 +77,7 @@ module.exports = {
             })
 
             interaction.editReply({
-                content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${uID}> \`${uID}\``,
+                content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${uID}> (\`${interaction.options.get("osoba", true).user.id}\`, \`${uID}\`)`,
             })
             db.set(`userData/${uID}/gc`, gcdata.decode(info))
         } catch (err) {

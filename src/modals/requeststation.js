@@ -32,7 +32,7 @@ module.exports = {
         const emb = new EmbedBuilder()
             .setTitle("Nowa stacja!")
             .setDescription(`ID: \`${modalArgs.id}\`\nHasłowane: ${modalArgs.passwd ? customEmoticons.approved : customEmoticons.denided}\nKreator: <@${interaction.user.id}>`)
-        await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogID)).send({ embeds: [emb] })
+        await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })
 
         interaction.editReply(`${customEmoticons.approved} Utworzono stację poprawnie!`)
     },
