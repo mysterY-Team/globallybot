@@ -1,4 +1,4 @@
-const { CommandInteraction, Client, PermissionFlagsBits } = require("discord.js")
+const { CommandInteraction, Client, PermissionFlagsBits, EmbedBuilder } = require("discord.js")
 const { db, ownersID, customEmoticons, _bot, supportServer, constPremiumServersIDs } = require("../../../config")
 const { gcdataGuild } = require("../../../functions/dbs")
 
