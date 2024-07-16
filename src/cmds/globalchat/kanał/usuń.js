@@ -15,6 +15,8 @@ module.exports = {
         var guild = client.guilds.cache.get(interaction.guildId)
         var bot = guild.members.cache.get(_bot.id)
 
+        var channel = interaction.options.get("kanał", true)
+
         if (
             !(
                 (interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks + PermissionFlagsBits.ManageChannels) ||
@@ -40,23 +42,28 @@ module.exports = {
 
         await interaction.deferReply()
         var snapshot = db.get(`serverData/${interaction.guildId}/gc`)
-        var key = Object.entries(gcdataGuild.encode(snapshot.val ?? "")).find((x) => x[1].channel === interaction.options.get("kanał", true).value)
+        var key = Object.entries(gcdataGuild.encode(snapshot.val ?? "")).find((x) => x[1].channel === achannel.value)
         if (!key) return interaction.editReply(`${customEmoticons.denided} Nie ma ustawionego kanału na tej stacji!`)
 
         var $stacja = key[0]
 
         var data = gcdataGuild.encode(snapshot.val)
 
-        function removeData() {
+        async function removeData() {
             delete data[$stacja]
             if (Object.keys(data).length > 0) db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
             else db.delete(`serverData/${interaction.guildId}/gc`)
             interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
+
+            const emb = new EmbedBuilder()
+                .setTitle("Usunięto kanał!")
+                .setDescription(
+                    `ID: \`${channel.channel.id}\`\nNazwa kanału: \`${channel.channel.name}\`\nStacja: \`${$stacja}\`\nOsoba odłączająca: <@${interaction.user.id}> (\`${interaction.user.username}\`, \`${interaction.user.id}\`)`
+                )
+            await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })
         }
 
-        var channel = interaction.guild.channels.cache.get(data.channel)
-
-        if (typeof channel !== "undefined" && data.webhook !== "none") {
+        if (channel.channel && data.webhook !== "none") {
             var webhook = new WebhookClient({
                 url: "https://discord.com/api/webhooks/" + data.webhook,
             })

@@ -71,17 +71,19 @@ const bannedWords = [
     "cweloza",
     "zjeb",
     "zjebana",
-    "przyjebana"
+    "przyjebana",
+    "kill yourself",
+    "kill your self",
+    "kil yourself",
+    "kil your self",
 ]
 
 function checkAnyBadWords(text) {
     text = text.toLowerCase()
-    const regex = new RegExp(`(^|\\s)${bannedWords[i]}(\\s|$)`); 
     for (let i = 0; i < bannedWords.length; i++) {
+        const regex = new RegExp(`([^a-z0-9])${bannedWords[i]}([^a-z0-9])`)
         if (regex.test(text)) {
-        if (text.includes(bannedWords[i])) {
             return { checked: true, badWord: bannedWords[i] }
-            }
         }
     }
     return { checked: false }

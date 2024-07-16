@@ -10,10 +10,10 @@ module.exports = {
      */
     emoticons: [
         { savenames: ["pixel.kekw", "px.kekw"], emote: "<:PX_kekw:1182025687566123078>" },
-        {
-            savenames: ["pixel.pepeWithGun", "px.pepeWithGun", "pixel.pepewgun", "px.pepewgun", "pixel.pepegun", "px.pepegun"],
-            emote: "<:PX_pepeWithGun:1174022124000792639>",
-        },
+        // {
+        //     savenames: ["pixel.pepeWithGun", "px.pepeWithGun", "pixel.pepewgun", "px.pepewgun", "pixel.pepegun", "px.pepegun"],
+        //     emote: "<:PX_pepeWithGun:1174022124000792639>",
+        // },
         {
             savenames: [
                 "pixel.pepeDancingWithLightSabers",
@@ -224,29 +224,29 @@ module.exports = {
         },
         {
             savenames: ["kanae.angry"],
-            emote: "<:Kanae_Angry_NF2U:1244393682644500583>",
+            emote: "<:save_Kanae_Angry_NF2U:1262860476178497536>",
             server: { id: "1199605405245001838", iCode: "WkYHb57jw7" },
         },
         {
             savenames: ["kanae.confused", "kanae.loading"],
-            emote: "<:Kanae_Confused_NF2U:1244393436623405146>",
+            emote: "<:save_Kanae_Confused_NF2U:1262860474584793199>",
             server: { id: "1199605405245001838", iCode: "WkYHb57jw7" },
         },
         {
             savenames: ["kanae.laughing"],
-            emote: "<:Kanae_lol_NF2U:1244394393423581255>",
+            emote: "<:save_Kanae_lol_NF2U:1262860478439358594> ",
             server: { id: "1199605405245001838", iCode: "WkYHb57jw7" },
         },
         {
             savenames: ["kanae.scared", "kanae.traumatized"],
-            emote: "<:Kanae_Traumatized_NF2U:1244394437237276782>",
+            emote: "<:save_Kanae_Traumatized_NF2U:1262860480725389333>",
             server: { id: "1199605405245001838", iCode: "WkYHb57jw7" },
         },
-        {
-            savenames: ["kanae.holdingHeart", "kanae.love"],
-            emote: "<:Kanae_Love_NF2U:1244393501274144768>",
-            server: { id: "1199605405245001838", iCode: "WkYHb57jw7" },
-        },
+        // {
+        //     savenames: ["kanae.holdingHeart", "kanae.love"],
+        //     emote: "<:Kanae_Love_NF2U:1244393501274144768>",
+        //     server: { id: "1199605405245001838", iCode: "WkYHb57jw7" },
+        // },
     ],
 
     /**
