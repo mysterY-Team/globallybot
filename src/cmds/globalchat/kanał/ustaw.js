@@ -97,7 +97,7 @@ module.exports = {
         const emb = new EmbedBuilder()
             .setTitle("Nowy kanał!")
             .setDescription(
-                `ID: \`${channel.id}\`\nStacja: \`${$stacja}\`\nOsoba podłączająca: <@${interaction.user.id}> (\`${interaction.user.username}\`, \`${interaction.user.id}\`)`
+                `ID: \`${channel.channel.id}\`\nStacja: \`${$stacja}\`\nOsoba podłączająca: <@${interaction.user.id}> (\`${interaction.user.username}\`, \`${interaction.user.id}\`)`
             )
         await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })
 
