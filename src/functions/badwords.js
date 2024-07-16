@@ -47,13 +47,41 @@ const bannedWords = [
     "debilka",
     "chuj mu",
     "chuj jej",
+    "chuj ci",
+    "zgin",
+    "zgiń",
+    "kys",
+    "gkys",
+    "pedale",
+    "chuju",
+    "dziwko",
+    "dziwką",
+    "idiotko",
+    "popierdolona",
+    "popierdolony",
+    "pierdolona",
+    "debilko",
+    "dziwka",
+    "szmato",
+    "czarnuchu",
+    "czarnuhu",
+    "niggerze",
+    "nigerze",
+    "cwelu",
+    "cweloza",
+    "zjeb",
+    "zjebana",
+    "przyjebana"
 ]
 
 function checkAnyBadWords(text) {
     text = text.toLowerCase()
+    const regex = new RegExp(`(^|\\s)${bannedWords[i]}(\\s|$)`); 
     for (let i = 0; i < bannedWords.length; i++) {
+        if (regex.test(text)) {
         if (text.includes(bannedWords[i])) {
             return { checked: true, badWord: bannedWords[i] }
+            }
         }
     }
     return { checked: false }
