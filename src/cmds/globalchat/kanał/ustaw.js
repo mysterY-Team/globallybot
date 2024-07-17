@@ -99,6 +99,7 @@ module.exports = {
             .setDescription(
                 `ID kanału: \`${channel.channel.id}\`\nNazwa kanału: \`${channel.channel.name}\`\nStacja: \`${$stacja}\`\nOsoba podłączająca: <@${interaction.user.id}> (\`${interaction.user.username}\`, \`${interaction.user.id}\`)`
             )
+            .setColor("Blue")
         await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })
 
         db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))

@@ -1,5 +1,5 @@
-const { CommandInteraction, Client, PermissionFlagsBits, WebhookClient } = require("discord.js")
-const { db, ownersID, customEmoticons, _bot } = require("../../../config")
+const { CommandInteraction, Client, PermissionFlagsBits, WebhookClient, EmbedBuilder } = require("discord.js")
+const { db, ownersID, customEmoticons, _bot, supportServer } = require("../../../config")
 
 const { gcdataGuild } = require("../../../functions/dbs")
 const { request } = require("undici")
@@ -42,8 +42,8 @@ module.exports = {
 
         await interaction.deferReply()
         var snapshot = db.get(`serverData/${interaction.guildId}/gc`)
-        var key = Object.entries(gcdataGuild.encode(snapshot.val ?? "")).find((x) => x[1].channel === achannel.value)
-        if (!key) return interaction.editReply(`${customEmoticons.denided} Nie ma ustawionego kanału na tej stacji!`)
+        var key = Object.entries(gcdataGuild.encode(snapshot.val ?? "")).find((x) => x[1].channel === channel.channel.id)
+        if (!key) return interaction.editReply(`${customEmoticons.denided} Nie ma podpiętej stacji na tym kanale`)
 
         var $stacja = key[0]
 
@@ -60,14 +60,15 @@ module.exports = {
                 .setDescription(
                     `ID: \`${channel.channel.id}\`\nNazwa kanału: \`${channel.channel.name}\`\nStacja: \`${$stacja}\`\nOsoba odłączająca: <@${interaction.user.id}> (\`${interaction.user.username}\`, \`${interaction.user.id}\`)`
                 )
+                .setColor("Blue")
             await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })
         }
 
-        if (channel.channel && data.webhook !== "none") {
+        if (channel.channel && data[$stacja].webhook !== "none") {
             var webhook = new WebhookClient({
-                url: "https://discord.com/api/webhooks/" + data.webhook,
+                url: "https://discord.com/api/webhooks/" + data[$stacja].webhook,
             })
-            request("https://discord.com/api/webhooks/" + data.webhook)
+            request("https://discord.com/api/webhooks/" + data[$stacja].webhook)
                 .then((res) => {
                     try {
                         if (res.statusCode >= 200 && res.statusCode < 300) webhook.delete("użycia komendy /GLOBALCHAT")

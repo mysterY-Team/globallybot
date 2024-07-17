@@ -10,7 +10,7 @@ const {
     ChannelType,
     DiscordAPIError,
 } = require("discord.js")
-const { db, customEmoticons, ownersID, debug, supportServer } = require("./config")
+const { db, customEmoticons, ownersID, debug, supportServer, _bot } = require("./config")
 const fs = require("fs")
 const { emoticons } = require("./cmds/globalchat/emotki")
 const { listenerLog } = require("./functions/useful")
@@ -275,33 +275,31 @@ function deleteComments(text) {
 }
 /**
  * GlobalChat, edycja czwarta, wersja druga systemu
- * @param {Client<true>} DiscordClient
- * @param {Message<true>} DiscordMessage
+ * @param {Client<true>} client
+ * @param {Message<true>} message
  */
-async function globalchatFunction(DiscordClient, DiscordMessage) {
+async function globalchatFunction(client, message) {
     try {
-        const GClocation = `${DiscordMessage.guildId}/${DiscordMessage.channelId}`
+        const GClocation = `${message.guildId}/${message.channelId}`
         var accDate = new Date()
         accDate = `${accDate.getFullYear()}-${accDate.getMonth() + 1}-${accDate.getDate()}`
 
         function wbName(gID, modPerm) {
-            if (ownersID.includes(DiscordMessage.author.id)) var rank = "twórca"
+            if (ownersID.includes(message.author.id)) var rank = "twórca"
             else if (modPerm === 2) var rank = "naczelnik"
             else if (modPerm === 1) var rank = "moderator"
             else var rank = "osoba"
 
-            return DiscordMessage.guildId != gID
-                ? `${DiscordMessage.author.username} (${rank}; ${DiscordMessage.author.id})`
-                : `${DiscordMessage.author.username} (${rank}; ten serwer)`
+            return message.guildId != gID ? `${message.author.username} (${rank}; ${message.author.id})` : `${message.author.username} (${rank}; ten serwer)`
         }
 
         /**
          * @returns {Promise<EmbedBuilder | undefined>}
          */
         async function repliedMessage(gID) {
-            if (gID && DiscordMessage.reference) {
+            if (gID && message.reference) {
                 try {
-                    var replayedMSG = await DiscordMessage.fetchReference()
+                    var replayedMSG = await message.fetchReference()
                     var rContent = replayedMSG.content,
                         rAttachments
 
@@ -311,10 +309,10 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                     var rUser = replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.author.username : replayedMSG.author.username.split(" (")[0]
 
                     var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }
-                    if (gID == DiscordMessage.guildId) embed.url = replayedMSG.url
+                    if (gID == message.guildId) embed.url = replayedMSG.url
                     embed = new EmbedBuilder().setAuthor(embed).setTimestamp(replayedMSG.createdTimestamp)
                     if (rContent) embed = embed.setDescription(rContent)
-                    if (gID == DiscordMessage.guildId) embed = embed.setFooter({ text: "Kliknięcie w nagłówek spowoduje przeniesienie do odpowiadanej wiadomości" })
+                    if (gID == message.guildId) embed = embed.setFooter({ text: "Kliknięcie w nagłówek spowoduje przeniesienie do odpowiadanej wiadomości" })
                     if (replayedMSG.attachments.size > 0) {
                         rAttachments = replayedMSG.attachments.map((x) => `[\`${x.name}\`](${x.url})`).join("\n")
                         if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => x.url).join("\n")
@@ -329,14 +327,14 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
         }
 
         if (
-            !deleteComments(DiscordMessage.content) &&
-            DiscordMessage.attachments.filter(
+            !deleteComments(message.content) &&
+            message.attachments.filter(
                 (a) => a.contentType !== null && (a.contentType.startsWith("image") || a.contentType.startsWith("video") || a.contentType.startsWith("audio"))
             ).size == 0
         )
             return
 
-        if (!DiscordMessage.author.bot && !DiscordMessage.author.system) {
+        if (!message.author.bot && !message.author.system) {
             var snpsht = db.get(`serverData`)
             var database = snpsht.val || {}
 
@@ -353,14 +351,14 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                 return x
             }
 
-            var serverdata = getDataByServerID(DiscordMessage.guildId, "id")
+            var serverdata = getDataByServerID(message.guildId, "id")
 
             if (
                 !database
                     .map((x) => Object.values(x.gc))
                     .flat()
                     .map((x) => x.channel)
-                    .includes(DiscordMessage.channelId)
+                    .includes(message.channelId)
             )
                 return
 
@@ -368,113 +366,149 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
             listenerLog(2, "❗ Wyłapano wiadomość do GC!")
 
             if (freemem() < totalmem() * 0.05 * !debug) {
-                DiscordMessage.reply(`${customEmoticons.loading} Pamięć została przekroczona, czekam na wolne miejsce...`)
+                message.reply(`${customEmoticons.loading} Pamięć została przekroczona, czekam na wolne miejsce...`)
                 listenerLog(3, "")
                 return
             }
 
-            listenerLog(3, "➿ Spełniono warunek (1/4)")
+            listenerLog(3, "➿ Spełniono warunek (1/5)")
 
             var station = Object.values(serverdata.gc)
                 .map((x) => x.channel)
-                .indexOf(DiscordMessage.channelId)
+                .indexOf(message.channelId)
             station = Object.keys(serverdata.gc)[station]
 
-            const oldUData = db.get(`userData/${DiscordMessage.author.id}/gc`).val
+            if (!db.get(`stations/${station}`).exists) {
+                let msg = await message.channel.send("Ta stacja przestała istnieć! Usuwanie kanału z bazy danych...")
+                let removeData = async function () {
+                    delete serverdata.gc[station]
+                    if (Object.keys(serverdata.gc).length > 0) db.set(`serverData/${serverdata.id}/gc`, gcdataGuild.decode(serverdata.gc))
+                    else db.delete(`serverData/${serverdata.id}/gc`)
+                    msg.edit(`~~Ta stacja przestała istnieć! Usuwanie kanału z bazy danych...~~\n${customEmoticons.approved} Usunięto kanał z bazy danych!`)
+
+                    const emb = new EmbedBuilder()
+                        .setTitle("Usunięto kanał!")
+                        .setDescription(`ID: \`${message.channel.id}\`\nNazwa kanału: \`${message.channel.name}\`\nStacja: \`${station}\`\nOsoba odłączająca: <@${_bot.id}>)`)
+                        .setColor("Blue")
+                    await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })
+                }
+
+                if (serverdata.gc[station].webhook !== "none") {
+                    let webhook = new WebhookClient({
+                        url: "https://discord.com/api/webhooks/" + serverdata.gc[station].webhook,
+                    })
+                    request("https://discord.com/api/webhooks/" + serverdata.gc[station].webhook)
+                        .then((res) => {
+                            try {
+                                if (res.statusCode >= 200 && res.statusCode < 300) webhook.delete("użycia komendy /GLOBALCHAT")
+                            } catch (e) {}
+
+                            removeData()
+                        })
+                        .catch(() => {
+                            removeData()
+                        })
+                } else {
+                    removeData()
+                }
+
+                return
+            }
+
+            listenerLog(3, "➿ Spełniono warunek (2/5)")
+
+            const oldUData = db.get(`userData/${message.author.id}/gc`).val
             var userData = gcdata.encode(oldUData)
 
             if (userData.timestampToSendMessage > Date.now()) {
-                DiscordMessage.reply(`${customEmoticons.denided} Osobisty cooldown! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms`)
-                if (DiscordMessage.content !== "<p>") {
-                    userData.messageID_bbc = DiscordMessage.id
-                    db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+                message.reply(`${customEmoticons.denided} Osobisty cooldown! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms`)
+                if (message.content !== "<p>") {
+                    userData.messageID_bbc = message.id
+                    db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 }
                 return
             }
 
             if (timestampCooldown.getTime() + globalCooldown(database.length) > Date.now()) {
-                DiscordMessage.reply(
+                message.reply(
                     `${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${globalCooldown(database.length) - (Date.now() - timestampCooldown.getTime())}\` ms`
                 )
-                if (DiscordMessage.content !== "<p>") {
-                    userData.messageID_bbc = DiscordMessage.id
-                    db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+                if (message.content !== "<p>") {
+                    userData.messageID_bbc = message.id
+                    db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 }
                 return
             }
 
             database = database.filter((x) => Object.keys(x.gc).includes(station)).map((x) => Object.assign(x.gc[station], { serverID: x.id }))
 
-            listenerLog(3, "➿ Spełniono warunek (2/4)")
+            listenerLog(3, "➿ Spełniono warunek (3/5)")
 
             if (userData.isBlocked) {
-                DiscordMessage.react(customEmoticons.denided)
+                message.react(customEmoticons.denided)
                 return
             }
 
-            listenerLog(3, "➿ Spełniono warunek (3/4)")
+            listenerLog(3, "➿ Spełniono warunek (4/5)")
 
-            if (DiscordMessage.content === "<p>" && userData.messageID_bbc) {
-                if (DiscordMessage.deletable) DiscordMessage.delete()
+            if (message.content === "<p>" && userData.messageID_bbc) {
+                if (message.deletable) message.delete()
                 try {
-                    const msg = await DiscordMessage.channel.messages.fetch(userData.messageID_bbc)
+                    const msg = await message.channel.messages.fetch(userData.messageID_bbc)
 
-                    DiscordMessage = msg
+                    message = msg
                     userData.messageID_bbc = ""
                 } catch (e) {
-                    DiscordMessage.react(customEmoticons.denided)
+                    message.react(customEmoticons.denided)
                     return
                 }
-            } else if (DiscordMessage.content === "<p>" && !userData.messageID_bbc) {
-                DiscordMessage.react(customEmoticons.minus)
+            } else if (message.content === "<p>" && !userData.messageID_bbc) {
+                message.react(customEmoticons.minus)
                 return
             }
 
             //---
 
-            if (sprawdzNiedozwoloneLinki(deleteComments(DiscordMessage.content)) && !ownersID.includes(DiscordMessage.author.id)) {
-                DiscordMessage.react(customEmoticons.denided)
+            if (sprawdzNiedozwoloneLinki(deleteComments(message.content)) && !ownersID.includes(message.author.id)) {
+                message.react(customEmoticons.denided)
                 try {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada linku" })
-                        .setFields({ name: "Kara", value: "minuta osobistego cooldownu" })
+                        .setFields({ name: "Kara", value: "2 minuty osobistego cooldownu" })
                         .setFooter({ text: "Globally, powered by patYczakus" })
                         .setColor("Red")
-                    DiscordMessage.author.send({ embeds: [embed] })
+                    message.author.send({ embeds: [embed] })
                 } catch (e) {}
-                userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 60_000
+                userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 120_000
                 userData.messageID_bbc = ""
-                db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+                db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 return
             }
 
-            const bw = checkAnyBadWords(deleteComments(DiscordMessage.content))
+            const bw = checkAnyBadWords(deleteComments(message.content))
             if (bw.checked) {
-                if (DiscordMessage.deletable) DiscordMessage.delete()
+                if (message.deletable) message.delete()
                 try {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada słowa" })
-                        .setFields({ name: "Wyłapane słowo", value: `\`${bw.badWord}\``, inline: true }, { name: "Kara", value: "20 sekund osobistego cooldownu", inline: true })
+                        .setFields({ name: "Wyłapane słowo", value: `\`${bw.badWord}\``, inline: true }, { name: "Kara", value: "30 sekund osobistego cooldownu", inline: true })
                         .setFooter({ text: "Globally, powered by patYczakus" })
                         .setColor("Red")
-                    DiscordMessage.channel.send({ embeds: [embed] })
+                    message.channel.send({ embeds: [embed] })
                 } catch (e) {}
-                userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 20_000
+                userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 30_000
                 userData.messageID_bbc = ""
-                db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+                db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 return
             }
 
-            listenerLog(3, "➿ Spełniono warunek (4/4)")
+            listenerLog(3, "➿ Spełniono warunek (5/5)")
 
             listenerLog(4, `✅ Ma możliwość wysłania wiadomości do GC`)
             listenerLog(5, `Informacje o wiadomości: `)
-            listenerLog(5, `📌 ${GClocation}/${DiscordMessage.id}`)
-            if (DiscordMessage.reference !== null)
-                listenerLog(
-                    5,
-                    `➡️ Zawiera odpowiedź na wiadomość (${DiscordMessage.reference.guildId}/${DiscordMessage.reference.channelId}/${DiscordMessage.reference.messageId})`
-                )
+            listenerLog(5, `📌 ${GClocation}/${message.id}`)
+            if (message.reference !== null)
+                listenerLog(5, `➡️ Zawiera odpowiedź na wiadomość (${message.reference.guildId}/${message.reference.channelId}/${message.reference.messageId})`)
 
             //console.log(database)
 
@@ -487,7 +521,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
 
             function gct() {
                 switch (true) {
-                    case ownersID.includes(DiscordMessage.author.id):
+                    case ownersID.includes(message.author.id):
                         return 3
                     case userData.modPerms == 2:
                         return 2
@@ -501,7 +535,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
             userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct())
             delete gct
             userData.messageID_bbc = ""
-            db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+            db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
 
             /**
              * @type {{ wh: WebhookClient, gid: string, cid: string }[]}
@@ -519,7 +553,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
 
                         //sprawdzanie, czy wgl istnieje serwer i kanał
                         try {
-                            const guild_DClient = await DiscordClient.guilds.fetch(guildID)
+                            const guild_DClient = await client.guilds.fetch(guildID)
                             const channel_DClient = await guild_DClient.channels.fetch(getDataByServerID(guildID).channel)
                             if (channel_DClient) {
                                 const dinfo = new Date()
@@ -629,7 +663,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                     .filter((x) => x)
             )
             //dla używania GlobalActions przez komentowanie
-            var withoutReply = deleteComments(DiscordMessage.content).toLowerCase()
+            var withoutReply = deleteComments(message.content).toLowerCase()
 
             var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
             for (var i = 0; i < prefixes.length; i++) {
@@ -637,8 +671,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
 
                 if (
                     (withoutReply.startsWith(`${prefixes[i]},`) && quickdata.prompt_type == "chat") ||
-                    ((withoutReply.includes(`[${prefixes[i]}]`) || DiscordMessage.mentions.repliedUser?.displayName.startsWith(quickdata.name)) &&
-                        quickdata.prompt_type == "chat2.0") ||
+                    ((withoutReply.includes(`[${prefixes[i]}]`) || message.mentions.repliedUser?.displayName.startsWith(quickdata.name)) && quickdata.prompt_type == "chat2.0") ||
                     (withoutReply.startsWith(`${prefixes[i]}!`) && quickdata.prompt_type == "cmd")
                 ) {
                     prefixes = prefixes[i]
@@ -646,10 +679,10 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                 }
             }
 
-            DiscordMessage.content = await formatText(DiscordMessage.content, DiscordClient)
+            message.content = await formatText(message.content, client)
 
-            const isHisFirstMessage = !lastUser.startsWith(`${GClocation}:${DiscordMessage.author.id}`)
-            lastUser = `${GClocation}:${DiscordMessage.author.id}[${isHisFirstMessage}]`
+            const isHisFirstMessage = !lastUser.startsWith(`${GClocation}:${message.author.id}`)
+            lastUser = `${GClocation}:${message.author.id}[${isHisFirstMessage}]`
             listenerLog(3, 'ℹ️ Zmienna "lastUser" jest równa "' + lastUser + '"')
 
             var messages = []
@@ -664,7 +697,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                 webhooks.map(async function (w) {
                     var a = await repliedMessage(w.gid)
 
-                    if (a && w.gid == DiscordMessage.guildId)
+                    if (a && w.gid == message.guildId)
                         replyJSON = {
                             text: a.toJSON().description,
                             authorName: (() => {
@@ -683,9 +716,9 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                         global: [
                             isHisFirstMessage
                                 ? [
-                                      new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${DiscordMessage.guildId}`).setEmoji(`ℹ️`),
-                                      new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${DiscordMessage.author.id}`).setEmoji(`👤`),
-                                      new ButtonBuilder().setStyle(ButtonStyle.Primary).setCustomId(`gctab\u0000${DiscordMessage.author.id}`).setEmoji("👉"),
+                                      new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
+                                      new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`),
+                                      new ButtonBuilder().setStyle(ButtonStyle.Primary).setCustomId(`gctab\u0000${message.author.id}`).setEmoji("👉"),
                                   ]
                                 : [],
                             [
@@ -700,27 +733,21 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                         server: [
                             typeof prefixes == "string"
                                 ? [new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]
-                                : [
-                                      new ButtonBuilder()
-                                          .setStyle(ButtonStyle.Danger)
-                                          .setCustomId(`gcdelete\u0000${DiscordMessage.author.id}\u0000??`)
-                                          .setDisabled(true)
-                                          .setEmoji("🗑️"),
-                                  ],
+                                : [new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000??`).setDisabled(true).setEmoji("🗑️")],
                         ]
                             .filter((row) => row.filter((x) => x).length > 0)
                             .map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x))),
                     }
 
                     var x = await w.wh.send({
-                        avatarURL: DiscordMessage.author.displayAvatarURL({ size: 64, extension: "webp", forceStatic: true }),
+                        avatarURL: message.author.displayAvatarURL({ size: 64, extension: "webp", forceStatic: true }),
                         username: wbName(w.gid, userData.modPerms),
-                        content: w.gid == DiscordMessage.guildId ? DiscordMessage.content : deleteComments(DiscordMessage.content),
+                        content: w.gid == message.guildId ? message.content : deleteComments(message.content),
                         embeds: a,
                         files:
-                            w.gid == DiscordMessage.guildId
-                                ? DiscordMessage.attachments.map((x) => x)
-                                : DiscordMessage.attachments
+                            w.gid == message.guildId
+                                ? message.attachments.map((x) => x)
+                                : message.attachments
                                       .filter(
                                           (a) =>
                                               a.contentType !== null &&
@@ -728,10 +755,10 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                                       )
                                       .map((x) => x),
                         allowedMentions: { parse: [] },
-                        components: w.gid == DiscordMessage.guildId ? comp.server : comp.global,
+                        components: w.gid == message.guildId ? comp.server : comp.global,
                     })
 
-                    if (w.gid == DiscordMessage.guildId)
+                    if (w.gid == message.guildId)
                         editLater = {
                             wh: w.wh,
                             message: x.id,
@@ -743,11 +770,11 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                 })
             ).then(async () => {
                 const channelid = supportServer.gclogs.msg
-                const channel = await DiscordClient.channels.fetch(channelid)
+                const channel = await client.channels.fetch(channelid)
 
-                if (DiscordMessage.deletable)
+                if (message.deletable)
                     try {
-                        DiscordMessage.delete()
+                        message.delete()
                     } catch (e) {
                         console.warn(e)
                     }
@@ -766,15 +793,15 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                         setTimeout(() => {
                             if (!measuringTime.ends) {
                                 measuringTime.mustPing = true
-                                DiscordMessage.channel.send(
-                                    `<@${DiscordMessage.author.id}>, od 10 sekund akcja nie odpowiada, jako że nie ma limitu czasowego, dostaniesz ping na kanale z odpowiedzią!`
+                                message.channel.send(
+                                    `<@${message.author.id}>, od 10 sekund akcja nie odpowiada, jako że nie ma limitu czasowego, dostaniesz ping na kanale z odpowiedzią!`
                                 )
                             }
                         }, 10_000)
                         /**
                          * @type {WebhookMessageCreateOptions}
                          */
-                        var response = await file.execute(deleteComments(DiscordMessage.content), DiscordMessage.author, replyJSON)
+                        var response = await file.execute(deleteComments(message.content), message.author, replyJSON)
                         response.avatarURL ??= file.data.avatar
                         response.username ??= file.data.name
                         response.username += ` (${response.username === file.data.name ? "" : `"${file.data.name}", `}GlobalAction)`
@@ -784,22 +811,22 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
 
                         webhooks.map(async function (w) {
                             var msg = await w.wh.send(response)
-                            if (measuringTime.mustPing && w.gid === DiscordMessage.guildId) measuringTime.msg = msg.id
+                            if (measuringTime.mustPing && w.gid === message.guildId) measuringTime.msg = msg.id
                         })
 
                         if (measuringTime.mustPing) {
-                            var message = await DiscordMessage.channel.messages.fetch(measuringTime.msg)
-                            message.reply(`<@${DiscordMessage.author.id}>`)
+                            var msg = await message.channel.messages.fetch(measuringTime.msg)
+                            msg.reply(`<@${message.author.id}>`)
                         }
 
                         if (channel && channel.type === ChannelType.GuildText) {
                             const embed = new EmbedBuilder()
                                 .setColor("Blue")
                                 .setAuthor({
-                                    name: DiscordMessage.author.username,
-                                    iconURL: DiscordMessage.author.displayAvatarURL({ extension: "webp", size: 64 }),
+                                    name: message.author.username,
+                                    iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
                                 })
-                                .setDescription(`Wykonanie akcji *${file.data.name}* \`\`\`${deleteComments(DiscordMessage.content)}\`\`\``)
+                                .setDescription(`Wykonanie akcji *${file.data.name}* \`\`\`${deleteComments(message.content)}\`\`\``)
                                 .setFooter({ text: `${response.username} | ${station}`, iconURL: response.avatarURL })
                             channel.send({
                                 embeds: [embed],
@@ -811,10 +838,10 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                             const embed = new EmbedBuilder()
                                 .setColor("DarkRed")
                                 .setAuthor({
-                                    name: DiscordMessage.author.username,
-                                    iconURL: DiscordMessage.author.displayAvatarURL({ extension: "webp", size: 64 }),
+                                    name: message.author.username,
+                                    iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
                                 })
-                                .setDescription(`Niepowodzenie wykonania akcji *${file.data.name}* \`\`\`${deleteComments(DiscordMessage.content)}\`\`\``)
+                                .setDescription(`Niepowodzenie wykonania akcji *${file.data.name}* \`\`\`${deleteComments(message.content)}\`\`\``)
                                 .setFields({ name: "Błąd", value: `\`\`\`${err.message}\`\`\`` })
                                 .setFooter({ text: `${station}` })
                             channel.send({
@@ -822,7 +849,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                             })
                         }
                         console.error(err)
-                        DiscordMessage.channel.send(`Ojoj <@${DiscordMessage.author.id}>, złe wieści - owy GlobalAction nie został wykonany zgodnie z oczekiwaniami...`)
+                        message.channel.send(`Ojoj <@${message.author.id}>, złe wieści - owy GlobalAction nie został wykonany zgodnie z oczekiwaniami...`)
                     }
                 } else {
                     if (channel && channel.type === ChannelType.GuildText) {
@@ -830,10 +857,10 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                         const embed = new EmbedBuilder()
                             .setColor("Green")
                             .setAuthor({
-                                name: DiscordMessage.author.username,
-                                iconURL: DiscordMessage.author.displayAvatarURL({ extension: "webp", size: 64 }),
+                                name: message.author.username,
+                                iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
                             })
-                            .setDescription(deleteComments(DiscordMessage.content) || "[ brak tekstu ]")
+                            .setDescription(deleteComments(message.content) || "[ brak tekstu ]")
                             .setFields({
                                 name: "Stan",
                                 value: "Nie usunięto",
@@ -841,12 +868,12 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                             .setFooter({ text: `${station}` })
                         embeds.push(embed)
                         if (
-                            DiscordMessage.attachments.filter(
+                            message.attachments.filter(
                                 (x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio"))
                             ).size > 0
                         ) {
                             const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(
-                                DiscordMessage.attachments
+                                message.attachments
                                     .filter((x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio")))
                                     .map((x) => x.url)
                                     .join("\n")
@@ -860,9 +887,9 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                         await msg.edit({
                             components: [
                                 new ActionRowBuilder().addComponents(
-                                    new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${DiscordMessage.guildId}`).setEmoji(`ℹ️`),
-                                    new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${DiscordMessage.author.id}`).setEmoji(`👤`),
-                                    new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${DiscordMessage.author.id}\u0000${msg.id}`).setEmoji("🗑️")
+                                    new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
+                                    new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`),
+                                    new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000${msg.id}`).setEmoji("🗑️")
                                 ),
                             ],
                         })
@@ -877,7 +904,7 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                                         new ActionRowBuilder().addComponents([
                                             new ButtonBuilder()
                                                 .setStyle(ButtonStyle.Danger)
-                                                .setCustomId(`gcdelete\u0000${DiscordMessage.author.id}\u0000${msg.id}`)
+                                                .setCustomId(`gcdelete\u0000${message.author.id}\u0000${msg.id}`)
                                                 .setEmoji("🗑️")
                                                 .setDisabled(false),
                                         ]),
@@ -895,11 +922,11 @@ async function globalchatFunction(DiscordClient, DiscordMessage) {
                 userData.karma += 1n
                 userData.karma += BigInt(
                     typeof prefixes == "string" ||
-                        DiscordMessage.attachments.filter(
+                        message.attachments.filter(
                             (x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio"))
                         ).size > 0
                 )
-                db.set(`userData/${DiscordMessage.author.id}/gc`, gcdata.decode(userData))
+                db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
             })
         }
     } catch (err) {
