@@ -320,8 +320,7 @@ module.exports = {
             }
         }
 
-        main.content = main.content.replace(/{uM}/g, `<@${user.id}>`)
-
+        if (main.content) main.content = main.content.replace(/{uM}/g, `<@${user.id}>`)
         return main
     },
 }

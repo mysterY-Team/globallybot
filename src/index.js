@@ -61,9 +61,9 @@ client.on("interactionCreate", async (int) => {
 
         listenerLog(3, `⚙️ Uruchamianie pliku ${fullname.join("/")}.js`)
         //console.log(int.options)
-        const file = require(`./cmds/${fullname.join("/")}`)
+        const file = require(`./interactions/cmds/${fullname.join("/")}`)
         file.execute(client, int)
-    } else if (int.isMessageComponent()) {
+    } else if (int.isButton()) {
         listenerLog(3, "Jest przyciskiem")
         var args = int.customId.split("\u0000")
         const cmd = args[0]
@@ -71,7 +71,7 @@ client.on("interactionCreate", async (int) => {
 
         listenerLog(3, `⚙️ Uruchamianie pliku ${cmd}.js`)
         //console.log(int.options)
-        const file = require(`./btns/${cmd}`)
+        const file = require(`./interactions/components/btns/${cmd}`)
         file.execute(client, int, ...args)
     } else if (int.isAutocomplete()) {
         listenerLog(3, "Jest uzupełnianiem dla komendy")
@@ -80,10 +80,10 @@ client.on("interactionCreate", async (int) => {
         fullname = fullname.filter((prop) => prop != null)
 
         listenerLog(3, `⚙️ Uruchamianie pliku ${fullname.join("/")}.js`)
-        const file = require(`./cmds/${fullname.join("/")}`)
+        const file = require(`./interactions/cmds/${fullname.join("/")}`)
 
         const choices = file.autocomplete(int.options.getFocused(true), client)
-        await int.respond(choices.map((choice) => ({ name: choice, value: choice })))
+        await int.respond(choices.map((choice) => (typeof choice === "object" ? choice : { name: choice, value: choice })))
     } else if (int.isModalSubmit()) {
         listenerLog(3, "Został wywołany za pomocą formularza")
         var args = int.customId.split("\u0000")
@@ -92,7 +92,7 @@ client.on("interactionCreate", async (int) => {
 
         listenerLog(3, `⚙️ Uruchamianie pliku ${cmd}.js`)
         //console.log(int.options)
-        const file = require(`./modals/${cmd}`)
+        const file = require(`./interactions/modals/${cmd}`)
         file.execute(client, int, ...args)
     }
 })

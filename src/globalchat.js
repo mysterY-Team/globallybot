@@ -12,7 +12,7 @@ const {
 } = require("discord.js")
 const { db, customEmoticons, ownersID, debug, supportServer, _bot } = require("./config")
 const fs = require("fs")
-const { emoticons } = require("./cmds/globalchat/emotki")
+const { emoticons } = require("./interactions/cmds/globalchat/emotki")
 const { listenerLog } = require("./functions/useful")
 const { freemem, totalmem } = require("os")
 const { gcdata, gcdataGuild } = require("./functions/dbs")
@@ -294,7 +294,7 @@ async function globalchatFunction(client, message) {
         }
 
         /**
-         * @returns {Promise<EmbedBuilder | undefined>}
+         * @returns {Promise<[EmbedBuilder, string] | undefined>}
          */
         async function repliedMessage(gID) {
             if (gID && message.reference) {
@@ -306,6 +306,8 @@ async function globalchatFunction(client, message) {
                     //działanie komentarzy w odpowiadanej wiadomości
                     rContent = deleteComments(rContent)
 
+                    // const ruid = !replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.components?.[0].component?.[2].customId.split("\u0000")[1] : "GlobalAction"
+                    const ruid = "[ no active ]"
                     var rUser = replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.author.username : replayedMSG.author.username.split(" (")[0]
 
                     var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }
@@ -321,8 +323,10 @@ async function globalchatFunction(client, message) {
                         embed = embed.addFields({ name: "Przesłane pliki", value: rAttachments })
                     }
 
-                    return embed
-                } catch (e) {}
+                    return [embed, ruid]
+                } catch (e) {
+                    console.warn(e)
+                }
             }
         }
 
@@ -422,7 +426,7 @@ async function globalchatFunction(client, message) {
 
             if (userData.timestampToSendMessage > Date.now()) {
                 message.reply(`${customEmoticons.denided} Osobisty cooldown! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms`)
-                if (message.content !== "<p>") {
+                if (message.content.toLowerCase() !== "<p>") {
                     userData.messageID_bbc = message.id
                     db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 }
@@ -433,7 +437,7 @@ async function globalchatFunction(client, message) {
                 message.reply(
                     `${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${globalCooldown(database.length) - (Date.now() - timestampCooldown.getTime())}\` ms`
                 )
-                if (message.content !== "<p>") {
+                if (message.content.toLowerCase() !== "<p>") {
                     userData.messageID_bbc = message.id
                     db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 }
@@ -451,7 +455,7 @@ async function globalchatFunction(client, message) {
 
             listenerLog(3, "➿ Spełniono warunek (4/5)")
 
-            if (message.content === "<p>" && userData.messageID_bbc) {
+            if (message.content.toLowerCase() === "<p>" && userData.messageID_bbc) {
                 if (message.deletable) message.delete()
                 try {
                     const msg = await message.channel.messages.fetch(userData.messageID_bbc)
@@ -462,7 +466,7 @@ async function globalchatFunction(client, message) {
                     message.react(customEmoticons.denided)
                     return
                 }
-            } else if (message.content === "<p>" && !userData.messageID_bbc) {
+            } else if (message.content.toLowerCase() === "<p>" && !userData.messageID_bbc) {
                 message.react(customEmoticons.minus)
                 return
             }
@@ -475,7 +479,7 @@ async function globalchatFunction(client, message) {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada linku" })
                         .setFields({ name: "Kara", value: "2 minuty osobistego cooldownu" })
-                        .setFooter({ text: "Globally, powered by patYczakus" })
+                        .setFooter({ text: 'Globally, powered by "mysterY Devs" team' })
                         .setColor("Red")
                     message.author.send({ embeds: [embed] })
                 } catch (e) {}
@@ -492,7 +496,7 @@ async function globalchatFunction(client, message) {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada słowa" })
                         .setFields({ name: "Wyłapane słowo", value: `\`${bw.badWord}\``, inline: true }, { name: "Kara", value: "30 sekund osobistego cooldownu", inline: true })
-                        .setFooter({ text: "Globally, powered by patYczakus" })
+                        .setFooter({ text: 'Globally, powered by "mysterY Devs" team' })
                         .setColor("Red")
                     message.channel.send({ embeds: [embed] })
                 } catch (e) {}
@@ -616,7 +620,7 @@ async function globalchatFunction(client, message) {
                                             value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do twórców** - do właściciela `patyczakus`, czy do [serwera support](https://discord.gg/536TSYqT)",
                                         })
                                         .setFooter({
-                                            text: "Globally, powered by patYczakus",
+                                            text: 'Globally, powered by "mysterY Devs" team',
                                         })
                                         .setColor("Orange")
 
@@ -640,10 +644,10 @@ async function globalchatFunction(client, message) {
                                         )
                                         .addFields({
                                             name: "`Q:` Jak mam usunąć webhooki?",
-                                            value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i usuń wcześniej utworzone Webhooki. ',
+                                            value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i usuń wcześniej utworzone Webhooki.',
                                         })
                                         .setFooter({
-                                            text: "Globally, powered by patYczakus",
+                                            text: 'Globally, powered by "mysterY Devs" team',
                                         })
                                         .setColor("Orange")
 
@@ -689,27 +693,32 @@ async function globalchatFunction(client, message) {
             var editLater = {}
 
             /**
-             * @type {{ text: string, author: , isGA: boolean } | null}
+             * @type {{ text: string, author: { name: string, id: string }, isGA: boolean } | null}
              */
             var replyJSON = null
 
             Promise.all(
                 webhooks.map(async function (w) {
-                    var a = await repliedMessage(w.gid)
+                    var reply = await repliedMessage(w.gid)
 
-                    if (a && w.gid == message.guildId)
+                    if (reply && w.gid == message.guildId)
                         replyJSON = {
-                            text: a.toJSON().description,
-                            authorName: (() => {
-                                const wbname = a.toJSON().author.name.replace("W odpowiedzi do ", "")
-                                if (wbname.endsWith(", GlobalAction)")) return wbname.split(" (")[1].split(",")[0].replace(/"/g, "")
-                                else if (wbname.endsWith("GlobalAction)")) return wbname.split(" (")[0]
-                                else return wbname
-                            })(),
-                            isGA: a.toJSON().author.name.endsWith("GlobalAction)"),
+                            text: reply[0].toJSON().description,
+                            author: {
+                                name: (() => {
+                                    const wbname = reply[0].toJSON().author.name.replace("W odpowiedzi do ", "")
+                                    if (wbname.endsWith(", GlobalAction)")) return wbname.split(" (")[1].split(",")[0].replace(/"/g, "")
+                                    else if (wbname.endsWith("GlobalAction)")) return wbname.split(" (")[0]
+                                    else return wbname
+                                })(),
+                                id: reply[1],
+                            },
+                            isGA: reply[0].toJSON().author.name.endsWith("GlobalAction)"),
                         }
 
-                    a = typeof a === "undefined" ? [] : [a]
+                    // console.log(reply)
+
+                    reply = typeof reply === "undefined" ? [] : [reply[0]]
 
                     if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
                     var comp = {
@@ -743,7 +752,7 @@ async function globalchatFunction(client, message) {
                         avatarURL: message.author.displayAvatarURL({ size: 64, extension: "webp", forceStatic: true }),
                         username: wbName(w.gid, userData.modPerms),
                         content: w.gid == message.guildId ? message.content : deleteComments(message.content),
-                        embeds: a,
+                        embeds: reply,
                         files:
                             w.gid == message.guildId
                                 ? message.attachments.map((x) => x)
@@ -801,7 +810,7 @@ async function globalchatFunction(client, message) {
                         /**
                          * @type {WebhookMessageCreateOptions}
                          */
-                        var response = await file.execute(deleteComments(message.content), message.author, replyJSON)
+                        var response = await file.execute(deleteComments(message.content), message.author, replyJSON, client)
                         response.avatarURL ??= file.data.avatar
                         response.username ??= file.data.name
                         response.username += ` (${response.username === file.data.name ? "" : `"${file.data.name}", `}GlobalAction)`
@@ -842,7 +851,7 @@ async function globalchatFunction(client, message) {
                                     iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
                                 })
                                 .setDescription(`Niepowodzenie wykonania akcji *${file.data.name}* \`\`\`${deleteComments(message.content)}\`\`\``)
-                                .setFields({ name: "Błąd", value: `\`\`\`${err.message}\`\`\`` })
+                                .setFields({ name: "Błąd", value: `\`\`\`${err}\`\`\`` })
                                 .setFooter({ text: `${station}` })
                             channel.send({
                                 embeds: [embed],

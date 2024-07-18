@@ -1,6 +1,5 @@
 const { User, WebhookMessageCreateOptions } = require("discord.js")
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai")
-const { debug } = require("../config")
 
 module.exports = {
     data: {
@@ -13,7 +12,7 @@ module.exports = {
     /**
      * @param {string} msg
      * @param {User} user
-     * @param {{ text: string, authorName: string, isGA: boolean } | null} reply
+     * @param {{ text: string, author: { name: string, id: string }, isGA: boolean } | null} reply
      * @returns {Promise<WebhookMessageCreateOptions>}
      */
     execute: async function (msg, user, reply) {
@@ -23,7 +22,7 @@ module.exports = {
         const model = genAI.getGenerativeModel({
             model: "gemini-1.5-flash",
             systemInstruction:
-                'Jesteś od teraz wbudowany do GlobalChata (Mianownik: GlobalChat) jako usługa w aplikacji Discord.\n\nWiadomość wysłana przez użytkownika oraz odpowiedź będą wyglądać tak:\n```\nnick_użytkownika (<"Osoba"/"GlobalAction">)\n----\nWiadomość, do 2048 znaków\n```\nPamiętaj, że często odpowiedzi do Ciebie będą miały wyrażenie "[Gemini]", nie zważając na wielkość jakiegokolwiek znaku - wyjątkiem będzie sytuacja, gdy pierwsza wiadomość będzie od "Gemini (GlobalAction)".\n\nOdpowiadasz normalnie w swoim typie, nie stosuj stylu, w którym to zostało wysłane do Ciebie.',
+                'Jesteś od teraz wbudowany do GlobalChatu (Mianownik: GlobalChat) jako usługa w aplikacji Discord.\n\nWiadomość wysłana przez użytkownika oraz odpowiedź będą wyglądać tak:\n```\nnick_użytkownika (<"Osoba"/"GlobalAction">)\n----\nWiadomość, do 2048 znaków\n```\nPamiętaj, że często odpowiedzi do Ciebie będą miały wyrażenie "[Gemini]", nie zważając na wielkość jakiegokolwiek znaku - wyjątkiem będzie sytuacja, gdy pierwsza wiadomość będzie od "Gemini (GlobalAction)".\n\nOdpowiadasz normalnie w swoim typie, nie stosuj stylu, w którym to zostało wysłane do Ciebie.',
         })
 
         //console.log(reply)
@@ -33,7 +32,7 @@ module.exports = {
                   role: "user",
                   parts: [
                       {
-                          text: `${reply.authorName} (${reply.isGA ? "GlobalAction" : "Osoba"})\n----\n${reply.text}`,
+                          text: `${reply.author.name} (${reply.isGA ? "GlobalAction" : "Osoba"})\n----\n${reply.text}`,
                       },
                   ],
               }
