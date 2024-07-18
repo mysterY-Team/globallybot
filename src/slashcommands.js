@@ -3,6 +3,7 @@ const { ChannelType } = require("discord.js")
 const fs = require("fs")
 
 var slashList = [
+    //globalchat
     new SlashCommandBuilder()
         .setName("globalchat")
         .setDescription("Komendy dotyczące GlobalChata")
@@ -115,10 +116,12 @@ var slashList = [
                 .addSubcommand((subcommand) => subcommand.setName("załóż").setDescription("Tworzy stację do GlobalChata"))
                 .addSubcommand((subcommand) => subcommand.setName("lista").setDescription("Informacje o dostępnych stacjach w GlobalChacie"))
         ),
+
+    //gradient
     new SlashCommandBuilder()
         .setName("gradient")
-        .setDMPermission(true)
         .setDescription("Tworzy kod dający gradient w Minecraft; obsługuje typ JSON")
+        .setDMPermission(true)
         .addStringOption((option) => option.setName("kolory").setDescription("Kolory w gradiencie, kod HEX oddzielone spacją, np. #084CFB #ADF3FD").setRequired(true))
         .addStringOption((option) => option.setName("tekst").setDescription("Tekst gradientowany").setRequired(true))
         .addStringOption((option) =>
@@ -151,12 +154,12 @@ var slashList = [
         .addBooleanOption((option) => option.setName("pochylony").setDescription("Opcja pochylenia //DOMYŚLNIE W JSON JEST POCHYLONA"))
         .addBooleanOption((option) => option.setName("podkreślony").setDescription("Opcja podkreślenia"))
         .addBooleanOption((option) => option.setName("przekreślony").setDescription("Opcja przekreślenia")),
-    new SlashCommandBuilder().setDMPermission(true).setName("dowcip").setDescription("Generuje dowcip ze strony PERELKI.NET"),
-    new SlashCommandBuilder().setDMPermission(true).setName("botinfo").setDescription("Generuje informacje o bocie"),
+
+    //mniejsze z argumentami
     new SlashCommandBuilder()
         .setName("devtools")
-        .setDMPermission(true)
         .setDescription("Mega tajemne komendy...")
+        .setDMPermission(true)
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("eval")
@@ -165,12 +168,13 @@ var slashList = [
         ),
     new SlashCommandBuilder()
         .setName("userinfo")
-        .setDMPermission(true)
         .setDescription("Sprawdź użytkownika pod kątem Discorda oraz Globally")
+        .setDMPermission(true)
         .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby")),
     new SlashCommandBuilder()
         .setName("imacarrrd")
         .setDescription("Karty użytkownika na nowym poziomie")
+        .setDMPermission(true)
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("pokaż")
@@ -184,6 +188,11 @@ var slashList = [
                 .setDescription("Zmienia styl karty ImaCarrrd użytkownika")
                 .addStringOption((option) => option.setName("styl").setDescription("Nazwa stylu").setAutocomplete(true).setRequired(true))
         ),
+
+    //pojedyncze komendy
+    new SlashCommandBuilder().setDMPermission(true).setName("dowcip").setDescription("Generuje dowcip ze strony PERELKI.NET"),
+    new SlashCommandBuilder().setDMPermission(true).setName("botinfo").setDescription("Generuje informacje o bocie"),
+    new SlashCommandBuilder().setDMPermission(true).setName("mem").setDescription("Generuje mema ze serwera MEMHUB"),
 ]
 //console.log(slashList)
 
