@@ -93,7 +93,7 @@ module.exports = {
             }
             case cmds[5]: {
                 var x = await request("https://raw.githubusercontent.com/OpenMemes/nosaczapi-unofficial/master/data.json")
-                x = x.body.json()
+                x = await x.body.json()
                 const file = x.url + String(Math.round(Math.random() * x.last - x.first) + x.first) + x.filetype
 
                 main.avatarURL = "https://i.pinimg.com/736x/be/ad/57/bead57094937ca072fac9de82ab382fb--ugly-animals-strange-animals.jpg"

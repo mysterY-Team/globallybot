@@ -154,16 +154,18 @@ function timerToResetTheAPIInfo() {
         var y = await servers.fetch(client)
         listenerLog(2, "✅ Zapisano serwery na lokalnej zmiennej. Liczba oznaczająca zmianę: " + y)
 
-        var index = Object.entries(db.get("userData").val)
-            .filter((x) => x[1].gc)
-            .map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] }))
-        listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
-        index.forEach((x) => {
-            if (x.karma < 10n && !x.isBlocked) {
-                db.delete(`userData/${x.userID}/gc`)
-                listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
-            }
-        })
+        if (new Date().getHours() == 0) {
+            var index = Object.entries(db.get("userData").val)
+                .filter((x) => x[1].gc)
+                .map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] }))
+            listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
+            index.forEach((x) => {
+                if (x.karma < 25n && !x.isBlocked) {
+                    db.delete(`userData/${x.userID}/gc`)
+                    listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
+                }
+            })
+        }
     }
     x()
     setTimeout(() => {
