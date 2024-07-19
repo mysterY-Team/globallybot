@@ -555,6 +555,10 @@ async function globalchatFunction(client, message) {
 
                         listenerLog(4, `➡️ Dla serwera o ID ${guildID}`)
 
+                        if (!guildID) {
+                            return
+                        }
+
                         //sprawdzanie, czy wgl istnieje serwer i kanał
                         try {
                             const guild_DClient = await client.guilds.fetch(guildID)
@@ -635,7 +639,7 @@ async function globalchatFunction(client, message) {
                             }
                         } catch (err) {
                             if (err instanceof DiscordAPIError && err.code === 30007) {
-                                guild_DClient.fetchOwner().then((gguildOwner) => {
+                                ;(await client.guilds.fetch(guildID)).fetchOwner().then((gguildOwner) => {
                                     //embed z informacją o braku kanału
                                     const embedError = new EmbedBuilder()
                                         .setTitle("Za duża ilość Webhooków")
@@ -659,12 +663,12 @@ async function globalchatFunction(client, message) {
                                 })
                             } else {
                                 console.warn(err)
-                                db.delete(`serverData/${guildID || "und"}`)
+                                db.delete(`serverData/${guildID}`)
                             }
                             return
                         }
                     })
-                    .filter((x) => x)
+                    .filter((x) => x && x.gid)
             )
             //dla używania GlobalActions przez komentowanie
             var withoutReply = deleteComments(message.content).toLowerCase()
