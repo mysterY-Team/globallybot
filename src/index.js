@@ -41,14 +41,7 @@ client.on("ready", (log) => {
 })
 
 client.on("messageCreate", (msg) => {
-    try {
-        globalchatFunction(client, msg)
-    } catch (err) {
-        msg.reply(
-            `${customEmoticons.denided} Nie mogłem przetworzyć Twojego rządania! Natrafiłeś na bardzo ciekawy błąd ze strony trzeciej (API Discorda). Spróbuj wysłać jeszcze raz, w razie czego zastanów się nad zmniejszeniem kontentu`
-        )
-        if (debug) console.warn(err)
-    }
+    globalchatFunction(client, msg)
 })
 
 client.on("interactionCreate", async (int) => {
@@ -128,6 +121,14 @@ client.on("threadUpdate", (thread) => {
             }
         }, 500)
 })
+client.on("guildCreate", async (guild) => {
+    listenerLog(3, `Nowy serwer: ${guild.name}`)
+    const embed = new EmbedBuilder()
+        .setAuthor({ iconURL: guild.iconURL({ extension: "webp", size: 32 }), name: "Nowy serwer" })
+        .setDescription(`ID serwera: \`${guild.id}\`\n\`Nazwa serwera: \`${guild.name}\`\nWłaściciel: <@${guild.ownerId}> (\`${guild.ownerId}\`)`)
+        .setColor("Green")
+    await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send(embed)
+})
 
 client.on("debug", (info) => {
     if (debug) {
@@ -140,14 +141,6 @@ client.on("warn", (err) => {
 })
 client.on("error", (err) => {
     if (debug) console.error(err)
-})
-client.on("guildCreate", async (guild) => {
-    listenerLog(3, `Nowy serwer: ${guild.name}`)
-    const embed = new EmbedBuilder()
-        .setAuthor({ iconURL: guild.iconURL({ extension: "webp", size: 32 }), name: "Nowy serwer" })
-        .setDescription(`ID serwera: \`${guild.id}\`\n\`Nazwa serwera: \`${guild.name}\`\nWłaściciel: <@${guild.ownerId}> (\`${guild.ownerId}\`)`)
-        .setColor("Green")
-    await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send(embed)
 })
 
 client.login(TOKEN)
