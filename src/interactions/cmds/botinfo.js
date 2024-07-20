@@ -44,7 +44,7 @@ module.exports = {
                     inline: false,
                 }
             )
-            .setFooter({ text: 'Globally, powered by "mysterY Devs" team' })
+            .setFooter({ text: "Globally, powered by mysterY Team" })
             .setColor("Yellow")
 
         interaction.reply({

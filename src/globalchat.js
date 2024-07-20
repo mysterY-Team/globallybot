@@ -479,7 +479,7 @@ async function globalchatFunction(client, message) {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada linku" })
                         .setFields({ name: "Kara", value: "2 minuty osobistego cooldownu" })
-                        .setFooter({ text: 'Globally, powered by "mysterY Devs" team' })
+                        .setFooter({ text: 'Globally, powered by mysterY Team' })
                         .setColor("Red")
                     message.author.send({ embeds: [embed] })
                 } catch (e) {}
@@ -496,7 +496,7 @@ async function globalchatFunction(client, message) {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada słowa" })
                         .setFields({ name: "Wyłapane słowo", value: `\`${bw.badWord}\``, inline: true }, { name: "Kara", value: "30 sekund osobistego cooldownu", inline: true })
-                        .setFooter({ text: 'Globally, powered by "mysterY Devs" team' })
+                        .setFooter({ text: 'Globally, powered by mysterY Team' })
                         .setColor("Red")
                     message.channel.send({ embeds: [embed] })
                 } catch (e) {}
@@ -626,7 +626,7 @@ async function globalchatFunction(client, message) {
                                             value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do twórców** - do właściciela `patyczakus`, czy do [serwera support](https://discord.gg/536TSYqT)",
                                         })
                                         .setFooter({
-                                            text: 'Globally, powered by "mysterY Devs" team',
+                                            text: 'Globally, powered by mysterY Team',
                                         })
                                         .setColor("Orange")
 
@@ -653,7 +653,7 @@ async function globalchatFunction(client, message) {
                                             value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i usuń wcześniej utworzone Webhooki.',
                                         })
                                         .setFooter({
-                                            text: 'Globally, powered by "mysterY Devs" team',
+                                            text: 'Globally, powered by mysterY Team',
                                         })
                                         .setColor("Orange")
 
