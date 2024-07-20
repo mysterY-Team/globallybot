@@ -144,12 +144,11 @@ client.on("error", (err) => {
 client.on("guildCreate", async (guild) => {
     listenerLog(3, `Nowy serwer: ${guild.name}`)
     const embed = new EmbedBuilder()
-    .setTitle("Nowy serwer")
-    .setAuthor("Link do serwera", guild.discoverySplashURL)
-    .setDescription(`ID serwera: ${guild.id} \n Nazwa serwera: ${guild.name} \n ID właściciela: ${guild.ownerId} \n Właściciel: <@${guild.ownerId}>`)
-    .setColor("Random");
-     await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send(embed);
-    }); 
+        .setAuthor({ iconURL: guild.iconURL({ extension: "webp", size: 32 }), name: "Nowy serwer" })
+        .setDescription(`ID serwera: \`${guild.id}\`\n\`Nazwa serwera: \`${guild.name}\`\nWłaściciel: <@${guild.ownerId}> (\`${guild.ownerId}\`)`)
+        .setColor("Green")
+    await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send(embed)
+})
 
 client.login(TOKEN)
 
