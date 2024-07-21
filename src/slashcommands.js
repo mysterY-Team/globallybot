@@ -188,25 +188,27 @@ var slashList = [
                 .setDescription("Zmienia styl karty ImaCarrrd użytkownika")
                 .addStringOption((option) => option.setName("styl").setDescription("Nazwa stylu").setAutocomplete(true).setRequired(true))
         ),
-
-    //pojedyncze komendy
-    new SlashCommandBuilder().setDMPermission(true).setName("dowcip").setDescription("Generuje dowcip ze strony PERELKI.NET"),
-    new SlashCommandBuilder().setDMPermission(true).setName("botinfo").setDescription("Generuje informacje o bocie"),
-    new SlashCommandBuilder().setDMPermission(true).setName("mem").setDescription("Generuje mema ze serwera MEMHUB"),
+    
     new SlashCommandBuilder()
     .setName("4fun")
     .setDescription("Komendy 4fun")
     .setDMPermission(true)
     .addSubCommand((subcommand) => 
         subcommand
-        .setName("avatar")
-        .setDescription("Sprawdź avatar użytkownika")
-        .addUserOption(option =>
-        option.setName("Osoba")
-        .setDescription("Wybierz użytkownika")
-        .setRequired(false)
+            .setName("avatar")
+            .setDescription("Sprawdź avatar użytkownika")
+            .addUserOption(option =>
+                option.setName("Osoba")
+                .setDescription("Wybierz użytkownika")
+                .setRequired(false)
                        )
                       ),
+
+    //pojedyncze komendy
+    new SlashCommandBuilder().setDMPermission(true).setName("dowcip").setDescription("Generuje dowcip ze strony PERELKI.NET"),
+    new SlashCommandBuilder().setDMPermission(true).setName("botinfo").setDescription("Generuje informacje o bocie"),
+    new SlashCommandBuilder().setDMPermission(true).setName("mem").setDescription("Generuje mema ze serwera MEMHUB"),
+
 ]
 //console.log(slashList)
 
