@@ -1,5 +1,5 @@
 const { Client, ModalSubmitInteraction } = require("discord.js")
-const { createCanvas } = require("@napi-rs/canvas")
+const { createCanvas, Image } = require("@napi-rs/canvas")
 const { drawText } = require("canvas-txt")
 const { db, customEmoticons } = require("../../config")
 const { imacaData } = require("../../functions/dbs")
@@ -53,6 +53,17 @@ module.exports = {
             interaction.editReply(`${customEmoticons.denided} Któryś argument koloru **nie jest** kolorem HEX, sprawdź poprawność i użyj komendy jeszcze raz!`)
             return
         }
+
+        try {
+            const { body } = await request(data.bannerURL)
+            const banner = new Image()
+            banner.src = Buffer.from(await body.arrayBuffer())
+            context.drawImage(banner, 0, 0)
+        } catch (err) {
+            interaction.editReply(`${customEmoticons.denided} Banner nie mógł zostać poprawnie przekonwertowany!`)
+            return
+        }
+
         db.set(`userData/${interaction.user.id}/imaca`, imacaData.decode(newData))
         interaction.editReply(`${customEmoticons.approved} Dane zostały zaktualizowane!`)
     },
