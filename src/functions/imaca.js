@@ -1,4 +1,4 @@
-const { AttachmentBuilder } = require("discord.js")
+const { AttachmentBuilder, User } = require("discord.js")
 const { createCanvas, Image, SKRSContext2D, Path2D } = require("@napi-rs/canvas")
 const { drawText } = require("canvas-txt")
 const { readFile } = require("fs/promises")
@@ -45,6 +45,12 @@ const classes = [
     },
 ]
 
+/**
+ *
+ * @param {any} data
+ * @param {User} user
+ * @returns
+ */
 async function createCarrrd(data, user) {
     const canvas = createCanvas(700, 1000)
     const context = canvas.getContext("2d")
@@ -114,7 +120,7 @@ async function createCarrrd(data, user) {
             backgroundImage.src = background
             context.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
 
-            await setImageInCircle(context, 23, 123, 210, user.displayAvatarURL({ format: "png", size: 512 }))
+            await setImageInCircle(context, 23, 123, 210, user.displayAvatarURL({ extension: "png", size: 512, forceStatic: true }))
 
             createGradientText(context, 23, 396, data.name, [data.nameGradient1, data.nameGradient2, "#FFFFFF"], "68px Jersey 10")
             createGradientText(context, 23, 443, user.username, [data.nameGradient1, data.nameGradient2, "#FFFFFF"], "34px Jersey 10")
@@ -158,7 +164,7 @@ async function createCarrrd(data, user) {
             backgroundImage.src = background
             context.drawImage(backgroundImage, 0, 0, 700, 1000)
 
-            await setImageInCircle(context, 8, 73, 160, user.displayAvatarURL({ format: "png", size: 512 }))
+            await setImageInCircle(context, 8, 73, 160, user.displayAvatarURL({ extension: "png", size: 512, forceStatic: true }))
 
             createGradientText(context, 23, 355, data.name, [data.nameGradient1, data.nameGradient2, "#000000"], "44px Audiowide")
             createGradientText(context, 140, 295, user.username, [data.nameGradient1, data.nameGradient2, "#000000"], "21px Audiowide")
@@ -200,7 +206,7 @@ async function createCarrrd(data, user) {
             }
 
             {
-                const { body } = await request(user.displayAvatarURL({ format: "png", size: 512 }))
+                const { body } = await request(user.displayAvatarURL({ extension: "png", size: 512, forceStatic: true }))
                 const imgs = new Image()
                 imgs.src = Buffer.from(await body.arrayBuffer())
                 context.drawImage(imgs, 50, 130, 130, 130)
@@ -476,7 +482,7 @@ async function createCarrrd(data, user) {
                 drawRandomShape()
             }
 
-            await setImageInCircle(context, 30, 100, 150, user.displayAvatarURL({ format: "png", size: 512 }))
+            await setImageInCircle(context, 30, 100, 150, user.displayAvatarURL({ extension: "png", size: 512, forceStatic: true }))
 
             //pobrać szerokość tekstu a potem wyśrodkować
             context.font = "bold 25px Kode Mono"
