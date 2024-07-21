@@ -4,10 +4,9 @@ module.exports = {
 
         /**
          *
-         * @param {Client} client
          * @param {CommandInteraction} interaction
         */
-       async execute (interaction, client) {
+       async execute (interaction) {
                 const user = interaction.options.getUser("user", false)|| interaction.user;
                 const avatarUrl = user.displayAvatarURL({ dynamic: true, size: 2048 });
                 const avatarEmbed = new EmbedBuilder()
