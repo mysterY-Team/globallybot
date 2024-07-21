@@ -202,6 +202,15 @@ var slashList = [
                 .setDescription("Wybierz użytkownika")
                 .setRequired(false)
                        )
+     .addSubCommand((subcommand) =>
+         subcommand
+            .setName("banner")
+            .setDescription("Sprawdź banner użytkownika")
+             .addUserOption(option =>
+                 option.setName("Osoba")
+                 .setDescription("Wybierz użytkownika")
+                 .setRequired(false)
+                       )
                       ),
 
     //pojedyncze komendy
