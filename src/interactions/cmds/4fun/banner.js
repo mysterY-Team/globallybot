@@ -1,4 +1,4 @@
-const { CommandInteraction, EmbedBuilder, Client } = require("discord.js")
+const { CommandInteraction, EmbedBuilder, Client, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 
 module.exports = {
     /**
@@ -6,21 +6,19 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        const user = interaction.options.getUser("user", false) || interaction.user
+        const user = interaction.options.get("osoba")?.user || interaction.user
 
-        const fetchedUser = await interaction.client.users.fetch(user.id, { force: true })
-        const bannerUrl = fetchedUser.bannerURL({ dynamic: true, size: 512 })
-
+        const bannerUrl = user.bannerURL({ size: 1024 })
         if (!bannerUrl) {
             await interaction.reply({ content: "Ten użytkownik nie posiada banneru", ephemeral: true })
             return
         }
 
-        const bannerEmbed = new EmbedBuilder().setTitle("Banner").setDescription(`[Download](${bannerUrl})`).setColor("#58D68D").setImage(bannerUrl).setFooter({
+        const bannerEmbed = new EmbedBuilder().setTitle("Banner").setColor("Random").setImage(bannerUrl).setFooter({
             text: `Globally, powered by "mysterY Devs" team`,
-            iconURL: "https://cdn.discordapp.com/avatars/1228622088047431772/201499823222ecca6482c9e71cac13e6.webp",
         })
+        const btns = new ActionRowBuilder().addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(bannerUrl))
 
-        await interaction.reply({ embeds: [bannerEmbed] })
+        await interaction.reply({ embeds: [bannerEmbed], components: [btns] })
     },
 }
