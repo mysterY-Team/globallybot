@@ -67,6 +67,13 @@ module.exports = {
             client.users.send(uID, {
                 embeds: [embedblock],
             })
+            const emb = new EmbedBuilder()
+            .setTitle("Zablokowano użytkownika!")
+            .setDescription(
+                `Nazwa zablokowanego: ${interaction.options.get("osoba", true).user.name} \nPowód blokady: ${interaction.options.get("powod", false).value} \nNazwa blokującego: ${interaction.user.name})`
+            )
+            .setColor("Red")
+        await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ text: `ID zablokowanego: ${uID} \n ID blokującego: ${interaction.user.id}`, embeds: [emb] })
 
             interaction.editReply({
                 content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${uID}> (\`${interaction.options.get("osoba", true).user.id}\`, \`${uID}\`)`,

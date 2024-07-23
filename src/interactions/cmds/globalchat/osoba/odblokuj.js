@@ -52,6 +52,14 @@ module.exports = {
                     name: "Odblokowany przez",
                     value: `${(interaction.user.discriminator = "0" ? interaction.user.username : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
                 })
+            const emb = new EmbedBuilder()
+                .setTitle("Odblokowano użytkownika!")
+                .setDescription(
+                    `Nazwa odblokowanego: ${interaction.options.get("osoba", true).user.name} \nNazwa odblokowującego: ${interaction.user.name})`
+                )
+                .setColor("Blue")
+            await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ text: `ID odblokowanego: ${uID} \n ID odblokowującego: ${interaction.user.id}`, embeds: [emb] })
+
 
             client.users.send(uID, {
                 embeds: [embedblock],
