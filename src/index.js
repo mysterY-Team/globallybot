@@ -45,6 +45,10 @@ client.on("messageCreate", (msg) => {
 })
 
 client.on("interactionCreate", async (int) => {
+    const errorEmbed = new EmbedBuilder()
+        .setDescription("# Whoops!\nNastąpił błąd interacji. Posiadamy jednak dane, więc postaramy się ten błąd naprawić jak najszybciej!")
+        .setFooter({ text: "Globally, powered by mysterY Team" })
+
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano interakcję")
     if (int.isCommand()) {
@@ -55,7 +59,19 @@ client.on("interactionCreate", async (int) => {
         listenerLog(3, `⚙️ Uruchamianie pliku ${fullname.join("/")}.js`)
         //console.log(int.options)
         const file = require(`./interactions/cmds/${fullname.join("/")}`)
-        file.execute(client, int)
+        file.execute(client, int).catch((err) => {
+            if (int.replied || int.deferred) {
+                int.editReply({
+                    content: "",
+                    components: [],
+                    files: [],
+                    embeds: [errorEmbed],
+                })
+            } else {
+                int.reply({ embeds: [errorEmbed], ephemeral: true })
+            }
+            console.error(err)
+        })
     } else if (int.isButton()) {
         listenerLog(3, "Jest przyciskiem")
         var args = int.customId.split("\u0000")
@@ -65,7 +81,20 @@ client.on("interactionCreate", async (int) => {
         listenerLog(3, `⚙️ Uruchamianie pliku ${cmd}.js`)
         //console.log(int.options)
         const file = require(`./interactions/components/btns/${cmd}`)
-        file.execute(client, int, ...args)
+        file.execute(client, int, ...args).catch(() => {
+            if (int.deferred && !int.replied) {
+                int.update({
+                    content: "",
+                    components: [],
+                    files: [],
+                    embeds: [errorEmbed],
+                })
+            } else if (int.deferred && !int.replied) {
+                int.editReply({ content: "", components: [], files: [], embeds: [errorEmbed] })
+            } else {
+                int.reply({ embeds: [errorEmbed] })
+            }
+        })
     } else if (int.isAutocomplete()) {
         listenerLog(3, "Jest uzupełnianiem dla komendy")
 
@@ -86,7 +115,19 @@ client.on("interactionCreate", async (int) => {
         listenerLog(3, `⚙️ Uruchamianie pliku ${cmd}.js`)
         //console.log(int.options)
         const file = require(`./interactions/modals/${cmd}`)
-        file.execute(client, int, ...args)
+        file.execute(client, int, ...args).catch((err) => {
+            if (int.replied || int.deferred) {
+                int.editReply({
+                    content: "",
+                    components: [],
+                    files: [],
+                    embeds: [errorEmbed],
+                })
+            } else {
+                int.reply({ embeds: [errorEmbed], ephemeral: true })
+            }
+            console.error(err)
+        })
     }
 })
 

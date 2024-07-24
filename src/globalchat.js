@@ -284,13 +284,13 @@ async function globalchatFunction(client, message) {
         var accDate = new Date()
         accDate = `${accDate.getFullYear()}-${accDate.getMonth() + 1}-${accDate.getDate()}`
 
-        function wbName(gID, modPerm) {
+        function wbName(modPerm) {
             if (ownersID.includes(message.author.id)) var rank = "twórca"
             else if (modPerm === 2) var rank = "naczelnik"
             else if (modPerm === 1) var rank = "moderator"
             else var rank = "osoba"
 
-            return message.guildId != gID ? `${message.author.username} (${rank}; ${message.author.id})` : `${message.author.username} (${rank}; ten serwer)`
+            return `${message.author.username} (${rank}; ${message.author.id})`
         }
 
         /**

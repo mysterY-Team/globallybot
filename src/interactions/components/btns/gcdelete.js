@@ -82,26 +82,37 @@ module.exports = {
             db.set(`userData/${interaction.user.id}/gc`, gcdata.decode(data))
         }
 
+        const firstEmbed = $message.embeds[0]
+
         {
-            let embeds = (() => $message.embeds)()
+            const embeds = $message.embeds
             embeds[0] = new EmbedBuilder()
-                .setAuthor({ iconURL: $message.embeds[0].author.iconURL, name: $message.embeds[0].author.name })
+                .setAuthor({ iconURL: firstEmbed.author.iconURL, name: firstEmbed.author.name })
                 .setTitle("Usunięta wiadomość")
-                .setDescription($message.embeds[0].description)
+                .setDescription(firstEmbed.description)
                 .setColor("Red")
-                .setFooter({ text: $message.embeds[0].footer.text })
-            if ($channels[1] && $channels[1].type == ChannelType.GuildText) await $channels[1].send({ embeds })
+                .setFooter({ text: firstEmbed.footer.text })
+            if ($channels[1] && $channels[1].type == ChannelType.GuildText)
+                await $channels[1].send({
+                    embeds,
+                    components: [
+                        new ActionRowBuilder().setComponents(
+                            new ButtonBuilder($message.components[0].components[0].toJSON()),
+                            new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${args[0]}`).setEmoji(`👤`)
+                        ),
+                    ],
+                })
         }
         {
-            let embeds = $message.embeds
-            let embed = new EmbedBuilder($message.embeds[0]).setFields({ name: "Stan", value: `Usunięto <t:${Math.floor(Date.now() / 1000)}:R>` }).setColor("Red")
+            const embeds = $message.embeds
+            let embed = new EmbedBuilder(firstEmbed).setFields({ name: "Stan", value: `Usunięto <t:${Math.floor(Date.now() / 1000)}:R>` }).setColor("Red")
             embeds[0] = embed
             await $message.edit({
                 content: "",
                 embeds,
                 components: [
                     new ActionRowBuilder().setComponents(
-                        new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${args[0]}`).setEmoji(`ℹ️`),
+                        new ButtonBuilder($message.components[0].components[0].toJSON()),
                         new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${args[0]}`).setEmoji(`👤`)
                     ),
                 ],

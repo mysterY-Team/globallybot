@@ -1,5 +1,5 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { db, ownersID, customEmoticons } = require("../../../../config")
+const { db, ownersID, customEmoticons, supportServer } = require("../../../../config")
 const { gcdata } = require("../../../../functions/dbs")
 
 module.exports = {
@@ -68,21 +68,31 @@ module.exports = {
                 embeds: [embedblock],
             })
             const emb = new EmbedBuilder()
-            .setTitle("Zablokowano użytkownika!")
-            .setDescription(
-                `Nazwa zablokowanego: ${interaction.options.get("osoba", true).user.name} \nPowód blokady: ${interaction.options.get("powod", false).value} \nNazwa blokującego: ${interaction.user.name})`
-            )
-            .setColor("Red")
-        await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ text: `ID zablokowanego: ${uID} \n ID blokującego: ${interaction.user.id}`, embeds: [emb] })
+                .setTitle("Zablokowano użytkownika!")
+                .setDescription(
+                    `Osoba zablokowana: \`${interaction.options.get("osoba", true).user.username}\` (\`${uID}\`)\nOsoba blokująca: ${interaction.user} (\`${
+                        interaction.user.username
+                    }\`, \`${interaction.user.id}\`)\nPowód blokady: ${
+                        interaction.options.get("powód") ? `\`\`\`${interaction.options.get("powód").value}\`\`\`` : customEmoticons.denided
+                    }`
+                )
+                .setColor("Red")
+            await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.blocks)).send({ embeds: [emb] })
 
             interaction.editReply({
-                content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${uID}> (\`${interaction.options.get("osoba", true).user.id}\`, \`${uID}\`)`,
+                content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${uID}> (\`${interaction.options.get("osoba", true).user.username}\`, \`${uID}\`)`,
             })
             db.set(`userData/${uID}/gc`, gcdata.decode(info))
         } catch (err) {
-            interaction.reply({
-                content: "Coś poszło nie tak... spróbuj ponownie!",
-            })
+            if (interaction.deferred)
+                interaction.editReply({
+                    content: "Coś poszło nie tak... spróbuj ponownie!",
+                })
+            else
+                interaction.reply({
+                    ephemeral: true,
+                    content: "Coś poszło nie tak... spróbuj ponownie!",
+                })
             console.warn(err)
         }
     },

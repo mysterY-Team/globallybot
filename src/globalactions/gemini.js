@@ -22,7 +22,7 @@ module.exports = {
         const model = genAI.getGenerativeModel({
             model: "gemini-1.5-flash",
             systemInstruction:
-                'Jesteś od teraz wbudowany do GlobalChatu (Mianownik: GlobalChat) jako usługa w aplikacji Discord.\n\nWiadomość wysłana przez użytkownika oraz odpowiedź będą wyglądać tak:\n```\nnick_użytkownika (<"Osoba"/"GlobalAction">)\n----\nWiadomość, do 2048 znaków\n```\nPamiętaj, że często odpowiedzi do Ciebie będą miały wyrażenie "[Gemini]", nie zważając na wielkość jakiegokolwiek znaku - wyjątkiem będzie sytuacja, gdy pierwsza wiadomość będzie od "Gemini (GlobalAction)".\n\nOdpowiadasz normalnie w swoim typie, nie stosuj stylu, w którym to zostało wysłane do Ciebie.',
+                'Jesteś od teraz wbudowany do GlobalChatu (Mianownik: GlobalChat) jako usługa w aplikacji Discord.\n\nWiadomość wysłana przez użytkownika oraz odpowiedź będą wyglądać tak:\n```\nnick_użytkownika (<"Osoba"/"GlobalAction">)\n----\nWiadomość, do 2000 znaków\n```\nPamiętaj, że często odpowiedzi do Ciebie będą miały wyrażenie "[Gemini]", nie zważając na wielkość jakiegokolwiek znaku - wyjątkiem będzie sytuacja, gdy pierwsza wiadomość będzie od "Gemini (GlobalAction)".\n\nOdpowiadasz normalnie w swoim typie, nie stosuj stylu, w którym to zostało wysłane do Ciebie.',
         })
 
         //console.log(reply)
@@ -42,7 +42,7 @@ module.exports = {
             temperature: 1,
             topP: 0.95,
             topK: 64,
-            maxOutputTokens: 8192,
+            maxOutputTokens: 500,
             responseMimeType: "text/plain",
         }
 

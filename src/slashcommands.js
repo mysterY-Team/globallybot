@@ -197,13 +197,13 @@ var slashList = [
             subcommand
                 .setName("avatar")
                 .setDescription("Sprawdź avatar użytkownika")
-                .addUserOption((option) => option.setName("Osoba").setDescription("Wybierz użytkownika").setRequired(false))
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(false))
         )
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("banner")
                 .setDescription("Sprawdź banner użytkownika")
-                .addUserOption((option) => option.setName("Osoba").setDescription("Wybierz użytkownika").setRequired(false))
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(false))
         ),
 
     //pojedyncze komendy

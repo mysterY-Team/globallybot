@@ -1,5 +1,5 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { db, ownersID, customEmoticons } = require("../../../../config")
+const { db, ownersID, customEmoticons, supportServer } = require("../../../../config")
 const { gcdata } = require("../../../../functions/dbs")
 
 module.exports = {
@@ -55,17 +55,20 @@ module.exports = {
             const emb = new EmbedBuilder()
                 .setTitle("Odblokowano użytkownika!")
                 .setDescription(
-                    `Nazwa odblokowanego: ${interaction.options.get("osoba", true).user.name} \nNazwa odblokowującego: ${interaction.user.name})`
+                    `Osoba odblokowana: \`${interaction.options.get("osoba", true).user.username}\` (\`${uID}\`)\nOsoba odblokowująca: ${interaction.user} (\`${
+                        interaction.user.username
+                    }\`, \`${interaction.user.id}\`))`
                 )
-                .setColor("Blue")
-            await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ text: `ID odblokowanego: ${uID} \n ID odblokowującego: ${interaction.user.id}`, embeds: [emb] })
-
+                .setColor("Green")
+            await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.blocks)).send({ embeds: [emb] })
 
             client.users.send(uID, {
                 embeds: [embedblock],
             })
 
-            interaction.editReply(`${customEmoticons.approved} Pomyślnie odblokowano użytkownika <@${uID}> \`${uID}\``)
+            interaction.editReply(
+                `${customEmoticons.approved} Pomyślnie odblokowano użytkownika <@${uID}> (\`${interaction.options.get("osoba", true).user.username}\`, \`${uID}\`)`
+            )
             db.set(`userData/${uID}/gc`, gcdata.decode(info))
         } catch (err) {
             if (interaction.deferred)

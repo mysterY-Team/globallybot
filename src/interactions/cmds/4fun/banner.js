@@ -15,7 +15,7 @@ module.exports = {
         }
 
         const bannerEmbed = new EmbedBuilder().setTitle("Banner").setColor("Random").setImage(bannerUrl).setFooter({
-            text: `Globally, powered by "mysterY Devs" team`,
+            text: `Globally, powered by mysterY Team`,
         })
         const btns = new ActionRowBuilder().addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(bannerUrl))
 
