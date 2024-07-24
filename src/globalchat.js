@@ -232,12 +232,16 @@ async function formatText(text, client) {
     let matches = text.match(/{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/g)
     if (matches) {
         for (let match of matches) {
-            let [, arg1, arg2] = /{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/.exec(match)
-            const emojis = await (await client.guilds.fetch(arg1)).emojis.fetch()
-            if (emojis.map((x) => x.name).includes(arg2)) {
-                const emoji = emojis.map((x) => x)[emojis.map((x) => x.name).indexOf(arg2)]
-                text = text.replace(match, `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>`)
-            } else {
+            let [$, arg1, arg2] = /{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/.exec(match)
+            try {
+                const emojis = await (await client.guilds.fetch(arg1)).emojis.fetch()
+                if (emojis.map((x) => x.name).includes(arg2)) {
+                    const emoji = emojis.map((x) => x)[emojis.map((x) => x.name).indexOf(arg2)]
+                    text = text.replace(match, `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>`)
+                } else {
+                    text = text.replace(match, customEmoticons.minus)
+                }
+            } catch (e) {
                 text = text.replace(match, customEmoticons.minus)
             }
         }
