@@ -290,7 +290,7 @@ async function globalchatFunction(client, message) {
             else if (modPerm === 1) var rank = "moderator"
             else var rank = "osoba"
 
-            return `${message.author.username} (${rank}; ${message.author.id})`
+            return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`
         }
 
         /**
@@ -302,6 +302,10 @@ async function globalchatFunction(client, message) {
                     var replayedMSG = await message.fetchReference()
                     var rContent = replayedMSG.content,
                         rAttachments
+
+                    if (!replayedMSG.author.bot && replayedMSG.author.system) {
+                        return
+                    }
 
                     //działanie komentarzy w odpowiadanej wiadomości
                     rContent = deleteComments(rContent)
@@ -479,7 +483,7 @@ async function globalchatFunction(client, message) {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada linku" })
                         .setFields({ name: "Kara", value: "2 minuty osobistego cooldownu" })
-                        .setFooter({ text: 'Globally, powered by mysterY Team' })
+                        .setFooter({ text: "Globally, powered by mysterY Team" })
                         .setColor("Red")
                     message.author.send({ embeds: [embed] })
                 } catch (e) {}
@@ -496,7 +500,7 @@ async function globalchatFunction(client, message) {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada słowa" })
                         .setFields({ name: "Wyłapane słowo", value: `\`${bw.badWord}\``, inline: true }, { name: "Kara", value: "30 sekund osobistego cooldownu", inline: true })
-                        .setFooter({ text: 'Globally, powered by mysterY Team' })
+                        .setFooter({ text: "Globally, powered by mysterY Team" })
                         .setColor("Red")
                     message.channel.send({ embeds: [embed] })
                 } catch (e) {}
@@ -626,7 +630,7 @@ async function globalchatFunction(client, message) {
                                             value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do twórców** - do właściciela `patyczakus`, czy do [serwera support](https://discord.gg/536TSYqT)",
                                         })
                                         .setFooter({
-                                            text: 'Globally, powered by mysterY Team',
+                                            text: "Globally, powered by mysterY Team",
                                         })
                                         .setColor("Orange")
 
@@ -653,7 +657,7 @@ async function globalchatFunction(client, message) {
                                             value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i usuń wcześniej utworzone Webhooki.',
                                         })
                                         .setFooter({
-                                            text: 'Globally, powered by mysterY Team',
+                                            text: "Globally, powered by mysterY Team",
                                         })
                                         .setColor("Orange")
 
@@ -756,7 +760,7 @@ async function globalchatFunction(client, message) {
 
                     var x = await w.wh.send({
                         avatarURL: message.author.displayAvatarURL({ size: 64, extension: "webp", forceStatic: true }),
-                        username: wbName(w.gid, userData.modPerms),
+                        username: wbName(userData.modPerms),
                         content: w.gid == message.guildId ? message.content : deleteComments(message.content),
                         embeds: reply,
                         files:
