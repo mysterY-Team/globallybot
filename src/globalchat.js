@@ -307,7 +307,7 @@ async function globalchatFunction(client, message) {
                     var rContent = replayedMSG.content,
                         rAttachments
 
-                    if (!replayedMSG.author.bot && replayedMSG.author.system) {
+                    if (!replayedMSG.author.bot) {
                         return
                     }
 
