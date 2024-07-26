@@ -15,6 +15,9 @@ const classes = [
             TextSize: 24,
             LineWidth: undefined,
         },
+        Flags: {
+            themeColor: "#FFFFFF",
+        },
     },
     {
         name: "Styl Starcia Internetu (twórcy patYczakus)",
@@ -23,6 +26,9 @@ const classes = [
             FontName: "Audiowide,Noto Emoji",
             TextSize: 21,
             LineWidth: 26,
+        },
+        Flags: {
+            themeColor: "#000000",
         },
     },
     {
@@ -33,6 +39,9 @@ const classes = [
             TextSize: 20,
             LineWidth: 24,
         },
+        Flags: {
+            themeColor: "#FFFFFF",
+        },
     },
     {
         name: "Geometryczny ImaCarrrd (twórcy vehti)",
@@ -41,6 +50,9 @@ const classes = [
             FontName: "Source Code Pro,Noto Emoji",
             TextSize: 20,
             LineWidth: 25,
+        },
+        Flags: {
+            themeColor: ["#FFFFFF", "#000000"],
         },
     },
 ]
@@ -59,6 +71,42 @@ class ImacarrrdError extends Error {
  * @returns
  */
 async function createCarrrd(data, user) {
+    if (data.nameGradient1 === "$RANDOM") {
+        const r = Math.round(Math.random() * 255)
+        const g = Math.round(Math.random() * (255 - r))
+        const b = 255 - r - g
+        data.nameGradient1 = `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`
+    } else if (data.nameGradient1 === "$FRAND") {
+        data.nameGradient1 = `#${Math.round(Math.random() * 255).toString(16)}${Math.round(Math.random() * 255).toString(16)}${Math.round(Math.random() * 255).toString(16)}`
+    }
+
+    if (data.nameGradient2 === "$RANDOM") {
+        const r = Math.round(Math.random() * 255)
+        const g = Math.round(Math.random() * (255 - r))
+        const b = 255 - r - g
+        data.nameGradient2 = `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`
+    } else if (data.nameGradient2 === "$FRAND") {
+        data.nameGradient2 = `#${Math.round(Math.random() * 255).toString(16)}${Math.round(Math.random() * 255).toString(16)}${Math.round(Math.random() * 255).toString(16)}`
+    }
+
+    function getColorToGradient(color, nameType) {
+        switch (nameType.toLowerCase()) {
+            case "dc":
+            case "discord":
+                nameType = 1
+                break
+            case "imaca":
+            case "imacard":
+            case "imacarrrd":
+                nameType = 0
+                break
+        }
+
+        if (color === "$THEME")
+            return typeof classes[data.cardID].Flags.themeColor == "string" ? classes[data.cardID].Flags.themeColor : classes[data.cardID].Flags.themeColor[nameType]
+        else return color
+    }
+
     const canvas = createCanvas(700, 1000)
     const context = canvas.getContext("2d")
 
@@ -136,8 +184,22 @@ async function createCarrrd(data, user) {
 
                 await setImageInCircle(context, 23, 123, 210, user.displayAvatarURL({ extension: "png", size: 512, forceStatic: true }))
 
-                createGradientText(context, 23, 396, data.name, [data.nameGradient1, data.nameGradient2, "#FFFFFF"], "68px Jersey 10")
-                createGradientText(context, 23, 443, user.username, [data.nameGradient1, data.nameGradient2, "#FFFFFF"], "34px Jersey 10")
+                createGradientText(
+                    context,
+                    23,
+                    396,
+                    data.name,
+                    [getColorToGradient(data.nameGradient1, "imaca"), getColorToGradient(data.nameGradient2, "imaca"), classes[0].Flags.themeColor],
+                    "68px Jersey 10"
+                )
+                createGradientText(
+                    context,
+                    23,
+                    443,
+                    user.username,
+                    [getColorToGradient(data.nameGradient1, "dc"), getColorToGradient(data.nameGradient2, "dc"), classes[0].Flags.themeColor],
+                    "34px Jersey 10"
+                )
 
                 drawText(context, data.description, {
                     x: 23,
@@ -185,9 +247,29 @@ async function createCarrrd(data, user) {
 
                 await setImageInCircle(context, 8, 73, 160, user.displayAvatarURL({ extension: "png", size: 512, forceStatic: true }))
 
-                createGradientText(context, 23, 355, data.name, [data.nameGradient1, data.nameGradient2, "#000000"], "44px Audiowide")
-                createGradientText(context, 140, 295, user.username, [data.nameGradient1, data.nameGradient2, "#000000"], "21px Audiowide")
+                {
+                    context.font = "44px Audiowide"
+                    let w = context.measureText(data.name).width
+                    let gradient = context.createLinearGradient(23, 0, 23 + w, 0)
+                    gradient.addColorStop(0, getColorToGradient(data.nameGradient1, "imaca"))
+                    gradient.addColorStop(0.5, getColorToGradient(data.nameGradient2, "imaca"))
+                    gradient.addColorStop(1, classes[1].Flags.themeColor)
+                    context.fillStyle = gradient
+                    context.fillText(data.name, 23, 355)
+                }
 
+                {
+                    context.font = "21px Audiowide"
+                    let w = context.measureText(user.username).width
+                    let gradient = context.createLinearGradient(140, 0, 140 + w, 0)
+                    gradient.addColorStop(0, getColorToGradient(data.nameGradient1, "imaca"))
+                    gradient.addColorStop(0.5, getColorToGradient(data.nameGradient2, "imaca"))
+                    gradient.addColorStop(1, classes[1].Flags.themeColor)
+                    context.fillStyle = gradient
+                    context.fillText(user.username, 140, 295)
+                }
+
+                context.fillStyle = "black"
                 drawText(context, data.description, {
                     x: 23,
                     y: 375,
@@ -236,8 +318,27 @@ async function createCarrrd(data, user) {
                     context.drawImage(imgs, 50, 130, 130, 130)
                 }
 
-                createGradientText(context, 50, 100, data.name, [data.nameGradient1, data.nameGradient2, "#FFFFFF"], "45px Galiver Sans")
-                createGradientText(context, 190, 152, user.username, [data.nameGradient1, data.nameGradient2, "#FFFFFF"], "22px Galiver Sans")
+                {
+                    context.font = "45px Galiver Sans"
+                    let w = context.measureText(data.name).width
+                    let gradient = context.createLinearGradient(50, 0, 50 + w, 0)
+                    gradient.addColorStop(0, getColorToGradient(data.nameGradient1, "imaca"))
+                    gradient.addColorStop(0.5, getColorToGradient(data.nameGradient1, "imaca"))
+                    gradient.addColorStop(1, classes[2].Flags.themeColor)
+                    context.fillStyle = gradient
+                    context.fillText(data.name, 50, 100)
+                }
+
+                {
+                    context.font = "22px Galiver Sans"
+                    let w = context.measureText(user.username).width
+                    let gradient = context.createLinearGradient(190, 0, 190 + w, 0)
+                    gradient.addColorStop(0, getColorToGradient(data.nameGradient1, "dc"))
+                    gradient.addColorStop(0.5, getColorToGradient(data.nameGradient1, "dc"))
+                    gradient.addColorStop(1, classes[2].Flags.themeColor)
+                    context.fillStyle = gradient
+                    context.fillText(user.username, 190, 152)
+                }
 
                 context.font = "20px Galiver Sans"
                 context.fillStyle = "#FFF"
@@ -268,9 +369,6 @@ async function createCarrrd(data, user) {
                 context.roundRect(21, 321, 658, 50, [25, 25, 0, 0])
                 context.fill()
                 context.closePath()
-
-                // x=21 y=371 w=658 h=610
-                // m=10 > x=31 y=381 w=638 h=590
 
                 //okrągłe przyciski na wzór MAC OS
                 var colors = ["#FC5F51", "#FDBE02", "#0ECD33"]
@@ -513,11 +611,29 @@ async function createCarrrd(data, user) {
 
                 await setImageInCircle(context, 30, 100, 150, user.displayAvatarURL({ extension: "png", size: 512, forceStatic: true }))
 
-                //pobrać szerokość tekstu a potem wyśrodkować
-                context.font = "bold 25px Kode Mono"
-                var width = context.measureText(data.name).width
-                createGradientText(context, 340 - width / 2, 27, data.name, [data.nameGradient1, data.nameGradient2, "#FFFFFF"], "bold 25px Kode Mono")
-                context.font = createGradientText(context, 200, 155, user.username, [data.nameGradient1, data.nameGradient2, "#000000"], "bold 30px Kode Mono")
+                {
+                    context.font = "bold 25px Kode Mono"
+                    let w = context.measureText(data.name).width
+                    let gradient = context.createLinearGradient(340 - w / 2, 0, 340 + w / 2, 0)
+                    gradient.addColorStop(0, getColorToGradient(data.nameGradient1, "imaca"))
+                    gradient.addColorStop(0.5, getColorToGradient(data.nameGradient2, "imaca"))
+                    gradient.addColorStop(1, classes[3].Flags.themeColor[0])
+                    context.fillStyle = gradient
+                    context.textAlign = "center"
+                    context.fillText(data.name, 340, 23)
+                }
+
+                {
+                    context.font = "bold 30px Kode Mono"
+                    let w = context.measureText(user.username).width
+                    let gradient = context.createLinearGradient(200, 0, 200 + w, 0)
+                    gradient.addColorStop(0, getColorToGradient(data.nameGradient1, "dc"))
+                    gradient.addColorStop(0.5, getColorToGradient(data.nameGradient2, "dc"))
+                    gradient.addColorStop(1, classes[3].Flags.themeColor[1])
+                    context.fillStyle = gradient
+                    context.textAlign = "left"
+                    context.fillText(user.username, 200, 155)
+                }
             }
         }
     } catch (err) {
@@ -566,7 +682,7 @@ async function createCarrrd(data, user) {
                 align: "left",
             })
             context.font = "15px sans-serif"
-            context.fillText(`Kod błędu: dce${err.code ?? "us"}`, 20, 705)
+            context.fillText(`Kod błędu: dce${err.code ?? "_unsigned"}`, 20, 705)
         } else if (err instanceof Error) {
             drawText(context, `Kreator karty zwrócił błąd "${err.name}". Jest to nasza wina, postaramy się to naprawić jak najszybciej!`, {
                 x: 20,
