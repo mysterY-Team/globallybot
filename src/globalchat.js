@@ -735,32 +735,13 @@ async function globalchatFunction(client, message) {
                     reply = typeof reply === "undefined" ? [] : [reply[0]]
 
                     if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
-                    var comp = {
-                        global: [
-                            isHisFirstMessage
-                                ? [
-                                      new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
-                                      new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`),
-                                      new ButtonBuilder().setStyle(ButtonStyle.Primary).setCustomId(`gctab\u0000${message.author.id}`).setEmoji("👉"),
-                                  ]
-                                : [],
-                            [
-                                typeof prefixes == "string"
-                                    ? new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)
-                                    : null,
-                            ],
-                        ]
-
-                            .filter((row) => row && row.filter((x) => x).length > 0)
-                            .map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x))),
-                        server: [
-                            typeof prefixes == "string"
-                                ? [new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]
-                                : [new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000??`).setDisabled(true).setEmoji("🗑️")],
-                        ]
-                            .filter((row) => row.filter((x) => x).length > 0)
-                            .map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x))),
-                    }
+                    var comp = [
+                        typeof prefixes == "string"
+                            ? [new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]
+                            : [new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000??`).setDisabled(true).setEmoji("🗑️")],
+                    ]
+                        .filter((row) => row.filter((x) => x).length > 0)
+                        .map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x)))
 
                     var x = await w.wh.send({
                         avatarURL: message.author.displayAvatarURL({ size: 64, extension: "webp", forceStatic: true }),
@@ -778,7 +759,7 @@ async function globalchatFunction(client, message) {
                                       )
                                       .map((x) => x),
                         allowedMentions: { parse: [] },
-                        components: w.gid == message.guildId ? comp.server : comp.global,
+                        components: w.gid == message.guildId ? comp : [],
                     })
 
                     if (w.gid == message.guildId)
