@@ -620,7 +620,7 @@ async function createCarrrd(data, user) {
                     gradient.addColorStop(1, classes[3].Flags.themeColor[0])
                     context.fillStyle = gradient
                     context.textAlign = "center"
-                    context.fillText(data.name, 340, 23)
+                    context.fillText(data.name, 340, 26)
                 }
 
                 {
