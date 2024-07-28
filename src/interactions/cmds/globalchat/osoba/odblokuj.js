@@ -57,7 +57,7 @@ module.exports = {
                 .setDescription(
                     `Osoba odblokowana: \`${interaction.options.get("osoba", true).user.username}\` (\`${uID}\`)\nOsoba odblokowująca: ${interaction.user} (\`${
                         interaction.user.username
-                    }\`, \`${interaction.user.id}\`))`
+                    }\`, \`${interaction.user.id}\`)`
                 )
                 .setColor("Green")
             await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.blocks)).send({ embeds: [emb] })
