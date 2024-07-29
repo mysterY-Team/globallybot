@@ -44,7 +44,7 @@ module.exports = {
                 new ActionRowBuilder().setComponents(
                     new TextInputBuilder()
                         .setCustomId("gradient1")
-                        .setLabel("Podaj HEX (lub funkcję) koloru #1 do gradientu")
+                        .setLabel("Podaj HEX lub funkcję koloru #1 do gradientu")
                         .setPlaceholder(getRandomizedFunction())
                         .setMinLength(6)
                         .setMaxLength(7)
@@ -55,7 +55,7 @@ module.exports = {
                 new ActionRowBuilder().setComponents(
                     new TextInputBuilder()
                         .setCustomId("gradient2")
-                        .setLabel("Podaj HEX (lub funkcję) koloru #2 do gradientu")
+                        .setLabel("Podaj HEX lub funkcję koloru #2 do gradientu")
                         .setPlaceholder(getRandomizedFunction())
                         .setMinLength(6)
                         .setMaxLength(7)
