@@ -215,7 +215,7 @@ function timerToResetTheAPIInfo() {
         listenerLog(2, "✅ Zapisano serwery na lokalnej zmiennej. Liczba oznaczająca zmianę: " + y)
 
         if (new Date().getHours() == 0) {
-            var index = Object.entries(db.get("userData").val)
+            var index = Object.entries(db.get("userData").val ?? {})
                 .filter((x) => x[1].gc)
                 .map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] }))
             listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
