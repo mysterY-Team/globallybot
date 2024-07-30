@@ -1,5 +1,5 @@
 const { AttachmentBuilder, User, DiscordAPIError, DiscordjsError } = require("discord.js")
-const { createCanvas, Image, SKRSContext2D, Path2D } = require("@napi-rs/canvas")
+const { createCanvas, Image, SKRSContext2D, Path2D, Canvas } = require("@napi-rs/canvas")
 const { drawText } = require("canvas-txt")
 const { readFile } = require("fs/promises")
 const { request } = require("undici")
@@ -90,7 +90,7 @@ async function createCarrrd(data, user) {
     }
 
     function getColorToGradient(color, nameType) {
-        switch (nameType.toLowerCase()) {
+        switch ((nameType || "").toLowerCase()) {
             case "dc":
             case "discord":
                 nameType = 1
@@ -107,8 +107,8 @@ async function createCarrrd(data, user) {
         else return color
     }
 
-    const canvas = createCanvas(700, 1000)
-    const context = canvas.getContext("2d")
+    var canvas = createCanvas(700, 1000)
+    var context = canvas.getContext("2d")
 
     try {
         /**
@@ -323,7 +323,7 @@ async function createCarrrd(data, user) {
                     let w = context.measureText(data.name).width
                     let gradient = context.createLinearGradient(50, 0, 50 + w, 0)
                     gradient.addColorStop(0, getColorToGradient(data.nameGradient1, "imaca"))
-                    gradient.addColorStop(0.5, getColorToGradient(data.nameGradient1, "imaca"))
+                    gradient.addColorStop(0.5, getColorToGradient(data.nameGradient2, "imaca"))
                     gradient.addColorStop(1, classes[2].Flags.themeColor)
                     context.fillStyle = gradient
                     context.fillText(data.name, 50, 100)
@@ -334,7 +334,7 @@ async function createCarrrd(data, user) {
                     let w = context.measureText(user.username).width
                     let gradient = context.createLinearGradient(190, 0, 190 + w, 0)
                     gradient.addColorStop(0, getColorToGradient(data.nameGradient1, "dc"))
-                    gradient.addColorStop(0.5, getColorToGradient(data.nameGradient1, "dc"))
+                    gradient.addColorStop(0.5, getColorToGradient(data.nameGradient2, "dc"))
                     gradient.addColorStop(1, classes[2].Flags.themeColor)
                     context.fillStyle = gradient
                     context.fillText(user.username, 190, 152)
@@ -636,11 +636,71 @@ async function createCarrrd(data, user) {
                 }
             }
         }
+        xd.xd.xd
     } catch (err) {
-        const squareVal = 5
-        for (let i = 0; i < (canvas.width * canvas.height) / squareVal ** 1.5; i++) {
-            context.fillStyle = `rgb(${Math.round(Math.random() * 255)}, ${Math.round(Math.random() * 255)}, ${Math.round(Math.random() * 255)})`
-            context.fillRect((i % (canvas.width / squareVal)) * squareVal, Math.floor((i * squareVal) / canvas.height) * squareVal, squareVal, squareVal)
+        canvas = new Canvas(700, 1000)
+        context = canvas.getContext("2d")
+
+        const squareInfo = [
+            { size: 25, chance: 0.0035 },
+            { size: 20, chance: 0.05 },
+            { size: 10, chance: 0.5 },
+            { size: 5, chance: 1 },
+        ]
+
+        /**
+         * @type {{ x: number, y: number, size: number }[]}
+         */
+        var squares = []
+        for (let ind = 0; ind < squareInfo.length; ind++) {
+            var aSquareInfo = squareInfo[ind]
+
+            var y = 0
+            var x = 0
+            while (y < canvas.height) {
+                while (x < canvas.width) {
+                    var rand = Math.random()
+                    // console.log("Szansa wylosowana:", rand)
+                    if (rand <= aSquareInfo.chance) {
+                        let col = false
+                        if (ind !== 0) {
+                            for (let i = 0; i < squares.length; i++) {
+                                var points = [
+                                    x > squares[i].x && x < squares[i].x + squares[i].size && y > squares[i].y && y < squares[i].y + squares[i].size,
+                                    x + aSquareInfo.size > squares[i].x &&
+                                        x + aSquareInfo.size < squares[i].x + squares[i].size &&
+                                        y > squares[i].y &&
+                                        y < squares[i].y + squares[i].size,
+                                    x > squares[i].x &&
+                                        x < squares[i].x + squares[i].size &&
+                                        y + aSquareInfo.size > squares[i].y &&
+                                        y + aSquareInfo.size < squares[i].y + squares[i].size,
+                                    x + aSquareInfo.size > squares[i].x &&
+                                        x + aSquareInfo.size < squares[i].x + squares[i].size &&
+                                        y + aSquareInfo.size > squares[i].y &&
+                                        y + aSquareInfo.size < squares[i].y + squares[i].size,
+                                ]
+
+                                if (points[0] || points[1] || points[2] || points[3]) {
+                                    col = true
+                                    break
+                                }
+                            }
+                        }
+
+                        if (!col) {
+                            context.fillStyle = `#${Math.round(Math.random() * 255).toString(16)}${Math.round(Math.random() * 255).toString(16)}${Math.round(
+                                Math.random() * 255
+                            ).toString(16)}`
+                            context.fillRect(x, y, aSquareInfo.size, aSquareInfo.size)
+                            squares.push({ x, y, size: aSquareInfo.size })
+                        }
+                    }
+                    x += aSquareInfo.size
+                }
+                x = 0
+                y += aSquareInfo.size
+            }
         }
 
         context.fillStyle = "white"
@@ -655,7 +715,7 @@ async function createCarrrd(data, user) {
         context.fillText("Błąd w tworzeniu ImaCarrrd!", 20, 382)
         if (err instanceof ImacarrrdError) {
             switch (err.code) {
-                case "b404": {
+                case "b400": {
                     drawText(context, "Banner nie potrafił się załadować poprawnie! Możliwe rozwiązania:\n- Zmiana banneru", {
                         x: 20,
                         y: 410,
