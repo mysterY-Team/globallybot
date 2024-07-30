@@ -8,7 +8,7 @@ module.exports = {
     data: {
         name: "ImaCarrrd",
         description: "Twoje wyrażanie siebie na nowym poziomie - karty użytkownika z dużą opcją konfigurowywania. Zacznij od `pomoc`/`help` po więcej komend!",
-        avatar: "https://home.microsoftpersonalcontent.com/contentstorage/coJsE0OdIkqu2uEOCncHOQAAAAAAAAAAoS-v4oKNDkE/_layouts/15/download.aspx?UniqueId=5b43e6cd-c289-4406-89be-e77e68d6c3cf&Translate=false&tempauth=v1e.eyJzaXRlaWQiOiJkOGQxZjU3Ni01ZTYxLTQ2NTItOGZhYi1kZWEwY2Q4NzEwNDYiLCJhcHBfZGlzcGxheW5hbWUiOiJEZXNpZ25lciIsImFwcGlkIjoiNWUyNzk1ZTMtY2U4Yy00Y2ZiLWIzMDItMzVmZTVjZDAxNTk3IiwiYXVkIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwL2hvbWUubWljcm9zb2Z0cGVyc29uYWxjb250ZW50LmNvbUA5MTg4MDQwZC02YzY3LTRjNWItYjExMi0zNmEzMDRiNjZkYWQiLCJleHAiOiIxNzIxMzQ0OTg4In0.QU2UGecXKXx0UsCd-aBll_z_94dULNPS_frCPOd6vWYS4msGmtN8SjazwZ4DniagIu29wVVcj_q0ssGKFBqD-p3nzjrX6J9jb1wP5Yc12YioBz-8-5LKxbZpbIs59CGdGsbSpre8abNm0m6VW2vNf86JSEdzHmhO9YTrNch34a4KtisF5GsrLIftcZAsk9DibSJbT0HQAtuW0X82Z7-b0J94uRo6-e2dwtOomuu_mhNQ-kF1nNoYFKJXl5zktWs7fvxMguVRb0R4ylLEdYKhc2y3BLz0wTht-U1V1LxmT5EEI5wh3jE8vbqrOYOTW5yBTiuSdWo91G2_OyVza_1L370hQz8GXlU4NyyuP4Sz4se7CUW_WSCNYivsLQ-6Ryk4XlvKobeYICxAGgk3RbA35myxFcXr_RAKzemaUxodFtg.Lxy409a1Cq7ZVo-E5rGyanBpcQW8xs92s3oCj_lJfdw&ApiVersion=2.1",
+        avatar: "https://i.postimg.cc/YSz1RkfH/Designer-1.jpg",
         prompt_type: "cmd",
     },
     /**

@@ -24,9 +24,11 @@ module.exports = {
             .setDescription(
                 `ID: \`${args[0]}\`\nUtworzenie konta: **<t:${Math.floor(user.createdTimestamp / 1000)}:R>**\nWłaściciel bota: ${booltext(
                     ownersID.includes(args[0])
-                )}\nModerator GlobalChat: ${booltext(ownersID.includes(args[0]) || data.modPerms > 0)}${
-                    haveImacarrrd ? `\n\n*Ten użytkownik posiada ImaCarrrd! Sprawdź pod komendą \`imacarrrd pokaż osoba:${args[0]}\`*` : ""
-                }\nKarma: **${data.karma.toString()}**`
+                )}\nModerator GlobalChat: ${booltext(ownersID.includes(args[0]) || data.modPerms > 0)}\nKarma: **${data.karma.toString()}**${
+                    haveImacarrrd
+                        ? `\n\n*Ten użytkownik posiada ImaCarrrd! Możesz sprawdzić z poziomu:*\n- *komendy bota (\`imacarrrd pokaż osoba:${args[0]}\`)*\n- *GlobalAction (\`imaca!karta ${args[0]}\`)*!`
+                        : ""
+                }`
             )
             .setFooter({ text: 'Złamał regulamin? Skontaktuj się do serwera support - komenda "botinfo"' })
             .setColor("Random")

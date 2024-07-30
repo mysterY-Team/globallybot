@@ -4,6 +4,7 @@ const { drawText } = require("canvas-txt")
 const { db, customEmoticons } = require("../../config")
 const { imacaData } = require("../../functions/dbs")
 const imacaInfo = require("../../functions/imaca")
+const { request } = require("undici")
 
 module.exports = {
     /**
@@ -22,8 +23,8 @@ module.exports = {
         var newData = imacaData.encode(snpsht.val)
         newData.description = interaction.fields.getTextInputValue("description")
         newData.name = interaction.fields.getTextInputValue("name")
-        newData.nameGradient1 = `#${interaction.fields.getTextInputValue("gradient1")}`.replace("##", "#").toUpperCase()
-        newData.nameGradient2 = `#${interaction.fields.getTextInputValue("gradient2")}`.replace("##", "#").toUpperCase()
+        newData.nameGradient1 = `#${interaction.fields.getTextInputValue("gradient1")}`.replace("##", "#").replace("#$", "$").toUpperCase()
+        newData.nameGradient2 = `#${interaction.fields.getTextInputValue("gradient2")}`.replace("##", "#").replace("#$", "$").toUpperCase()
         newData.bannerURL = interaction.fields.getTextInputValue("imgurl")
 
         const _class = imacaInfo.classes[0]
@@ -49,20 +50,29 @@ module.exports = {
             return
         }
 
-        if (!newData.nameGradient1.match(/#[0-9A-F]{6}/g) || !newData.nameGradient2.match(/#[0-9A-F]{6}/g)) {
-            interaction.editReply(`${customEmoticons.denided} Któryś argument koloru **nie jest** kolorem HEX, sprawdź poprawność i użyj komendy jeszcze raz!`)
+        const nameRegex = /\$THEME|\$RANDOM|\$FRAND/
+        const colorRegex = /#?[0-9A-F]{6}/
+        if (
+            (!newData.nameGradient1.match(nameRegex) && !newData.nameGradient1.match(colorRegex)) ||
+            (!newData.nameGradient2.match(nameRegex) && !newData.nameGradient2.match(colorRegex))
+        ) {
+            interaction.editReply(
+                `${customEmoticons.denided} Któryś argument koloru **nie jest** kolorem HEX lub specjalną funkcją ImaCarrrd, sprawdź poprawność i użyj komendy jeszcze raz!`
+            )
             return
         }
 
-        try {
-            const { body } = await request(data.bannerURL)
-            const banner = new Image()
-            banner.src = Buffer.from(await body.arrayBuffer())
-            context.drawImage(banner, 0, 0)
-        } catch (err) {
-            interaction.editReply(`${customEmoticons.denided} Banner nie mógł zostać poprawnie przekonwertowany!`)
-            return
-        }
+        if (newData.bannerURL)
+            try {
+                const { body } = await request(newData.bannerURL)
+                const banner = new Image()
+                banner.src = Buffer.from(await body.arrayBuffer())
+                context.drawImage(banner, 0, 0)
+            } catch (err) {
+                console.warn(err)
+                interaction.editReply(`${customEmoticons.denided} Banner nie mógł zostać poprawnie przekonwertowany!`)
+                return
+            }
 
         db.set(`userData/${interaction.user.id}/imaca`, imacaData.decode(newData))
         interaction.editReply(`${customEmoticons.approved} Dane zostały zaktualizowane!`)

@@ -9,6 +9,10 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
+        function getRandomizedFunction() {
+            var data = ["(#)RRGGBB", "$theme", "$frand", "$random"]
+            return data[Math.floor(Math.random() * data.length)]
+        }
         var snpsht = db.get(`userData/${interaction.user.id}/imaca`)
         var data = imacaData.encode(snpsht.val)
         const modal = new ModalBuilder()
@@ -40,8 +44,8 @@ module.exports = {
                 new ActionRowBuilder().setComponents(
                     new TextInputBuilder()
                         .setCustomId("gradient1")
-                        .setLabel("Podaj HEX koloru #1 do gradientu")
-                        .setPlaceholder("(#)RRGGBB")
+                        .setLabel("Podaj HEX lub funkcję koloru #1 do gradientu")
+                        .setPlaceholder(getRandomizedFunction())
                         .setMinLength(6)
                         .setMaxLength(7)
                         .setRequired(true)
@@ -51,8 +55,8 @@ module.exports = {
                 new ActionRowBuilder().setComponents(
                     new TextInputBuilder()
                         .setCustomId("gradient2")
-                        .setLabel("Podaj HEX koloru #2 do gradientu")
-                        .setPlaceholder("(#)RRGGBB")
+                        .setLabel("Podaj HEX lub funkcję koloru #2 do gradientu")
+                        .setPlaceholder(getRandomizedFunction())
                         .setMinLength(6)
                         .setMaxLength(7)
                         .setRequired(true)

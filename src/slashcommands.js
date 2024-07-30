@@ -1,5 +1,5 @@
-const { SlashCommandBuilder } = require("@discordjs/builders")
-const { ChannelType } = require("discord.js")
+const { SlashCommandBuilder, ContextMenuCommandBuilder } = require("@discordjs/builders")
+const { ChannelType, ApplicationCommandType } = require("discord.js")
 const fs = require("fs")
 
 var slashList = [
@@ -212,8 +212,12 @@ var slashList = [
     new SlashCommandBuilder().setDMPermission(true).setName("botinfo").setDescription("Generuje informacje o bocie"),
     new SlashCommandBuilder().setDMPermission(true).setName("mem").setDescription("Generuje mema ze serwera MEMHUB"),
 ]
+
+var contextList = [new ContextMenuCommandBuilder().setDMPermission(false).setType(ApplicationCommandType.Message).setName("Pokaż przyciski GlobalChat")]
 //console.log(slashList)
 
 module.exports = {
-    list: slashList,
+    list: () => {
+        return Array().concat(slashList, contextList)
+    },
 }

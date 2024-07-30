@@ -51,8 +51,8 @@ client.on("interactionCreate", async (int) => {
 
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano interakcję")
-    if (int.isCommand()) {
-        listenerLog(3, "Jest komendą")
+    if (int.isChatInputCommand()) {
+        listenerLog(3, "Jest komendą (slash cmd)")
         var fullname = [int.commandName, int.options._group, int.options._subcommand]
         fullname = fullname.filter((prop) => prop != null)
 
@@ -60,6 +60,7 @@ client.on("interactionCreate", async (int) => {
         //console.log(int.options)
         const file = require(`./interactions/cmds/${fullname.join("/")}`)
         file.execute(client, int).catch((err) => {
+            console.error(err)
             if (int.replied || int.deferred) {
                 int.editReply({
                     content: "",
@@ -70,7 +71,6 @@ client.on("interactionCreate", async (int) => {
             } else {
                 int.reply({ embeds: [errorEmbed], ephemeral: true })
             }
-            console.error(err)
         })
     } else if (int.isButton()) {
         listenerLog(3, "Jest przyciskiem")
@@ -81,16 +81,14 @@ client.on("interactionCreate", async (int) => {
         listenerLog(3, `⚙️ Uruchamianie pliku ${cmd}.js`)
         //console.log(int.options)
         const file = require(`./interactions/components/btns/${cmd}`)
-        file.execute(client, int, ...args).catch(() => {
-            if (int.deferred && !int.replied) {
-                int.update({
-                    content: "",
-                    components: [],
-                    files: [],
-                    embeds: [errorEmbed],
-                })
-            } else if (int.deferred && !int.replied) {
-                int.editReply({ content: "", components: [], files: [], embeds: [errorEmbed] })
+        file.execute(client, int, ...args).catch((err) => {
+            console.error(err)
+            if (int.deferred || int.replied) {
+                try {
+                    int.editReply({ content: "", components: [], files: [], embeds: [errorEmbed] })
+                } catch (e) {
+                    int.update({ content: "", components: [], files: [], embeds: [errorEmbed] })
+                }
             } else {
                 int.reply({ embeds: [errorEmbed] })
             }
@@ -116,6 +114,25 @@ client.on("interactionCreate", async (int) => {
         //console.log(int.options)
         const file = require(`./interactions/modals/${cmd}`)
         file.execute(client, int, ...args).catch((err) => {
+            console.error(err)
+            if (int.replied || int.deferred) {
+                int.editReply({
+                    content: "",
+                    components: [],
+                    files: [],
+                    embeds: [errorEmbed],
+                })
+            } else {
+                int.reply({ embeds: [errorEmbed], ephemeral: true })
+            }
+        })
+    } else if (int.isContextMenuCommand()) {
+        listenerLog(3, "Jest komendą (kontekstowe menu)")
+        var filename = int.commandName.toLowerCase().replace(/ /g, "_")
+        listenerLog(3, `⚙️ Uruchamianie pliku ${filename}.js`)
+        const file = require(`./interactions/contextMenus/${filename}`)
+
+        file.execute(client, int).catch((err) => {
             if (int.replied || int.deferred) {
                 int.editReply({
                     content: "",
@@ -188,16 +205,17 @@ client.login(TOKEN)
 
 function timerToResetTheAPIInfo() {
     async function x() {
-        const slashCommandList = require(`./slashcommands.js`)
-        await client.application.commands.set(slashCommandList.list)
         listenerLog(2, "")
+
+        const slashCommandList = require(`./slashcommands.js`)
+        await client.application.commands.set(slashCommandList.list())
         listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
 
         var y = await servers.fetch(client)
         listenerLog(2, "✅ Zapisano serwery na lokalnej zmiennej. Liczba oznaczająca zmianę: " + y)
 
         if (new Date().getHours() == 0) {
-            var index = Object.entries(db.get("userData").val)
+            var index = Object.entries(db.get("userData").val ?? {})
                 .filter((x) => x[1].gc)
                 .map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] }))
             listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
