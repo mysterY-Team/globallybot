@@ -49,6 +49,7 @@ module.exports = {
 
             info.isBlocked = true
             info.blockReason = interaction.options.get("powód") == null ? "" : interaction.options.get("powód").value
+            var blockData = new Date(); 
             const embedblock = new EmbedBuilder()
                 .setTitle("Zostałeś zablokowany!")
                 .setDescription(`Od teraz nie będziesz miał dostępu do GlobalChata do odwołania!`)
@@ -61,6 +62,10 @@ module.exports = {
                     {
                         name: "Powód",
                         value: interaction.options.get("powód") == null ? customEmoticons.denided : `\`\`\`${interaction.options.get("powód", false).value}\`\`\``,
+                    },
+                    {
+                        name: "Czas",
+                        value: interaction.options.get("czas") == null ? customEmoticons.denided : `\`\`\`${interaction.options.get("czas", false).value}\`\`\``,
                     }
                 )
 

@@ -1,6 +1,7 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { db, customEmoticons } = require("../../../../config")
 const { gcdata } = require("../../../../functions/dbs")
+const { blockData } = require("../osoba/zablokuj")
 
 module.exports = {
     /**
@@ -15,7 +16,7 @@ module.exports = {
 
         var info = gcdata.encode(snapshot.val)
         if (info.isBlocked) {
-            var msg = `Jest zablokowany: ${customEmoticons.approved}\nPowód blokady: ${info.blockReason === "" ? customEmoticons.minus : "```" + info.blockReason + "```"}`
+            var msg = `Jest zablokowany: ${customEmoticons.approved}\nData blokady: ${blockData}\nPowód blokady: ${info.blockReason === "" ? customEmoticons.minus : "```" + info.blockReason + "```"}`
         } else var msg = `Jest zablokowany: ${customEmoticons.denided}`
 
         var embed = new EmbedBuilder()

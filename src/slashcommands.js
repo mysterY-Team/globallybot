@@ -31,6 +31,7 @@ var slashList = [
                         .setDescription("Dodaje osoby do czarnej listy GlobalChata.")
                         .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby do zablokowania").setRequired(true))
                         .addStringOption((option) => option.setName("powód").setDescription("Powód zablokowania"))
+                        .addStringOption((option) => option.setName("czas").setDescription("Czas na który chcesz zablokować osobę"))
                 )
                 .addSubcommand((subcommand) =>
                     subcommand
