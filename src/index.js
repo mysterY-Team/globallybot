@@ -228,13 +228,13 @@ function timerToResetTheAPIInfo() {
             })
         }
 
-        const usersToUB = index.filter((x) => x.isBlocked && x.timestampToTab <= Math.round(Date.now() / 3_600_000))
+        const usersToUB = index.filter((x) => x.isBlocked && x.blockTimestamp <= Math.round(Date.now() / 3_600_000))
         usersToUB.forEach((x) => {
             x.blockTimestamp = NaN
             x.blockReason = ""
             x.isBlocked = false
             db.set(`users/${x.userID}/gc`, gcdata.decode(x))
-            client.users.send(buser.id, {
+            client.users.send(x.userID, {
                 content: "Twoja blokada dobiegła końca! Możesz skorzystać z GlobalChat!",
             })
         })

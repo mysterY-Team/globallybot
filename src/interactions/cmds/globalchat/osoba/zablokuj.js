@@ -33,7 +33,7 @@ module.exports = {
 
             var info = gcdata.encode(db.get(`userData/${buser.id}/gc`).val)
 
-            if (Math.max(yourInfo.modPerms, ownersID.includes(interaction.user.id) * 11 - 1) <= info.modPerms || ownersID.includes(uID)) {
+            if (Math.max(yourInfo.modPerms, ownersID.includes(interaction.user.id) * 11 - 1) <= info.modPerms || ownersID.includes(buser.id)) {
                 interaction.editReply({
                     content: `${customEmoticons.denided} Ta osoba jest ponad/na równi twoich permisji!`,
                 })
@@ -80,16 +80,16 @@ module.exports = {
                         `Osoba zablokowana: \`${buser.username}\` (\`${buser.id}\`)`,
                         `Osoba blokująca: ${interaction.user} (\`${interaction.user.username}\`, \`${interaction.user.id}\`)`,
                         `Powód blokady: ${interaction.options.get("powód") ? `\`\`\`${interaction.options.get("powód").value}\`\`\`` : customEmoticons.denided}`,
-                        `Czas blokady (w godzinach): **${interaction.options.get("czas")?.value || customEmoticons.minus}}**`,
+                        `Czas blokady (w godzinach): **${interaction.options.get("czas")?.value || customEmoticons.minus}**`,
                     ].join("\n")
                 )
                 .setColor("Red")
             await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.blocks)).send({ embeds: [emb] })
 
             interaction.editReply({
-                content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika <@${uID}> (\`${interaction.options.get("osoba", true).user.username}\`, \`${uID}\`)`,
+                content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika ${buser} (\`${buser.username}\`, \`${buser.id}\`)`,
             })
-            db.set(`userData/${uID}/gc`, gcdata.decode(info))
+            db.set(`userData/${buser.id}/gc`, gcdata.decode(info))
         } catch (err) {
             if (interaction.deferred)
                 interaction.editReply({
