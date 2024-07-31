@@ -22,16 +22,16 @@ var slashList = [
                 .addSubcommand((subcommand) =>
                     subcommand
                         .setName("odblokuj")
-                        .setDescription("Usuwa osobę z czarnej listy GlobalChata.")
+                        .setDescription("Nadaje z powrotem dostęp dla osoby do GlobalChatu")
                         .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby do sprawdzenia").setRequired(true))
                 )
                 .addSubcommand((subcommand) =>
                     subcommand
                         .setName("zablokuj")
-                        .setDescription("Dodaje osoby do czarnej listy GlobalChata.")
+                        .setDescription("Blokuje dla osoby dostęp do GlobalChatu")
                         .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby do zablokowania").setRequired(true))
-                        .addStringOption((option) => option.setName("powód").setDescription("Powód zablokowania"))
-                        .addStringOption((option) => option.setName("czas").setDescription("Czas na który chcesz zablokować osobę"))
+                        .addStringOption((option) => option.setName("powód").setDescription("Powód blokady"))
+                        .addNumberOption((option) => option.setName("czas").setDescription("Czas blokady (w godzinach)").setMinValue(1))
                 )
                 .addSubcommand((subcommand) =>
                     subcommand

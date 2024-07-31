@@ -214,10 +214,11 @@ function timerToResetTheAPIInfo() {
         var y = await servers.fetch(client)
         listenerLog(2, "✅ Zapisano serwery na lokalnej zmiennej. Liczba oznaczająca zmianę: " + y)
 
+        var index = Object.entries(db.get("userData").val ?? {})
+            .filter((x) => x[1].gc)
+            .map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] }))
+
         if (new Date().getHours() == 0) {
-            var index = Object.entries(db.get("userData").val ?? {})
-                .filter((x) => x[1].gc)
-                .map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] }))
             listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
             index.forEach((x) => {
                 if (x.karma < 25n && !x.isBlocked) {
@@ -225,6 +226,25 @@ function timerToResetTheAPIInfo() {
                     listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
                 }
             })
+        }
+
+        const usersToUB = index.filter((x) => x.isBlocked && x.timestampToTab <= Math.round(Date.now() / 3_600_000))
+        usersToUB.forEach((x) => {
+            x.blockTimestamp = NaN
+            x.blockReason = ""
+            x.isBlocked = false
+            db.set(`users/${x.userID}/gc`, gcdata.decode(x))
+            client.users.send(buser.id, {
+                content: "Twoja blokada dobiegła końca! Możesz skorzystać z GlobalChat!",
+            })
+        })
+
+        if (usersToUB.length > 0) {
+            const emb = new EmbedBuilder()
+                .setTitle("Zakończenie czasowej blokady!")
+                .setDescription(`Osoby odblokowane (tylko ID):\n${usersToUB.map((x) => `- \`${x.userID}\``).join("\n")}`)
+                .setColor("Blue")
+            await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.blocks)).send({ embeds: [emb] })
         }
     }
     x()

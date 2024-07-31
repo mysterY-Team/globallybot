@@ -18,9 +18,9 @@ module.exports = {
             })
 
         try {
-            var uID = interaction.options.get("osoba", true).user.id
+            var buser = interaction.options.get("osoba", true).user
 
-            if (uID === interaction.user.id) {
+            if (buser.id === interaction.user.id) {
                 interaction.reply({
                     ephemeral: interaction.inGuild(),
                     content: `Zablokować siebie? Serio?`,
@@ -31,7 +31,7 @@ module.exports = {
                 ephemeral: interaction.inGuild(),
             })
 
-            var info = gcdata.encode(db.get(`userData/${uID}/gc`).val)
+            var info = gcdata.encode(db.get(`userData/${buser.id}/gc`).val)
 
             if (Math.max(yourInfo.modPerms, ownersID.includes(interaction.user.id) * 11 - 1) <= info.modPerms || ownersID.includes(uID)) {
                 interaction.editReply({
@@ -48,38 +48,40 @@ module.exports = {
             }
 
             info.isBlocked = true
-            info.blockReason = interaction.options.get("powód") == null ? "" : interaction.options.get("powód").value
-            var blockData = new Date(); 
+            info.blockReason = interaction.options.get("powód")?.value ?? ""
+            info.blockTimestamp = Math.round(Date.now() / 3_600_000) + (interaction.options.get("czas")?.value || Infinity)
+
             const embedblock = new EmbedBuilder()
                 .setTitle("Zostałeś zablokowany!")
-                .setDescription(`Od teraz nie będziesz miał dostępu do GlobalChata do odwołania!`)
+                .setDescription(`Od teraz nie będziesz miał dostępu do GlobalChata!`)
                 .setColor("Red")
                 .setFields(
                     {
                         name: "Blokowany przez",
-                        value: `${(interaction.user.discriminator = "0" ? interaction.user.username : `${interaction.user.username}#${interaction.user.discriminator}`)}`,
+                        value: `\`${interaction.user.username}\``,
                     },
                     {
                         name: "Powód",
                         value: interaction.options.get("powód") == null ? customEmoticons.denided : `\`\`\`${interaction.options.get("powód", false).value}\`\`\``,
                     },
                     {
-                        name: "Czas",
-                        value: interaction.options.get("czas") == null ? customEmoticons.denided : `\`\`\`${interaction.options.get("czas", false).value}\`\`\``,
+                        name: "Czas blokady",
+                        value: `${interaction.options.get("czas") ? interaction.options.get("czas").value + " godzin (± 30 minut)" : "Do odwołania"}`,
                     }
                 )
 
-            client.users.send(uID, {
+            client.users.send(buser.id, {
                 embeds: [embedblock],
             })
             const emb = new EmbedBuilder()
                 .setTitle("Zablokowano użytkownika!")
                 .setDescription(
-                    `Osoba zablokowana: \`${interaction.options.get("osoba", true).user.username}\` (\`${uID}\`)\nOsoba blokująca: ${interaction.user} (\`${
-                        interaction.user.username
-                    }\`, \`${interaction.user.id}\`)\nPowód blokady: ${
-                        interaction.options.get("powód") ? `\`\`\`${interaction.options.get("powód").value}\`\`\`` : customEmoticons.denided
-                    }`
+                    [
+                        `Osoba zablokowana: \`${buser.username}\` (\`${buser.id}\`)`,
+                        `Osoba blokująca: ${interaction.user} (\`${interaction.user.username}\`, \`${interaction.user.id}\`)`,
+                        `Powód blokady: ${interaction.options.get("powód") ? `\`\`\`${interaction.options.get("powód").value}\`\`\`` : customEmoticons.denided}`,
+                        `Czas blokady (w godzinach): **${interaction.options.get("czas")?.value || customEmoticons.minus}}**`,
+                    ].join("\n")
                 )
                 .setColor("Red")
             await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.blocks)).send({ embeds: [emb] })

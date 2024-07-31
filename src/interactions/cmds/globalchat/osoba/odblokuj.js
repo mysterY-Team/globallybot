@@ -44,6 +44,8 @@ module.exports = {
 
             info.isBlocked = false
             info.blockReason = ""
+            info.blockTimestamp = NaN
+
             const embedblock = new EmbedBuilder()
                 .setTitle("Zostałeś odblokowany!")
                 .setDescription(`Od teraz będziesz miał dostęp do GlobalChata, dopóki znów nie będziesz zablokowany!`)

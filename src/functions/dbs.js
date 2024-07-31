@@ -39,6 +39,7 @@ module.exports = {
                  * @type {0 | 1 | 2}
                  */
                 modPerms: Number(obj[7] ?? 0),
+                blockTimestamp: Number(obj[8] ?? NaN),
             }
         },
         decode: (data) => {

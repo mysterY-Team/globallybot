@@ -16,7 +16,9 @@ module.exports = {
 
         var info = gcdata.encode(snapshot.val)
         if (info.isBlocked) {
-            var msg = `Jest zablokowany: ${customEmoticons.approved}\nData blokady: ${blockData}\nPowód blokady: ${info.blockReason === "" ? customEmoticons.minus : "```" + info.blockReason + "```"}`
+            var msg = `Jest zablokowany: ${customEmoticons.approved}\nPowód blokady: ${
+                info.blockReason === "" ? customEmoticons.minus : "```" + info.blockReason + "```"
+            }\nPozostały czas blokady (w godzinach): ~${info.blockTimestamp - Math.floor(Date.now() / 3_600_000)}`
         } else var msg = `Jest zablokowany: ${customEmoticons.denided}`
 
         var embed = new EmbedBuilder()
