@@ -233,8 +233,11 @@ function timerToResetTheAPIInfo() {
             x.blockTimestamp = NaN
             x.blockReason = ""
             x.isBlocked = false
-            db.set(`users/${x.userID}/gc`, gcdata.decode(x))
-            client.users.send(x.userID, {
+            const uID = x.userID
+            delete x.userID
+            db.set(`userData/${uID}/gc`, gcdata.decode(x))
+            x.userID = uID
+            client.users.send(uID, {
                 content: "Twoja blokada dobiegła końca! Możesz skorzystać z GlobalChat!",
             })
         })
