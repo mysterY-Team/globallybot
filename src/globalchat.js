@@ -552,38 +552,51 @@ async function globalchatFunction(client, message) {
             /**
              * @type {{ wh: WebhookClient, gid: string, cid: string }[]}
              */
-            var webhooks = await Promise.all(
-                database
-                    .map((x) => x.serverID)
-                    .map(async function (guildID) {
-                        /**
-                         * @type {WebhookClient}
-                         */
-                        var webhook
+            var webhooks = (
+                await Promise.all(
+                    database
+                        .map((x) => x.serverID)
+                        .map(async function (guildID) {
+                            /**
+                             * @type {WebhookClient}
+                             */
+                            var webhook
 
-                        listenerLog(4, `➡️ Dla serwera o ID ${guildID}`)
+                            listenerLog(4, `➡️ Dla serwera o ID ${guildID}`)
 
-                        if (!guildID) {
-                            return
-                        }
+                            if (!guildID) {
+                                return
+                            }
 
-                        var sData = getDataByServerID(guildID)
+                            var sData = getDataByServerID(guildID)
 
-                        //sprawdzanie, czy wgl istnieje serwer i kanał
-                        try {
-                            const guild_DClient = await client.guilds.fetch(guildID)
-                            const channel_DClient = await guild_DClient.channels.fetch(sData.channel)
-                            if (channel_DClient) {
-                                const dinfo = new Date()
-                                if (sData.webhook != "none") {
-                                    try {
-                                        var HTTPRes = await request("https://discord.com/api/webhooks/" + sData.webhook)
-                                        if (HTTPRes.statusCode >= 200 && HTTPRes.statusCode < 300) {
-                                            webhook = new WebhookClient({
-                                                url: "https://discord.com/api/webhooks/" + sData.webhook,
-                                            })
-                                        } else {
-                                            listenerLog(5, "❕ Nie wczytano webhooka, tworzenie nowego...")
+                            //sprawdzanie, czy wgl istnieje serwer i kanał
+                            try {
+                                const guild_DClient = await client.guilds.fetch(guildID)
+                                const channel_DClient = await guild_DClient.channels.fetch(sData.channel)
+                                if (channel_DClient) {
+                                    const dinfo = new Date()
+                                    if (sData.webhook != "none") {
+                                        try {
+                                            var HTTPRes = await request("https://discord.com/api/webhooks/" + sData.webhook)
+                                            if (HTTPRes.statusCode >= 200 && HTTPRes.statusCode < 300) {
+                                                webhook = new WebhookClient({
+                                                    url: "https://discord.com/api/webhooks/" + sData.webhook,
+                                                })
+                                            } else {
+                                                listenerLog(5, "❕ Nie wczytano webhooka, tworzenie nowego...")
+                                                webhook = await guild_DClient.channels.createWebhook({
+                                                    name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
+                                                    channel: sData.channel,
+                                                    reason: "wykonania usługi GlobalChat (brakujący Webhook)",
+                                                })
+
+                                                var data = gcdataGuild.encode(snpsht.val[guildID].gc)
+                                                data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
+                                                db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
+                                            }
+                                        } catch (e) {
+                                            listenerLog(5, "❕ Wyłapano błąd, ignorowanie i tworzenie nowego...")
                                             webhook = await guild_DClient.channels.createWebhook({
                                                 name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                                 channel: sData.channel,
@@ -594,8 +607,9 @@ async function globalchatFunction(client, message) {
                                             data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
                                             db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
                                         }
-                                    } catch (e) {
-                                        listenerLog(5, "❕ Wyłapano błąd, ignorowanie i tworzenie nowego...")
+
+                                        return { wh: webhook, gid: guildID, cid: sData.channel }
+                                    } else {
                                         webhook = await guild_DClient.channels.createWebhook({
                                             name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                             channel: sData.channel,
@@ -605,81 +619,68 @@ async function globalchatFunction(client, message) {
                                         var data = gcdataGuild.encode(snpsht.val[guildID].gc)
                                         data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
                                         db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
+
+                                        return { wh: webhook, gid: guildID, cid: sData.channel }
                                     }
-
-                                    return { wh: webhook, gid: guildID, cid: sData.channel }
                                 } else {
-                                    webhook = await guild_DClient.channels.createWebhook({
-                                        name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
-                                        channel: sData.channel,
-                                        reason: "wykonania usługi GlobalChat (brakujący Webhook)",
+                                    guild_DClient.fetchOwner().then((gguildOwner) => {
+                                        //embed z informacją o braku kanału
+                                        const embedError = new EmbedBuilder()
+                                            .setTitle("Nieznaleziony kanał")
+                                            .setDescription(
+                                                "W trakcie wykonywania usługi GlobalChat, nie udało mi się znaleźć kanału, do którego był ono przypisany - dzieje się tak, gdy kanał został usunięty. Usunięto przed chwilą z bazy danych informacje dla tego serwera i należy jeszcze raz ustawić pod komendą `globalchat kanał ustaw` wszystie kanały, które były podpięte."
+                                            )
+                                            .addFields({
+                                                name: "`Q:` Kanał przypisany do GlobalChata dalej istnieje, nie został on usunięty.",
+                                                value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do twórców** - do właściciela `patyczakus`, czy do [serwera support](https://discord.gg/536TSYqT)",
+                                            })
+                                            .setFooter({
+                                                text: "Globally, powered by mysterY Team",
+                                            })
+                                            .setColor("Orange")
+
+                                        gguildOwner.send({
+                                            content: `${customEmoticons.info} Tu bot Globally. Jako, że jesteś właścicielem serwera *${guild_DClient.name}*, jest bardzo ważna informacja dla Ciebie!`,
+                                            embeds: [embedError],
+                                        })
+
+                                        db.delete(`serverData/${guildID}/gc`)
+                                        return
                                     })
-
-                                    var data = gcdataGuild.encode(snpsht.val[guildID].gc)
-                                    data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
-                                    db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
-
-                                    return { wh: webhook, gid: guildID, cid: sData.channel }
                                 }
-                            } else {
-                                guild_DClient.fetchOwner().then((gguildOwner) => {
-                                    //embed z informacją o braku kanału
-                                    const embedError = new EmbedBuilder()
-                                        .setTitle("Nieznaleziony kanał")
-                                        .setDescription(
-                                            "W trakcie wykonywania usługi GlobalChat, nie udało mi się znaleźć kanału, do którego był ono przypisany - dzieje się tak, gdy kanał został usunięty. Usunięto przed chwilą z bazy danych informacje dla tego serwera i należy jeszcze raz ustawić pod komendą `globalchat kanał ustaw` wszystie kanały, które były podpięte."
-                                        )
-                                        .addFields({
-                                            name: "`Q:` Kanał przypisany do GlobalChata dalej istnieje, nie został on usunięty.",
-                                            value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do twórców** - do właściciela `patyczakus`, czy do [serwera support](https://discord.gg/536TSYqT)",
-                                        })
-                                        .setFooter({
-                                            text: "Globally, powered by mysterY Team",
-                                        })
-                                        .setColor("Orange")
+                            } catch (err) {
+                                if (err instanceof DiscordAPIError && err.code === 30007) {
+                                    ;(await client.guilds.fetch(guildID)).fetchOwner().then((gguildOwner) => {
+                                        //embed z informacją o braku kanału
+                                        const embedError = new EmbedBuilder()
+                                            .setTitle("Za duża ilość Webhooków")
+                                            .setDescription(
+                                                "W trakcie wykonywania usługi GlobalChat, API Discorda zwrócił błąd o przekroczeniu liczby Webhooków. Musiałem usunąć całą ową konfigurację z bazy danych. Zwolnij miejsce i ustaw ponownie wszystkie kanały (`globalchat kanał ustaw`)"
+                                            )
+                                            .addFields({
+                                                name: "`Q:` Jak mam usunąć webhooki?",
+                                                value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i usuń wcześniej utworzone Webhooki.',
+                                            })
+                                            .setFooter({
+                                                text: "Globally, powered by mysterY Team",
+                                            })
+                                            .setColor("Orange")
 
-                                    gguildOwner.send({
-                                        content: `${customEmoticons.info} Tu bot Globally. Jako, że jesteś właścicielem serwera *${guild_DClient.name}*, jest bardzo ważna informacja dla Ciebie!`,
-                                        embeds: [embedError],
+                                        gguildOwner.send({
+                                            content: `${customEmoticons.info} Tu bot Globally. Jako, że jesteś właścicielem serwera *${guild_DClient.name}*, jest bardzo ważna informacja dla Ciebie!`,
+                                            embeds: [embedError],
+                                        })
+                                        db.delete(`serverData/${guildID}/gc`)
                                     })
-
-                                    db.delete(`serverData/${guildID}/gc`)
-                                    return
-                                })
+                                } else {
+                                    console.warn(err)
+                                    db.delete(`serverData/${guildID}`)
+                                }
+                                return
                             }
-                        } catch (err) {
-                            if (err instanceof DiscordAPIError && err.code === 30007) {
-                                ;(await client.guilds.fetch(guildID)).fetchOwner().then((gguildOwner) => {
-                                    //embed z informacją o braku kanału
-                                    const embedError = new EmbedBuilder()
-                                        .setTitle("Za duża ilość Webhooków")
-                                        .setDescription(
-                                            "W trakcie wykonywania usługi GlobalChat, API Discorda zwrócił błąd o przekroczeniu liczby Webhooków. Musiałem usunąć całą ową konfigurację z bazy danych. Zwolnij miejsce i ustaw ponownie wszystkie kanały (`globalchat kanał ustaw`)"
-                                        )
-                                        .addFields({
-                                            name: "`Q:` Jak mam usunąć webhooki?",
-                                            value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i usuń wcześniej utworzone Webhooki.',
-                                        })
-                                        .setFooter({
-                                            text: "Globally, powered by mysterY Team",
-                                        })
-                                        .setColor("Orange")
-
-                                    gguildOwner.send({
-                                        content: `${customEmoticons.info} Tu bot Globally. Jako, że jesteś właścicielem serwera *${guild_DClient.name}*, jest bardzo ważna informacja dla Ciebie!`,
-                                        embeds: [embedError],
-                                    })
-                                    db.delete(`serverData/${guildID}/gc`)
-                                })
-                            } else {
-                                console.warn(err)
-                                db.delete(`serverData/${guildID}`)
-                            }
-                            return
-                        }
-                    })
-                    .filter((x) => x)
-            )
+                        })
+                )
+            ).filter((x) => x)
             //dla używania GlobalActions przez komentowanie
             var withoutReply = deleteComments(message.content).toLowerCase()
 
@@ -713,7 +714,7 @@ async function globalchatFunction(client, message) {
 
             Promise.all(
                 webhooks.map(async function (w) {
-                    var reply = await repliedMessage(w.gid)
+                    var reply = await repliedMessage(w.gid ?? "")
 
                     if (reply && w.gid == message.guildId)
                         replyJSON = {
