@@ -26,7 +26,7 @@ function gcdataGuildS(data) {
 module.exports = {
     gcdata: {
         encode: (data) => {
-            var obj = (data ?? "").split("{=·}")
+            var obj = (data ?? "").split(/{=·}|\u0000/g)
             return {
                 isBlocked: $$.stob(obj[0]) ?? false,
                 blockReason: obj[1] ?? "",
@@ -60,7 +60,7 @@ module.exports = {
 
                     return n
                 })
-                .join("{=·}")
+                .join("\u0000")
         },
     },
     gcdataGuild: {
