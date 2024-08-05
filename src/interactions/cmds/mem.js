@@ -15,8 +15,6 @@ module.exports = {
             const { data } = await octokit.repos.getContent({ owner: "patYczakus", repo: "Memhub-API-filesystem", path: "images" })
             var files = data.filter((it) => it.type == "file").map((it) => it.name)
             files = files[Math.floor(Math.random() * files.length)]
-            var ext = files.split(".")
-            ext = ext[ext.length - 1]
 
             interaction.editReply({
                 embeds: [

@@ -16,7 +16,6 @@ const bannedWords = [
     "pierdolony",
     "pojebany",
     "czarnuh",
-    "niger",
     "nigga",
     "idioto",
     "niga",
@@ -41,6 +40,7 @@ const bannedWords = [
     "kurwą",
     "idiotką",
     "chujowa",
+    "chujowy",
     "gin",
     "giń",
     "debil",
@@ -79,9 +79,8 @@ const bannedWords = [
 ]
 
 function checkAnyBadWords(text) {
-    text = text.toLowerCase()
     for (let i = 0; i < bannedWords.length; i++) {
-        const regex = new RegExp(`([^a-z0-9])${bannedWords[i]}([^a-z0-9])`)
+        const regex = new RegExp(`([^a-z0-9])${bannedWords[i]}([^a-z0-9])`, "gi")
         if (regex.test(text)) {
             return { checked: true, badWord: bannedWords[i] }
         }
