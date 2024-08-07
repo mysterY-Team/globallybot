@@ -205,6 +205,52 @@ var slashList = [
                 .setName("banner")
                 .setDescription("Sprawdź banner użytkownika")
                 .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(false))
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("Przytul")
+                .setDescription("Przytul osobę"))
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("Pocałuj")
+                .setDescription("Pocałuj osobę"))
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("ugryź")
+                .setDescription("Ugryź osobę."))
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("foch")
+                .setDescription("Obraź się na kogoś."))
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("zabij")
+                .setDescription("Zabij kogoś."))
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("uderz")
+                .setDescription("Uderz kogoś."))
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("poliż")
+                .setDescription("Poliż kogoś."))
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("uciekaj")
+                .setDescription("Uciekaj od kogoś.")),
+
+    new SlashCommandBuilder()
+        .setName("admin")
+        .setDescription("Komendy administracyjne")
+        .setDMPermission(false)
+
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("clear")
+                .setDescription("czyści daną ilość wiadomości")
+                .addIntegerOption((option) => option.setName("ilość").setDescription("ilość wiadomości do usunięcia").setRequired(true))
+                .setDMPermission(false)
+
         ),
 
     //pojedyncze komendy
