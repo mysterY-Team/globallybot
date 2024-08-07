@@ -7,6 +7,7 @@ const { GlobalFonts } = require("@napi-rs/canvas")
 const { gcdata } = require("./functions/dbs.js")
 
 var active = false
+var forceUpdate = true
 
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildModeration],
@@ -52,13 +53,31 @@ client.on("interactionCreate", async (int) => {
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano interakcję")
     if (int.isChatInputCommand()) {
+        var customPaths = {
+            "4fun": {
+                pocałuj: "4fun/uczucia",
+                przytul: "4fun/uczucia",
+                pogłaszcz: "4fun/uczucia",
+                uderz: "4fun/uczucia",
+                ugryź: "4fun/uczucia",
+                poliż: "4fun/uczucia",
+                uciekaj: "4fun/uczucia",
+                foch: "4fun/uczucia",
+            },
+        }
+
         listenerLog(3, "Jest komendą (slash cmd)")
         var fullname = [int.commandName, int.options._group, int.options._subcommand]
         fullname = fullname.filter((prop) => prop != null)
 
-        listenerLog(3, `⚙️ Uruchamianie pliku ${fullname.join("/")}.js`)
+        var path = fullname.join("/")
+        if (typeof customPaths[fullname[0]] === "string") path = customPaths[fullname[0]]
+        else if (fullname.length >= 2 && typeof customPaths[fullname[0]]?.[fullname[1]] === "string") path = customPaths[fullname[0]][fullname[1]]
+        else if (fullname.length == 3 && customPaths[fullname[0]]?.[fullname[1]]?.[fullname[2]]) path = customPaths[fullname[0]][fullname[1]][fullname[2]]
+
+        listenerLog(3, `⚙️ Uruchamianie pliku ${path}.js`)
         //console.log(int.options)
-        const file = require(`./interactions/cmds/${fullname.join("/")}`)
+        const file = require(`./interactions/cmds/${path}`)
         file.execute(client, int).catch((err) => {
             console.error(err)
             if (int.replied || int.deferred) {
@@ -190,8 +209,10 @@ client.on("guildCreate", async (guild) => {
 
 client.on("debug", (info) => {
     if (debug) {
-        if (active) listenerLog(2, "")
-        listenerLog(2 * active, "[D] " + info)
+        if (!active) {
+            listenerLog(2, "")
+            listenerLog(0, "[D] " + info)
+        }
     }
 })
 client.on("warn", (err) => {
@@ -207,10 +228,6 @@ function timerToResetTheAPIInfo() {
     async function x() {
         listenerLog(2, "")
 
-        const slashCommandList = require(`./slashcommands.js`)
-        await client.application.commands.set(slashCommandList.list())
-        listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
-
         var y = await servers.fetch(client)
         listenerLog(2, "✅ Zapisano serwery na lokalnej zmiennej. Liczba oznaczająca zmianę: " + y)
 
@@ -218,7 +235,11 @@ function timerToResetTheAPIInfo() {
             .filter((x) => x[1].gc)
             .map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] }))
 
-        if (new Date().getHours() == 0) {
+        if (new Date().getHours() == 0 || forceUpdate) {
+            const slashCommandList = require(`./slashcommands.js`)
+            await client.application.commands.set(slashCommandList.list())
+            listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
+
             listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
             index.forEach((x) => {
                 if (x.karma < 25n && !x.isBlocked) {
@@ -226,6 +247,7 @@ function timerToResetTheAPIInfo() {
                     listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
                 }
             })
+            forceUpdate = false
         }
 
         const usersToUB = index.filter((x) => x.isBlocked && x.blockTimestamp <= Math.round(Date.now() / 3_600_000))

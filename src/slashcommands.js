@@ -156,6 +156,64 @@ var slashList = [
         .addBooleanOption((option) => option.setName("podkreślony").setDescription("Opcja podkreślenia"))
         .addBooleanOption((option) => option.setName("przekreślony").setDescription("Opcja przekreślenia")),
 
+    //4fun
+    new SlashCommandBuilder()
+        .setName("4fun")
+        .setDescription("Komendy 4fun")
+        .setDMPermission(false)
+        //jakieś błache
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("avatar")
+                .setDescription("Sprawdź avatar użytkownika")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(false))
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("banner")
+                .setDescription("Sprawdź banner użytkownika")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(false))
+        )
+        //uczucia, aka "gejowskie akcje"
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("przytul")
+                .setDescription("[Uczucia] Przytul osobę na śmierć")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("pocałuj")
+                .setDescription("[Uczucia] Pocałuj osobę")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("pogłaszcz")
+                .setDescription("[Uczucia] Pogłasz osobę jak swoje ulubione zwierzątko")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("ugryź")
+                .setDescription("[Uczucia] Ugryź osobę")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("uderz")
+                .setDescription("[Uczucia] Uderz osobę z całej pary")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("poliż")
+                .setDescription("[Uczucia] Poliż osobę jak kot")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
+        )
+        .addSubcommand((subcommand) => subcommand.setName("uciekaj").setDescription("[Uczucia] Uciekaj, ile sił"))
+        .addSubcommand((subcommand) => subcommand.setName("foch").setDescription("[Uczucia] Obraź się na kogoś, na coś lub na nic...")),
+
     //mniejsze z argumentami
     new SlashCommandBuilder()
         .setName("devtools")
@@ -189,68 +247,15 @@ var slashList = [
                 .setDescription("Zmienia styl karty ImaCarrrd użytkownika")
                 .addStringOption((option) => option.setName("styl").setDescription("Nazwa stylu").setAutocomplete(true).setRequired(true))
         ),
-
-    new SlashCommandBuilder()
-        .setName("4fun")
-        .setDescription("Komendy 4fun")
-        .setDMPermission(true)
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("avatar")
-                .setDescription("Sprawdź avatar użytkownika")
-                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(false))
-        )
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("banner")
-                .setDescription("Sprawdź banner użytkownika")
-                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(false))
-        )
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("Przytul")
-                .setDescription("Przytul osobę"))
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("Pocałuj")
-                .setDescription("Pocałuj osobę"))
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("ugryź")
-                .setDescription("Ugryź osobę."))
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("foch")
-                .setDescription("Obraź się na kogoś."))
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("zabij")
-                .setDescription("Zabij kogoś."))
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("uderz")
-                .setDescription("Uderz kogoś."))
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("poliż")
-                .setDescription("Poliż kogoś."))
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("uciekaj")
-                .setDescription("Uciekaj od kogoś.")),
-
     new SlashCommandBuilder()
         .setName("admin")
         .setDescription("Komendy administracyjne")
         .setDMPermission(false)
-
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("clear")
-                .setDescription("czyści daną ilość wiadomości")
+                .setDescription("Czyści daną ilość wiadomości")
                 .addIntegerOption((option) => option.setName("ilość").setDescription("ilość wiadomości do usunięcia").setRequired(true))
-                .setDMPermission(false)
-
         ),
 
     //pojedyncze komendy
