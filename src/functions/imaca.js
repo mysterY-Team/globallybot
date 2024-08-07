@@ -83,24 +83,6 @@ class ImacarrrdError extends Error {
  * @returns
  */
 async function createCarrrd(data, user) {
-    if (data.nameGradient1 === "$RANDOM") {
-        const r = Math.round(Math.random() * 255)
-        const g = Math.round(Math.random() * (255 - r))
-        const b = 255 - r - g
-        data.nameGradient1 = `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`
-    } else if (data.nameGradient1 === "$FRAND") {
-        data.nameGradient1 = `#${Math.round(Math.random() * 255).toString(16)}${Math.round(Math.random() * 255).toString(16)}${Math.round(Math.random() * 255).toString(16)}`
-    }
-
-    if (data.nameGradient2 === "$RANDOM") {
-        const r = Math.round(Math.random() * 255)
-        const g = Math.round(Math.random() * (255 - r))
-        const b = 255 - r - g
-        data.nameGradient2 = `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`
-    } else if (data.nameGradient2 === "$FRAND") {
-        data.nameGradient2 = `#${Math.round(Math.random() * 255).toString(16)}${Math.round(Math.random() * 255).toString(16)}${Math.round(Math.random() * 255).toString(16)}`
-    }
-
     function getColorToGradient(color, nameType) {
         switch ((nameType || "").toLowerCase()) {
             case "dc":
@@ -114,10 +96,38 @@ async function createCarrrd(data, user) {
                 break
         }
 
+        if (color === "$TRAND") {
+            let r = Math.round(Math.random() * 255)
+            let g = Math.round(Math.random() * (255 - r))
+            let b = 255 - r - g
+
+            r = (r < 16 ? "0" : "") + r.toString(16)
+            g = (g < 16 ? "0" : "") + g.toString(16)
+            b = (b < 16 ? "0" : "") + b.toString(16)
+
+            return `#${r}${g}${b}`
+        }
+        if (color === "$TFRAND") {
+            let r = Math.round(Math.random() * 255)
+            let g = Math.round(Math.random() * 255)
+            let b = Math.round(Math.random() * 255)
+
+            r = (r < 16 ? "0" : "") + r.toString(16)
+            g = (g < 16 ? "0" : "") + g.toString(16)
+            b = (b < 16 ? "0" : "") + b.toString(16)
+
+            return `#${r}${g}${b}`
+        }
         if (color === "$THEME")
             return typeof classes[data.cardID].Flags.themeColor == "string" ? classes[data.cardID].Flags.themeColor : classes[data.cardID].Flags.themeColor[nameType]
         else return color
     }
+
+    if (data.nameGradient1 === "$RANDOM") data.nameGradient1 = getColorToGradient("$TRAND")
+    else if (data.nameGradient1 === "$FRAND") data.nameGradient1 = getColorToGradient("$TFRAND")
+
+    if (data.nameGradient2 === "$RANDOM") data.nameGradient2 = getColorToGradient("$TRAND")
+    else if (data.nameGradient2 === "$FRAND") data.nameGradient2 = getColorToGradient("$TFRAND")
 
     var canvas = createCanvas(700, 1000)
     var context = canvas.getContext("2d")
@@ -655,7 +665,6 @@ async function createCarrrd(data, user) {
                 }
             }
         }
-        xd.xd.xd
     } catch (err) {
         canvas = new Canvas(700, 1000)
         context = canvas.getContext("2d")
@@ -708,9 +717,7 @@ async function createCarrrd(data, user) {
                         }
 
                         if (!col) {
-                            context.fillStyle = `#${Math.round(Math.random() * 255).toString(16)}${Math.round(Math.random() * 255).toString(16)}${Math.round(
-                                Math.random() * 255
-                            ).toString(16)}`
+                            context.fillStyle = getColorToGradient("$TFRAND")
                             context.fillRect(x, y, aSquareInfo.size, aSquareInfo.size)
                             squares.push({ x, y, size: aSquareInfo.size })
                         }
@@ -761,7 +768,7 @@ async function createCarrrd(data, user) {
                 align: "left",
             })
             context.font = "15px sans-serif"
-            context.fillText(`Kod błędu: dce${err.code ?? "_unsigned"}`, 20, 705)
+            context.fillText(`Kod błędu: dce${err.code ?? "_unsigned"}${err instanceof DiscordAPIError ? "_API" : "_JS"}`, 20, 705)
         } else if (err instanceof Error) {
             drawText(context, `Kreator karty zwrócił błąd "${err.name}". Jest to nasza wina, postaramy się to naprawić jak najszybciej!`, {
                 x: 20,
@@ -781,7 +788,7 @@ async function createCarrrd(data, user) {
         console.error(err)
     }
 
-    const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"), { name: `imacarrd_${user.id}.png` })
+    const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"), { name: `imacarrrd_${user.id}.png` })
 
     return attachment
 }
