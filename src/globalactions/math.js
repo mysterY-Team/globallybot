@@ -129,7 +129,7 @@ module.exports = {
             case cmds[1]: {
                 main.content = [
                     "# Witaj, {uM}\nUżyłeś komendy pomocy. Oto wszystkie komendy, które na chwilę obecną posiadam:",
-                    "- `calc <działanie>` - Oblicza proste, jak i nieco skomplikowane wyrażenie matematyczne (dodawanie, odejmowanie, mnożenie, dzielenie i potęgowanie)",
+                    "- `calc <działanie1> | <działanie2> | ... | <działanieN>` - Oblicza proste, jak i nieco skomplikowane wyrażenie matematyczne (dodawanie, odejmowanie, mnożenie, dzielenie i potęgowanie). Działania oddzielaj pionową kreską",
                     "- `rysuj <wzór1> | <wzór2> | ... | <wzórN>` - Tworzy wykresy danych wzorów. Wzory oddzielaj pionową kreską",
                     "\n||Pamiętaj, aby stosować poprawność w używaniu komend!||",
                 ].join("\n")
@@ -137,17 +137,27 @@ module.exports = {
             }
             case cmds[2]:
             case cmds[3]: {
-                var expr = args.join("")
-                if (expr.length == 0) {
+                if (args.join("").length == 0) {
                     main.content = `${customEmoticons.denided} Argument jest wymagany!`
                     break
                 }
-                var ans = calculate(expr)
-                if (isNaN(ans)) {
-                    main.content = `${customEmoticons.denided} Czy ty na pewno podałeś dobre działanie?`
+
+                const exprs = args.join("").split(/\||;/g)
+                var answ = []
+
+                for (let i = 0; i < exprs.length; i++) {
+                    var ans = calculate(exprs[i])
+                    if (isNaN(ans)) {
+                        main.content = `${customEmoticons.denided} Czy Ty na pewno podałeś dobre działanie?`
+                        break
+                    }
+                    answ.push(ans)
                 }
 
-                main.content = `Wynikiem wyrażenia jest **${ans}**.`
+                if (!main.content) {
+                    if (answ.length == 1) main.content = `Wynikiem wyrażenia jest **${answ[0]}**.`
+                    else main.content = `Oto wszystkie działania:\n${answ.map((x, i) => `- \`${exprs[i]} = ${x}\``).join("\n")}`
+                }
                 break
             }
             case cmds[4]:
@@ -160,46 +170,46 @@ module.exports = {
                 const kolory = ["#336699", "#f8df5f", "#0093f5", "#663399", "#f6a2b3", "#0ec22c", "#df6a3c", "#03a9c8", "#059120"]
 
                 if (wzory.length > 0 && wzory.length <= kolory.length) {
-                    const canvas = createCanvas(1000, 650)
+                    const canvas = createCanvas(2000, 1300)
                     const wConfig = {
-                        width: 1000,
-                        height: 600,
+                        width: 2000,
+                        height: 1250,
                     }
                     const ctx = canvas.getContext("2d")
 
                     ctx.fillStyle = "#FFFFFF"
-                    ctx.fillRect(0, 0, 1000, 600)
+                    ctx.fillRect(0, 0, wConfig.width, wConfig.height)
 
                     //oś X
                     ctx.strokeStyle = "#000000"
                     ctx.lineWidth = 2
                     ctx.beginPath()
-                    ctx.moveTo(0, 300)
-                    ctx.lineTo(1000, 300)
+                    ctx.moveTo(0, wConfig.height / 2)
+                    ctx.lineTo(wConfig.width, wConfig.height / 2)
                     ctx.stroke()
 
                     //oś Y
                     ctx.strokeStyle = "#000000"
                     ctx.lineWidth = 2
                     ctx.beginPath()
-                    ctx.moveTo(500, 0)
-                    ctx.lineTo(500, 600)
+                    ctx.moveTo(wConfig.width / 2, 0)
+                    ctx.lineTo(wConfig.width / 2, wConfig.height)
                     ctx.stroke()
                     ctx.closePath()
 
                     const config = {
                         xmin: -50,
                         xmax: 50,
-                        ymin: -50,
-                        ymax: 50,
+                        ymin: -100,
+                        ymax: 100,
                     }
 
                     for (let _y = (() => config.ymin)(); _y <= config.ymax; _y++) {
                         ctx.strokeStyle = "#000000"
                         ctx.lineWidth = 2
                         ctx.beginPath()
-                        ctx.moveTo(495, (wConfig.height / (config.ymax - config.ymin)) * _y + wConfig.height / 2)
-                        ctx.lineTo(505, (wConfig.height / (config.ymax - config.ymin)) * _y + wConfig.height / 2)
+                        ctx.moveTo(wConfig.width / 2 - 5, (wConfig.height / (config.ymax - config.ymin)) * _y + wConfig.height / 2)
+                        ctx.lineTo(wConfig.width / 2 + 5, (wConfig.height / (config.ymax - config.ymin)) * _y + wConfig.height / 2)
                         ctx.stroke()
                         ctx.closePath()
                     }
@@ -207,8 +217,8 @@ module.exports = {
                         ctx.strokeStyle = "#000000"
                         ctx.lineWidth = 2
                         ctx.beginPath()
-                        ctx.moveTo((wConfig.width / (config.xmax - config.xmin)) * _x + wConfig.width / 2, 295)
-                        ctx.lineTo((wConfig.width / (config.xmax - config.xmin)) * _x + wConfig.width / 2, 305)
+                        ctx.moveTo((wConfig.width / (config.xmax - config.xmin)) * _x + wConfig.width / 2, wConfig.height / 2 - 5)
+                        ctx.lineTo((wConfig.width / (config.xmax - config.xmin)) * _x + wConfig.width / 2, wConfig.height / 2 + 5)
                         ctx.stroke()
                         ctx.closePath()
                     }
@@ -253,25 +263,17 @@ module.exports = {
                         ctx.closePath()
                     }
 
-                    ctx.strokeStyle = "#000000"
-                    ctx.lineWidth = 2
-                    ctx.beginPath()
-                    ctx.moveTo(500, 0)
-                    ctx.lineTo(500, 600)
-                    ctx.stroke()
-                    ctx.closePath()
-
                     ctx.fillStyle = "gray"
-                    ctx.fillRect(0, 600, 1000, 50)
+                    ctx.fillRect(0, wConfig.height, wConfig.width, 50)
                     // informacje, jaki kolor do którego wzoru
                     var tcw = 10
                     for (let i = 0; i < wzory.length; i++) {
                         ctx.font = "bold 15px sans-serif"
                         const w = ctx.measureText(`y = ${wzory[i]}`).width
                         ctx.fillStyle = kolory[i]
-                        ctx.fillRect(tcw, 610, w + 10, 30)
+                        ctx.fillRect(tcw, wConfig.height + 10, w + 10, 30)
                         ctx.fillStyle = checkFontColor(kolory[i])
-                        ctx.fillText(`y = ${wzory[i]}`, tcw + 5, 630)
+                        ctx.fillText(`y = ${wzory[i]}`, tcw + 5, wConfig.height + 30)
                         tcw += w + 20
                     }
 

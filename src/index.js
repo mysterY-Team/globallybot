@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, EmbedBuilder, ChannelType } = require("discord.js")
-const { TOKEN, supportServer, debug, customEmoticons, db } = require("./config.js")
+const { TOKEN, supportServer, debug, db } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
 const { listenerLog, servers } = require("./functions/useful.js")
@@ -237,9 +237,11 @@ function timerToResetTheAPIInfo() {
             delete x.userID
             db.set(`userData/${uID}/gc`, gcdata.decode(x))
             x.userID = uID
-            client.users.send(uID, {
-                content: "Twoja blokada dobiegła końca! Możesz skorzystać z GlobalChat!",
-            })
+            try {
+                client.users.send(uID, {
+                    content: "Twoja blokada dobiegła końca! Możesz skorzystać z GlobalChat!",
+                })
+            } catch (e) {}
         })
 
         if (usersToUB.length > 0) {

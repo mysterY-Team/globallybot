@@ -13,15 +13,16 @@ const {
 const { db, customEmoticons, ownersID, debug, supportServer, _bot } = require("./config")
 const fs = require("fs")
 const { emoticons } = require("./interactions/cmds/globalchat/emotki")
-const { listenerLog } = require("./functions/useful")
+const { listenerLog, wait } = require("./functions/useful")
 const { freemem, totalmem } = require("os")
 const { gcdata, gcdataGuild } = require("./functions/dbs")
 const { request } = require("undici")
 const { checkAnyBadWords } = require("./functions/badwords")
 
 const timestampCooldown = new Date()
-const globalCooldown = (amount) => 750 + amount * 150
-const userCooldown = (amount, type = 0) => [4000 + amount * 300, 3000 + amount * 275, 3000 + amount * 225, 2500 + amount * 200][type]
+const globalCooldown = (amount) => 500 + amount * 100
+const userCooldown = (amount, type = 0) =>
+    [4500 + amount * 360, 4000 + amount * 280, 3750 + amount * 245, 3500 + amount * 230, 3500 + amount * 210, 3500 + amount * 190, 3000 + amount * 150][type]
 let lastUser = "unknown"
 
 /**
@@ -287,6 +288,9 @@ async function globalchatFunction(client, message) {
         const GClocation = `${message.guildId}/${message.channelId}`
         var accDate = new Date()
         accDate = `${accDate.getFullYear()}-${accDate.getMonth() + 1}-${accDate.getDate()}`
+        var gcapprovedAttachments = message.attachments.filter(
+            (x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio"))
+        )
 
         function wbName(modPerm) {
             if (ownersID.includes(message.author.id)) var rank = "twórca"
@@ -338,13 +342,7 @@ async function globalchatFunction(client, message) {
             }
         }
 
-        if (
-            !deleteComments(message.content) &&
-            message.attachments.filter(
-                (a) => a.contentType !== null && (a.contentType.startsWith("image") || a.contentType.startsWith("video") || a.contentType.startsWith("audio"))
-            ).size == 0
-        )
-            return
+        if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) return
 
         if (!message.author.bot && !message.author.system) {
             var snpsht = db.get(`serverData`)
@@ -432,14 +430,19 @@ async function globalchatFunction(client, message) {
             const oldUData = db.get(`userData/${message.author.id}/gc`).val
             var userData = gcdata.encode(oldUData)
 
-            if (userData.timestampToSendMessage > Date.now()) {
-                message.reply(`${customEmoticons.denided} Osobisty cooldown! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms`)
+            if (userData.timestampToSendMessage - 300 > Date.now()) {
+                message.reply(`${customEmoticons.denided} Osobisty cooldown! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms`).then(async (msg) => {
+                    await wait(Math.max(userData.timestampToSendMessage - Date.now(), 2000))
+                    msg.delete()
+                })
                 if (message.content.toLowerCase() !== "<p>") {
                     userData.messageID_bbc = message.id
                     db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 }
                 return
             }
+
+            await wait(Math.max(userData.timestampToSendMessage - Date.now(), 0))
 
             if (timestampCooldown.getTime() + globalCooldown(database.length) > Date.now()) {
                 message.reply(
@@ -486,12 +489,12 @@ async function globalchatFunction(client, message) {
                 try {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada linku" })
-                        .setFields({ name: "Kara", value: "2 minuty osobistego cooldownu" })
+                        .setFields({ name: "Kara", value: "3 minuty osobistego cooldownu" })
                         .setFooter({ text: "Globally, powered by mysterY Team" })
                         .setColor("Red")
                     message.author.send({ embeds: [embed] })
                 } catch (e) {}
-                userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 120_000
+                userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 180_000
                 userData.messageID_bbc = ""
                 db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 return
@@ -503,12 +506,12 @@ async function globalchatFunction(client, message) {
                 try {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada słowa" })
-                        .setFields({ name: "Wyłapane słowo", value: `\`${bw.badWord}\``, inline: true }, { name: "Kara", value: "30 sekund osobistego cooldownu", inline: true })
+                        .setFields({ name: "Wyłapane słowo", value: `\`${bw.badWord}\``, inline: true }, { name: "Kara", value: "minuta osobistego cooldownu", inline: true })
                         .setFooter({ text: "Globally, powered by mysterY Team" })
                         .setColor("Red")
                     message.channel.send({ embeds: [embed] })
                 } catch (e) {}
-                userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 30_000
+                userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 60_000
                 userData.messageID_bbc = ""
                 db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 return
@@ -532,19 +535,20 @@ async function globalchatFunction(client, message) {
             delete ddata
 
             function gct() {
-                switch (true) {
-                    case ownersID.includes(message.author.id):
-                        return 3
-                    case userData.modPerms == 2:
-                        return 2
-                    case userData.karma >= 300n - BigInt(userData.modPerms == 1 * 200):
-                        return 1
-                    default:
-                        return 0
-                }
+                let gctI = [
+                    true,
+                    userData.karma >= 25n,
+                    userData.modPerms > 0,
+                    userData.karma >= 1000n,
+                    userData.karma >= 1000n && userData.modPerms === 1,
+                    userData.karma >= 1000n && userData.modPerms === 2,
+                    ownersID.includes(message.author.id),
+                ]
+
+                return gctI.findLastIndex((x) => x)
             }
 
-            userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct())
+            userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + userCooldown(database.length, gct()) * (1 + typeof prefixes == "string" * 0.6)
             delete gct
             userData.messageID_bbc = ""
             db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -749,16 +753,7 @@ async function globalchatFunction(client, message) {
                         username: wbName(userData.modPerms),
                         content: w.gid == message.guildId ? message.content : deleteComments(message.content),
                         embeds: reply,
-                        files:
-                            w.gid == message.guildId
-                                ? message.attachments.map((x) => x)
-                                : message.attachments
-                                      .filter(
-                                          (a) =>
-                                              a.contentType !== null &&
-                                              (a.contentType.startsWith("image") || a.contentType.startsWith("video") || a.contentType.startsWith("audio"))
-                                      )
-                                      .map((x) => x),
+                        files: (w.gid == message.guildId ? message.attachments : gcapprovedAttachments).map((x) => x),
                         allowedMentions: { parse: [] },
                         components: w.gid == message.guildId ? comp : [],
                     })
@@ -872,17 +867,8 @@ async function globalchatFunction(client, message) {
                             })
                             .setFooter({ text: `${station}` })
                         embeds.push(embed)
-                        if (
-                            message.attachments.filter(
-                                (x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio"))
-                            ).size > 0
-                        ) {
-                            const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(
-                                message.attachments
-                                    .filter((x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio")))
-                                    .map((x) => x.url)
-                                    .join("\n")
-                            )
+                        if (gcapprovedAttachments.size > 0) {
+                            const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(gcapprovedAttachments.map((x) => x.url).join("\n"))
                             embeds.push(mediaEmbed)
                         }
                         var msg = await channel.send({
@@ -924,13 +910,10 @@ async function globalchatFunction(client, message) {
                     }
                 }
 
-                userData.karma += 1n
-                userData.karma += BigInt(
-                    typeof prefixes == "string" ||
-                        message.attachments.filter(
-                            (x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio"))
-                        ).size > 0
-                )
+                if (typeof prefixes == "string") userData.karma += 15n
+                else if (gcapprovedAttachments.size > 0) userData.karma += 3n + BigInt(gcapprovedAttachments.size / 2 + 0.5)
+                else userData.karma += 1n
+                if (message.reference && Math.random() < 0.05) userData.karma += 2n
                 db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
             })
         }
