@@ -55,14 +55,8 @@ client.on("interactionCreate", async (int) => {
     if (int.isChatInputCommand()) {
         var customPaths = {
             "4fun": {
-                pocałuj: "4fun/uczucia",
-                przytul: "4fun/uczucia",
-                pogłaszcz: "4fun/uczucia",
-                uderz: "4fun/uczucia",
-                ugryź: "4fun/uczucia",
-                poliż: "4fun/uczucia",
-                uciekaj: "4fun/uczucia",
-                foch: "4fun/uczucia",
+                czynność: "4fun/uczucia",
+                reakcja: "4fun/uczucia",
             },
         }
 
