@@ -1,5 +1,5 @@
 const { CommandInteraction, Client } = require("discord.js")
-const { db, customEmoticons } = require("../../../config")
+const { db, customEmoticons, ownersID } = require("../../../config")
 
 module.exports = {
     /**
@@ -16,6 +16,13 @@ module.exports = {
 
         const user = interaction.options.get("osoba", true).user
         const days = interaction.options.get("dni")?.value
+
+        if (ownersID.includes(user.id))
+            return interaction.reply({
+                content: `${customEmoticons.info} Nie żeby coś, ale premium nie wpływa na twórcę bota`,
+                ephemeral: true,
+            })
+
         if (typeof days === "number") {
             if (days === 0) {
                 db.delete(`userData/${user.id}/premium`)
