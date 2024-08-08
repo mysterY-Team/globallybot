@@ -22,7 +22,7 @@ const { checkAnyBadWords } = require("./functions/badwords")
 const timestampCooldown = new Date()
 const globalCooldown = (amount) => 500 + amount * 100
 const userCooldown = (amount, type = 0) =>
-    [4500 + amount * 360, 4000 + amount * 280, 3750 + amount * 245, 3500 + amount * 230, 3500 + amount * 210, 3500 + amount * 190, 3000 + amount * 150][type]
+    [4500 + amount * 360, 4000 + amount * 280, 3750 + amount * 245, 3500 + amount * 230, 3500 + amount * 210, 3500 + amount * 190, 3300 + amount * 180, 3150 + amount * 155][type]
 let lastUser = "unknown"
 
 /**
@@ -291,12 +291,15 @@ async function globalchatFunction(client, message) {
         var gcapprovedAttachments = message.attachments.filter(
             (x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio"))
         )
+        const userHasPremium = (db.get(`userData/${message.author.id}/premium`).val ?? 0) > 0
 
         function wbName(modPerm) {
-            if (ownersID.includes(message.author.id)) var rank = "twórca"
-            else if (modPerm === 2) var rank = "naczelnik"
+            if (modPerm === 2) var rank = "naczelnik"
             else if (modPerm === 1) var rank = "moderator"
             else var rank = "osoba"
+
+            if (userHasPremium) rank = " premium"
+            if (ownersID.includes(message.author.id)) rank = "twórca"
 
             return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`
         }
@@ -538,17 +541,19 @@ async function globalchatFunction(client, message) {
                 let gctI = [
                     true,
                     userData.karma >= 25n,
-                    userData.modPerms > 0,
+                    userData.modPerms > 0 || (userData.karma >= 25n && userHasPremium),
                     userData.karma >= 1000n,
-                    userData.karma >= 1000n && userData.modPerms === 1,
-                    userData.karma >= 1000n && userData.modPerms === 2,
+                    userData.karma >= 1000n && (userData.modPerms === 1 || userHasPremium),
+                    userData.karma >= 1000n && (userData.modPerms === 2 || (userData.modPerms === 1 && userHasPremium)),
+                    userData.karma >= 1000n && userData.modPerms === 2 && userHasPremium,
                     ownersID.includes(message.author.id),
                 ]
 
                 return gctI.findLastIndex((x) => x)
             }
 
-            userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + userCooldown(database.length, gct()) * (1 + typeof prefixes == "string" * 0.6)
+            userData.timestampToSendMessage =
+                Math.max(Date.now(), userData.timestampToSendMessage) + userCooldown(database.length, gct()) * (1 + typeof prefixes == "string" * !userHasPremium * 0.6)
             delete gct
             userData.messageID_bbc = ""
             db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -910,10 +915,10 @@ async function globalchatFunction(client, message) {
                     }
                 }
 
-                if (typeof prefixes == "string") userData.karma += 15n
-                else if (gcapprovedAttachments.size > 0) userData.karma += 3n + BigInt(gcapprovedAttachments.size / 2 + 0.5)
+                if (typeof prefixes == "string") userData.karma += 15n + BigInt(userHasPremium * 3)
+                else if (gcapprovedAttachments.size > 0) userData.karma += 3n + BigInt(gcapprovedAttachments.size / 2 + 0.5 + userHasPremium)
                 else userData.karma += 1n
-                if (message.reference && Math.random() < 0.05) userData.karma += 2n
+                if (message.reference && Math.random() < 0.05) userData.karma += 2n - BigInt(userHasPremium)
                 db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
             })
         }
