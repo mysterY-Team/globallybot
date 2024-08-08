@@ -226,14 +226,22 @@ client.login(TOKEN)
 
 function timerToResetTheAPIInfo() {
     async function x() {
-        listenerLog(2, "")
-
         var y = await servers.fetch(client)
+        listenerLog(2, "")
         listenerLog(2, "✅ Zapisano serwery na lokalnej zmiennej. Liczba oznaczająca zmianę: " + y)
 
-        var index = Object.entries(db.get("userData").val ?? {})
-            .filter((x) => x[1].gc)
-            .map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] }))
+        let users = Object.entries(db.get("userData").val ?? {})
+
+        var listOfUsers = {
+            gc: users.filter((x) => x[1].gc).map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] })),
+            premium: users
+                .filter((x) => x[1].premium)
+                .map((x) => {
+                    return { userID: x[0], days: x[1].premium }
+                }),
+        }
+
+        delete users
 
         if (new Date().getHours() == 0 || forceUpdate) {
             const slashCommandList = require(`./slashcommands.js`)
@@ -241,16 +249,28 @@ function timerToResetTheAPIInfo() {
             listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
 
             listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
-            index.forEach((x) => {
+            listOfUsers.gc.forEach((x) => {
                 if (x.karma < 25n && !x.isBlocked) {
                     db.delete(`userData/${x.userID}/gc`)
                     listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
                 }
             })
             forceUpdate = false
+
+            listOfUsers.premium.forEach((x) => {
+                if (x.days === 1) {
+                    db.delete(`userData/${x.userID}/premium`)
+                    try {
+                        client.users.send(
+                            uID,
+                            "No cześć, mam złą wiadomość. Premium dobiegło końca! Może uda Ci się ponownie zdobyć w jakimś konkursie...\n-# Globally, powered by mysterY Team"
+                        )
+                    } catch (e) {}
+                }
+            })
         }
 
-        const usersToUB = index.filter((x) => x.isBlocked && x.blockTimestamp <= Math.round(Date.now() / 3_600_000))
+        const usersToUB = listOfUsers.gc.filter((x) => x.isBlocked && x.blockTimestamp <= Math.round(Date.now() / 3_600_000))
         usersToUB.forEach((x) => {
             x.blockTimestamp = NaN
             x.blockReason = ""
@@ -260,9 +280,7 @@ function timerToResetTheAPIInfo() {
             db.set(`userData/${uID}/gc`, gcdata.decode(x))
             x.userID = uID
             try {
-                client.users.send(uID, {
-                    content: "Twoja blokada dobiegła końca! Możesz skorzystać z GlobalChat!",
-                })
+                client.users.send(uID, "Twoja blokada dobiegła końca! Możesz skorzystać z GlobalChat!\n-# Globally, powered by mysterY Team")
             } catch (e) {}
         })
 

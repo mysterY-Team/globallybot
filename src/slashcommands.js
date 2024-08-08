@@ -222,8 +222,15 @@ var slashList = [
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("eval")
-                .setDescription("Wykonuje kod [DLA DEWELOPERÓW]")
+                .setDescription("Wykonuje kod [DLA TWÓRCÓW]")
                 .addStringOption((option) => option.setName("func").setDescription("Funkcja do wykonania").setRequired(true))
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("premium")
+                .setDescription("Zarządza premium [DLA TWÓRCÓW]")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
+                .addNumberOption((option) => option.setName("dni").setDescription("Jeżeli użyte, ustawia ilość dni premium").setMinValue(0).setRequired(false))
         ),
     new SlashCommandBuilder()
         .setName("userinfo")
