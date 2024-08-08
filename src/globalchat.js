@@ -298,7 +298,7 @@ async function globalchatFunction(client, message) {
             else if (modPerm === 1) var rank = "moderator"
             else var rank = "osoba"
 
-            if (userHasPremium) rank = " premium"
+            if (userHasPremium) rank += " premium"
             if (ownersID.includes(message.author.id)) rank = "twórca"
 
             return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`

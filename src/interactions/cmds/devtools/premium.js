@@ -43,7 +43,7 @@ module.exports = {
             }
         } else {
             const dbDays = db.get(`userData/${user.id}/premium`).val ?? 0
-            if (dbDays) {
+            if (dbDays === 0) {
                 interaction.reply("Ten użytkownik nie ma premium")
             } else {
                 interaction.reply(`Ten użytkownik ma premium (zostało mu **${dbDays}** dni)`)
