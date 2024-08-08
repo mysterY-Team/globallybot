@@ -18,13 +18,14 @@
 1. Zdanie deweloperów ZAWSZE jest ostateczne, lecz warto pamiętać o omyłkach.
 # §3 - Wiadomości a GlobalChat
 1. Wiadomości także idą zasadami ToS-u Discorda.
-1. Każda wiadomość wysłana za pośrednictwem GlobalChata zawiera dane, które mogą być namierzone przez administratorów Discorda.
+1. Każda wiadomość wysłana za pośrednictwem usługi zawiera dane dla moderacji Discord.
 1. Komentowanie karane będzie TYLKO regulaminem serwera.
+1. Linki oraz multimedia są dostępne TYLKO dla osób posiadających conajmniej 25 karmy
 1. Zakazane jest wysyłanie materiałów/pisania o tematach takich jak: religijne, rasistowskie\*, faszystowskie/komunistyczne, pornograficzne\*, zagrażające życiu, wrażliwe, z seksualnym podtekstem\* czy zawierające dane poufne (sprawdź: §6 ptk. 4).
 1. Należy się CAŁKOWITA tolerancja do drugiej osoby, niezależnie od karnacji, płci, poglądów różnego rodzaju, miejsca pochodzenia i innych aspektów ludzkich.
 1. ZABRANIA się spamowania, floodowania oraz zapychania "łańcuszkami".
-1. Usługa blokuje większość linków z zaproszeniami na serwer i kilka dla dorosłych oraz niedozwolone słowa obraźliwe. Omijanie takiej zapory (także upublicznianie niebezpiecznych linków) wiąże się blokadą użytkownika AŻ DO ODWOŁANIA.
-1. Dozwolone jest przeklinanie, ale nie na tyle, aby zastępować interpunkcji.
+1. Usługa blokuje linki z zaproszeniami na serwer i dla dorosłych oraz niedozwolone słowa obraźliwe. Omijanie takiej zapory (także upublicznianie niebezpiecznych linków) wiąże się blokadą użytkownika AŻ DO ODWOŁANIA.
+1. Przeklinanie jest dozwolone, ale umiarkowaną ilością.
 1. Usługa przyjmuje tylko zdjęcia, filmy i dźwięki z powodu bezpieczeństwa.
 # §4 - Prezentacja użytkownika a GlobalChat
 1. Użytkownik MUSI mieć neutralny nick dla każdego z użytowników, serwerów ORAZ usługi.
@@ -35,7 +36,7 @@
 1. GlobalActions mogą mieć własne warunki użytkowania, gdzie się godzisz wraz z ich użyciem.
 1. Za uciążliwe "zaczepianie" (m.in. spam zaczepiania bez powodu konkretnego) wiąże się blokada do 5 dni, lub AŻ DO ODWOŁANIA w przypadku powtórzenia tego wyczynu.
 # §6 - Dodatkowe informacje
-1. Reakcja X ({{custom:denided}}) przy niewysłanej wiadomości oznacza brak dostępu do usługi (blokada), użyciem niedozwolonego linku LUB użyciem zakazanego słowa. Podczas używania tagu `<p>` oznacza ona błąd podczas konwertowania wiadomości.
-1. Reakcja minusa ({{custom:minus}}) podczas używania tagu `<p>` oznacza ona brak wiadomości zablokowanej przez cooldown.
+1. Reakcja X ({{custom:denided}}) przy niewysłanej wiadomości oznacza brak dostępu do usługi (blokada) LUB blokady linku. Podczas używania tagu `<p>` oznacza ona błąd podczas konwertowania wiadomości.
+1. Reakcja minusa ({{custom:minus}}) podczas używania tagu `<p>` oznacza brak wiadomości zablokowanej przez cooldown.
 1. Czas może się wydłużyć w zależności od dostępności deweloperów i/lub naczelników.
 1. Jedna gwiazdka oznacza możliwość wysłania w celach humorystycznych, __W PRZYPADKU pornograficznego materiału__ mogą być wysyłanie humorystycznie TYLKO w spoilerze, nie może też przedstawiać ŻADNEJ części intymnej. Należy też przestrzegać tolerancji.

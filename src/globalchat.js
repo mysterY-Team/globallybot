@@ -345,6 +345,11 @@ async function globalchatFunction(client, message) {
             }
         }
 
+        const oldUserSnapshot = db.get(`userData/${message.author.id}/gc`)
+        var userData = gcdata.encode(oldUserSnapshot.val)
+
+        if (userData.karma < 25n && !userHasPremium) gcapprovedAttachments = gcapprovedAttachments.filter(() => false)
+
         if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) return
 
         if (!message.author.bot && !message.author.system) {
@@ -430,9 +435,6 @@ async function globalchatFunction(client, message) {
 
             listenerLog(3, "➿ Spełniono warunek (2/5)")
 
-            const oldUData = db.get(`userData/${message.author.id}/gc`).val
-            var userData = gcdata.encode(oldUData)
-
             if (userData.timestampToSendMessage - 300 > Date.now()) {
                 message.reply(`${customEmoticons.denided} Osobisty cooldown! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms`).then(async (msg) => {
                     await wait(Math.max(userData.timestampToSendMessage - Date.now(), 2000))
@@ -492,7 +494,7 @@ async function globalchatFunction(client, message) {
                 try {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada linku" })
-                        .setFields({ name: "Kara", value: "3 minuty osobistego cooldownu" })
+                        .setFields({ name: "Powód", value: "Niedozwolony link", inline: true }, { name: "Kara", value: "3 minuty osobistego cooldownu", inline: true })
                         .setFooter({ text: "Globally, powered by mysterY Team" })
                         .setColor("Red")
                     message.author.send({ embeds: [embed] })
@@ -503,13 +505,36 @@ async function globalchatFunction(client, message) {
                 return
             }
 
+            if (userData.karma < 25n) {
+                let varcheckURL = message.content.split("")
+                varcheckURL = varcheckURL.filter((x) => x.match(/^(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_]*)?$/))
+                if (varcheckURL.length > 0) {
+                    message.react(customEmoticons.denided)
+                    try {
+                        const embed = new EmbedBuilder()
+                            .setAuthor({ name: "Blokada linku" })
+                            .setFields({ name: "Powód", value: "Za mała ilość karmy", inline: true }, { name: "Kara", value: "30 sekund osobistego cooldownu", inline: true })
+                            .setFooter({ text: "Globally, powered by mysterY Team" })
+                            .setColor("Red")
+                        message.author.send({ embeds: [embed] })
+                    } catch (e) {}
+                    userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 30_000
+                    userData.messageID_bbc = ""
+                    db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+                    return
+                }
+            }
+
             const bw = checkAnyBadWords(deleteComments(message.content))
             if (bw.checked) {
                 if (message.deletable) message.delete()
                 try {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada słowa" })
-                        .setFields({ name: "Wyłapane słowo", value: `\`${bw.badWord}\``, inline: true }, { name: "Kara", value: "minuta osobistego cooldownu", inline: true })
+                        .setFields(
+                            { name: "Powód", value: `Niedozwolone słowo \`${bw.badWord}\``, inline: true },
+                            { name: "Kara", value: "minuta osobistego cooldownu", inline: true }
+                        )
                         .setFooter({ text: "Globally, powered by mysterY Team" })
                         .setColor("Red")
                     message.channel.send({ embeds: [embed] })
