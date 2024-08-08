@@ -779,7 +779,7 @@ async function globalchatFunction(client, message) {
                         .map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x)))
 
                     var x = await w.wh.send({
-                        avatarURL: message.author.displayAvatarURL({ size: 128, extension: "png" }),
+                        avatarURL: message.author.avatarURL({ size: 128, extension: "png" }),
                         username: wbName(userData.modPerms),
                         content: w.gid == message.guildId ? message.content : deleteComments(message.content),
                         embeds: reply,
