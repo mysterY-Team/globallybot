@@ -1,10 +1,8 @@
 const loc = require("locallium")
 
 const debug = false
-
 const ldb = new loc.Database("env")
 
-loc.Database
 module.exports = {
     TOKEN: ldb.get("token").val,
     db: new loc.Database(
@@ -18,6 +16,7 @@ module.exports = {
         "1166024655052738570", //patyczakus
         "767311735819862032", //maticola
         "988796644407517245", //vehti
+        "674700413026566175", //starlight
     ],
     supportServer: {
         id: "1173722642004574359",

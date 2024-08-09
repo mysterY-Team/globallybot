@@ -20,7 +20,7 @@ module.exports = {
             hug: {
                 uses_user: true,
                 action_what_user_did: "przytulił(-a)",
-                interaction_responses: [`${interaction.user} pogłaskał(-a) {user}! Jak słodko~`, `Widać, że ${interaction.user} i {user} traktują się jak rodzeństwo~`],
+                interaction_responses: [`${interaction.user} przytulił(-a) {user}! Jak słodko~`, `Widać, że ${interaction.user} i {user} traktują się jak rodzeństwo~`],
             },
             pat: {
                 uses_user: true,
@@ -35,7 +35,7 @@ module.exports = {
                 action_what_user_did: "uderzył(-a)",
                 interaction_responses: [
                     `${interaction.user} uderzył(-a) {user}! To musiało boleć!`,
-                    `"Poszło jak masło. Przeciwnik oberwał!" - tak mówił(-a) ${interaction.user} po śmiertelnym uderzeniu {user}`,
+                    `"Poszło jak w masło. Przeciwnik oberwał!" - tak mówił(-a) ${interaction.user} po śmiertelnym uderzeniu {user}`,
                 ],
             },
             bite: {
@@ -78,6 +78,24 @@ module.exports = {
                     `${interaction.user} przywitał(-a) {user}`,
                     `Kawaii przywitanie od ${interaction.user} dla {user} ^w^`,
                 ],
+            },
+            sleep: {
+                uses_user: false,
+                interaction_responses: [
+                    `*Real footage of eppy ${interaction.user}*`,
+                    `*Real footage of ${interaction.user} sleeping*`,
+                    `${interaction.user} w taktyczny sposób zasnął(-ęła)`,
+                    `${interaction.user} zaszedł(-ła) w sen zimowy...`,
+                ],
+            },
+            confused: {
+                uses_user: false,
+                interaction_responses: [`Mózg ${interaction.user} przestał mózgować.`, `${interaction.user} jest aktualnie w mieszanych uczuciach...`],
+            },
+            shout: {
+                uses_user: true,
+                action_what_user_did: "nakrzyczał(-a)",
+                interaction_responses: [`${interaction.user} wpadł w furię, i chce się wyżyć na {user}`],
             },
         }
 

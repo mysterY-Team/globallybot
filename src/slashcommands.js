@@ -116,7 +116,8 @@ var slashList = [
                 .setDescription("Stacje pozwalające na dobieranie innych serwerów")
                 .addSubcommand((subcommand) => subcommand.setName("załóż").setDescription("Tworzy stację do GlobalChata"))
                 .addSubcommand((subcommand) => subcommand.setName("lista").setDescription("Informacje o dostępnych stacjach w GlobalChacie"))
-        ),
+        )
+        .addSubcommand((subcommand) => subcommand.setName("ranking").setDescription("Pokazuje ranking GlobalChat na podstawie karmy")),
 
     //gradient
     new SlashCommandBuilder()
@@ -165,13 +166,13 @@ var slashList = [
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("avatar")
-                .setDescription("Sprawdź avatar użytkownika")
+                .setDescription("Pokazuje avatar użytkownika")
                 .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(false))
         )
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("banner")
-                .setDescription("Sprawdź banner użytkownika")
+                .setDescription("Pokazuje banner użytkownika")
                 .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(false))
         )
         .addSubcommand((subcommand) =>
@@ -190,7 +191,8 @@ var slashList = [
                             { name: "🤕 Uderz", value: "slap" },
                             { name: "🧛 Ugryź", value: "bite" },
                             { name: "👅 Poliż", value: "lick" },
-                            { name: "👋 Powitaj", value: "wave" }
+                            { name: "👋 Powitaj", value: "wave" },
+                            { name: "🤬 Nakrzycz ", value: "shout" }
                         )
                 )
                 .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
@@ -204,7 +206,13 @@ var slashList = [
                         .setName("typ")
                         .setDescription("Typ danej akcji")
                         .setRequired(true)
-                        .setChoices({ name: "🏃 Ucieczka/bieg", value: "run" }, { name: "😤 Foch", value: "pout" }, { name: "😁 Radość", value: "yay" })
+                        .setChoices(
+                            { name: "🏃 Ucieczka/bieg", value: "run" },
+                            { name: "😤 Foch", value: "pout" },
+                            { name: "😁 Radość", value: "yay" },
+                            { name: "😴 Sen", value: "sleep" },
+                            { name: "😵‍💫 Dezorient", value: "confused" }
+                        )
                 )
         ),
 
@@ -228,7 +236,7 @@ var slashList = [
         ),
     new SlashCommandBuilder()
         .setName("userinfo")
-        .setDescription("Sprawdź użytkownika pod kątem Discorda oraz Globally")
+        .setDescription("Sprawdza użytkownika pod kątem Discorda oraz Globally")
         .setDMPermission(true)
         .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby")),
     new SlashCommandBuilder()
