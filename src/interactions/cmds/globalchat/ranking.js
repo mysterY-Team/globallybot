@@ -118,7 +118,7 @@ module.exports = {
             })
         else throw console.error("Nie udało się wysłać do tego kanału; nie istnieje taka możliwość (/globalchat ranking)")
 
-        const _place = leaderboard.findIndex((x) => (x.user.id = interaction.user.id)) + 1
+        const _place = leaderboard.findIndex((x) => x.user.id == interaction.user.id) + 1
         var embed = new EmbedBuilder()
             .setImage(msg.attachments.first().url)
             .setDescription(
