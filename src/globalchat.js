@@ -941,10 +941,10 @@ async function globalchatFunction(client, message) {
                     }
                 }
 
-                if (typeof prefixes == "string") userData.karma += 15n + BigInt(userHasPremium * 3)
-                else if (gcapprovedAttachments.size > 0) userData.karma += 3n + BigInt(gcapprovedAttachments.size / 2 + 0.5 + userHasPremium)
+                if (typeof prefixes == "string") userData.karma += 12n + BigInt((userHasPremium || ownersID.includes(message.author.id)) * 3)
+                else if (gcapprovedAttachments.size > 0) userData.karma += BigInt(Math.round(gcapprovedAttachments.size / (2 - userHasPremium * 0.5)) + 2 + userHasPremium)
                 else userData.karma += 1n
-                if (message.reference && Math.random() < 0.05) userData.karma += 2n - BigInt(userHasPremium)
+                if (message.reference && Math.random() < 0.05 * (1 + ownersID.includes(message.author.id))) userData.karma += 2n - BigInt(userHasPremium)
                 db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
             })
         }

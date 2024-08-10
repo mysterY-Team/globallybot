@@ -55,14 +55,8 @@ client.on("interactionCreate", async (int) => {
     if (int.isChatInputCommand()) {
         var customPaths = {
             "4fun": {
-                pocałuj: "4fun/uczucia",
-                przytul: "4fun/uczucia",
-                pogłaszcz: "4fun/uczucia",
-                uderz: "4fun/uczucia",
-                ugryź: "4fun/uczucia",
-                poliż: "4fun/uczucia",
-                uciekaj: "4fun/uczucia",
-                foch: "4fun/uczucia",
+                czynność: "4fun/uczucia",
+                reakcja: "4fun/uczucia",
             },
         }
 
@@ -198,7 +192,10 @@ client.on("threadUpdate", (thread) => {
             }
         }, 500)
 })
-client.on("guildCreate", async (guild) => {
+client.on("guildMemberAdd", async (member) => {
+    if (member.id !== _bot.id) return
+    var guild = member.guild
+
     listenerLog(3, `Nowy serwer: ${guild.name}`)
     const embed = new EmbedBuilder()
         .setAuthor({ iconURL: guild.iconURL({ extension: "webp", size: 32 }), name: "Nowy serwer" })
@@ -243,7 +240,10 @@ function timerToResetTheAPIInfo() {
 
         delete users
 
-        if (new Date().getHours() == 0 || forceUpdate) {
+        let hours = new Date().getHours()
+        if (hours == 0 || forceUpdate) {
+            forceUpdate = false
+
             const slashCommandList = require(`./slashcommands.js`)
             await client.application.commands.set(slashCommandList.list())
             listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
@@ -255,20 +255,24 @@ function timerToResetTheAPIInfo() {
                     listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
                 }
             })
-            forceUpdate = false
 
-            listOfUsers.premium.forEach((x) => {
-                if (x.days === 1) {
-                    db.delete(`userData/${x.userID}/premium`)
-                    try {
-                        client.users.send(
-                            uID,
-                            "No cześć, mam złą wiadomość. Premium dobiegło końca! Może uda Ci się ponownie zdobyć w jakimś konkursie...\n-# Globally, powered by mysterY Team"
-                        )
-                    } catch (e) {}
-                }
-            })
+            if (hours == 0) {
+                listOfUsers.premium.forEach((x) => {
+                    if (x.days === 1) {
+                        db.delete(`userData/${x.userID}/premium`)
+                        try {
+                            client.users.send(
+                                uID,
+                                "No cześć, mam złą wiadomość. Premium dobiegło końca! Może uda Ci się ponownie zdobyć w jakimś konkursie...\n-# Globally, powered by mysterY Team"
+                            )
+                        } catch (e) {}
+                    } else {
+                        db.set(`userData/${x.userID}/premium`, x.days - 1)
+                    }
+                })
+            }
         }
+        delete hours
 
         const usersToUB = listOfUsers.gc.filter((x) => x.isBlocked && x.blockTimestamp <= Math.round(Date.now() / 3_600_000))
         usersToUB.forEach((x) => {

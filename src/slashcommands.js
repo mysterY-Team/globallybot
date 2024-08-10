@@ -116,7 +116,8 @@ var slashList = [
                 .setDescription("Stacje pozwalające na dobieranie innych serwerów")
                 .addSubcommand((subcommand) => subcommand.setName("załóż").setDescription("Tworzy stację do GlobalChata"))
                 .addSubcommand((subcommand) => subcommand.setName("lista").setDescription("Informacje o dostępnych stacjach w GlobalChacie"))
-        ),
+        )
+        .addSubcommand((subcommand) => subcommand.setName("ranking").setDescription("Pokazuje ranking GlobalChat na podstawie karmy")),
 
     //gradient
     new SlashCommandBuilder()
@@ -165,54 +166,55 @@ var slashList = [
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("avatar")
-                .setDescription("Sprawdź avatar użytkownika")
+                .setDescription("Pokazuje avatar użytkownika")
                 .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(false))
         )
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("banner")
-                .setDescription("Sprawdź banner użytkownika")
+                .setDescription("Pokazuje banner użytkownika")
                 .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(false))
         )
-        //uczucia, aka "gejowskie akcje"
         .addSubcommand((subcommand) =>
             subcommand
-                .setName("przytul")
-                .setDescription("[Uczucia] Przytul osobę na śmierć")
+                .setName("czynność")
+                .setDescription("[Uczucia] Wykonaj jakąś akcję na osobie")
+                .addStringOption((option) =>
+                    option
+                        .setName("typ")
+                        .setDescription("Typ danej akcji")
+                        .setRequired(true)
+                        .setChoices(
+                            { name: "🤗 Przytul", value: "hug" },
+                            { name: "😙 Pocałuj", value: "kiss" },
+                            { name: "😻 Pogłaszcz", value: "pat" },
+                            { name: "🤕 Uderz", value: "slap" },
+                            { name: "🧛 Ugryź", value: "bite" },
+                            { name: "👅 Poliż", value: "lick" },
+                            { name: "👋 Powitaj", value: "wave" },
+                            { name: "🤬 Nakrzycz ", value: "shout" }
+                        )
+                )
                 .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
         )
         .addSubcommand((subcommand) =>
             subcommand
-                .setName("pocałuj")
-                .setDescription("[Uczucia] Pocałuj osobę")
-                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
-        )
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("pogłaszcz")
-                .setDescription("[Uczucia] Pogłasz osobę jak swoje ulubione zwierzątko")
-                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
-        )
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("ugryź")
-                .setDescription("[Uczucia] Ugryź osobę")
-                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
-        )
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("uderz")
-                .setDescription("[Uczucia] Uderz osobę z całej pary")
-                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
-        )
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("poliż")
-                .setDescription("[Uczucia] Poliż osobę jak kot")
-                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
-        )
-        .addSubcommand((subcommand) => subcommand.setName("uciekaj").setDescription("[Uczucia] Uciekaj, ile sił"))
-        .addSubcommand((subcommand) => subcommand.setName("foch").setDescription("[Uczucia] Obraź się na kogoś, na coś lub na nic...")),
+                .setName("reakcja")
+                .setDescription("[Uczucia] Wyraź siebie za pomocą akcji")
+                .addStringOption((option) =>
+                    option
+                        .setName("typ")
+                        .setDescription("Typ danej akcji")
+                        .setRequired(true)
+                        .setChoices(
+                            { name: "🏃 Ucieczka/bieg", value: "run" },
+                            { name: "😤 Foch", value: "pout" },
+                            { name: "😁 Radość", value: "yay" },
+                            { name: "😴 Sen", value: "sleep" },
+                            { name: "😵‍💫 Dezorient", value: "confused" }
+                        )
+                )
+        ),
 
     //mniejsze z argumentami
     new SlashCommandBuilder()
@@ -234,7 +236,7 @@ var slashList = [
         ),
     new SlashCommandBuilder()
         .setName("userinfo")
-        .setDescription("Sprawdź użytkownika pod kątem Discorda oraz Globally")
+        .setDescription("Sprawdza użytkownika pod kątem Discorda oraz Globally")
         .setDMPermission(true)
         .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby")),
     new SlashCommandBuilder()

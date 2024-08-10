@@ -30,7 +30,7 @@ module.exports = {
             )
             .setFields(
                 {
-                    name: "Właściciel/-ka",
+                    name: "Właściciel(-ka)",
                     value: `<@${sowner.id}>\nNick: ${sowner.user.discriminator === "0" ? sowner.user.username : sowner.user.username + "#" + sowner.user.discriminator}\nID: \`${
                         sowner.id
                     }\``,
