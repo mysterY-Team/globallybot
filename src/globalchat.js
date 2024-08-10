@@ -499,7 +499,7 @@ async function globalchatFunction(client, message) {
                         .setColor("Red")
                     message.author.send({ embeds: [embed] })
                 } catch (e) {}
-                userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 180_000
+                userData.timestampToSendMessage = Date.now() + 180_000
                 userData.messageID_bbc = ""
                 db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 return
@@ -518,7 +518,7 @@ async function globalchatFunction(client, message) {
                             .setColor("Red")
                         message.author.send({ embeds: [embed] })
                     } catch (e) {}
-                    userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 30_000
+                    userData.timestampToSendMessage = Date.now() + 30_000
                     userData.messageID_bbc = ""
                     db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                     return
@@ -539,7 +539,7 @@ async function globalchatFunction(client, message) {
                         .setColor("Red")
                     message.channel.send({ embeds: [embed] })
                 } catch (e) {}
-                userData.timestampToSendMessage = Math.max(Date.now(), userData.timestampToSendMessage) + 60_000
+                userData.timestampToSendMessage = Date.now() + 60_000
                 userData.messageID_bbc = ""
                 db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 return
@@ -557,9 +557,6 @@ async function globalchatFunction(client, message) {
 
             listenerLog(4, `📌 Stacja "${station}"`)
 
-            listenerLog(3, "")
-            listenerLog(3, "♻️ Wykonywanie działania webhooków")
-
             delete ddata
 
             function gct() {
@@ -574,14 +571,22 @@ async function globalchatFunction(client, message) {
                     ownersID.includes(message.author.id),
                 ]
 
-                return gctI.findLastIndex((x) => x)
+                return gctI.lastIndexOf(true)
             }
 
-            userData.timestampToSendMessage =
-                Math.max(Date.now(), userData.timestampToSendMessage) + userCooldown(database.length, gct()) * (1 + typeof prefixes == "string" * !userHasPremium * 0.6)
+            listenerLog(3, "🪪 Dane")
+            listenerLog(4, `gct() => ${gct()}`)
+            listenerLog(4, `userCooldown(amount<${database.length}>, type<gct()>) => ${userCooldown(database.length, gct())}`)
+
+            userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct()) * (1 + (typeof prefixes == "string" * !userHasPremium * 0.6))
             delete gct
             userData.messageID_bbc = ""
             db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+
+            listenerLog(4, `Różnica cooldownów: ${userData.timestampToSendMessage - Date.now()}`)
+
+            listenerLog(3, "")
+            listenerLog(3, "♻️ Wykonywanie działania webhooków")
 
             /**
              * @type {{ wh: WebhookClient, gid: string, cid: string }[]}

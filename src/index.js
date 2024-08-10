@@ -207,7 +207,6 @@ client.on("guildMemberAdd", async (member) => {
 client.on("debug", (info) => {
     if (debug) {
         if (!active) {
-            listenerLog(2, "")
             listenerLog(0, "[D] " + info)
         }
     }
