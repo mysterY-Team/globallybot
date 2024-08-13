@@ -1,6 +1,7 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { db, ownersID, customEmoticons, supportServer } = require("../../../../config")
+const { db, customEmoticons, supportServer } = require("../../../../config")
 const { gcdata } = require("../../../../functions/dbs")
+const { checkUserStatusInSupport } = require("../../../../functions/useful")
 
 module.exports = {
     /**
@@ -9,28 +10,32 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
+        await interaction.deferReply({
+            ephemeral: interaction.inGuild(),
+        })
         var yourInfo = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
-        if (!ownersID.includes(interaction.user.id) && yourInfo.modPerms === 0)
+        const ssstatus1 = await checkUserStatusInSupport(client, interaction.user.id)
+        const isInMysteryTeam1 = ssstatus1.in && ssstatus1.mysteryTeam
+
+        if (!isInMysteryTeam1 && yourInfo.modPerms === 0)
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
-            return interaction.reply({
-                ephemeral: true,
+            return interaction.editReply({
                 content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:\n- Nie jesteś na liście developerów bota\n- Nie masz odpowiednich permisji w bocie`,
             })
-        var uID = interaction.options.get("osoba", true).user.id
         try {
+            var uID = interaction.options.get("osoba", true).user.id
+            const ssstatus2 = await checkUserStatusInSupport(client, uID)
+            const isInMysteryTeam2 = ssstatus2.in && ssstatus2.mysteryTeam
+
             if (uID === interaction.user.id) {
-                interaction.reply({
-                    ephemeral: interaction.inGuild(),
+                interaction.editReply({
                     content: `Ejejej, bez przesady kolego`,
                 })
                 return
             }
-            await interaction.deferReply({
-                ephemeral: interaction.inGuild(),
-            })
 
             var info = gcdata.encode(db.get(`userData/${uID}/gc`).val)
-            if (Math.max(yourInfo.modPerms, ownersID.includes(interaction.user.id) * 11 - 1) <= info.modPerms || ownersID.includes(uID)) {
+            if (Math.max(yourInfo.modPerms, isInMysteryTeam1 * 11 - 1) <= info.modPerms || isInMysteryTeam2) {
                 interaction.editReply({
                     content: `${customEmoticons.denided} Ta osoba jest ponad/na równi twoich permisji!`,
                 })

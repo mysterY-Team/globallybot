@@ -1,6 +1,7 @@
 const { CommandInteraction, Client, PermissionFlagsBits, EmbedBuilder } = require("discord.js")
-const { db, ownersID, customEmoticons, _bot, supportServer, constPremiumServersIDs } = require("../../../../config")
+const { db, customEmoticons, _bot, supportServer, constPremiumServersIDs } = require("../../../../config")
 const { gcdataGuild } = require("../../../../functions/dbs")
+const { checkUserStatusInSupport } = require("../../../../functions/useful")
 
 module.exports = {
     /**
@@ -13,6 +14,10 @@ module.exports = {
 
         if (interaction.guildId == null) return interaction.reply(`${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`)
 
+        await interaction.deferReply({ ephemeral: Boolean(pwd) })
+        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam 
+
         //argument kanału i serwer
         var channel = interaction.options.get("kanał", true)
         var guild = interaction.guild
@@ -22,7 +27,7 @@ module.exports = {
                 (interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks + PermissionFlagsBits.ManageChannels) ||
                     interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
                     interaction.user.id == guild.ownerId ||
-                    ownersID.includes(interaction.user.id)) &&
+                    isInMysteryTeam) &&
                 (bot.permissions.has(PermissionFlagsBits.Administrator) || bot.permissions.has(PermissionFlagsBits.ManageWebhooks))
             )
         )
@@ -34,13 +39,11 @@ module.exports = {
                     - Nie masz permisji administratora
                     - Nie jesteś właścicielem serwera
                     - Bot nie ma permisji administrotara lub uprawnienia **Zarządzanie Webhookami**
-                    - Nie jesteś na liście twórców bota`
+                    - Nie posiadasz roli **mysterY Team** na serwerze support`
                     .split("\n")
                     .map((x) => x.trim())
                     .join("\n"),
             })
-
-        await interaction.deferReply({ ephemeral: Boolean(pwd) })
 
         var serverData = Object.values(db.get("serverData").val || {})
         serverData = serverData.filter((x) => x.gc && x.gc.includes(interaction.options.get("stacja", true).value))
@@ -97,7 +100,7 @@ module.exports = {
         const emb = new EmbedBuilder()
             .setTitle("Podpięto kanał!")
             .setDescription(
-                `ID kanału: \`${channel.channel.id}\`\nNazwa kanału: \`${channel.channel.name}\`\nStacja: \`${$stacja}\`\nOsoba podłączająca: <@${interaction.user.id}> (\`${interaction.user.username}\`, \`${interaction.user.id}\`)`
+                `ID kanału: \`${channel.channel.id}\`\nNazwa kanału: \`${channel.channel.name}\`\nID Serwera: ${channel.channel.guildId}\nStacja: \`${$stacja}\`\nOsoba podłączająca: <@${interaction.user.id}> (\`${interaction.user.username}\`, \`${interaction.user.id}\`)`
             )
             .setColor("Blue")
         await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })

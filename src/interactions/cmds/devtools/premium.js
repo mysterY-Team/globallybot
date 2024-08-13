@@ -1,5 +1,6 @@
 const { CommandInteraction, Client } = require("discord.js")
-const { db, customEmoticons, ownersID } = require("../../../config")
+const { db, customEmoticons } = require("../../../config")
+const { checkUserStatusInSupport } = require("../../../functions/useful")
 
 module.exports = {
     /**
@@ -8,7 +9,11 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        if (!ownersID.includes(interaction.user.id))
+        await interaction.deferReply()
+        const ssstatus1 = await checkUserStatusInSupport(client, interaction.user.id)
+        const isInMysteryTeam1 = ssstatus1.in && ssstatus1.mysteryTeam
+
+        if (!isInMysteryTeam1)
             return interaction.reply({
                 content: `${customEmoticons.denided} Nie jesteś właścicielem bota!`,
                 ephemeral: true,
@@ -17,7 +22,10 @@ module.exports = {
         const user = interaction.options.get("osoba", true).user
         const days = interaction.options.get("dni")?.value
 
-        if (ownersID.includes(user.id))
+        const ssstatus2 = await checkUserStatusInSupport(client, interaction.user.id)
+        const isInMysteryTeam2 = ssstatus2.in && ssstatus2.mysteryTeam
+
+        if (isInMysteryTeam2)
             return interaction.reply({
                 content: `${customEmoticons.info} Nie żeby coś, ale premium nie wpływa na twórcę bota`,
                 ephemeral: true,
@@ -44,9 +52,9 @@ module.exports = {
         } else {
             const dbDays = db.get(`userData/${user.id}/premium`).val ?? 0
             if (dbDays === 0) {
-                interaction.reply("Ten użytkownik nie ma premium")
+                interaction.reply(`Użytkownik ${user} (\`${user.username}\`) nie ma premium`)
             } else {
-                interaction.reply(`Ten użytkownik ma premium (zostało mu **${dbDays}** dni)`)
+                interaction.reply(`Użytkownik ${user} (\`${user.username}\`) ma premium (zostało mu **${dbDays}** dni)`)
             }
         }
     },

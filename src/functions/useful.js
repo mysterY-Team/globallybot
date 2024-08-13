@@ -58,13 +58,14 @@ function checkFontColor(bgHEX) {
  *
  * @param {Client<true>} client
  * @param {string} id
+ * @param {boolean} [forced=true]
  */
-async function checkUserInSupport(client, id) {
+async function checkUserStatusInSupport(client, id, forced = true) {
     try {
-        await (await client.guilds.fetch(supportServer.id)).members.fetch(id)
-        return true
+        const member = await (await client.guilds.fetch(supportServer.id)).members.fetch({ user: { id: id }, force: forced })
+        return { in: true, mysteryTeam: member.roles.cache.has("1264341114941472848") }
     } catch (err) {
-        return false
+        return { in: false }
     }
 }
 
@@ -80,5 +81,5 @@ module.exports = {
     wait,
     checkFontColor,
     servers,
-    checkUserInSupport,
+    checkUserStatusInSupport,
 }

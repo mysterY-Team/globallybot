@@ -1,7 +1,8 @@
 const djs = require("discord.js")
 const { CommandInteraction, Client, EmbedBuilder } = djs
 var conf = require("../../../config")
-const { customEmoticons, ownersID } = conf
+const { checkUserStatusInSupport } = require("../../../functions/useful")
+const { customEmoticons } = conf
 
 delete conf.TOKEN
 
@@ -12,13 +13,16 @@ module.exports = {
      * @param {CommandInteraction} interaction
      */
     async execute(client, interaction) {
-        if (!ownersID.includes(interaction.user.id))
+        await interaction.deferReply()
+        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam 
+
+        if (!isInMysteryTeam)
             return interaction.reply({
                 content: `${customEmoticons.denided} Nie jesteś właścicielem bota!`,
                 ephemeral: true,
             })
 
-        await interaction.deferReply()
         try {
             var thisGuild = interaction.guild
             var thisChannel = interaction.channel

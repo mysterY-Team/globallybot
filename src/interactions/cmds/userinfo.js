@@ -1,6 +1,7 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { db, customEmoticons, ownersID } = require("../../config")
+const { db, customEmoticons } = require("../../config")
 const { gcdata } = require("../../functions/dbs")
+const { checkUserStatusInSupport } = require("../../functions/useful")
 
 module.exports = {
     /**
@@ -12,6 +13,9 @@ module.exports = {
         const user = interaction.options.get("osoba")?.user || interaction.user
 
         await interaction.deferReply()
+        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam 
+
         const fdb = db.get(`userData/${user.id}`)
         var data = fdb.val ?? {}
         const modules = Object.keys(data).map((x) => {
@@ -29,8 +33,8 @@ module.exports = {
             })
             .setFields({
                 name: "Informacje o użytkowniku",
-                value: `Założenie konta: <t:${Math.floor(user.createdTimestamp / 1000)}:R>\nID: \`${user.id}\`\nWłaściciel bota: ${
-                    ownersID.includes(user.id) ? customEmoticons.approved : customEmoticons.denided
+                value: `Założenie konta: <t:${Math.floor(user.createdTimestamp / 1000)}:R>\nID: \`${user.id}\`\nW drużynie **mysterY Team**: ${
+                    isInMysteryTeam ? customEmoticons.approved : customEmoticons.denided
                 }`,
             })
 
@@ -40,7 +44,7 @@ module.exports = {
                 data.gc = gcdata.encode(data.gc)
                 embed.addFields({
                     name: "Moduł *GlobalChat*",
-                    value: `Moderator: ${ownersID.includes(user.id) || data.gc.modPerms > 0 ? customEmoticons.approved : customEmoticons.denided}\nZablokowany: ${
+                    value: `Moderator: ${isInMysteryTeam || data.gc.modPerms > 0 ? customEmoticons.approved : customEmoticons.denided}\nZablokowany: ${
                         data.gc.isBlocked ? customEmoticons.approved : customEmoticons.denided
                     }\nKarma: **${data.gc.karma.toString()}**`,
                 })

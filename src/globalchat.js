@@ -10,10 +10,10 @@ const {
     ChannelType,
     DiscordAPIError,
 } = require("discord.js")
-const { db, customEmoticons, ownersID, debug, supportServer, _bot } = require("./config")
+const { db, customEmoticons, debug, supportServer, _bot } = require("./config")
 const fs = require("fs")
 const { emoticons } = require("./interactions/cmds/globalchat/emotki")
-const { listenerLog, wait } = require("./functions/useful")
+const { listenerLog, wait, checkUserStatusInSupport } = require("./functions/useful")
 const { freemem, totalmem } = require("os")
 const { gcdata, gcdataGuild } = require("./functions/dbs")
 const { request } = require("undici")
@@ -285,6 +285,9 @@ function deleteComments(text) {
  */
 async function globalchatFunction(client, message) {
     try {
+        const ssstatus = await checkUserStatusInSupport(client, message.author.id, false)
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+
         const GClocation = `${message.guildId}/${message.channelId}`
         var accDate = new Date()
         accDate = `${accDate.getFullYear()}-${accDate.getMonth() + 1}-${accDate.getDate()}`
@@ -299,7 +302,7 @@ async function globalchatFunction(client, message) {
             else var rank = "osoba"
 
             if (userHasPremium) rank += " premium"
-            if (ownersID.includes(message.author.id)) rank = "twórca"
+            if (isInMysteryTeam) rank = "mystery Team"
 
             return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`
         }
@@ -489,7 +492,7 @@ async function globalchatFunction(client, message) {
 
             //---
 
-            if (sprawdzNiedozwoloneLinki(deleteComments(message.content)) && !ownersID.includes(message.author.id)) {
+            if (sprawdzNiedozwoloneLinki(deleteComments(message.content)) && !isInMysteryTeam) {
                 message.react(customEmoticons.denided)
                 try {
                     const embed = new EmbedBuilder()
@@ -568,7 +571,7 @@ async function globalchatFunction(client, message) {
                     userData.karma >= 1000n && (userData.modPerms === 1 || userHasPremium),
                     userData.karma >= 1000n && (userData.modPerms === 2 || (userData.modPerms === 1 && userHasPremium)),
                     userData.karma >= 1000n && userData.modPerms === 2 && userHasPremium,
-                    ownersID.includes(message.author.id),
+                    isInMysteryTeam,
                 ]
 
                 return gctI.lastIndexOf(true)
@@ -671,7 +674,7 @@ async function globalchatFunction(client, message) {
                                             )
                                             .addFields({
                                                 name: "`Q:` Kanał przypisany do GlobalChata dalej istnieje, nie został on usunięty.",
-                                                value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do twórców** - do właściciela `patyczakus`, czy do [serwera support](https://discord.gg/536TSYqT)",
+                                                value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do [serwera support](https://discord.gg/536TSYqT)**",
                                             })
                                             .setFooter({
                                                 text: "Globally, powered by mysterY Team",
@@ -946,10 +949,10 @@ async function globalchatFunction(client, message) {
                     }
                 }
 
-                if (typeof prefixes == "string") userData.karma += 12n + BigInt((userHasPremium || ownersID.includes(message.author.id)) * 3)
+                if (typeof prefixes == "string") userData.karma += 12n + BigInt((userHasPremium || isInMysteryTeam) * 3)
                 else if (gcapprovedAttachments.size > 0) userData.karma += BigInt(Math.round(gcapprovedAttachments.size / (2 - userHasPremium * 0.5)) + 2 + userHasPremium)
                 else userData.karma += 1n
-                if (message.reference && Math.random() < 0.05 * (1 + ownersID.includes(message.author.id))) userData.karma += 2n - BigInt(userHasPremium)
+                if (message.reference && Math.random() < 0.05 * (1 + isInMysteryTeam)) userData.karma += 2n - BigInt(userHasPremium)
                 db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
             })
         }

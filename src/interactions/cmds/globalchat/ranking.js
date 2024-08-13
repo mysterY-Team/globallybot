@@ -1,9 +1,9 @@
 const { Client, CommandInteraction, EmbedBuilder, AttachmentBuilder } = require("discord.js")
 const { Canvas, Image } = require("@napi-rs/canvas")
 const { request } = require("undici")
-const { db, supportServer, ownersID } = require("../../../config")
-var { gcdata } = require("../../../functions/dbs")
-const { wait } = require("../../../functions/useful")
+const { db, supportServer } = require("../../../config")
+const { gcdata } = require("../../../functions/dbs")
+const { wait, checkUserStatusInSupport } = require("../../../functions/useful")
 
 module.exports = {
     /**
@@ -13,6 +13,8 @@ module.exports = {
      */
     async execute(client, interaction) {
         await interaction.deferReply()
+        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
 
         var users = []
         await Promise.all(
@@ -40,7 +42,7 @@ module.exports = {
         var context = canvas.getContext("2d")
 
         function rank(data) {
-            if (ownersID.includes(data.user.id)) return "mysterY Team"
+            if (isInMysteryTeam) return "mysterY Team"
             else
                 switch (data.modPerms) {
                     case 2:
@@ -77,8 +79,7 @@ module.exports = {
                     size--
                 } while (!end)
                 delete size, end
-                context.fillText(leaderboard[i].user.username, 95, i * 100 + 20)
-
+                context.fillText(leaderboard[i].user.username, 95, i * 100 + 17)
                 //karma
                 context.textAlign = "left"
                 context.textBaseline = "bottom"
@@ -129,6 +130,10 @@ module.exports = {
 
         interaction.editReply({
             embeds: [embed],
+        })
+
+        wait(10000).then(() => {
+            if (msg.deletable) msg.delete()
         })
     },
 }

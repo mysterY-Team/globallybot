@@ -1,6 +1,7 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { db, ownersID, customEmoticons } = require("../../../../config")
+const { db, customEmoticons } = require("../../../../config")
 const { gcdata } = require("../../../../functions/dbs")
+const { checkUserStatusInSupport } = require("../../../../functions/useful")
 
 module.exports = {
     /**
@@ -13,9 +14,11 @@ module.exports = {
         var perm = interaction.options.get("permisja", true).value
         var roles = ["zwykłą osobę", "moderatora GlobalChatu", "naczelnego GlobalChatu"]
         await interaction.deferReply()
+        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
 
         var data = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
-        if (data.modPerms !== 2 && !ownersID.includes(interaction.user.id)) {
+        if (data.modPerms !== 2 && !isInMysteryTeam) {
             interaction.editReply(`${customEmoticons.denided} Nie masz odpowiednich permisji do wykonania tej komendy!`)
             return
         }

@@ -1,7 +1,8 @@
 const { CommandInteraction, Client, PermissionFlagsBits, WebhookClient, EmbedBuilder } = require("discord.js")
-const { db, ownersID, customEmoticons, _bot, supportServer } = require("../../../../config")
+const { db, customEmoticons, _bot, supportServer } = require("../../../../config")
 const { gcdataGuild } = require("../../../../functions/dbs")
 const { request } = require("undici")
+const { checkUserStatusInSupport } = require("../../../../functions/useful")
 
 module.exports = {
     /**
@@ -16,12 +17,16 @@ module.exports = {
 
         var channel = interaction.options.get("kanał", true)
 
+        await interaction.deferReply()
+        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+
         if (
             !(
                 (interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks + PermissionFlagsBits.ManageChannels) ||
                     interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
                     interaction.user.id == guild.ownerId ||
-                    ownersID.includes(interaction.user.id)) &&
+                    isInMysteryTeam) &&
                 (bot.permissions.has(PermissionFlagsBits.Administrator) || bot.permissions.has(PermissionFlagsBits.ManageWebhooks))
             )
         )
@@ -39,7 +44,6 @@ module.exports = {
                     .join("\n"),
             })
 
-        await interaction.deferReply()
         var snapshot = db.get(`serverData/${interaction.guildId}/gc`)
         var key = Object.entries(gcdataGuild.encode(snapshot.val ?? "")).find((x) => x[1].channel === channel.channel.id)
         if (!key) return interaction.editReply(`${customEmoticons.denided} Nie ma podpiętej stacji na tym kanale`)

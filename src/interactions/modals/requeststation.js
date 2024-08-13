@@ -1,6 +1,6 @@
 const { Client, ModalSubmitInteraction, EmbedBuilder } = require("discord.js")
-const { db, customEmoticons, supportServer, ownersID } = require("../../config")
-const { gcdataGuild } = require("../../functions/dbs")
+const { db, customEmoticons, supportServer } = require("../../config")
+const { checkUserStatusInSupport } = require("../../functions/useful")
 
 module.exports = {
     /**
@@ -14,15 +14,17 @@ module.exports = {
             passwd: interaction.fields.getTextInputValue("passwd"),
         }
 
+        await interaction.deferReply()
+        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+
         if (modalArgs.id.match(/[^a-z0-9_-]/g)) return interaction.reply(`${customEmoticons.denided} ID zawiera niedozwolone znaki!`)
 
         if (modalArgs.passwd.match(/[^a-zA-Z0-9._@!]/g)) return interaction.reply(`${customEmoticons.denided} Hasło zawiera niedozwolone znaki!`)
 
-        await interaction.deferReply()
-
         var stations = db.get(`stations`).val ?? {}
 
-        if (Object.values(stations).find((x) => x.startsWith(interaction.user.id)) && !ownersID.includes(interaction.user.id))
+        if (Object.values(stations).find((x) => x.startsWith(interaction.user.id)) && !isInMysteryTeam)
             return interaction.editReply(`${customEmoticons.denided} Już jesteś właścicielem jakiejś stacji!`)
 
         if (Object.keys(stations).includes(modalArgs.id)) return interaction.editReply(`${customEmoticons.denided} Już istnieje taka stacja!`)

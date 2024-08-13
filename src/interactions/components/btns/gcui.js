@@ -1,6 +1,7 @@
 const { Client, ButtonInteraction, EmbedBuilder } = require("discord.js")
-const { customEmoticons, ownersID, db } = require("../../../config")
+const { customEmoticons, db } = require("../../../config")
 const { gcdata } = require("../../../functions/dbs")
+const { checkUserStatusInSupport } = require("../../../functions/useful")
 
 module.exports = {
     /**
@@ -14,6 +15,9 @@ module.exports = {
 
         const booltext = (x) => (x ? customEmoticons.approved : customEmoticons.denided)
 
+        const ssstatus = await checkUserStatusInSupport(client, args[0])
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+
         var data = gcdata.encode(db.get(`userData/${args[0]}/gc`).val)
         var haveImacarrrd = db.get(`userData/${args[0]}/imaca`).exists
 
@@ -23,8 +27,8 @@ module.exports = {
             .setThumbnail(user.displayAvatarURL({ extension: "webp", size: 1024 }))
             .setDescription(
                 `ID: \`${args[0]}\`\nUtworzenie konta: **<t:${Math.floor(user.createdTimestamp / 1000)}:R>**\nWłaściciel bota: ${booltext(
-                    ownersID.includes(args[0])
-                )}\nModerator GlobalChat: ${booltext(ownersID.includes(args[0]) || data.modPerms > 0)}\nKarma: **${data.karma.toString()}**${
+                    isInMysteryTeam
+                )}\nModerator GlobalChat: ${booltext(isInMysteryTeam || data.modPerms > 0)}\nKarma: **${data.karma.toString()}**${
                     haveImacarrrd
                         ? `\n\n*Ten użytkownik posiada ImaCarrrd! Możesz sprawdzić z poziomu:*\n- *komendy bota (\`imacarrrd pokaż osoba:${args[0]}\`)*\n- *GlobalAction (\`imaca!karta ${args[0]}\`)*!`
                         : ""

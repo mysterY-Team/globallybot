@@ -1,7 +1,7 @@
 const { Client, ButtonInteraction, ChannelType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
-const { customEmoticons, db, ownersID, supportServer } = require("../../../config")
+const { customEmoticons, db, supportServer } = require("../../../config")
 const { gcdata } = require("../../../functions/dbs")
-const { listenerLog } = require("../../../functions/useful")
+const { listenerLog, checkUserStatusInSupport } = require("../../../functions/useful")
 const { lastUserHandler } = require("../../../globalchat")
 
 module.exports = {
@@ -14,6 +14,10 @@ module.exports = {
         await interaction.deferReply({
             ephemeral: true,
         })
+
+        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+
         var $channels = [await client.channels.fetch(supportServer.gclogs.msg), await client.channels.fetch(supportServer.gclogs.main)]
         if ($channels[0] && $channels[0].type == ChannelType.GuildText) {
             try {
@@ -37,9 +41,9 @@ module.exports = {
         }
 
         var snpsht = db.get(`stations/${stationWhereItIsSent}`)
-        if (args[0] !== interaction.user.id && (!snpsht.exists || !snpsht.val.startsWith(interaction.user.id)) && data.modPerms === 0 && !ownersID.includes(interaction.user.id)) {
+        if (args[0] !== interaction.user.id && (!snpsht.exists || !snpsht.val.startsWith(interaction.user.id)) && data.modPerms === 0 && !isInMysteryTeam) {
             return interaction.editReply({
-                content: `${customEmoticons.denided} Nie jesteś właścicielem wiadomości/stacji/bota lub moderatorem GC!`,
+                content: `${customEmoticons.denided} Nie jesteś właścicielem wiadomości/stacji, moderatorem GC lub w mysterY Team!`,
                 ephemeral: true,
             })
         }
