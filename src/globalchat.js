@@ -588,6 +588,8 @@ async function globalchatFunction(client, message) {
 
             listenerLog(4, `Różnica cooldownów: ${userData.timestampToSendMessage - Date.now()}`)
 
+            timestampCooldown.setTime(Date.now() + globalCooldown(database.length))
+
             listenerLog(3, "")
             listenerLog(3, "♻️ Wykonywanie działania webhooków")
 

@@ -55,18 +55,18 @@ const classes = [
             themeColor: ["#FFFFFF", "#000000"],
         },
     },
-    {
-        name: "Piraci z Globally",
-        TextDesc: {
-            MaxHeight: 550,
-            FontName: "Space Mono, DoCoMo Emoji,Firefox Emoji",
-            TextSize: 20,
-            LineWidth: 24,
-        },
-        Flags: {
-            themeColor: ["#FFFFFF", "#000000"],
-        },
-    },
+    // {
+    //     name: "Piraci z Globally",
+    //     TextDesc: {
+    //         MaxHeight: 550,
+    //         FontName: "Space Mono, DoCoMo Emoji,Firefox Emoji",
+    //         TextSize: 20,
+    //         LineWidth: 24,
+    //     },
+    //     Flags: {
+    //         themeColor: ["#FFFFFF", "#000000"],
+    //     },
+    // },
 ]
 
 class ImacarrrdError extends Error {
@@ -656,7 +656,8 @@ async function createCarrrd(data, user) {
                     context.textAlign = "left"
                     context.fillText(user.username, 200, 155)
                 }
-            } case 4: {
+            }
+            case 4: {
                 if (data.bannerURL === null) {
                     const add = await readFile("./src/others/imgs/imaca_addtional4.jpg")
                     const addimg = new Image()
