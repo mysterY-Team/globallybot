@@ -302,7 +302,7 @@ async function globalchatFunction(client, message) {
             else var rank = "osoba"
 
             if (userHasPremium) rank += " premium"
-            if (isInMysteryTeam) rank = "mystery Team"
+            if (isInMysteryTeam) rank = "mysterY Team"
 
             return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`
         }
