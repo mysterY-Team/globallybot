@@ -41,15 +41,17 @@ module.exports = {
         }
 
         var snpsht = db.get(`stations/${stationWhereItIsSent}`)
-        if (args[0] !== interaction.user.id && (!snpsht.exists || !snpsht.val.startsWith(interaction.user.id)) && data.modPerms === 0 && !isInMysteryTeam) {
+        if (args[0] !== interaction.user.id && (!snpsht.exists || !snpsht.val.includes(interaction.user.id)) && data.modPerms === 0 && !isInMysteryTeam) {
             return interaction.editReply({
-                content: `${customEmoticons.denided} Nie jesteś właścicielem wiadomości/stacji, moderatorem GC lub w mysterY Team!`,
+                content: `${customEmoticons.denided} Nie masz permisji do usunięcia tej wiadodmości!`,
                 ephemeral: true,
             })
         }
 
+        var stationHasPasswd = Boolean(snpsht.val.split("|")[1])
+
         await interaction.editReply(`${customEmoticons.loading} Usuwanie...`)
-        {
+        if (!stationHasPasswd) {
             let embeds = $message.embeds
             let embed = new EmbedBuilder($message.embeds[0]).setFields({ name: "Stan", value: "Usuwanie" }).setColor("Orange")
             embeds[0] = embed
@@ -87,17 +89,32 @@ module.exports = {
         }
 
         const firstEmbed = $message.embeds[0]
-
-        {
-            const embeds = $message.embeds
-            embeds[0] = new EmbedBuilder()
-                .setAuthor({ iconURL: firstEmbed.author.iconURL, name: firstEmbed.author.name })
-                .setTitle("Usunięta wiadomość")
-                .setDescription(firstEmbed.description)
-                .setColor("Red")
-                .setFooter({ text: firstEmbed.footer.text })
-            if ($channels[1] && $channels[1].type == ChannelType.GuildText)
-                await $channels[1].send({
+        if (!stationHasPasswd) {
+            {
+                const embeds = $message.embeds
+                embeds[0] = new EmbedBuilder()
+                    .setAuthor({ iconURL: firstEmbed.author.iconURL, name: firstEmbed.author.name })
+                    .setTitle("Usunięta wiadomość")
+                    .setDescription(firstEmbed.description)
+                    .setColor("Red")
+                    .setFooter({ text: firstEmbed.footer.text })
+                if ($channels[1] && $channels[1].type == ChannelType.GuildText)
+                    await $channels[1].send({
+                        embeds,
+                        components: [
+                            new ActionRowBuilder().setComponents(
+                                new ButtonBuilder($message.components[0].components[0].toJSON()),
+                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${args[0]}`).setEmoji(`👤`)
+                            ),
+                        ],
+                    })
+            }
+            {
+                const embeds = $message.embeds
+                let embed = new EmbedBuilder(firstEmbed).setFields({ name: "Stan", value: `Usunięto <t:${Math.floor(Date.now() / 1000)}:R>` }).setColor("Red")
+                embeds[0] = embed
+                await $message.edit({
+                    content: "",
                     embeds,
                     components: [
                         new ActionRowBuilder().setComponents(
@@ -106,20 +123,12 @@ module.exports = {
                         ),
                     ],
                 })
-        }
-        {
-            const embeds = $message.embeds
-            let embed = new EmbedBuilder(firstEmbed).setFields({ name: "Stan", value: `Usunięto <t:${Math.floor(Date.now() / 1000)}:R>` }).setColor("Red")
-            embeds[0] = embed
+            }
+        } else {
             await $message.edit({
                 content: "",
-                embeds,
-                components: [
-                    new ActionRowBuilder().setComponents(
-                        new ButtonBuilder($message.components[0].components[0].toJSON()),
-                        new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${args[0]}`).setEmoji(`👤`)
-                    ),
-                ],
+                embeds: [firstEmbed],
+                components: [],
             })
         }
 

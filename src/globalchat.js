@@ -351,8 +351,6 @@ async function globalchatFunction(client, message) {
         const oldUserSnapshot = db.get(`userData/${message.author.id}/gc`)
         var userData = gcdata.encode(oldUserSnapshot.val)
 
-        if (userData.karma < 25n && !userHasPremium) gcapprovedAttachments = gcapprovedAttachments.filter(() => false)
-
         if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) return
 
         if (!message.author.bot && !message.author.system) {
@@ -421,7 +419,7 @@ async function globalchatFunction(client, message) {
                     request("https://discord.com/api/webhooks/" + serverdata.gc[station].webhook)
                         .then((res) => {
                             try {
-                                if (res.statusCode >= 200 && res.statusCode < 300) webhook.delete("użycia komendy /GLOBALCHAT")
+                                if (res.statusCode >= 200 && res.statusCode < 300) webhook.delete("braku stacji")
                             } catch (e) {}
 
                             removeData()
@@ -435,6 +433,8 @@ async function globalchatFunction(client, message) {
 
                 return
             }
+
+            const stationHasPasswd = Boolean(db.get(`stations/${station}`).val.split("|")[1])
 
             listenerLog(3, "➿ Spełniono warunek (2/5)")
 
@@ -508,7 +508,7 @@ async function globalchatFunction(client, message) {
                 return
             }
 
-            if (userData.karma < 25n) {
+            if (userData.karma < 25n && !stationHasPasswd) {
                 let varcheckURL = message.content.split("")
                 varcheckURL = varcheckURL.filter((x) => x.match(/^(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_]*)?$/))
                 if (varcheckURL.length > 0) {
@@ -526,6 +526,18 @@ async function globalchatFunction(client, message) {
                     db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                     return
                 }
+                if (!userHasPremium) gcapprovedAttachments = gcapprovedAttachments.filter(() => false)
+            }
+
+            if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) {
+                listenerLog()
+                message
+                    .reply(`${customEmoticons.info} Posiadasz mniej niż 25 karmy, a ta wiadomość nie mogła zostać przekonwertowana, więc anulowano proces wysyłania dalej`)
+                    .then(async (x) => {
+                        await wait(5000)
+                        if (x.deletable) x.delete()
+                    })
+                return
             }
 
             const bw = checkAnyBadWords(deleteComments(message.content))
@@ -894,34 +906,42 @@ async function globalchatFunction(client, message) {
                 } else {
                     if (channel && channel.type === ChannelType.GuildText) {
                         let embeds = []
-                        const embed = new EmbedBuilder()
-                            .setColor("Green")
-                            .setAuthor({
-                                name: message.author.username,
-                                iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
-                            })
-                            .setDescription(deleteComments(message.content) || "[ brak tekstu ]")
-                            .setFields({
-                                name: "Stan",
-                                value: "Nie usunięto",
-                            })
-                            .setFooter({ text: `${station}` })
-                        embeds.push(embed)
-                        if (gcapprovedAttachments.size > 0) {
-                            const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(gcapprovedAttachments.map((x) => x.url).join("\n"))
-                            embeds.push(mediaEmbed)
+                        if (stationHasPasswd) {
+                            const embed = new EmbedBuilder().setDescription("[ wysłane za pośrednictwem prywatnej stacji ]").setFooter({ text: station })
+                            embeds.push(embed)
+                        } else {
+                            const embed = new EmbedBuilder()
+                                .setColor("Green")
+                                .setAuthor({
+                                    name: message.author.username,
+                                    iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
+                                })
+                                .setDescription(deleteComments(message.content) || "[ brak tekstu ]")
+                                .setFields({
+                                    name: "Stan",
+                                    value: "Nie usunięto",
+                                })
+                                .setFooter({ text: station })
+                            embeds.push(embed)
+                            if (gcapprovedAttachments.size > 0) {
+                                const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(gcapprovedAttachments.map((x) => x.url).join("\n"))
+                                embeds.push(mediaEmbed)
+                            }
                         }
                         var msg = await channel.send({
                             embeds,
                             content: messages.join("|"),
                         })
+                        var row = new ActionRowBuilder()
+                        if (!stationHasPasswd) {
+                            row.setComponents(
+                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
+                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`)
+                            )
+                        }
                         await msg.edit({
                             components: [
-                                new ActionRowBuilder().addComponents(
-                                    new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
-                                    new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`),
-                                    new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000${msg.id}`).setEmoji("🗑️")
-                                ),
+                                row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000${msg.id}`).setEmoji("🗑️")),
                             ],
                         })
 

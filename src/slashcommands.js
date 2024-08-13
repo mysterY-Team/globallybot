@@ -116,6 +116,20 @@ var slashList = [
                 .setDescription("Stacje pozwalające na dobieranie innych serwerów")
                 .addSubcommand((subcommand) => subcommand.setName("załóż").setDescription("Tworzy stację do GlobalChata"))
                 .addSubcommand((subcommand) => subcommand.setName("lista").setDescription("Informacje o dostępnych stacjach w GlobalChacie"))
+                .addSubcommand((subcommand) =>
+                    subcommand
+                        .setName("moderator")
+                        .setDescription("Usuwa/dodaje osobę jako moderatora stacji")
+                        .addStringOption((option) =>
+                            option
+                                .setName("stacja")
+                                .setDescription("Nazwa tzw. stacji - odpowiada ona za inne dobieranie serwerów")
+                                .setRequired(true)
+                                .setMinLength(4)
+                                .setMaxLength(8)
+                        )
+                        .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(true))
+                )
         )
         .addSubcommand((subcommand) => subcommand.setName("ranking").setDescription("Pokazuje ranking GlobalChat na podstawie karmy")),
 
