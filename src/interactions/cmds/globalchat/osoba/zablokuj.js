@@ -92,16 +92,5 @@ module.exports = {
             content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika ${buser} (\`${buser.username}\`, \`${buser.id}\`)`,
         })
         db.set(`userData/${buser.id}/gc`, gcdata.decode(info))
-
-        if (interaction.deferred)
-            interaction.editReply({
-                content: "Coś poszło nie tak... spróbuj ponownie!",
-            })
-        else
-            interaction.reply({
-                ephemeral: true,
-                content: "Coś poszło nie tak... spróbuj ponownie!",
-            })
-        console.warn(err)
     },
 }
