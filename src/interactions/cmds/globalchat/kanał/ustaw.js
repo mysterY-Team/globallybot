@@ -44,13 +44,6 @@ module.exports = {
                     .join("\n"),
             })
 
-        var serverData = Object.values(db.get("serverData").val || {})
-        serverData = serverData.filter((x) => x.gc && x.gc.includes(interaction.options.get("stacja", true).value))
-
-        if (serverData.length >= 25) {
-            interaction.editReply(`${customEmoticons.denided} Ta stacja została przepełniona! Podłączyło się już 25 serwerów`)
-        }
-
         //sprawdzanie widoczności kanału
         if (!channel.channel || !channel.channel.permissionsFor(guild.members.me).has(PermissionFlagsBits.ViewChannel)) {
             return interaction.editReply(`${customEmoticons.denided} Kanał jest niedostępny! Czy na pewno mam do niego dostęp?`)
@@ -71,6 +64,14 @@ module.exports = {
 
         if (!stationData) {
             return interaction.editReply(`${customEmoticons.denided} Nie ma takiej stacji!`)
+        }
+
+        var serverData = Object.values(db.get("serverData").val || {})
+        serverData = serverData.filter((x) => x.gc && x.gc.includes($stacja))
+
+        if (serverData.length >= 25) {
+            interaction.editReply(`${customEmoticons.denided} Ta stacja została przepełniona! Podłączyło się już 25 serwerów`)
+            return
         }
 
         stationData = stationData.split("|")
