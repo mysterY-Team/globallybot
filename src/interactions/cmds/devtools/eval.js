@@ -15,10 +15,10 @@ module.exports = {
     async execute(client, interaction) {
         await interaction.deferReply()
         const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam 
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
 
         if (!isInMysteryTeam)
-            return interaction.reply({
+            return interaction.editReply({
                 content: `${customEmoticons.denided} Nie jesteś właścicielem bota!`,
                 ephemeral: true,
             })

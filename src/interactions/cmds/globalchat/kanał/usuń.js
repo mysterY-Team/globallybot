@@ -31,7 +31,7 @@ module.exports = {
             )
         )
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
-            return interaction.reply({
+            return interaction.editReply({
                 ephemeral: true,
                 content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:
                     - Nie masz obu uprawnień: **Zarządzanie webhoookami** oraz **Zarządzanie kanałami**

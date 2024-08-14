@@ -16,7 +16,7 @@ module.exports = {
 
         await interaction.deferReply({ ephemeral: Boolean(pwd) })
         const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam 
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
 
         //argument kanału i serwer
         var channel = interaction.options.get("kanał", true)
@@ -32,8 +32,7 @@ module.exports = {
             )
         )
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
-            return interaction.reply({
-                ephemeral: true,
+            return interaction.editReply({
                 content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:
                     - Nie masz obu uprawnień: **Zarządzanie webhoookami** oraz **Zarządzanie kanałami**
                     - Nie masz permisji administratora

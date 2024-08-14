@@ -18,9 +18,9 @@ module.exports = {
         const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
         const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
 
-        if (modalArgs.id.match(/[^a-z0-9_-]/g)) return interaction.reply(`${customEmoticons.denided} ID zawiera niedozwolone znaki!`)
+        if (modalArgs.id.match(/[^a-z0-9_-]/g)) return interaction.editReply(`${customEmoticons.denided} ID zawiera niedozwolone znaki!`)
 
-        if (modalArgs.passwd.match(/[^a-zA-Z0-9._@!]/g)) return interaction.reply(`${customEmoticons.denided} Hasło zawiera niedozwolone znaki!`)
+        if (modalArgs.passwd.match(/[^a-zA-Z0-9._@!]/g)) return interaction.editReply(`${customEmoticons.denided} Hasło zawiera niedozwolone znaki!`)
 
         var stations = db.get(`stations`).val ?? {}
 

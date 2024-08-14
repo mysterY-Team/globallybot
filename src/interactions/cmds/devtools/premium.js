@@ -14,8 +14,8 @@ module.exports = {
         const isInMysteryTeam1 = ssstatus1.in && ssstatus1.mysteryTeam
 
         if (!isInMysteryTeam1)
-            return interaction.reply({
-                content: `${customEmoticons.denided} Nie jesteś właścicielem bota!`,
+            return interaction.editReply({
+                content: `${customEmoticons.denided} Nie jesteś członkiem **mysterY Team**!`,
                 ephemeral: true,
             })
 
@@ -26,8 +26,8 @@ module.exports = {
         const isInMysteryTeam2 = ssstatus2.in && ssstatus2.mysteryTeam
 
         if (isInMysteryTeam2)
-            return interaction.reply({
-                content: `${customEmoticons.info} Nie żeby coś, ale premium nie wpływa na twórcę bota`,
+            return interaction.editReply({
+                content: `${customEmoticons.info} Nie żeby coś, ale premium nie wpływa na członka **mysterY Team**`,
                 ephemeral: true,
             })
 
