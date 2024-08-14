@@ -15,8 +15,8 @@ module.exports = {
         })
         var yourInfo = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
         const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
-        if (!isInMysteryTeam && yourInfo.modPerms === 0)
+        const isInMysteryTeam1 = ssstatus.in && ssstatus.mysteryTeam
+        if (!isInMysteryTeam1 && yourInfo.modPerms === 0)
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
             return interaction.editReply({
                 content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:\n- Nie jesteś na liście developerów bota\n- Nie masz odpowiednich permisji w bocie`,
