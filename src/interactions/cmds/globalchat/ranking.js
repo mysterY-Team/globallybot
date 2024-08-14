@@ -13,8 +13,6 @@ module.exports = {
      */
     async execute(client, interaction) {
         await interaction.deferReply()
-        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
 
         var users = []
         await Promise.all(
@@ -41,7 +39,9 @@ module.exports = {
         var canvas = new Canvas(800, userPanel.size * 10)
         var context = canvas.getContext("2d")
 
-        function rank(data) {
+        async function rank(data, id) {
+            const ssstatus = await checkUserStatusInSupport(client, id)
+            const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
             if (isInMysteryTeam) return "mysterY Team"
             else
                 switch (data.modPerms) {
@@ -85,7 +85,7 @@ module.exports = {
                 context.textBaseline = "bottom"
                 context.fillStyle = "white"
                 context.font = "14px sans-serif"
-                context.fillText(`${rank(leaderboard[i])}${leaderboard[i].premium ? " | Konto premium" : ""}`, 95, i * 100 + userPanel.size - 38)
+                context.fillText(`${await rank(leaderboard[i])}${leaderboard[i].premium ? " | Konto premium" : ""}`, 95, i * 100 + userPanel.size - 38)
                 context.font = "bold 16px sans-serif"
                 context.fillText(`Karma: ${leaderboard[i].karma}`, 95, i * 100 + userPanel.size - 15)
 
