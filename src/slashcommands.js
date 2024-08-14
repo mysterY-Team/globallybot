@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ContextMenuCommandBuilder } = require("@discordjs/builders")
-const { ChannelType, ApplicationCommandType } = require("discord.js")
+const { ChannelType, ApplicationCommandType, PermissionsBitField } = require("discord.js")
 const fs = require("fs")
 
 var slashList = [
@@ -274,6 +274,7 @@ var slashList = [
         .setName("admin")
         .setDescription("Komendy administracyjne")
         .setDMPermission(false)
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageGuild)
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("clear")

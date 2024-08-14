@@ -12,9 +12,11 @@ module.exports = {
     async execute(client, interaction) {
         var amount = interaction.options.get("ilość", true).value
 
-        if (!interaction.member.permissions.has("MANAGE_MESSAGES")) {
-            interaction.reply("Niestety nie posiadasz permisji")
-            return
+        if (!(await interaction.guild.members.fetchMe()).permissions.has("Administrator")) {
+            interaction.reply({
+                ephemeral: true,
+                content: `${customEmoticons.info} Ta, jak i inne komendy z kategorii \`admin\` wymagają od bota posiadania permisji "Administrator".`,
+            })
         }
 
         await interaction.deferReply()
