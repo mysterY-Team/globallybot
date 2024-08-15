@@ -36,7 +36,7 @@ module.exports = {
                 name: "Informacje o użytkowniku",
                 value: `Założenie konta: <t:${Math.floor(user.createdTimestamp / 1000)}:R>\nID: \`${user.id}\`\nW drużynie **mysterY Team**: ${
                     isInMysteryTeam ? customEmoticons.approved : customEmoticons.denided
-                }`,
+                }\nPremium: ${dbDays === 0 ? customEmoticons.denided : customEmoticons.approved}`,
             })
 
         if (!user.bot && !user.system) {
@@ -47,7 +47,7 @@ module.exports = {
                     name: "Moduł *GlobalChat*",
                     value: `Moderator: ${isInMysteryTeam || data.gc.modPerms > 0 ? customEmoticons.approved : customEmoticons.denided}\nZablokowany: ${
                         data.gc.isBlocked ? customEmoticons.approved : customEmoticons.denided
-                    }\nKarma: **${data.gc.karma.toString()}**\nPremium: ${dbDays === 0 ? customEmoticons.denided : customEmoticons.approved}`,
+                    }\nKarma: **${data.gc.karma.toString()}**`,
                 })
             }
         }
