@@ -14,7 +14,8 @@ module.exports = {
 
         await interaction.deferReply()
         const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam 
+        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+        const dbDays = db.get(`userData/${user.id}/premium`).val ?? 0
 
         const fdb = db.get(`userData/${user.id}`)
         var data = fdb.val ?? {}
@@ -46,7 +47,7 @@ module.exports = {
                     name: "Moduł *GlobalChat*",
                     value: `Moderator: ${isInMysteryTeam || data.gc.modPerms > 0 ? customEmoticons.approved : customEmoticons.denided}\nZablokowany: ${
                         data.gc.isBlocked ? customEmoticons.approved : customEmoticons.denided
-                    }\nKarma: **${data.gc.karma.toString()}**`,
+                    }\nKarma: **${data.gc.karma.toString()}**\nPremium: ${dbDays === 0 ? customEmoticons.denided : customEmoticons.approved}`,
                 })
             }
         }
