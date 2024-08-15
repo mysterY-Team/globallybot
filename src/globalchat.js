@@ -452,7 +452,7 @@ async function globalchatFunction(client, message) {
 
             await wait(Math.max(userData.timestampToSendMessage - Date.now(), 0))
 
-            if (timestampCooldown.getTime() + globalCooldown(database.length) > Date.now()) {
+            if (timestampCooldown.getTime() > Date.now()) {
                 message.reply(
                     `${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${globalCooldown(database.length) - (Date.now() - timestampCooldown.getTime())}\` ms`
                 )
