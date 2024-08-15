@@ -34,7 +34,7 @@ module.exports = {
         if (typeof days === "number") {
             if (days === 0) {
                 db.delete(`userData/${user.id}/premium`)
-                interaction.reply(`${customEmoticons.approved} Usunięto pomyślnie użytkownikowi premium!`)
+                interaction.editReply(`${customEmoticons.approved} Usunięto pomyślnie użytkownikowi premium!`)
                 try {
                     user.send(
                         `No cześć, mam złą wiadomość. ${interaction.user} (\`${interaction.user.username}\`) właśnie Ci usunął premium! Wierzę, że kiedyś go odzyskasz!\n-# Globally, powered by mysterY Team`
@@ -42,7 +42,7 @@ module.exports = {
                 } catch (e) {}
             } else {
                 db.set(`userData/${user.id}/premium`, days)
-                interaction.reply(`${customEmoticons.approved} Nadano pomyślnie użytkownikowi **${days}** dni premium!`)
+                interaction.editReply(`${customEmoticons.approved} Nadano pomyślnie użytkownikowi **${days}** dni premium!`)
                 try {
                     user.send(
                         `No cześć, mam dobrą wiadomość. ${interaction.user} (\`${interaction.user.username}\`) właśnie nadał Ci **${days} dni premium**! Gratuluję!\n-# Globally, powered by mysterY Team`
@@ -52,9 +52,9 @@ module.exports = {
         } else {
             const dbDays = db.get(`userData/${user.id}/premium`).val ?? 0
             if (dbDays === 0) {
-                interaction.reply(`Użytkownik ${user} (\`${user.username}\`) nie ma premium`)
+                interaction.editReply(`Użytkownik ${user} (\`${user.username}\`) nie ma premium`)
             } else {
-                interaction.reply(`Użytkownik ${user} (\`${user.username}\`) ma premium (zostało mu **${dbDays}** dni)`)
+                interaction.editReply(`Użytkownik ${user} (\`${user.username}\`) ma premium (zostało mu **${dbDays}** dni)`)
             }
         }
     },
