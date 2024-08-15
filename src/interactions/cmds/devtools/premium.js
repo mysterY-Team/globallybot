@@ -22,7 +22,7 @@ module.exports = {
         const user = interaction.options.get("osoba", true).user
         const days = interaction.options.get("dni")?.value
 
-        const ssstatus2 = await checkUserStatusInSupport(client, interaction.user.id)
+        const ssstatus2 = await checkUserStatusInSupport(client, user.id)
         const isInMysteryTeam2 = ssstatus2.in && ssstatus2.mysteryTeam
 
         if (isInMysteryTeam2)
