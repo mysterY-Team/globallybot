@@ -25,7 +25,7 @@ module.exports = {
             "kochanyKacperek123@sigma.com",
             "PolskiPingwin@pdf.pl"
         ]
-        const osoba = interaction.option.get("osoba")
+        const osoba = interaction.options.get("osoba")
         if (osoba.bot || osoba.system) {
             interaction.reply("Nie można zhakować tej osoby...")
         } else {
