@@ -69,6 +69,21 @@ async function checkUserStatusInSupport(client, id) {
     }
 }
 
+function getModules(udata) {
+    const exludeModules = ["premium"]
+
+    return Object.keys(udata)
+        .filter((x) => !exludeModules.includes(x))
+        .map((x) => {
+            const _x = {
+                gc: "GlobalChat",
+                imaca: "ImaCarrrd",
+                eco: "Ekonomia",
+            }
+            return _x[x] || x
+        })
+}
+
 /**
  *
  * @param {number} ms
@@ -77,7 +92,8 @@ async function checkUserStatusInSupport(client, id) {
 var wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 module.exports = {
-    listenerLog: listenerLog,
+    getModules,
+    listenerLog,
     wait,
     checkFontColor,
     servers,

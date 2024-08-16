@@ -453,9 +453,7 @@ async function globalchatFunction(client, message) {
             await wait(Math.max(userData.timestampToSendMessage - Date.now(), 0))
 
             if (timestampCooldown.getTime() > Date.now()) {
-                message.reply(
-                    `${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${globalCooldown(database.length) - (Date.now() - timestampCooldown.getTime())}\` ms`
-                )
+                message.reply(`${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${timestampCooldown.getTime() - Date.now()}\` ms`)
                 if (message.content.toLowerCase() !== "<p>") {
                     userData.messageID_bbc = message.id
                     db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -792,13 +790,17 @@ async function globalchatFunction(client, message) {
                     reply = typeof reply === "undefined" ? [] : [reply[0]]
 
                     if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
-                    var comp = [
-                        typeof prefixes == "string"
-                            ? [new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]
-                            : [new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000??`).setDisabled(true).setEmoji("🗑️")],
-                    ]
-                        .filter((row) => row.filter((x) => x).length > 0)
-                        .map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x)))
+
+                    function generateBtns() {
+                        let btns = []
+                        if (typeof prefixes == "string")
+                            btns = [[new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]]
+                        else if (w.gid == message.guildId)
+                            btns = [[new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000??`).setDisabled(true).setEmoji("🗑️")]]
+                        else btns = [[]]
+
+                        return btns.filter((row) => row.filter((x) => x).length > 0).map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x)))
+                    }
 
                     var x = await w.wh.send({
                         avatarURL: message.author.displayAvatarURL({ size: 128, extension: "png" }),
@@ -807,7 +809,7 @@ async function globalchatFunction(client, message) {
                         embeds: reply,
                         files: (w.gid == message.guildId ? message.attachments : gcapprovedAttachments).map((x) => x),
                         allowedMentions: { parse: [] },
-                        components: w.gid == message.guildId ? comp : [],
+                        components: generateBtns(),
                     })
 
                     if (w.gid == message.guildId)
@@ -952,15 +954,7 @@ async function globalchatFunction(client, message) {
                             try {
                                 editLater.wh.editMessage(editLater.message, {
                                     avatarURL: message.author.displayAvatarURL({ size: 128, extension: "png" }),
-                                    components: [
-                                        new ActionRowBuilder().addComponents([
-                                            new ButtonBuilder()
-                                                .setStyle(ButtonStyle.Danger)
-                                                .setCustomId(`gcdelete\u0000${message.author.id}\u0000${msg.id}`)
-                                                .setEmoji("🗑️")
-                                                .setDisabled(false),
-                                        ]),
-                                    ],
+                                    components: [new ActionRowBuilder().addComponents(new ButtonBuilder(row.toJSON().components.at(-1)))],
                                 })
                                 listenerLog(5, "✅ Pomyślnie zmieniono przycisk")
                                 break

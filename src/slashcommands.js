@@ -85,28 +85,23 @@ var slashList = [
                         )
                 )
         )
-        .addSubcommandGroup((subcommand_group) =>
-            subcommand_group
+        .addSubcommand((subcommand) =>
+            subcommand
                 .setName("globalactions")
-                .setDescription("Akcje dostępne w usłudze GlobalChat")
-                .addSubcommand((subcommand) => subcommand.setName("about").setDescription("Informacje na temat GlobalActions"))
-                .addSubcommand((subcommand) =>
-                    subcommand
-                        .setName("info")
-                        .setDescription("Informacje na temat danej akcji w GlobalActions")
-                        .addStringOption((option) =>
-                            option
-                                .setName("ga")
-                                .setDescription("Nazwa akcji")
-                                .setRequired(true)
-                                .addChoices(
-                                    ...fs.readdirSync("./src/globalactions/").map((x) => {
-                                        x = x.replace(".js", "")
-                                        x = { name: require(`./globalactions/${x}`).data.name, value: x }
+                .setDescription("Pokazuje wszystko, co potrzeba wiedzieć o GlobalActions")
 
-                                        return x
-                                    })
-                                )
+                .addStringOption((option) =>
+                    option
+                        .setName("globalaction")
+                        .setDescription("Nazwa akcji, w której to mają być pokazane informacje o niej")
+                        .setRequired(false)
+                        .addChoices(
+                            ...fs.readdirSync("./src/globalactions/").map((x) => {
+                                x = x.replace(".js", "")
+                                x = { name: require(`./globalactions/${x}`).data.name, value: x }
+
+                                return x
+                            })
                         )
                 )
         )

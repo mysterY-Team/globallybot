@@ -1,7 +1,7 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { db, customEmoticons } = require("../../config")
 const { gcdata } = require("../../functions/dbs")
-const { checkUserStatusInSupport } = require("../../functions/useful")
+const { checkUserStatusInSupport, getModules } = require("../../functions/useful")
 
 module.exports = {
     /**
@@ -13,19 +13,13 @@ module.exports = {
         const user = interaction.options.get("osoba")?.user || interaction.user
 
         await interaction.deferReply()
-        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
+        const ssstatus = await checkUserStatusInSupport(client, user.id)
         const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
-        const dbDays = db.get(`userData/${user.id}/premium`).val ?? 0
 
         const fdb = db.get(`userData/${user.id}`)
         var data = fdb.val ?? {}
-        const modules = Object.keys(data).map((x) => {
-            const _x = {
-                gc: "GlobalChat",
-                imaca: "ImaCarrrd",
-            }
-            return _x[x] || x
-        })
+        const premium = (data.premium ?? 0) > 0
+        const modules = getModules(data)
 
         var embed = new EmbedBuilder()
             .setAuthor({
@@ -34,9 +28,12 @@ module.exports = {
             })
             .setFields({
                 name: "Informacje o użytkowniku",
-                value: `Założenie konta: <t:${Math.floor(user.createdTimestamp / 1000)}:R>\nID: \`${user.id}\`\nW drużynie **mysterY Team**: ${
-                    isInMysteryTeam ? customEmoticons.approved : customEmoticons.denided
-                }\nPremium: ${dbDays === 0 ? customEmoticons.denided : customEmoticons.approved}`,
+                value: [
+                    `Założenie konta: <t:${Math.floor(user.createdTimestamp / 1000)}:R>`,
+                    `ID: \`${user.id}\``,
+                    `W drużynie **mysterY Team**: ${isInMysteryTeam ? customEmoticons.approved : customEmoticons.denided}`,
+                    `Premium: ${isInMysteryTeam ? "[ nie dotyczy ]" : premium ? customEmoticons.denided : customEmoticons.approved}`,
+                ].join("\n"),
             })
 
         if (!user.bot && !user.system) {
@@ -45,9 +42,15 @@ module.exports = {
                 data.gc = gcdata.encode(data.gc)
                 embed.addFields({
                     name: "Moduł *GlobalChat*",
-                    value: `Moderator: ${isInMysteryTeam || data.gc.modPerms > 0 ? customEmoticons.approved : customEmoticons.denided}\nZablokowany: ${
-                        data.gc.isBlocked ? customEmoticons.approved : customEmoticons.denided
-                    }\nKarma: **${data.gc.karma.toString()}**`,
+                    value: [
+                        `Moderator: ${isInMysteryTeam || data.gc.modPerms > 0 ? customEmoticons.approved : customEmoticons.denided}`,
+                        `Karma: **${data.gc.karma.toString()}**`,
+                        data.gc.isBlocked
+                            ? `Zablokowany: ${customEmoticons.approved} (${
+                                  data.gc.blockTimestamp === Infinity ? "do odwołania" : `pozostały czas w godzinach: ~${info.blockTimestamp - Math.floor(Date.now() / 3_600_000)}`
+                              })\nPowód blokady:\`\`\`${data.gc.blockReason || "Nie sprecyzowano powodu."}\`\`\``
+                            : `Zablokowany: ${customEmoticons.denided}`,
+                    ].join("\n"),
                 })
             }
         }
