@@ -35,7 +35,7 @@ module.exports = {
             await wait(1_000)
             await interaction.editReply("Skanowanie urządzeń ofiary...")
             await wait(2_000)
-            if (Math.floor(Math.num() * 2) + 1 === 1) {
+            if (Math.floor(Math.random() * 2) + 1 === 1) {
                 await interaction.editReply("Urządzenia ofiary były dobrze zabezpieczone. Ofiara dostała powiadomienie o próbie zhakowania jego urządzeń przez Ciebie.")
                 osoba.send(`${interaction.user.tag} Próbował Cię zhakować... Pokaż mu co potrafisz!`)
             } else {
