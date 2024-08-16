@@ -189,7 +189,12 @@ var slashList = [
                 .setDescription("Pokazuje banner użytkownika")
                 .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby").setRequired(false))
         )
-        .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby którą chcesz zhakować").setRequired(true))
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("hakuj")
+                .setDescription("Hakuje wybranego użytkownika")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby którą chcesz zhakować").setRequired(true))
+        )
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("czynność")
