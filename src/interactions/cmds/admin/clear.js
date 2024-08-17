@@ -19,10 +19,9 @@ module.exports = {
             })
         }
 
-        await interaction.deferReply()
         var messages = await interaction.channel.bulkDelete(amount)
-        interaction.reply(`${customEmoticons.approved} Udało się usunąć ${messages.size} wiadomości`)
-        await wait(5000)
+        await interaction.reply(`${customEmoticons.approved} Udało się usunąć ${messages.size} wiadomości`)
+        await wait(3000)
         interaction.deleteReply()
     },
 }
