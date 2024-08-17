@@ -35,12 +35,6 @@ var slashList = [
                 )
                 .addSubcommand((subcommand) =>
                     subcommand
-                        .setName("sprawdź")
-                        .setDescription("Sprawdza, czy użytkownik został zablokowany, czy nie.")
-                        .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby do sprawdzenia").setRequired(true))
-                )
-                .addSubcommand((subcommand) =>
-                    subcommand
                         .setName("zmieńpermisję")
                         .setDescription("Pozwala na zmianę permisji dla danej osoby w GlobalChacie")
                         .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby do zmiany permisji").setRequired(true))
