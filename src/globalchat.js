@@ -20,9 +20,9 @@ const { request } = require("undici")
 const { checkAnyBadWords } = require("./functions/badwords")
 
 const timestampCooldown = new Date()
-const globalCooldown = (amount) => 500 + amount * 100
+const globalCooldown = (amount) => 250 + amount * 50
 const userCooldown = (amount, type = 0) =>
-    [4500 + amount * 360, 4000 + amount * 280, 3750 + amount * 245, 3500 + amount * 230, 3500 + amount * 210, 3500 + amount * 190, 3300 + amount * 180, 3150 + amount * 155][type]
+    [6500 + amount * 360, 5500 + amount * 280, 4500 + amount * 245, 4100 + amount * 230, 4100 + amount * 210, 4100 + amount * 190, 4000 + amount * 180, 3500 + amount * 150][type]
 let lastUser = "unknown"
 
 /**
