@@ -280,13 +280,13 @@ var slashList = [
             subcommand
                 .setName("ban")
                 .setDescription("Banuje osobę")
-                .addStringOption((option) => option.setName("osoba").setDescription("Wybierz osobę którą chcesz zbanować.").setRequired(true))
+                .addStringOption((option) => option.setName("osoba").setDescription("@wzmianka lub id osoby którą chcesz zbanować.").setRequired(true))
         )
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("kick")
                 .setDescription("Wyrzuca osobę")
-                .addStringOption((option) => option.setName("osoba").setDescription("Wybierz osobę którą chcesz wyrzucić.").setRequired(true))
+                .addStringOption((option) => option.setName("osoba").setDescription("@wzmianka lub id osoby którą chcesz wyrzucić.").setRequired(true))
         ),
     //pojedyncze komendy
     new SlashCommandBuilder().setDMPermission(true).setName("dowcip").setDescription("Generuje dowcip ze strony PERELKI.NET"),
