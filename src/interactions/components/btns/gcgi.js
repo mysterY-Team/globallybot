@@ -24,9 +24,9 @@ module.exports = {
             .setTitle("Informacje o serwerze owej wiadomości")
             .setThumbnail(server.iconURL({ extension: "webp", size: 1024 }))
             .setDescription(
-                `${server.description ? "> " + server.description + "\n\n" : ""}ID serwera: \`${args[0]}\`\nIlość osób: **${server.memberCount}**\nPoziom boosta: ${
+                `${server.description ? "> " + server.description + "\n\n" : ""}ID serwera: \`${args[0]}\`\nIlość osób: **${server.memberCount}**\nPoziom boosta: **${
                     server.premiumTier
-                }`
+                }**`
             )
             .setFields(
                 {
