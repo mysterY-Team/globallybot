@@ -274,9 +274,20 @@ var slashList = [
             subcommand
                 .setName("clear")
                 .setDescription("Czyści daną ilość wiadomości")
-                .addIntegerOption((option) => option.setName("ilość").setDescription("ilość wiadomości do usunięcia").setRequired(true))
+                .addIntegerOption((option) => option.setName("ilość").setDescription("ilość wiadomości do usunięcia.").setRequired(true))
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("ban")
+                .setDescription("Banuje osobę")
+                .addStringOption((option) => option.setName("osoba").setDescription("Wybierz osobę którą chcesz zbanować.").setRequired(true))
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("kick")
+                .setDescription("Wyrzuca osobę")
+                .addStringOption((option) => option.setName("osoba").setDescription("Wybierz osobę którą chcesz wyrzucić.").setRequired(true))
         ),
-
     //pojedyncze komendy
     new SlashCommandBuilder().setDMPermission(true).setName("dowcip").setDescription("Generuje dowcip ze strony PERELKI.NET"),
     new SlashCommandBuilder().setDMPermission(true).setName("botinfo").setDescription("Generuje informacje o bocie"),
