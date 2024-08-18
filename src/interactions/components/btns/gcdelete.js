@@ -1,7 +1,7 @@
 const { Client, ButtonInteraction, ChannelType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const { customEmoticons, db, supportServer } = require("../../../config")
 const { gcdata } = require("../../../functions/dbs")
-const { listenerLog, checkUserStatusInSupport } = require("../../../functions/useful")
+const { listenerLog, checkUserStatus } = require("../../../functions/useful")
 const { lastUserHandler } = require("../../../globalchat")
 
 module.exports = {
@@ -15,8 +15,8 @@ module.exports = {
             ephemeral: true,
         })
 
-        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+        const ssstatus = await checkUserStatus(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
         var $channels = [await client.channels.fetch(supportServer.gclogs.msg), await client.channels.fetch(supportServer.gclogs.main)]
         if ($channels[0] && $channels[0].type == ChannelType.GuildText) {

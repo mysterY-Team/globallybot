@@ -2,7 +2,7 @@ const { CommandInteraction, Client, PermissionFlagsBits, WebhookClient, EmbedBui
 const { db, customEmoticons, _bot, supportServer } = require("../../../../config")
 const { gcdataGuild } = require("../../../../functions/dbs")
 const { request } = require("undici")
-const { checkUserStatusInSupport } = require("../../../../functions/useful")
+const { checkUserStatus } = require("../../../../functions/useful")
 
 module.exports = {
     /**
@@ -18,8 +18,8 @@ module.exports = {
         var channel = interaction.options.get("kanał", true)
 
         await interaction.deferReply()
-        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+        const ssstatus = await checkUserStatus(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
         if (
             !(

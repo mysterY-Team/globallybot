@@ -1,6 +1,6 @@
 const { CommandInteraction, Client } = require("discord.js")
 const { db, customEmoticons } = require("../../../config")
-const { checkUserStatusInSupport } = require("../../../functions/useful")
+const { checkUserStatus } = require("../../../functions/useful")
 
 module.exports = {
     /**
@@ -10,8 +10,8 @@ module.exports = {
      */
     async execute(client, interaction) {
         await interaction.deferReply()
-        const ssstatus1 = await checkUserStatusInSupport(client, interaction.user.id)
-        const isInMysteryTeam1 = ssstatus1.in && ssstatus1.mysteryTeam
+        const ssstatus1 = await checkUserStatus(client, interaction.user.id)
+        const isInMysteryTeam1 = ssstatus1.inSupport && ssstatus1.mysteryTeam
 
         if (!isInMysteryTeam1)
             return interaction.editReply({
@@ -22,8 +22,8 @@ module.exports = {
         const user = interaction.options.get("osoba", true).user
         const days = interaction.options.get("dni")?.value
 
-        const ssstatus2 = await checkUserStatusInSupport(client, user.id)
-        const isInMysteryTeam2 = ssstatus2.in && ssstatus2.mysteryTeam
+        const ssstatus2 = await checkUserStatus(client, user.id)
+        const isInMysteryTeam2 = ssstatus2.inSupport && ssstatus2.mysteryTeam
 
         if (isInMysteryTeam2)
             return interaction.editReply({

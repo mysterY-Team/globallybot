@@ -1,5 +1,5 @@
 const { Client, OAuth2Guild } = require("discord.js")
-const { debug, supportServer } = require("../config")
+const { debug, supportServer, db } = require("../config")
 
 /**
  * @type {OAuth2Guild[]}
@@ -60,12 +60,12 @@ function checkFontColor(bgHEX) {
  * @param {string} id
  * @param {boolean} [forced=true]
  */
-async function checkUserStatusInSupport(client, id) {
+async function checkUserStatus(client, id) {
     try {
         const member = await (await client.guilds.fetch(supportServer.id)).members.fetch(id)
-        return { in: true, mysteryTeam: member.roles.cache.has("1264341114941472848") }
+        return { inSupport: true, mysteryTeam: member.roles.cache.has("1264341114941472848"), booster: member.roles.cache.has("1182813786609045605") }
     } catch (err) {
-        return { in: false }
+        return { inSupport: false }
     }
 }
 
@@ -86,16 +86,29 @@ function getModules(udata) {
 
 /**
  *
+ * @param {string} id
+ * @param {number} [cachedPremium=null]
+ * @returns {{ have: true, typeof: "supportBoost" | "trial" } | { have: false }}
+ */
+function botPremiumInfo(id, userstatus, cachedPremium = null) {
+    if (userstatus.inSupport && userstatus.booster && !userstatus.mysteryTeam) return { have: true, typeof: "supportBoost" }
+    if (((cachedPremium !== null ? cachedPremium : db.get(`userData/${id}/premium`).val) ?? 0) > 0) return { have: true, typeof: "trial" }
+    return { have: false }
+}
+
+/**
+ *
  * @param {number} ms
  * @returns {Promise<void>}
  */
 var wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 module.exports = {
+    botPremiumInfo,
     getModules,
     listenerLog,
     wait,
     checkFontColor,
     servers,
-    checkUserStatusInSupport,
+    checkUserStatus,
 }

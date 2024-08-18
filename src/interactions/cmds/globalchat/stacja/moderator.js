@@ -1,7 +1,7 @@
 const { CommandInteraction, Client } = require("discord.js")
 const { db, customEmoticons } = require("../../../../config")
 const { gcdata } = require("../../../../functions/dbs")
-const { checkUserStatusInSupport } = require("../../../../functions/useful")
+const { checkUserStatus } = require("../../../../functions/useful")
 
 module.exports = {
     /**
@@ -14,8 +14,8 @@ module.exports = {
         const user = interaction.options.get("osoba", true).user
 
         await interaction.deferReply()
-        const ssstatus = await checkUserStatusInSupport(client, user.id, false)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+        const ssstatus = await checkUserStatus(client, user.id, false)
+        const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
         const udata = gcdata.encode(db.get(`userData/${user.id}`).val)
 

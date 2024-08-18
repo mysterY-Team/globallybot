@@ -1,7 +1,7 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { db, customEmoticons } = require("../../../../config")
 const { gcdata } = require("../../../../functions/dbs")
-const { checkUserStatusInSupport } = require("../../../../functions/useful")
+const { checkUserStatus } = require("../../../../functions/useful")
 
 module.exports = {
     /**
@@ -14,8 +14,8 @@ module.exports = {
         var perm = interaction.options.get("permisja", true).value
         var roles = ["zwykłą osobę", "moderatora GlobalChatu", "naczelnego GlobalChatu"]
         await interaction.deferReply()
-        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+        const ssstatus = await checkUserStatus(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
         var data = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
         if (data.modPerms !== 2 && !isInMysteryTeam) {

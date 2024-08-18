@@ -1,7 +1,7 @@
 const djs = require("discord.js")
 const { CommandInteraction, Client, EmbedBuilder } = djs
 var conf = require("../../../config")
-const { checkUserStatusInSupport } = require("../../../functions/useful")
+const { checkUserStatus } = require("../../../functions/useful")
 const { customEmoticons } = conf
 
 delete conf.TOKEN
@@ -14,8 +14,8 @@ module.exports = {
      */
     async execute(client, interaction) {
         await interaction.deferReply()
-        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+        const ssstatus = await checkUserStatus(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
         if (!isInMysteryTeam)
             return interaction.editReply({

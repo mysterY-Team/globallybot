@@ -3,7 +3,7 @@ const { Canvas, Image } = require("@napi-rs/canvas")
 const { request } = require("undici")
 const { db, supportServer } = require("../../../config")
 const { gcdata } = require("../../../functions/dbs")
-const { wait, checkUserStatusInSupport } = require("../../../functions/useful")
+const { wait, checkUserStatus, botPremiumInfo } = require("../../../functions/useful")
 
 module.exports = {
     /**
@@ -19,10 +19,11 @@ module.exports = {
             Object.entries(db.get("userData").val)
                 .filter((x) => "gc" in x[1] && gcdata.encode(x[1].gc).karma >= 25n)
                 .map(async (x) => {
-                    var fastData = { gc: gcdata.encode(x[1].gc), userID: x[0], premium: x[1].premium ?? 0 }
+                    var fastData = { gc: gcdata.encode(x[1].gc), userID: x[0], premium: x[1].premium }
                     try {
+                        const ssstatus = await checkUserStatus(client, fastData.userID)
                         var user = await client.users.fetch(fastData.userID, { cache: false })
-                        var z = Object.assign(fastData.gc, { user, premium: fastData.premium > 0 })
+                        var z = Object.assign(fastData.gc, { user, premium: botPremiumInfo(fastData.userID, ssstatus, fastData.premium).have, ssstatus })
                         users.push(z)
                     } catch (e) {}
 
@@ -39,10 +40,8 @@ module.exports = {
         var canvas = new Canvas(800, userPanel.size * 10)
         var context = canvas.getContext("2d")
 
-        async function rank(data, id) {
-            const ssstatus = await checkUserStatusInSupport(client, id)
-            const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
-            if (isInMysteryTeam) return "mysterY Team"
+        function rank(data) {
+            if (data.ssstatus.mysteryTeam) return "mysterY Team"
             else
                 switch (data.modPerms) {
                     case 2:
@@ -85,7 +84,7 @@ module.exports = {
                 context.textBaseline = "bottom"
                 context.fillStyle = "white"
                 context.font = "14px sans-serif"
-                context.fillText(`${await rank(leaderboard[i])}${leaderboard[i].premium ? " | Konto premium" : ""}`, 95, i * 100 + userPanel.size - 38)
+                context.fillText(`${rank(leaderboard[i])}${leaderboard[i].premium ? " | Konto premium" : ""}`, 95, i * 100 + userPanel.size - 38)
                 context.font = "bold 16px sans-serif"
                 context.fillText(`Karma: ${leaderboard[i].karma}`, 95, i * 100 + userPanel.size - 15)
 

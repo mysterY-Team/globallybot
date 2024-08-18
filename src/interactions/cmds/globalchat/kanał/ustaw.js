@@ -1,7 +1,7 @@
 const { CommandInteraction, Client, PermissionFlagsBits, EmbedBuilder } = require("discord.js")
 const { db, customEmoticons, _bot, supportServer, constPremiumServersIDs } = require("../../../../config")
 const { gcdataGuild } = require("../../../../functions/dbs")
-const { checkUserStatusInSupport } = require("../../../../functions/useful")
+const { checkUserStatus } = require("../../../../functions/useful")
 
 module.exports = {
     /**
@@ -15,8 +15,8 @@ module.exports = {
         if (interaction.guildId == null) return interaction.reply(`${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`)
 
         await interaction.deferReply({ ephemeral: Boolean(pwd) })
-        const ssstatus = await checkUserStatusInSupport(client, interaction.user.id)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+        const ssstatus = await checkUserStatus(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
         //argument kanału i serwer
         var channel = interaction.options.get("kanał", true)

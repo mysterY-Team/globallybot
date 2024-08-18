@@ -1,7 +1,7 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { db, customEmoticons } = require("../../config")
 const { gcdata } = require("../../functions/dbs")
-const { checkUserStatusInSupport, getModules } = require("../../functions/useful")
+const { checkUserStatus, getModules, botPremiumInfo } = require("../../functions/useful")
 
 module.exports = {
     /**
@@ -13,13 +13,19 @@ module.exports = {
         const user = interaction.options.get("osoba")?.user || interaction.user
 
         await interaction.deferReply()
-        const ssstatus = await checkUserStatusInSupport(client, user.id)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+        const ssstatus = await checkUserStatus(client, user.id)
+        const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
         const fdb = db.get(`userData/${user.id}`)
         var data = fdb.val ?? {}
-        const premium = (data.premium ?? 0) > 0
+        const premium = botPremiumInfo(user.id, ssstatus, data.premium)
         const modules = getModules(data)
+
+        const premiumTypeofToText = (() => {
+            if (!premium.have) return ""
+            if (premium.typeof === "supportBoost") return "boost serwera support"
+            if (premium.typeof === "trial") return `trial, pozostało dni: **${data.premium}**`
+        })()
 
         var embed = new EmbedBuilder()
             .setAuthor({
@@ -32,7 +38,7 @@ module.exports = {
                     `Założenie konta: <t:${Math.floor(user.createdTimestamp / 1000)}:R>`,
                     `ID: \`${user.id}\``,
                     `W drużynie **mysterY Team**: ${isInMysteryTeam ? customEmoticons.approved : customEmoticons.denided}`,
-                    `Premium: ${isInMysteryTeam ? "[ nie dotyczy ]" : premium ? customEmoticons.denided : customEmoticons.approved}`,
+                    `Premium: ${isInMysteryTeam ? "[ nie dotyczy ]" : premium.have ? `${customEmoticons.approved} (${premiumTypeofToText})` : customEmoticons.denided}`,
                 ].join("\n"),
             })
 
@@ -47,7 +53,9 @@ module.exports = {
                         `Karma: **${data.gc.karma.toString()}**`,
                         data.gc.isBlocked
                             ? `Zablokowany: ${customEmoticons.approved} (${
-                                  data.gc.blockTimestamp === Infinity ? "do odwołania" : `pozostały czas w godzinach: ~${info.blockTimestamp - Math.floor(Date.now() / 3_600_000)}`
+                                  data.gc.blockTimestamp === Infinity
+                                      ? "do odwołania"
+                                      : `pozostały czas w godzinach: ~${data.gc.blockTimestamp - Math.floor(Date.now() / 3_600_000)}`
                               })\nPowód blokady:\`\`\`${data.gc.blockReason || "Nie sprecyzowano powodu."}\`\`\``
                             : `Zablokowany: ${customEmoticons.denided}`,
                     ].join("\n"),

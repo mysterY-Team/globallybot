@@ -2,7 +2,7 @@ const { Client, GatewayIntentBits, EmbedBuilder, ChannelType } = require("discor
 const { TOKEN, supportServer, debug, db } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
-const { listenerLog, servers } = require("./functions/useful.js")
+const { listenerLog, servers, checkUserStatus, botPremiumInfo } = require("./functions/useful.js")
 const { GlobalFonts } = require("@napi-rs/canvas")
 const { gcdata } = require("./functions/dbs.js")
 
@@ -256,8 +256,10 @@ function timerToResetTheAPIInfo() {
             })
 
             if (hours == 0) {
-                listOfUsers.premium.forEach((x) => {
-                    if (x.days === 1) {
+                listOfUsers.premium.forEach(async (x) => {
+                    const premium = botPremiumInfo(x.userID, await checkUserStatus(client, x.userID), x.days)
+                    if (!premium.have || premium.typeof !== "trial") return
+                    if (x.days === 0) {
                         db.delete(`userData/${x.userID}/premium`)
                         try {
                             client.users.send(

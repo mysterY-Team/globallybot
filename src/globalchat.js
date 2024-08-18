@@ -13,7 +13,7 @@ const {
 const { db, customEmoticons, debug, supportServer, _bot } = require("./config")
 const fs = require("fs")
 const { emoticons } = require("./interactions/cmds/globalchat/emotki")
-const { listenerLog, wait, checkUserStatusInSupport } = require("./functions/useful")
+const { listenerLog, wait, checkUserStatus, botPremiumInfo } = require("./functions/useful")
 const { freemem, totalmem } = require("os")
 const { gcdata, gcdataGuild } = require("./functions/dbs")
 const { request } = require("undici")
@@ -285,8 +285,8 @@ function deleteComments(text) {
  */
 async function globalchatFunction(client, message) {
     try {
-        const ssstatus = await checkUserStatusInSupport(client, message.author.id, false)
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+        const ssstatus = await checkUserStatus(client, message.author.id, false)
+        const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
         const GClocation = `${message.guildId}/${message.channelId}`
         var accDate = new Date()
@@ -294,7 +294,7 @@ async function globalchatFunction(client, message) {
         var gcapprovedAttachments = message.attachments.filter(
             (x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio"))
         )
-        const userHasPremium = (db.get(`userData/${message.author.id}/premium`).val ?? 0) > 0
+        const userHasPremium = botPremiumInfo(message.author.id, ssstatus).have
 
         function wbName(modPerm) {
             if (modPerm === 2) var rank = "naczelnik"

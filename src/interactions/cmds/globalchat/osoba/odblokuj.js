@@ -1,7 +1,7 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { db, customEmoticons, supportServer } = require("../../../../config")
 const { gcdata } = require("../../../../functions/dbs")
-const { checkUserStatusInSupport } = require("../../../../functions/useful")
+const { checkUserStatus } = require("../../../../functions/useful")
 
 module.exports = {
     /**
@@ -14,8 +14,8 @@ module.exports = {
             ephemeral: interaction.inGuild(),
         })
         var yourInfo = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
-        const ssstatus1 = await checkUserStatusInSupport(client, interaction.user.id)
-        const isInMysteryTeam1 = ssstatus1.in && ssstatus1.mysteryTeam
+        const ssstatus1 = await checkUserStatus(client, interaction.user.id)
+        const isInMysteryTeam1 = ssstatus1.inSupport && ssstatus1.mysteryTeam
 
         if (!isInMysteryTeam1 && yourInfo.modPerms === 0)
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
@@ -24,8 +24,8 @@ module.exports = {
             })
 
         var uID = interaction.options.get("osoba", true).user.id
-        const ssstatus2 = await checkUserStatusInSupport(client, uID)
-        const isInMysteryTeam2 = ssstatus2.in && ssstatus2.mysteryTeam
+        const ssstatus2 = await checkUserStatus(client, uID)
+        const isInMysteryTeam2 = ssstatus2.inSupport && ssstatus2.mysteryTeam
 
         if (uID === interaction.user.id) {
             interaction.editReply({

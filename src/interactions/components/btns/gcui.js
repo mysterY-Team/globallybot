@@ -1,7 +1,7 @@
 const { Client, ButtonInteraction, EmbedBuilder } = require("discord.js")
 const { customEmoticons, db } = require("../../../config")
 const { gcdata } = require("../../../functions/dbs")
-const { checkUserStatusInSupport } = require("../../../functions/useful")
+const { checkUserStatus } = require("../../../functions/useful")
 
 module.exports = {
     /**
@@ -15,8 +15,8 @@ module.exports = {
 
         const booltext = (x) => (x ? customEmoticons.approved : customEmoticons.denided)
 
-        const ssstatus = await checkUserStatusInSupport(client, args[0])
-        const isInMysteryTeam = ssstatus.in && ssstatus.mysteryTeam
+        const ssstatus = await checkUserStatus(client, args[0])
+        const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
         var data = gcdata.encode(db.get(`userData/${args[0]}/gc`).val)
         var haveImacarrrd = db.get(`userData/${args[0]}/imaca`).exists
