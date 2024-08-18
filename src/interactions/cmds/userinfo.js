@@ -38,7 +38,7 @@ module.exports = {
                     `Założenie konta: <t:${Math.floor(user.createdTimestamp / 1000)}:R>`,
                     `ID: \`${user.id}\``,
                     `W drużynie **mysterY Team**: ${isInMysteryTeam ? customEmoticons.approved : customEmoticons.denided}`,
-                    `Premium: ${isInMysteryTeam ? "[ nie dotyczy ]" : premium.have ? `${customEmoticons.approved} (${premiumTypeofToText})` : customEmoticons.denided}`,
+                    `Premium: ${isInMysteryTeam ? "`[ nie dotyczy ]`" : premium.have ? `${customEmoticons.approved} (${premiumTypeofToText})` : customEmoticons.denided}`,
                 ].join("\n"),
             })
 
@@ -55,7 +55,7 @@ module.exports = {
                             ? `Zablokowany: ${customEmoticons.approved} (${
                                   data.gc.blockTimestamp === Infinity
                                       ? "do odwołania"
-                                      : `pozostały czas w godzinach: ~${data.gc.blockTimestamp - Math.floor(Date.now() / 3_600_000)}`
+                                      : `pozostały czas w godzinach: **~${data.gc.blockTimestamp - Math.floor(Date.now() / 3_600_000)}**`
                               })\nPowód blokady:\`\`\`${data.gc.blockReason || "Nie sprecyzowano powodu."}\`\`\``
                             : `Zablokowany: ${customEmoticons.denided}`,
                     ].join("\n"),
