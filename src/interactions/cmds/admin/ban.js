@@ -9,7 +9,8 @@ module.exports = {
      */
 
     async execute(client, interaction) {
-        const osoba = interaction.options.getUser("osoba", true);
+        const osoba = interaction.options.getUser("osoba", true)
+        const powod = interaction.options.getString("powód")
 
         if (interaction.user.id === osoba.id) {
             return interaction.reply({ content: `${customEmoticons.denided} Nie możesz zbanować siebie.`, ephemeral: true });
@@ -34,7 +35,7 @@ module.exports = {
 
         try {
             await osobaDoZbanowania.ban();
-            await interaction.editReply(`${customEmoticons.approved} Udało się zbanować ${osoba.username}!`);
+            await interaction.editReply(`${customEmoticons.approved} Udało się zbanować ${osoba.username}!\n${customEmoticons.info} Powód: ${powod}`);
         } catch (error) {
             console.error(error);
             await interaction.editReply(`${customEmoticons.denided} Wystąpił błąd podczas próby zbanowania tej osoby.`);
