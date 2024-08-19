@@ -19,7 +19,7 @@ module.exports = {
                 .addFields(
                     {
                         name: "Q: Gdzie mogę sprawdzić listę akcji?",
-                        value: "**A:** Podczas korzystania z komendy `globalchat globalactions info`. Argument *`ga`* ma do wyboru wszystkie akcje dostępne do GlobalChat.",
+                        value: "**A:** Podczas korzystania z argumentu *`globalaction`*. Ma do wyboru wszystkie akcje dostępne do GlobalChat.",
                     },
                     { name: "Q: Posiadają jakieś ograniczenia?", value: "**A:** Nie wszystkie - w razie ograniczeń w opisie będzie wzmianka na ten temat." },
                     {
