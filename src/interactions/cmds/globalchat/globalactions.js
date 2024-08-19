@@ -29,7 +29,7 @@ module.exports = {
                 )
                 .setColor("Random")
         } else {
-            var file = require(`../../../../globalactions/${ga}`)
+            var file = require(`../../../globalactions/${ga}`)
             var use
 
             if (file.data.prompt_type == "cmd") use = "```{nazwa_wywoławcza}!<komenda>```"
