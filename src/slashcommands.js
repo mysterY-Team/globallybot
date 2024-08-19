@@ -274,21 +274,21 @@ var slashList = [
             subcommand
                 .setName("clear")
                 .setDescription("Czyści daną ilość wiadomości")
-                .addIntegerOption((option) => option.setName("ilość").setDescription("ilość wiadomości do usunięcia.").setRequired(true))
+                .addIntegerOption((option) => option.setName("ilość").setDescription("Ilość wiadomości do usunięcia").setRequired(true))
         )
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("ban")
-                .setDescription("Banuje osobę")
-                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub id osoby którą chcesz zbanować.").setRequired(true))
-                .addStringOption((option) => option.setName("powód").setDescription("Powód przez który chcesz zbanować osobę").setRequired(false))
+                .setDescription("Banuje osobę ze serwera")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
+                .addStringOption((option) => option.setName("powód").setDescription("Powód bana").setRequired(false))
         )
         .addSubcommand((subcommand) =>
             subcommand
                 .setName("kick")
-                .setDescription("Wyrzuca osobę")
-                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub id osoby którą chcesz wyrzucić.").setRequired(true))
-                .addStringOption((option) => option.setName("powód").setDescription("Powód przez który chcesz wyrzucić osobę").setRequired(false))
+                .setDescription("Wyrzuca osobę ze serwera")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
+                .addStringOption((option) => option.setName("powód").setDescription("Powód kicka").setRequired(false))
         ),
     //pojedyncze komendy
     new SlashCommandBuilder().setDMPermission(true).setName("dowcip").setDescription("Generuje dowcip ze strony PERELKI.NET"),
