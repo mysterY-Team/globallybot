@@ -168,11 +168,11 @@ client.on("threadUpdate", (thread) => {
         setTimeout(() => {
             var accThread = client.channels.cache.get(thread.id)
             const accTags = accThread.appliedTags
-            const accNames = Object.entries(accThread.parent.availableTags)
+            const accNames = Object.entries(accThread.parent.availableTags ?? {})
                 .filter(([key, value]) => accTags.includes(value.id))
                 .map(([key, value]) => value.name)
             const oldTags = thread.appliedTags
-            const oldNames = Object.entries(thread.parent.availableTags)
+            const oldNames = Object.entries(thread.parent.availableTags ?? {})
                 .filter(([key, value]) => oldTags.includes(value.id))
                 .map(([key, value]) => value.name)
 
