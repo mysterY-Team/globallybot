@@ -285,7 +285,7 @@ function timerToResetTheAPIInfo() {
             db.set(`userData/${uID}/gc`, gcdata.decode(x))
             x.userID = uID
             try {
-                client.users.send(uID, "Twoja blokada dobiegła końca! Możesz skorzystać z GlobalChat!\n-# Globally, powered by mysterY Team")
+                client.users.send(uID, { content: "Twoja blokada dobiegła końca! Możesz skorzystać z GlobalChat!\n-# Globally, powered by mysterY Team" })
             } catch (e) {}
         })
 
