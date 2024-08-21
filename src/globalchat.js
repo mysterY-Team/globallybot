@@ -235,7 +235,7 @@ async function formatText(text, client) {
         for (let match of matches) {
             let [$, arg1, arg2] = /{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/.exec(match)
             try {
-                const emojis = await (await client.guilds.fetch(arg1)).emojis.fetch()
+                const emojis = await (await client.guilds.fetch({ guild: arg1, cache: false })).emojis.fetch()
                 if (emojis.map((x) => x.name).includes(arg2)) {
                     const emoji = emojis.map((x) => x)[emojis.map((x) => x.name).indexOf(arg2)]
                     text = text.replace(match, `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>`)
@@ -475,7 +475,7 @@ async function globalchatFunction(client, message) {
             if (message.content.toLowerCase() === "<p>" && userData.messageID_bbc) {
                 if (message.deletable) message.delete()
                 try {
-                    const msg = await message.channel.messages.fetch(userData.messageID_bbc)
+                    const msg = await message.channel.messages.fetch({ message: userData.messageID_bbc, cache: false })
 
                     message = msg
                     userData.messageID_bbc = ""
@@ -626,8 +626,8 @@ async function globalchatFunction(client, message) {
 
                             //sprawdzanie, czy wgl istnieje serwer i kanał
                             try {
-                                const guild_DClient = await client.guilds.fetch(guildID)
-                                const channel_DClient = await guild_DClient.channels.fetch(sData.channel)
+                                const guild_DClient = await client.guilds.fetch({ guild: guildID, cache: false })
+                                const channel_DClient = await guild_DClient.channels.fetch(sData.channel, { cache: false })
                                 if (channel_DClient) {
                                     const dinfo = new Date()
                                     if (sData.webhook != "none") {
@@ -677,7 +677,7 @@ async function globalchatFunction(client, message) {
                                         return { wh: webhook, gid: guildID, cid: sData.channel }
                                     }
                                 } else {
-                                    guild_DClient.fetchOwner().then((gguildOwner) => {
+                                    guild_DClient.fetchOwner({ cache: false }).then((gguildOwner) => {
                                         //embed z informacją o braku kanału
                                         const embedError = new EmbedBuilder()
                                             .setTitle("Nieznaleziony kanał")
@@ -704,7 +704,7 @@ async function globalchatFunction(client, message) {
                                 }
                             } catch (err) {
                                 if (err instanceof DiscordAPIError && err.code === 30007) {
-                                    ;(await client.guilds.fetch(guildID)).fetchOwner().then((gguildOwner) => {
+                                    ;(await client.guilds.fetch({ guild: guildID, cache: false })).fetchOwner().then((gguildOwner) => {
                                         //embed z informacją o braku kanału
                                         const embedError = new EmbedBuilder()
                                             .setTitle("Za duża ilość Webhooków")
@@ -869,7 +869,7 @@ async function globalchatFunction(client, message) {
                         })
 
                         if (measuringTime.mustPing) {
-                            var msg = await message.channel.messages.fetch(measuringTime.msg)
+                            var msg = await message.channel.messages.fetch({ message: measuringTime.msg, cache: false })
                             msg.reply(`<@${message.author.id}>`)
                         }
 
