@@ -1,7 +1,7 @@
 const { User, WebhookMessageCreateOptions, Client } = require("discord.js")
 const { createCarrrd } = require("../functions/imaca")
 const { db } = require("../config")
-const { imacaData } = require("../functions/dbs")
+const { imacaData } = require("../functions/dbSystem")
 const { wait } = require("../functions/useful")
 
 module.exports = {

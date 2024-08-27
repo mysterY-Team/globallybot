@@ -2,7 +2,7 @@ const { Client, ModalSubmitInteraction } = require("discord.js")
 const { createCanvas, Image } = require("@napi-rs/canvas")
 const { drawText } = require("canvas-txt")
 const { db, customEmoticons } = require("../../config")
-const { imacaData } = require("../../functions/dbs")
+const { imacaData } = require("../../functions/dbSystem")
 const imacaInfo = require("../../functions/imaca")
 const { request } = require("undici")
 

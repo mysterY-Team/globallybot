@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { db, customEmoticons } = require("../../config")
-const { gcdata } = require("../../functions/dbs")
+const { gcdata } = require("../../functions/dbSystem")
 const { checkUserStatus, getModules, botPremiumInfo } = require("../../functions/useful")
 
 module.exports = {

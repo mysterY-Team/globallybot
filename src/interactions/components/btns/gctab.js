@@ -1,6 +1,6 @@
 const { ButtonInteraction, Client, EmbedBuilder } = require("discord.js")
 const { customEmoticons, db } = require("../../../config")
-const { gcdata, gcdataGuild } = require("../../../functions/dbs")
+const { gcdata, gcdataGuild } = require("../../../functions/dbSystem")
 
 const times = {
     cooldown: 300,

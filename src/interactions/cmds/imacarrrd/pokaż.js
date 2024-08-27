@@ -1,7 +1,7 @@
 const { CommandInteraction, Client } = require("discord.js")
 const imacaInfo = require("../../../functions/imaca")
 const { db, customEmoticons } = require("../../../config")
-const { imacaData } = require("../../../functions/dbs")
+const { imacaData } = require("../../../functions/dbSystem")
 
 module.exports = {
     /**

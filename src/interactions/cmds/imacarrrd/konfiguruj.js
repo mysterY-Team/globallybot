@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require("discord.js")
 const { db, customEmoticons } = require("../../../config")
-const { imacaData } = require("../../../functions/dbs")
+const { imacaData } = require("../../../functions/dbSystem")
 
 module.exports = {
     /**

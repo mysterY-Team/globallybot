@@ -1,6 +1,6 @@
 const { CommandInteraction, Client, PermissionFlagsBits, WebhookClient, EmbedBuilder } = require("discord.js")
 const { db, customEmoticons, _bot, supportServer } = require("../../../../config")
-const { gcdataGuild } = require("../../../../functions/dbs")
+const { gcdataGuild } = require("../../../../functions/dbSystem")
 const { request } = require("undici")
 const { checkUserStatus } = require("../../../../functions/useful")
 

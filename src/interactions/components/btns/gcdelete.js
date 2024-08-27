@@ -1,6 +1,6 @@
 const { Client, ButtonInteraction, ChannelType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const { customEmoticons, db, supportServer } = require("../../../config")
-const { gcdata } = require("../../../functions/dbs")
+const { gcdata } = require("../../../functions/dbSystem")
 const { listenerLog, checkUserStatus } = require("../../../functions/useful")
 const { lastUserHandler } = require("../../../globalchat")
 

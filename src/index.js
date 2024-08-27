@@ -4,7 +4,7 @@ const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
 const { listenerLog, servers, checkUserStatus, botPremiumInfo } = require("./functions/useful.js")
 const { GlobalFonts } = require("@napi-rs/canvas")
-const { gcdata } = require("./functions/dbs.js")
+const { gcdata } = require("./functions/dbSystem.js")
 
 var active = false
 var forceUpdate = true

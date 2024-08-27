@@ -2,7 +2,7 @@ const { Client, CommandInteraction, EmbedBuilder, AttachmentBuilder } = require(
 const { Canvas, Image } = require("@napi-rs/canvas")
 const { request } = require("undici")
 const { db, supportServer } = require("../../../config")
-const { gcdata } = require("../../../functions/dbs")
+const { gcdata } = require("../../../functions/dbSystem")
 const { wait, checkUserStatus, botPremiumInfo } = require("../../../functions/useful")
 
 module.exports = {

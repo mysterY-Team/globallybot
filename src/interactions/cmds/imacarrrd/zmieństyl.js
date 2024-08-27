@@ -1,6 +1,6 @@
 const { Client, CommandInteraction, AutocompleteFocusedOption } = require("discord.js")
 const { customEmoticons, db } = require("../../../config")
-const { imacaData } = require("../../../functions/dbs")
+const { imacaData } = require("../../../functions/dbSystem")
 const { classes } = require("../../../functions/imaca")
 
 module.exports = {

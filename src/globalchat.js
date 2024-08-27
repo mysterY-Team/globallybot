@@ -15,7 +15,7 @@ const fs = require("fs")
 const { emoticons } = require("./interactions/cmds/globalchat/emotki")
 const { listenerLog, wait, checkUserStatus, botPremiumInfo } = require("./functions/useful")
 const { freemem, totalmem } = require("os")
-const { gcdata, gcdataGuild } = require("./functions/dbs")
+const { gcdata, gcdataGuild } = require("./functions/dbSystem")
 const { request } = require("undici")
 const { checkAnyBadWords } = require("./functions/badwords")
 

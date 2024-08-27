@@ -1,6 +1,6 @@
 const { ContextMenuCommandInteraction, Client, ActionRowBuilder, ButtonStyle, EmbedBuilder, ButtonBuilder } = require("discord.js")
 const { db, customEmoticons } = require("../../config")
-const { gcdataGuild, gcdata } = require("../../functions/dbs")
+const { gcdataGuild, gcdata } = require("../../functions/dbSystem")
 
 module.exports = {
     /**

@@ -17,7 +17,6 @@ module.exports = {
                 ephemeral: true,
                 content: `${customEmoticons.info} Ta, jak i inne komendy z kategorii \`admin\` wymagają od bota posiadania permisji "Administrator".`,
             })
-            
         }
 
         var messages = await interaction.channel.bulkDelete(amount)
