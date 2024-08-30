@@ -1,6 +1,6 @@
 const loc = require("locallium")
 
-const debug = false
+const debug = true
 const ldb = new loc.Database("env")
 
 module.exports = {
@@ -10,6 +10,8 @@ module.exports = {
         new loc.DatabaseFlags({
             keySeparator: "/",
             getAdvancedWarns: debug,
+            createDatabaseFileOnReadIfDoesntExist: true,
+            setValueToDatabaseFileOnReadIfDoesntExist: "{}",
         })
     ),
     supportServer: {

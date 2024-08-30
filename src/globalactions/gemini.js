@@ -32,7 +32,7 @@ module.exports = {
                   role: "user",
                   parts: [
                       {
-                          text: `${reply.author.name} (${reply.isGA ? "GlobalAction" : "Osoba"})\n----\n${reply.text}`,
+                          text: `${reply.author.name} (${reply.isGA ? "GlobalAction" : `osoba, ID: ${reply.author.id}`})\n----\n${reply.text}`,
                       },
                   ],
               }
@@ -54,16 +54,10 @@ module.exports = {
                 { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
                 { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
             ],
-            history: [
-                replyToContent,
-                {
-                    role: "user",
-                    parts: [{ text: `${user.username} (${user.id})\n----\n${msg}` }],
-                },
-            ].filter((x) => x),
+            history: replyToContent ? [replyToContent] : undefined,
         })
 
-        const result = await chatSession.sendMessage("INSERT_INPUT_HERE")
+        const result = await chatSession.sendMessage(`${user.username} (${user.id})\n----\n${msg}`)
         return {
             content: result.response.text(),
         }

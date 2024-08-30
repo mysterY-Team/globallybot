@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ChannelType } = require("discord.js")
+const { Client, GatewayIntentBits, EmbedBuilder, ChannelType, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js")
 const { TOKEN, supportServer, debug, db } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
@@ -262,10 +262,15 @@ function timerToResetTheAPIInfo() {
                     if (x.days === 0) {
                         db.delete(`userData/${x.userID}/premium`)
                         try {
-                            client.users.send(
-                                uID,
-                                "No cześć, mam złą wiadomość. Premium dobiegło końca! Może uda Ci się ponownie zdobyć w jakimś konkursie...\n-# Globally, powered by mysterY Team"
-                            )
+                            client.users.send(uID, {
+                                content:
+                                    "No cześć, mam złą wiadomość. Premium dobiegło końca! Może uda Ci się ponownie zdobyć w jakimś konkursie...\n-# Globally, powered by mysterY Team",
+                                components: [
+                                    new ActionRowBuilder().addComponents(
+                                        new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId("deleteThisMessage").setLabel(`Usuń tą wiadomość dla mnie`)
+                                    ),
+                                ],
+                            })
                         } catch (e) {}
                     } else {
                         db.set(`userData/${x.userID}/premium`, x.days - 1)
@@ -285,7 +290,14 @@ function timerToResetTheAPIInfo() {
             db.set(`userData/${uID}/gc`, gcdata.decode(x))
             x.userID = uID
             try {
-                client.users.send(uID, { content: "Twoja blokada dobiegła końca! Możesz skorzystać z GlobalChat!\n-# Globally, powered by mysterY Team" })
+                client.users.send(uID, {
+                    content: "Twoja czasowa blokada dobiegła końca! Możesz skorzystać z GlobalChat!\n-# Globally, powered by mysterY Team",
+                    components: [
+                        new ActionRowBuilder().addComponents(
+                            new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId("deleteThisMessage").setLabel(`Usuń tą wiadomość dla mnie`)
+                        ),
+                    ],
+                })
             } catch (e) {}
         })
 

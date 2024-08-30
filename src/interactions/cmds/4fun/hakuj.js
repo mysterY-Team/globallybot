@@ -1,4 +1,4 @@
-const { Client, CommandInteraction, EmbedBuilder } = require("discord.js")
+const { Client, CommandInteraction, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const { wait } = require("../../../functions/useful")
 
 module.exports = {
@@ -140,7 +140,7 @@ module.exports = {
             "dominika_kaczmarek@zeltronix.eu",
             "kamil_olszewski@zotrimex.net",
             "piotr.kasprzak@tronet.pl",
-            "emilia.nowak@komtronix.com"
+            "emilia.nowak@komtronix.com",
         ]
 
         // Sprawdzanie czy użytkownik nie jest aplikacją
@@ -159,7 +159,14 @@ module.exports = {
 
             if (Math.floor(Math.random() * 2) + 1 === 1) {
                 await interaction.editReply("Urządzenia ofiary były dobrze zabezpieczone. Ofiara dostała powiadomienie o próbie zhakowania jego urządzeń przez Ciebie.")
-                osoba.send(`${interaction.user} (\`${interaction.user.username}\`) próbował Cię zhakować... Pokaż mu co potrafisz!`)
+                osoba.send({
+                    content: `${interaction.user} (\`${interaction.user.username}\`) próbował Cię zhakować... Pokaż mu co potrafisz!`,
+                    components: [
+                        new ActionRowBuilder().addComponents(
+                            new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId("deleteThisMessage").setLabel(`Usuń tą wiadomość dla mnie`)
+                        ),
+                    ],
+                })
             } else {
                 await interaction.editReply("Wykradanie kont bankowych, haseł...")
                 await wait(2000)

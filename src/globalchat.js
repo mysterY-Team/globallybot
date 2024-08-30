@@ -19,8 +19,6 @@ const { gcdata, gcdataGuild } = require("./functions/dbSystem")
 const { request } = require("undici")
 const { checkAnyBadWords } = require("./functions/badwords")
 
-const timestampCooldown = new Date()
-const globalCooldown = (amount) => 250 + amount * 50
 const userCooldown = (amount, type = 0) =>
     [6500 + amount * 360, 5500 + amount * 280, 4500 + amount * 245, 4100 + amount * 230, 4100 + amount * 210, 4100 + amount * 190, 4000 + amount * 180, 3500 + amount * 150][type]
 let lastUser = "unknown"
@@ -286,15 +284,15 @@ function deleteComments(text) {
 async function globalchatFunction(client, message) {
     try {
         const ssstatus = await checkUserStatus(client, message.author.id, false)
-        const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
+        var isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
-        const GClocation = `${message.guildId}/${message.channelId}`
+        var GClocation = `${message.guildId}/${message.channelId}`
         var accDate = new Date()
         accDate = `${accDate.getFullYear()}-${accDate.getMonth() + 1}-${accDate.getDate()}`
         var gcapprovedAttachments = message.attachments.filter(
             (x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio"))
         )
-        const userHasPremium = botPremiumInfo(message.author.id, ssstatus).have
+        var userHasPremium = botPremiumInfo(message.author.id, ssstatus).have
 
         function wbName(modPerm) {
             if (modPerm === 2) var rank = "naczelnik"
@@ -310,7 +308,7 @@ async function globalchatFunction(client, message) {
         /**
          * @returns {Promise<[EmbedBuilder, string] | undefined>}
          */
-        async function repliedMessage(gID) {
+        var repliedMessage = async function (gID) {
             if (gID && message.reference) {
                 try {
                     var replayedMSG = await message.fetchReference()
@@ -325,7 +323,7 @@ async function globalchatFunction(client, message) {
                     rContent = deleteComments(rContent)
 
                     // const ruid = !replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.components?.[0].component?.[2].customId.split("\u0000")[1] : "GlobalAction"
-                    const ruid = "[ no active ]"
+                    const ruid = replayedMSG.author.username.includes("GlobalAction)") ? "GlobalAction" : replayedMSG.author.username.split(" (")[1].split("; ")[1]
                     var rUser = replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.author.username : replayedMSG.author.username.split(" (")[0]
 
                     var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }
@@ -353,304 +351,282 @@ async function globalchatFunction(client, message) {
 
         if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) return
 
-        if (!message.author.bot && !message.author.system) {
-            var snpsht = db.get(`serverData`)
-            var database = snpsht.val || {}
+        if (message.author.bot || message.author.system) return
 
-            database = Object.entries(database)
-                .filter(([n, server]) => "gc" in server)
-                .map(([id, data]) => {
-                    return { id: id, gc: gcdataGuild.encode(data.gc) }
-                })
+        var snpsht = db.get(`serverData`)
+        var database = snpsht.val || {}
 
-            //console.log(database)
+        database = Object.entries(database)
+            .filter(([n, server]) => "gc" in server)
+            .map(([id, data]) => {
+                return { id: id, gc: gcdataGuild.encode(data.gc) }
+            })
 
-            var getDataByServerID = (id, classification = "serverID") => {
-                var x = database.map((x) => x[classification]).includes(id) ? database[database.map((x) => x[classification]).indexOf(id)] : null
-                return x
-            }
+        //console.log(database)
 
-            var serverdata = getDataByServerID(message.guildId, "id")
+        var getDataByServerID = (id, classification = "serverID") => {
+            var x = database.map((x) => x[classification]).includes(id) ? database[database.map((x) => x[classification]).indexOf(id)] : null
+            return x
+        }
 
-            if (
-                !database
-                    .map((x) => Object.values(x.gc))
-                    .flat()
-                    .map((x) => x.channel)
-                    .includes(message.channelId)
-            )
-                return
+        var serverdata = getDataByServerID(message.guildId, "id")
 
-            listenerLog(2, "")
-            listenerLog(2, "❗ Wyłapano wiadomość do GC!")
-
-            if (freemem() < totalmem() * 0.05 * !debug) {
-                message.reply(`${customEmoticons.loading} Pamięć została przekroczona, czekam na wolne miejsce...`)
-                listenerLog(3, "")
-                return
-            }
-
-            listenerLog(3, "➿ Spełniono warunek (1/5)")
-
-            var station = Object.values(serverdata.gc)
+        if (
+            !database
+                .map((x) => Object.values(x.gc))
+                .flat()
                 .map((x) => x.channel)
-                .indexOf(message.channelId)
-            station = Object.keys(serverdata.gc)[station]
+                .includes(message.channelId)
+        )
+            return
 
-            if (!db.get(`stations/${station}`).exists) {
-                let msg = await message.channel.send("Ta stacja przestała istnieć! Usuwanie kanału z bazy danych...")
-                let removeData = async function () {
-                    delete serverdata.gc[station]
-                    if (Object.keys(serverdata.gc).length > 0) db.set(`serverData/${serverdata.id}/gc`, gcdataGuild.decode(serverdata.gc))
-                    else db.delete(`serverData/${serverdata.id}/gc`)
-                    msg.edit(`~~Ta stacja przestała istnieć! Usuwanie kanału z bazy danych...~~\n${customEmoticons.approved} Usunięto kanał z bazy danych!`)
+        listenerLog(2, "")
+        listenerLog(2, "❗ Wyłapano wiadomość do GC!")
 
-                    const emb = new EmbedBuilder()
-                        .setTitle("Usunięto kanał!")
-                        .setDescription(`ID: \`${message.channel.id}\`\nNazwa kanału: \`${message.channel.name}\`\nStacja: \`${station}\`\nOsoba odłączająca: <@${_bot.id}>)`)
-                        .setColor("Blue")
-                    await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })
-                }
+        if (freemem() < totalmem() * 0.05 * !debug) {
+            message.reply(`${customEmoticons.loading} Pamięć została przekroczona, czekam na wolne miejsce...`)
+            listenerLog(3, "")
+            return
+        }
+    } catch (err) {
+        if (debug) console.error(err)
+    }
 
-                if (serverdata.gc[station].webhook !== "none") {
-                    let webhook = new WebhookClient({
-                        url: "https://discord.com/api/webhooks/" + serverdata.gc[station].webhook,
-                    })
-                    request("https://discord.com/api/webhooks/" + serverdata.gc[station].webhook)
-                        .then((res) => {
-                            try {
-                                if (res.statusCode >= 200 && res.statusCode < 300) webhook.delete("braku stacji")
-                            } catch (e) {}
+    try {
+        listenerLog(3, "➿ Spełniono warunek (1/5)")
 
-                            removeData()
-                        })
-                        .catch(() => {
-                            removeData()
-                        })
-                } else {
-                    removeData()
-                }
+        var station = Object.values(serverdata.gc)
+            .map((x) => x.channel)
+            .indexOf(message.channelId)
+        station = Object.keys(serverdata.gc)[station]
 
-                return
+        if (!db.get(`stations/${station}`).exists) {
+            let msg = await message.channel.send("Ta stacja przestała istnieć! Usuwanie kanału z bazy danych...")
+            let removeData = async function () {
+                delete serverdata.gc[station]
+                if (Object.keys(serverdata.gc).length > 0) db.set(`serverData/${serverdata.id}/gc`, gcdataGuild.decode(serverdata.gc))
+                else db.delete(`serverData/${serverdata.id}/gc`)
+                msg.edit(`~~Ta stacja przestała istnieć! Usuwanie kanału z bazy danych...~~\n${customEmoticons.approved} Usunięto kanał z bazy danych!`)
+
+                const emb = new EmbedBuilder()
+                    .setTitle("Usunięto kanał!")
+                    .setDescription(`ID: \`${message.channel.id}\`\nNazwa kanału: \`${message.channel.name}\`\nStacja: \`${station}\`\nOsoba odłączająca: <@${_bot.id}>)`)
+                    .setColor("Blue")
+                await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })
             }
 
-            const stationHasPasswd = Boolean(db.get(`stations/${station}`).val.split("|")[1])
-
-            listenerLog(3, "➿ Spełniono warunek (2/5)")
-
-            if (userData.timestampToSendMessage - 300 > Date.now()) {
-                message.reply(`${customEmoticons.denided} Osobisty cooldown! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms`).then(async (msg) => {
-                    await wait(Math.max(userData.timestampToSendMessage - Date.now(), 2000))
-                    msg.delete()
+            if (serverdata.gc[station].webhook !== "none") {
+                let webhook = new WebhookClient({
+                    url: "https://discord.com/api/webhooks/" + serverdata.gc[station].webhook,
                 })
-                if (message.content.toLowerCase() !== "<p>") {
-                    userData.messageID_bbc = message.id
-                    db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
-                }
-                return
+                request("https://discord.com/api/webhooks/" + serverdata.gc[station].webhook)
+                    .then((res) => {
+                        try {
+                            if (res.statusCode >= 200 && res.statusCode < 300) webhook.delete("braku stacji")
+                        } catch (e) {}
+
+                        removeData()
+                    })
+                    .catch(() => {
+                        removeData()
+                    })
+            } else {
+                removeData()
             }
 
-            await wait(Math.max(userData.timestampToSendMessage - Date.now(), 0))
+            return
+        }
 
-            if (timestampCooldown.getTime() > Date.now()) {
-                message.reply(`${customEmoticons.denided} Globalny cooldown! Zaczekaj jeszcze \`${timestampCooldown.getTime() - Date.now()}\` ms`)
-                if (message.content.toLowerCase() !== "<p>") {
-                    userData.messageID_bbc = message.id
-                    db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
-                }
-                return
+        const stationHasPasswd = Boolean(db.get(`stations/${station}`).val.split("|")[1])
+
+        listenerLog(3, "➿ Spełniono warunek (2/5)")
+
+        if (userData.timestampToSendMessage - 300 > Date.now()) {
+            message.react(customEmoticons.denided)
+            if (message.content.toLowerCase() !== "<p>") var info = `${customEmoticons.info} Możesz cofnąć **tą** zablokowaną wiadomość za pomocą znacznika \`<p>\`. Po prostu to wpisz po usunięciu tej wiadomości, aby to ją właśnie użyć`
+            message.reply(`${customEmoticons.denided} Jesteś objęty/-a cooldownem! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms`).then(async (msg) => {
+                await wait(Math.max(userData.timestampToSendMessage - Date.now(), 2000))
+                msg.delete()
+            })
+            if (message.content.toLowerCase() !== "<p>") {
+                userData.messageID_bbc = message.id
+                db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
             }
+            return
+        }
 
-            database = database.filter((x) => Object.keys(x.gc).includes(station)).map((x) => Object.assign(x.gc[station], { serverID: x.id }))
+        await wait(Math.max(userData.timestampToSendMessage - Date.now(), 0))
 
-            listenerLog(3, "➿ Spełniono warunek (3/5)")
+        database = database.filter((x) => Object.keys(x.gc).includes(station)).map((x) => Object.assign(x.gc[station], { serverID: x.id }))
 
-            if (userData.isBlocked) {
+        listenerLog(3, "➿ Spełniono warunek (3/5)")
+
+        if (userData.isBlocked) {
+            message.react(customEmoticons.denided)
+            return
+        }
+
+        listenerLog(3, "➿ Spełniono warunek (4/5)")
+
+        if (message.content.toLowerCase() === "<p>" && userData.messageID_bbc) {
+            if (message.deletable) message.delete()
+            try {
+                const msg = await message.channel.messages.fetch({ message: userData.messageID_bbc, cache: false })
+
+                message = msg
+                userData.messageID_bbc = ""
+            } catch (e) {
                 message.react(customEmoticons.denided)
                 return
             }
+        } else if (message.content.toLowerCase() === "<p>" && !userData.messageID_bbc) {
+            message.react(customEmoticons.minus)
+            return
+        }
 
-            listenerLog(3, "➿ Spełniono warunek (4/5)")
+        //---
 
-            if (message.content.toLowerCase() === "<p>" && userData.messageID_bbc) {
-                if (message.deletable) message.delete()
-                try {
-                    const msg = await message.channel.messages.fetch({ message: userData.messageID_bbc, cache: false })
+        if (sprawdzNiedozwoloneLinki(deleteComments(message.content)) && !isInMysteryTeam) {
+            message.react(customEmoticons.denided)
+            try {
+                const embed = new EmbedBuilder()
+                    .setAuthor({ name: "Blokada linku" })
+                    .setFields({ name: "Powód", value: "Niedozwolony link", inline: true }, { name: "Kara", value: "3 minuty osobistego cooldownu", inline: true })
+                    .setFooter({ text: "Globally, powered by mysterY Team" })
+                    .setColor("Red")
+                message.author.send({ embeds: [embed] })
+            } catch (e) {}
+            userData.timestampToSendMessage = Date.now() + 180_000
+            userData.messageID_bbc = ""
+            db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+            return
+        }
 
-                    message = msg
-                    userData.messageID_bbc = ""
-                } catch (e) {
-                    message.react(customEmoticons.denided)
-                    return
-                }
-            } else if (message.content.toLowerCase() === "<p>" && !userData.messageID_bbc) {
-                message.react(customEmoticons.minus)
-                return
-            }
-
-            //---
-
-            if (sprawdzNiedozwoloneLinki(deleteComments(message.content)) && !isInMysteryTeam) {
+        if (userData.karma < 25n && !stationHasPasswd) {
+            if (deleteComments(message.content).match(/(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_=]*)?/)) {
                 message.react(customEmoticons.denided)
                 try {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada linku" })
-                        .setFields({ name: "Powód", value: "Niedozwolony link", inline: true }, { name: "Kara", value: "3 minuty osobistego cooldownu", inline: true })
+                        .setFields({ name: "Powód", value: "Za mała ilość karmy", inline: true }, { name: "Kara", value: "30 sekund osobistego cooldownu", inline: true })
                         .setFooter({ text: "Globally, powered by mysterY Team" })
                         .setColor("Red")
                     message.author.send({ embeds: [embed] })
                 } catch (e) {}
-                userData.timestampToSendMessage = Date.now() + 180_000
+                userData.timestampToSendMessage = Date.now() + 30_000
                 userData.messageID_bbc = ""
                 db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 return
             }
+            if (!userHasPremium) gcapprovedAttachments = gcapprovedAttachments.filter(() => false)
+        }
 
-            if (userData.karma < 25n && !stationHasPasswd) {
-                let varcheckURL = message.content.split("")
-                varcheckURL = varcheckURL.filter((x) => x.match(/^(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_]*)?$/))
-                if (varcheckURL.length > 0) {
-                    message.react(customEmoticons.denided)
-                    try {
-                        const embed = new EmbedBuilder()
-                            .setAuthor({ name: "Blokada linku" })
-                            .setFields({ name: "Powód", value: "Za mała ilość karmy", inline: true }, { name: "Kara", value: "30 sekund osobistego cooldownu", inline: true })
-                            .setFooter({ text: "Globally, powered by mysterY Team" })
-                            .setColor("Red")
-                        message.author.send({ embeds: [embed] })
-                    } catch (e) {}
-                    userData.timestampToSendMessage = Date.now() + 30_000
-                    userData.messageID_bbc = ""
-                    db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
-                    return
-                }
-                if (!userHasPremium) gcapprovedAttachments = gcapprovedAttachments.filter(() => false)
-            }
+        if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) {
+            message
+                .reply(`${customEmoticons.info} Posiadasz mniej niż 25 karmy, a ta wiadomość nie mogła zostać przekonwertowana, więc anulowano proces wysyłania dalej`)
+                .then(async (x) => {
+                    await wait(10000)
+                    if (x.deletable) x.delete()
+                })
+            return
+        }
 
-            if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) {
-                listenerLog()
-                message
-                    .reply(`${customEmoticons.info} Posiadasz mniej niż 25 karmy, a ta wiadomość nie mogła zostać przekonwertowana, więc anulowano proces wysyłania dalej`)
-                    .then(async (x) => {
-                        await wait(5000)
-                        if (x.deletable) x.delete()
-                    })
-                return
-            }
-
-            const bw = checkAnyBadWords(deleteComments(message.content))
-            if (bw.checked) {
-                if (message.deletable) message.delete()
-                try {
-                    const embed = new EmbedBuilder()
-                        .setAuthor({ name: "Blokada słowa" })
-                        .setFields(
-                            { name: "Powód", value: `Niedozwolone słowo \`${bw.badWord}\``, inline: true },
-                            { name: "Kara", value: "minuta osobistego cooldownu", inline: true }
-                        )
-                        .setFooter({ text: "Globally, powered by mysterY Team" })
-                        .setColor("Red")
-                    message.channel.send({ embeds: [embed] })
-                } catch (e) {}
-                userData.timestampToSendMessage = Date.now() + 60_000
-                userData.messageID_bbc = ""
-                db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
-                return
-            }
-
-            listenerLog(3, "➿ Spełniono warunek (5/5)")
-
-            listenerLog(4, `✅ Ma możliwość wysłania wiadomości do GC`)
-            listenerLog(5, `Informacje o wiadomości: `)
-            listenerLog(5, `📌 ${GClocation}/${message.id}`)
-            if (message.reference !== null)
-                listenerLog(5, `➡️ Zawiera odpowiedź na wiadomość (${message.reference.guildId}/${message.reference.channelId}/${message.reference.messageId})`)
-
-            //console.log(database)
-
-            listenerLog(4, `📌 Stacja "${station}"`)
-
-            delete ddata
-
-            function gct() {
-                let gctI = [
-                    true,
-                    userData.karma >= 25n,
-                    userData.modPerms > 0 || (userData.karma >= 25n && userHasPremium),
-                    userData.karma >= 1000n,
-                    userData.karma >= 1000n && (userData.modPerms === 1 || userHasPremium),
-                    userData.karma >= 1000n && (userData.modPerms === 2 || (userData.modPerms === 1 && userHasPremium)),
-                    userData.karma >= 1000n && userData.modPerms === 2 && userHasPremium,
-                    isInMysteryTeam,
-                ]
-
-                return gctI.lastIndexOf(true)
-            }
-
-            listenerLog(3, "🪪 Dane")
-            listenerLog(4, `gct() => ${gct()}`)
-            listenerLog(4, `userCooldown(amount<${database.length}>, type<gct()>) => ${userCooldown(database.length, gct())}`)
-
-            userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct()) * (1 + (typeof prefixes == "string" * !userHasPremium * 0.6))
-            delete gct
+        const bw = checkAnyBadWords(deleteComments(message.content))
+        if (bw.checked) {
+            if (message.deletable) message.delete()
+            try {
+                const embed = new EmbedBuilder()
+                    .setAuthor({ name: "Blokada słowa" })
+                    .setFields({ name: "Powód", value: `Niedozwolone słowo \`${bw.badWord}\``, inline: true }, { name: "Kara", value: "minuta osobistego cooldownu", inline: true })
+                    .setFooter({ text: "Globally, powered by mysterY Team" })
+                    .setColor("Red")
+                message.channel.send({ embeds: [embed] })
+            } catch (e) {}
+            userData.timestampToSendMessage = Date.now() + 60_000
             userData.messageID_bbc = ""
             db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+            return
+        }
 
-            listenerLog(4, `Różnica cooldownów: ${userData.timestampToSendMessage - Date.now()}`)
+        listenerLog(3, "➿ Spełniono warunek (5/5)")
 
-            timestampCooldown.setTime(Date.now() + globalCooldown(database.length))
+        listenerLog(4, `✅ Ma możliwość wysłania wiadomości do GC`)
+        listenerLog(5, `Informacje o wiadomości: `)
+        listenerLog(5, `📌 ${GClocation}/${message.id}`)
+        if (message.reference !== null)
+            listenerLog(5, `➡️ Zawiera odpowiedź na wiadomość (${message.reference.guildId}/${message.reference.channelId}/${message.reference.messageId})`)
 
-            listenerLog(3, "")
-            listenerLog(3, "♻️ Wykonywanie działania webhooków")
+        //console.log(database)
 
-            /**
-             * @type {{ wh: WebhookClient, gid: string, cid: string }[]}
-             */
-            var webhooks = (
-                await Promise.all(
-                    database
-                        .map((x) => x.serverID)
-                        .map(async function (guildID) {
-                            /**
-                             * @type {WebhookClient}
-                             */
-                            var webhook
+        listenerLog(4, `📌 Stacja "${station}"`)
 
-                            listenerLog(4, `➡️ Dla serwera o ID ${guildID}`)
+        delete ddata
 
-                            if (!guildID) {
-                                return
-                            }
+        function gct() {
+            let gctI = [
+                true,
+                userData.karma >= 25n,
+                userData.modPerms > 0 || (userData.karma >= 25n && userHasPremium),
+                userData.karma >= 1000n,
+                userData.karma >= 1000n && (userData.modPerms === 1 || userHasPremium),
+                userData.karma >= 1000n && (userData.modPerms === 2 || (userData.modPerms === 1 && userHasPremium)),
+                userData.karma >= 1000n && userData.modPerms === 2 && userHasPremium,
+                isInMysteryTeam,
+            ]
 
-                            var sData = getDataByServerID(guildID)
+            return gctI.lastIndexOf(true)
+        }
 
-                            //sprawdzanie, czy wgl istnieje serwer i kanał
-                            try {
-                                const guild_DClient = await client.guilds.fetch({ guild: guildID, cache: false })
-                                const channel_DClient = await guild_DClient.channels.fetch(sData.channel, { cache: false })
-                                if (channel_DClient) {
-                                    const dinfo = new Date()
-                                    if (sData.webhook != "none") {
-                                        try {
-                                            var HTTPRes = await request("https://discord.com/api/webhooks/" + sData.webhook)
-                                            if (HTTPRes.statusCode >= 200 && HTTPRes.statusCode < 300) {
-                                                webhook = new WebhookClient({
-                                                    url: "https://discord.com/api/webhooks/" + sData.webhook,
-                                                })
-                                            } else {
-                                                listenerLog(5, "❕ Nie wczytano webhooka, tworzenie nowego...")
-                                                webhook = await guild_DClient.channels.createWebhook({
-                                                    name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
-                                                    channel: sData.channel,
-                                                    reason: "wykonania usługi GlobalChat (brakujący Webhook)",
-                                                })
+        listenerLog(3, "🪪 Dane")
+        listenerLog(4, `gct() => ${gct()}`)
+        listenerLog(4, `userCooldown(amount<${database.length}>, type<gct()>) => ${userCooldown(database.length, gct())}`)
 
-                                                var data = gcdataGuild.encode(snpsht.val[guildID].gc)
-                                                data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
-                                                db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
-                                            }
-                                        } catch (e) {
-                                            listenerLog(5, "❕ Wyłapano błąd, ignorowanie i tworzenie nowego...")
+        userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct()) * (1 + (typeof prefixes == "string" * !userHasPremium * 0.6))
+        delete gct
+        userData.messageID_bbc = ""
+        db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+
+        listenerLog(4, `Różnica cooldownów: ${userData.timestampToSendMessage - Date.now()}`)
+
+        listenerLog(3, "")
+        listenerLog(3, "♻️ Wykonywanie działania webhooków")
+
+        /**
+         * @type {{ wh: WebhookClient, gid: string, cid: string }[]}
+         */
+        var webhooks = (
+            await Promise.all(
+                database
+                    .map((x) => x.serverID)
+                    .map(async function (guildID) {
+                        /**
+                         * @type {WebhookClient}
+                         */
+                        var webhook
+
+                        listenerLog(4, `➡️ Dla serwera o ID ${guildID}`)
+
+                        if (!guildID) {
+                            return
+                        }
+
+                        var sData = getDataByServerID(guildID)
+
+                        //sprawdzanie, czy wgl istnieje serwer i kanał
+                        try {
+                            const guild_DClient = await client.guilds.fetch({ guild: guildID, cache: false })
+                            const channel_DClient = await guild_DClient.channels.fetch(sData.channel, { cache: false })
+                            if (channel_DClient) {
+                                const dinfo = new Date()
+                                if (sData.webhook != "none") {
+                                    try {
+                                        var HTTPRes = await request("https://discord.com/api/webhooks/" + sData.webhook)
+                                        if (HTTPRes.statusCode >= 200 && HTTPRes.statusCode < 300) {
+                                            webhook = new WebhookClient({
+                                                url: "https://discord.com/api/webhooks/" + sData.webhook,
+                                            })
+                                        } else {
+                                            listenerLog(5, "❕ Nie wczytano webhooka, tworzenie nowego...")
                                             webhook = await guild_DClient.channels.createWebhook({
                                                 name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                                 channel: sData.channel,
@@ -661,9 +637,8 @@ async function globalchatFunction(client, message) {
                                             data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
                                             db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
                                         }
-
-                                        return { wh: webhook, gid: guildID, cid: sData.channel }
-                                    } else {
+                                    } catch (e) {
+                                        listenerLog(5, "❕ Wyłapano błąd, ignorowanie i tworzenie nowego...")
                                         webhook = await guild_DClient.channels.createWebhook({
                                             name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                             channel: sData.channel,
@@ -673,306 +648,319 @@ async function globalchatFunction(client, message) {
                                         var data = gcdataGuild.encode(snpsht.val[guildID].gc)
                                         data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
                                         db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
-
-                                        return { wh: webhook, gid: guildID, cid: sData.channel }
                                     }
+
+                                    return { wh: webhook, gid: guildID, cid: sData.channel }
                                 } else {
-                                    guild_DClient.fetchOwner({ cache: false }).then((gguildOwner) => {
-                                        //embed z informacją o braku kanału
-                                        const embedError = new EmbedBuilder()
-                                            .setTitle("Nieznaleziony kanał")
-                                            .setDescription(
-                                                "W trakcie wykonywania usługi GlobalChat, nie udało mi się znaleźć kanału, do którego był ono przypisany - dzieje się tak, gdy kanał został usunięty. Usunięto przed chwilą z bazy danych informacje dla tego serwera i należy jeszcze raz ustawić pod komendą `globalchat kanał ustaw` wszystie kanały, które były podpięte."
-                                            )
-                                            .addFields({
-                                                name: "`Q:` Kanał przypisany do GlobalChata dalej istnieje, nie został on usunięty.",
-                                                value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do [serwera support](https://discord.gg/536TSYqT)**",
-                                            })
-                                            .setFooter({
-                                                text: "Globally, powered by mysterY Team",
-                                            })
-                                            .setColor("Orange")
-
-                                        gguildOwner.send({
-                                            content: `${customEmoticons.info} Tu bot Globally. Jako, że jesteś właścicielem serwera *${guild_DClient.name}*, jest bardzo ważna informacja dla Ciebie!`,
-                                            embeds: [embedError],
-                                        })
-
-                                        db.delete(`serverData/${guildID}/gc`)
-                                        return
+                                    webhook = await guild_DClient.channels.createWebhook({
+                                        name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
+                                        channel: sData.channel,
+                                        reason: "wykonania usługi GlobalChat (brakujący Webhook)",
                                     })
-                                }
-                            } catch (err) {
-                                if (err instanceof DiscordAPIError && err.code === 30007) {
-                                    ;(await client.guilds.fetch({ guild: guildID, cache: false })).fetchOwner().then((gguildOwner) => {
-                                        //embed z informacją o braku kanału
-                                        const embedError = new EmbedBuilder()
-                                            .setTitle("Za duża ilość Webhooków")
-                                            .setDescription(
-                                                "W trakcie wykonywania usługi GlobalChat, API Discorda zwrócił błąd o przekroczeniu liczby Webhooków. Musiałem usunąć całą ową konfigurację z bazy danych. Zwolnij miejsce i ustaw ponownie wszystkie kanały (`globalchat kanał ustaw`)"
-                                            )
-                                            .addFields({
-                                                name: "`Q:` Jak mam usunąć webhooki?",
-                                                value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i usuń wcześniej utworzone Webhooki.',
-                                            })
-                                            .setFooter({
-                                                text: "Globally, powered by mysterY Team",
-                                            })
-                                            .setColor("Orange")
 
-                                        gguildOwner.send({
-                                            content: `${customEmoticons.info} Tu bot Globally. Jako, że jesteś właścicielem serwera *${guild_DClient.name}*, jest bardzo ważna informacja dla Ciebie!`,
-                                            embeds: [embedError],
-                                        })
-                                        db.delete(`serverData/${guildID}/gc`)
-                                    })
-                                } else {
-                                    console.warn(err)
-                                    db.delete(`serverData/${guildID}`)
+                                    var data = gcdataGuild.encode(snpsht.val[guildID].gc)
+                                    data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
+                                    db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
+
+                                    return { wh: webhook, gid: guildID, cid: sData.channel }
                                 }
-                                return
+                            } else {
+                                guild_DClient.fetchOwner({ cache: false }).then((gguildOwner) => {
+                                    //embed z informacją o braku kanału
+                                    const embedError = new EmbedBuilder()
+                                        .setTitle("Nieznaleziony kanał")
+                                        .setDescription(
+                                            "W trakcie wykonywania usługi GlobalChat, nie udało mi się znaleźć kanału, do którego był ono przypisany - dzieje się tak, gdy kanał został usunięty. Usunięto przed chwilą z bazy danych informacje dla tego serwera i należy jeszcze raz ustawić pod komendą `globalchat kanał ustaw` wszystie kanały, które były podpięte."
+                                        )
+                                        .addFields({
+                                            name: "`Q:` Kanał przypisany do GlobalChata dalej istnieje, nie został on usunięty.",
+                                            value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do [serwera support](https://discord.gg/536TSYqT)**",
+                                        })
+                                        .setFooter({
+                                            text: "Globally, powered by mysterY Team",
+                                        })
+                                        .setColor("Orange")
+
+                                    gguildOwner.send({
+                                        content: `${customEmoticons.info} Tu bot Globally. Jako, że jesteś właścicielem serwera *${guild_DClient.name}*, jest bardzo ważna informacja dla Ciebie!`,
+                                        embeds: [embedError],
+                                    })
+
+                                    db.delete(`serverData/${guildID}/gc`)
+                                    return
+                                })
                             }
+                        } catch (err) {
+                            if (err instanceof DiscordAPIError && err.code === 30007) {
+                                ;(await client.guilds.fetch({ guild: guildID, cache: false })).fetchOwner().then((gguildOwner) => {
+                                    //embed z informacją o braku kanału
+                                    const embedError = new EmbedBuilder()
+                                        .setTitle("Za duża ilość Webhooków")
+                                        .setDescription(
+                                            "W trakcie wykonywania usługi GlobalChat, API Discorda zwrócił błąd o przekroczeniu liczby Webhooków. Musiałem usunąć całą ową konfigurację z bazy danych. Zwolnij miejsce i ustaw ponownie wszystkie kanały (`globalchat kanał ustaw`)"
+                                        )
+                                        .addFields({
+                                            name: "`Q:` Jak mam usunąć webhooki?",
+                                            value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i usuń wcześniej utworzone Webhooki.',
+                                        })
+                                        .setFooter({
+                                            text: "Globally, powered by mysterY Team",
+                                        })
+                                        .setColor("Orange")
+
+                                    gguildOwner.send({
+                                        content: `${customEmoticons.info} Tu bot Globally. Jako, że jesteś właścicielem serwera *${guild_DClient.name}*, jest bardzo ważna informacja dla Ciebie!`,
+                                        embeds: [embedError],
+                                    })
+                                    db.delete(`serverData/${guildID}/gc`)
+                                })
+                            } else {
+                                console.warn(err)
+                                db.delete(`serverData/${guildID}`)
+                            }
+                            return
+                        }
+                    })
+            )
+        ).filter((x) => x)
+        //dla używania GlobalActions przez komentowanie
+        var withoutReply = deleteComments(message.content).toLowerCase()
+
+        var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
+        for (var i = 0; i < prefixes.length; i++) {
+            var quickdata = require(`./globalactions/${prefixes[i]}`).data
+
+            if (
+                (withoutReply.startsWith(`${prefixes[i]},`) && quickdata.prompt_type == "chat") ||
+                ((withoutReply.includes(`[${prefixes[i]}]`) || message.mentions.repliedUser?.displayName.startsWith(quickdata.name)) && quickdata.prompt_type == "chat2.0") ||
+                (withoutReply.startsWith(`${prefixes[i]}!`) && quickdata.prompt_type == "cmd")
+            ) {
+                prefixes = prefixes[i]
+                break
+            }
+        }
+
+        message.content = await formatText(message.content, client)
+
+        const isHisFirstMessage = !lastUser.startsWith(`${GClocation}:${message.author.id}`)
+        lastUser = `${GClocation}:${message.author.id}[${isHisFirstMessage}]`
+        listenerLog(3, 'ℹ️ Zmienna "lastUser" jest równa "' + lastUser + '"')
+
+        var messages = []
+        var editLater = {}
+
+        /**
+         * @type {{ text: string, author: { name: string, id: string }, isGA: boolean } | null}
+         */
+        var replyJSON = null
+
+        Promise.all(
+            webhooks.map(async function (w) {
+                var reply = await repliedMessage(w.gid ?? "")
+
+                if (reply && w.gid == message.guildId)
+                    replyJSON = {
+                        text: reply[0].toJSON().description,
+                        author: {
+                            name: (() => {
+                                const wbname = reply[0].toJSON().author.name.replace("W odpowiedzi do ", "")
+                                if (wbname.endsWith(", GlobalAction)")) return wbname.split(" (")[1].split(",")[0].replace(/"/g, "")
+                                else if (wbname.endsWith("GlobalAction)")) return wbname.split(" (")[0]
+                                else return wbname
+                            })(),
+                            id: reply[1],
+                        },
+                        isGA: reply[0].toJSON().author.name.endsWith("GlobalAction)"),
+                    }
+
+                // console.log(reply)
+
+                reply = typeof reply === "undefined" ? [] : [reply[0]]
+
+                if (userData.karma == 0n) reply.push(new EmbedBuilder().setDescription("🎉 **Nowy użytkownik!**").setColor("Blue"))
+
+                if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
+
+                function generateBtns() {
+                    let btns = []
+                    if (typeof prefixes == "string")
+                        btns = [[new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]]
+                    else if (w.gid == message.guildId)
+                        btns = [[new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000??`).setDisabled(true).setEmoji("🗑️")]]
+                    else btns = [[]]
+
+                    return btns.filter((row) => row.filter((x) => x).length > 0).map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x)))
+                }
+
+                var x = await w.wh.send({
+                    avatarURL: message.author.displayAvatarURL({ size: 128, extension: "png" }),
+                    username: wbName(userData.modPerms),
+                    content: w.gid == message.guildId ? message.content : deleteComments(message.content),
+                    embeds: reply,
+                    files: (w.gid == message.guildId ? message.attachments : gcapprovedAttachments).map((x) => x),
+                    allowedMentions: { parse: [] },
+                    components: generateBtns(),
+                })
+
+                if (w.gid == message.guildId)
+                    editLater = {
+                        wh: w.wh,
+                        message: x.id,
+                    }
+
+                if (typeof prefixes !== "string") messages.push(`${w.gid}/${w.cid}/${x.id}`)
+
+                return
+            })
+        ).then(async () => {
+            const channelid = supportServer.gclogs.msg
+            const channel = await client.channels.fetch(channelid)
+            try {
+                message.delete().catch((er) => console.warn(er))
+            } catch (e) {
+                console.warn(e)
+            }
+
+            var measuringTime = {
+                ends: false,
+                mustPing: false,
+                startTimestamp: Date.now(),
+                endTimestamp: 0,
+                msg: null,
+            }
+
+            if (typeof prefixes == "string") {
+                const file = require(`./globalactions/${prefixes}`)
+                try {
+                    setTimeout(() => {
+                        if (!measuringTime.ends) {
+                            measuringTime.mustPing = true
+                            message.channel.send(
+                                `<@${message.author.id}>, od 10 sekund akcja nie odpowiada, jako że nie ma limitu czasowego, dostaniesz ping na kanale z odpowiedzią!`
+                            )
+                        }
+                    }, 10_000)
+                    /**
+                     * @type {WebhookMessageCreateOptions}
+                     */
+                    var response = await file.execute(deleteComments(message.content), message.author, replyJSON, client)
+                    response.avatarURL ??= file.data.avatar
+                    response.username ??= file.data.name
+                    response.username += ` (${response.username === file.data.name ? "" : `"${file.data.name}", `}GlobalAction)`
+                    response.allowedMentions = { parse: [] }
+
+                    measuringTime.ends = true
+
+                    webhooks.map(async function (w) {
+                        var msg = await w.wh.send(response)
+                        if (measuringTime.mustPing && w.gid === message.guildId) measuringTime.msg = msg.id
+                    })
+
+                    if (measuringTime.mustPing) {
+                        var msg = await message.channel.messages.fetch({ message: measuringTime.msg, cache: false })
+                        msg.reply(`<@${message.author.id}>`)
+                    }
+
+                    if (channel && channel.type === ChannelType.GuildText) {
+                        const embed = new EmbedBuilder()
+                            .setColor("Blue")
+                            .setAuthor({
+                                name: message.author.username,
+                                iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
+                            })
+                            .setDescription(`Wykonanie akcji *${file.data.name}* \`\`\`${deleteComments(message.content)}\`\`\``)
+                            .setFooter({ text: `${response.username} | ${station}`, iconURL: response.avatarURL })
+                        channel.send({
+                            embeds: [embed],
                         })
-                )
-            ).filter((x) => x)
-            //dla używania GlobalActions przez komentowanie
-            var withoutReply = deleteComments(message.content).toLowerCase()
+                    }
+                } catch (err) {
+                    measuringTime.ends = true
+                    if (channel && channel.type === ChannelType.GuildText) {
+                        const embed = new EmbedBuilder()
+                            .setColor("DarkRed")
+                            .setAuthor({
+                                name: message.author.username,
+                                iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
+                            })
+                            .setDescription(`Niepowodzenie wykonania akcji *${file.data.name}* \`\`\`${deleteComments(message.content)}\`\`\``)
+                            .setFields({ name: "Błąd", value: `\`\`\`${err}\`\`\`` })
+                            .setFooter({ text: `${station}` })
+                        channel.send({
+                            embeds: [embed],
+                        })
+                    }
+                    console.error(err)
+                    message.channel.send(`Ojoj <@${message.author.id}>, złe wieści - owy GlobalAction nie został wykonany zgodnie z oczekiwaniami...`)
+                }
+            } else {
+                if (channel && channel.type === ChannelType.GuildText) {
+                    let embeds = []
+                    if (stationHasPasswd) {
+                        const embed = new EmbedBuilder().setDescription("[ wysłane za pośrednictwem prywatnej stacji ]").setFooter({ text: station })
+                        embeds.push(embed)
+                    } else {
+                        const embed = new EmbedBuilder()
+                            .setColor("Green")
+                            .setAuthor({
+                                name: message.author.username,
+                                iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
+                            })
+                            .setDescription(deleteComments(message.content) || "[ brak tekstu ]")
+                            .setFields({
+                                name: "Stan",
+                                value: "Nie usunięto",
+                            })
+                            .setFooter({ text: station })
+                        embeds.push(embed)
+                        if (gcapprovedAttachments.size > 0) {
+                            const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(gcapprovedAttachments.map((x) => x.url).join("\n"))
+                            embeds.push(mediaEmbed)
+                        }
+                    }
+                    var msg = await channel.send({
+                        embeds,
+                        content: messages.join("|"),
+                    })
+                    var row = new ActionRowBuilder()
+                    if (!stationHasPasswd) {
+                        row.setComponents(
+                            new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
+                            new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`)
+                        )
+                    }
+                    await msg.edit({
+                        components: [
+                            row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000${msg.id}`).setEmoji("🗑️")),
+                        ],
+                    })
 
-            var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
-            for (var i = 0; i < prefixes.length; i++) {
-                var quickdata = require(`./globalactions/${prefixes[i]}`).data
+                    listenerLog(3, "Próba zmiany przycisku webhooka")
 
-                if (
-                    (withoutReply.startsWith(`${prefixes[i]},`) && quickdata.prompt_type == "chat") ||
-                    ((withoutReply.includes(`[${prefixes[i]}]`) || message.mentions.repliedUser?.displayName.startsWith(quickdata.name)) && quickdata.prompt_type == "chat2.0") ||
-                    (withoutReply.startsWith(`${prefixes[i]}!`) && quickdata.prompt_type == "cmd")
-                ) {
-                    prefixes = prefixes[i]
-                    break
+                    for (let i = 0; i < 5; i++) {
+                        listenerLog(4, "Próba nr. " + (i + 1))
+                        try {
+                            editLater.wh.editMessage(editLater.message, {
+                                avatarURL: message.author.displayAvatarURL({ size: 128, extension: "png" }),
+                                components: [new ActionRowBuilder().addComponents(new ButtonBuilder(row.toJSON().components.at(-1)))],
+                            })
+                            listenerLog(5, "✅ Pomyślnie zmieniono przycisk")
+                            break
+                        } catch (e) {}
+                    }
+
+                    listenerLog(3, `🌐 Zapisano informację o wiadomości użytkownika`)
                 }
             }
 
-            message.content = await formatText(message.content, client)
-
-            const isHisFirstMessage = !lastUser.startsWith(`${GClocation}:${message.author.id}`)
-            lastUser = `${GClocation}:${message.author.id}[${isHisFirstMessage}]`
-            listenerLog(3, 'ℹ️ Zmienna "lastUser" jest równa "' + lastUser + '"')
-
-            var messages = []
-            var editLater = {}
-
-            /**
-             * @type {{ text: string, author: { name: string, id: string }, isGA: boolean } | null}
-             */
-            var replyJSON = null
-
-            Promise.all(
-                webhooks.map(async function (w) {
-                    var reply = await repliedMessage(w.gid ?? "")
-
-                    if (reply && w.gid == message.guildId)
-                        replyJSON = {
-                            text: reply[0].toJSON().description,
-                            author: {
-                                name: (() => {
-                                    const wbname = reply[0].toJSON().author.name.replace("W odpowiedzi do ", "")
-                                    if (wbname.endsWith(", GlobalAction)")) return wbname.split(" (")[1].split(",")[0].replace(/"/g, "")
-                                    else if (wbname.endsWith("GlobalAction)")) return wbname.split(" (")[0]
-                                    else return wbname
-                                })(),
-                                id: reply[1],
-                            },
-                            isGA: reply[0].toJSON().author.name.endsWith("GlobalAction)"),
-                        }
-
-                    // console.log(reply)
-
-                    reply = typeof reply === "undefined" ? [] : [reply[0]]
-
-                    if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
-
-                    function generateBtns() {
-                        let btns = []
-                        if (typeof prefixes == "string")
-                            btns = [[new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]]
-                        else if (w.gid == message.guildId)
-                            btns = [[new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000??`).setDisabled(true).setEmoji("🗑️")]]
-                        else btns = [[]]
-
-                        return btns.filter((row) => row.filter((x) => x).length > 0).map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x)))
-                    }
-
-                    var x = await w.wh.send({
-                        avatarURL: message.author.displayAvatarURL({ size: 128, extension: "png" }),
-                        username: wbName(userData.modPerms),
-                        content: w.gid == message.guildId ? message.content : deleteComments(message.content),
-                        embeds: reply,
-                        files: (w.gid == message.guildId ? message.attachments : gcapprovedAttachments).map((x) => x),
-                        allowedMentions: { parse: [] },
-                        components: generateBtns(),
-                    })
-
-                    if (w.gid == message.guildId)
-                        editLater = {
-                            wh: w.wh,
-                            message: x.id,
-                        }
-
-                    if (typeof prefixes !== "string") messages.push(`${w.gid}/${w.cid}/${x.id}`)
-
-                    return
-                })
-            ).then(async () => {
-                const channelid = supportServer.gclogs.msg
-                const channel = await client.channels.fetch(channelid)
-
-                if (message.deletable)
-                    try {
-                        message.delete()
-                    } catch (e) {
-                        console.warn(e)
-                    }
-
-                var measuringTime = {
-                    ends: false,
-                    mustPing: false,
-                    startTimestamp: Date.now(),
-                    endTimestamp: 0,
-                    msg: null,
-                }
-
-                if (typeof prefixes == "string") {
-                    const file = require(`./globalactions/${prefixes}`)
-                    try {
-                        setTimeout(() => {
-                            if (!measuringTime.ends) {
-                                measuringTime.mustPing = true
-                                message.channel.send(
-                                    `<@${message.author.id}>, od 10 sekund akcja nie odpowiada, jako że nie ma limitu czasowego, dostaniesz ping na kanale z odpowiedzią!`
-                                )
-                            }
-                        }, 10_000)
-                        /**
-                         * @type {WebhookMessageCreateOptions}
-                         */
-                        var response = await file.execute(deleteComments(message.content), message.author, replyJSON, client)
-                        response.avatarURL ??= file.data.avatar
-                        response.username ??= file.data.name
-                        response.username += ` (${response.username === file.data.name ? "" : `"${file.data.name}", `}GlobalAction)`
-                        response.allowedMentions = { parse: [] }
-
-                        measuringTime.ends = true
-
-                        webhooks.map(async function (w) {
-                            var msg = await w.wh.send(response)
-                            if (measuringTime.mustPing && w.gid === message.guildId) measuringTime.msg = msg.id
-                        })
-
-                        if (measuringTime.mustPing) {
-                            var msg = await message.channel.messages.fetch({ message: measuringTime.msg, cache: false })
-                            msg.reply(`<@${message.author.id}>`)
-                        }
-
-                        if (channel && channel.type === ChannelType.GuildText) {
-                            const embed = new EmbedBuilder()
-                                .setColor("Blue")
-                                .setAuthor({
-                                    name: message.author.username,
-                                    iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
-                                })
-                                .setDescription(`Wykonanie akcji *${file.data.name}* \`\`\`${deleteComments(message.content)}\`\`\``)
-                                .setFooter({ text: `${response.username} | ${station}`, iconURL: response.avatarURL })
-                            channel.send({
-                                embeds: [embed],
-                            })
-                        }
-                    } catch (err) {
-                        measuringTime.ends = true
-                        if (channel && channel.type === ChannelType.GuildText) {
-                            const embed = new EmbedBuilder()
-                                .setColor("DarkRed")
-                                .setAuthor({
-                                    name: message.author.username,
-                                    iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
-                                })
-                                .setDescription(`Niepowodzenie wykonania akcji *${file.data.name}* \`\`\`${deleteComments(message.content)}\`\`\``)
-                                .setFields({ name: "Błąd", value: `\`\`\`${err}\`\`\`` })
-                                .setFooter({ text: `${station}` })
-                            channel.send({
-                                embeds: [embed],
-                            })
-                        }
-                        console.error(err)
-                        message.channel.send(`Ojoj <@${message.author.id}>, złe wieści - owy GlobalAction nie został wykonany zgodnie z oczekiwaniami...`)
-                    }
-                } else {
-                    if (channel && channel.type === ChannelType.GuildText) {
-                        let embeds = []
-                        if (stationHasPasswd) {
-                            const embed = new EmbedBuilder().setDescription("[ wysłane za pośrednictwem prywatnej stacji ]").setFooter({ text: station })
-                            embeds.push(embed)
-                        } else {
-                            const embed = new EmbedBuilder()
-                                .setColor("Green")
-                                .setAuthor({
-                                    name: message.author.username,
-                                    iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
-                                })
-                                .setDescription(deleteComments(message.content) || "[ brak tekstu ]")
-                                .setFields({
-                                    name: "Stan",
-                                    value: "Nie usunięto",
-                                })
-                                .setFooter({ text: station })
-                            embeds.push(embed)
-                            if (gcapprovedAttachments.size > 0) {
-                                const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(gcapprovedAttachments.map((x) => x.url).join("\n"))
-                                embeds.push(mediaEmbed)
-                            }
-                        }
-                        var msg = await channel.send({
-                            embeds,
-                            content: messages.join("|"),
-                        })
-                        var row = new ActionRowBuilder()
-                        if (!stationHasPasswd) {
-                            row.setComponents(
-                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
-                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`)
-                            )
-                        }
-                        await msg.edit({
-                            components: [
-                                row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000${msg.id}`).setEmoji("🗑️")),
-                            ],
-                        })
-
-                        listenerLog(3, "Próba zmiany przycisku webhooka")
-
-                        for (let i = 0; i < 5; i++) {
-                            listenerLog(4, "Próba nr. " + (i + 1))
-                            try {
-                                editLater.wh.editMessage(editLater.message, {
-                                    avatarURL: message.author.displayAvatarURL({ size: 128, extension: "png" }),
-                                    components: [new ActionRowBuilder().addComponents(new ButtonBuilder(row.toJSON().components.at(-1)))],
-                                })
-                                listenerLog(5, "✅ Pomyślnie zmieniono przycisk")
-                                break
-                            } catch (e) {}
-                        }
-
-                        listenerLog(3, `🌐 Zapisano informację o wiadomości użytkownika`)
-                    }
-                }
-
-                if (typeof prefixes == "string") userData.karma += 12n + BigInt((userHasPremium || isInMysteryTeam) * 3)
-                else if (gcapprovedAttachments.size > 0) userData.karma += BigInt(Math.round(gcapprovedAttachments.size / (2 - userHasPremium * 0.5)) + 2 + userHasPremium)
-                else userData.karma += 1n
-                if (message.reference && Math.random() < 0.05 * (1 + isInMysteryTeam)) userData.karma += 2n - BigInt(userHasPremium)
-                db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
-            })
-        }
+            if (typeof prefixes == "string") userData.karma += 12n + BigInt((userHasPremium || isInMysteryTeam) * 3)
+            else if (gcapprovedAttachments.size > 0) userData.karma += BigInt(Math.round(gcapprovedAttachments.size / (2 - userHasPremium * 0.5)) + 2 + userHasPremium)
+            else userData.karma += 1n
+            if (message.reference && Math.random() < 0.05 * (1 + isInMysteryTeam)) userData.karma += 2n - BigInt(userHasPremium)
+            db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+        })
     } catch (err) {
+        message.reply(`${customEmoticons.denided} Podczas analizy wystąpił błąd!`)
         if (debug) console.error(err)
     }
 }

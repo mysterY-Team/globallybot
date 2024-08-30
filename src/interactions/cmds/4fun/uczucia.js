@@ -133,13 +133,13 @@ module.exports = {
                 .replace("{user}", member)
                 .replace(/{user:([a-zA-Z]+)}/, (match, arg1) => member.user[arg1])
             try {
-                var msg = await member.send(
-                    `Ej, ja tylko w ramach informacji, że ${interaction.user} w tym momencie Cię ${fondnesses[action].action_what_user_did} na kanale ${
-                        interaction.channel
-                    }. Ta wiadomość usunie się za <t:${Math.floor(Date.now() / 1000) + 30}:R>`
-                )
-                wait(29900).then(() => {
-                    if (msg.deletable) msg.delete()
+                var msg = await member.send({
+                    content: `Ej, ja tylko w ramach informacji, że ${interaction.user} w tym momencie Cię ${fondnesses[action].action_what_user_did} na kanale ${interaction.channel}!`,
+                    components: [
+                        new ActionRowBuilder().addComponents(
+                            new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId("deleteThisMessage").setLabel(`Usuń tą wiadomość dla mnie`)
+                        ),
+                    ],
                 })
             } catch (e) {}
         }
