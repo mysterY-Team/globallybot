@@ -79,12 +79,12 @@ const bannedWords = [
     "sex",
     "sexu",
     "seks",
-    "seksu"
+    "seksu",
 ]
 
 function checkAnyBadWords(text) {
     for (let i = 0; i < bannedWords.length; i++) {
-        const regex = new RegExp(`([^a-z0-9])${bannedWords[i]}([^a-z0-9])`, "i")
+        const regex = new RegExp(`([^a-z0-9])${bannedWords[i]}([^a-z0-9])|^${bannedWords[i]}$`, "i")
         if (regex.test(text)) {
             return { checked: true, badWord: bannedWords[i] }
         }

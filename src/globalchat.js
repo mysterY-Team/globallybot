@@ -443,11 +443,14 @@ async function globalchatFunction(client, message) {
 
         if (userData.timestampToSendMessage - 300 > Date.now()) {
             message.react(customEmoticons.denided)
-            if (message.content.toLowerCase() !== "<p>") var info = `${customEmoticons.info} Możesz cofnąć **tą** zablokowaną wiadomość za pomocą znacznika \`<p>\`. Po prostu to wpisz po usunięciu tej wiadomości, aby to ją właśnie użyć`
-            message.reply(`${customEmoticons.denided} Jesteś objęty/-a cooldownem! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms`).then(async (msg) => {
-                await wait(Math.max(userData.timestampToSendMessage - Date.now(), 2000))
-                msg.delete()
-            })
+            if (message.content.toLowerCase() !== "<p>")
+                var info = `\n${customEmoticons.info} Możesz cofnąć **tą** zablokowaną wiadomość za pomocą znacznika \`<p>\`. Po prostu to wpisz po usunięciu tej wiadomości, aby to ją właśnie użyć`
+            message
+                .reply(`${customEmoticons.denided} Jesteś objęty/-a cooldownem! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms${info ?? ""}`)
+                .then(async (msg) => {
+                    await wait(Math.max(userData.timestampToSendMessage - Date.now(), 2000))
+                    msg.delete()
+                })
             if (message.content.toLowerCase() !== "<p>") {
                 userData.messageID_bbc = message.id
                 db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -494,7 +497,7 @@ async function globalchatFunction(client, message) {
                     .setFields({ name: "Powód", value: "Niedozwolony link", inline: true }, { name: "Kara", value: "3 minuty osobistego cooldownu", inline: true })
                     .setFooter({ text: "Globally, powered by mysterY Team" })
                     .setColor("Red")
-                message.author.send({ embeds: [embed] })
+                message.channel.send({ embeds: [embed] })
             } catch (e) {}
             userData.timestampToSendMessage = Date.now() + 180_000
             userData.messageID_bbc = ""
@@ -502,6 +505,7 @@ async function globalchatFunction(client, message) {
             return
         }
 
+        listenerLog(3, "Ilość karmy: " + userData.karma)
         if (userData.karma < 25n && !stationHasPasswd) {
             if (deleteComments(message.content).match(/(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_=]*)?/)) {
                 message.react(customEmoticons.denided)
@@ -511,7 +515,7 @@ async function globalchatFunction(client, message) {
                         .setFields({ name: "Powód", value: "Za mała ilość karmy", inline: true }, { name: "Kara", value: "30 sekund osobistego cooldownu", inline: true })
                         .setFooter({ text: "Globally, powered by mysterY Team" })
                         .setColor("Red")
-                    message.author.send({ embeds: [embed] })
+                    message.channel.send({ embeds: [embed] })
                 } catch (e) {}
                 userData.timestampToSendMessage = Date.now() + 30_000
                 userData.messageID_bbc = ""
