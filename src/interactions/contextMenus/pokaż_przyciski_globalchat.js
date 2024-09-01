@@ -11,20 +11,20 @@ module.exports = {
     async execute(client, interaction) {
         var targetMsg = await interaction.channel.messages.fetch(interaction.targetId)
 
-        if (!targetMsg.author.bot) {
+        if (!targetMsg.author.bot || targetMsg.author.system) {
             interaction.reply({ content: `${customEmoticons.minus} To **NIE** jest wiadomość od "aplikacji"`, ephemeral: true })
             return
         }
 
         if (targetMsg.author.discriminator !== "0000") {
-            interaction.editReply({ content: `${customEmoticons.minus} Wiadomość GlobalChat powinna być Webhookiem!` })
+            interaction.reply({ content: `${customEmoticons.minus} Wiadomość GlobalChat powinna być Webhookiem!`, ephemeral: true })
             return
         }
 
         var IDs = [targetMsg.author.username.split("(")[1]?.split("; ")[1], targetMsg.author.username.split("(")[1]?.split("; ")[2]?.replace(")", "")].filter((x) => x)
 
         if (IDs.length != 2) {
-            interaction.editReply(`${customEmoticons.denided} Niepoprawny syntax webhooka!`)
+            interaction.reply({ content: `${customEmoticons.denided} Niepoprawny syntax Webhooka!`, ephemeral: true })
             return
         }
 
