@@ -239,23 +239,25 @@ function timerToResetTheAPIInfo() {
 
         delete users
 
-        let hours = new Date().getHours()
-        if (hours == 0 || forceUpdate) {
+        let date = new Date()
+        if (date.getHours() == 0 || forceUpdate) {
             forceUpdate = false
 
             const slashCommandList = require(`./slashcommands.js`)
             await client.application.commands.set(slashCommandList.list())
             listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
 
-            listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
-            listOfUsers.gc.forEach((x) => {
-                if (x.karma < 25n && !x.isBlocked) {
-                    db.delete(`userData/${x.userID}/gc`)
-                    listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
-                }
-            })
+            if (date.getDay() === 0 || forceUpdate) {
+                listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
+                listOfUsers.gc.forEach((x) => {
+                    if (x.karma < 25n && !x.isBlocked) {
+                        db.delete(`userData/${x.userID}/gc`)
+                        listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
+                    }
+                })
+            }
 
-            if (hours == 0) {
+            if (date.getHours() == 0) {
                 listOfUsers.premium.forEach(async (x) => {
                     const premium = botPremiumInfo(x.userID, await checkUserStatus(client, x.userID), x.days)
                     if (!premium.have || premium.typeof !== "trial") return
