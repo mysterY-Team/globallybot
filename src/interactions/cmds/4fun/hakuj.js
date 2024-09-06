@@ -152,7 +152,7 @@ module.exports = {
             interaction.reply("Nie możesz zhakować samego siebie...")
             return
         } else {
-            await interaction.deferReply("Rozpoczynam hakowanie...")
+            await interaction.reply("Rozpoczynam hakowanie...")
             await wait(2000)
             await interaction.editReply("Skanowanie urządzeń ofiary...")
             await wait(3000)
@@ -182,7 +182,7 @@ module.exports = {
 
                 // Liczba maili do wylosowania
                 const randomCountMails = Math.sqrt(Math.round(Math.random() * 9))
-                const mailMessage = "Adresy Mailowe: **Brak**"
+                let mailMessage = "Adresy Mailowe: **Brak**"
 
                 if (randomCountMails > 0) {
                     const mail = []
