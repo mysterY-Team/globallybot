@@ -80,6 +80,25 @@ const bannedWords = [
     "sexu",
     "seks",
     "seksu",
+    "adolf",
+    "aggin",
+    "chit/ler",
+    "chitler",
+    "czarno/skórych",
+    "czarno/skurych",
+    "czarnoskórych",
+    "czarnoskurych",
+    "hit/ler",
+    "lgbt",
+    "nig/er",
+    "nigg/er",
+    "nudes",
+    "nygga",
+    "reggin",
+    "sedun",
+    "sta/lin",
+    "żyd",
+    "tbgl"
 ]
 
 function checkAnyBadWords(text) {
