@@ -98,7 +98,8 @@ const bannedWords = [
     "sedun",
     "sta/lin",
     "żyd",
-    "tbgl"
+    "tbgl",
+    "czarnymen"
 ]
 
 function checkAnyBadWords(text) {
