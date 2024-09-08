@@ -1,30 +1,78 @@
+const alternativeLetters = {
+    a: ["4", "@"],
+    // b: [],
+    c: ["ć"],
+    // d: [],
+    e: ["3"],
+    // f: [],
+    g: ["6"],
+    h: ["ch"],
+    i: ["1"],
+    // j: [],
+    // k: [],
+    l: ["ł"],
+    // m: [],
+    n: ["ń"],
+    o: ["0"],
+    ó: ["u", "00", "oo", "0o", "o0"],
+    // p: [],
+    // q: [],
+    // r: [],
+    // s: [],
+    // t: [],
+    u: ["ó", "00", "oo", "0o", "o0"],
+    // v: [],
+    // w: [],
+    // x: [],
+    // y: [],
+    // z: [],
+    "/": ["-", "_", "."],
+}
+
 const bannedWords = [
+    // czarnoskórzy
     "nigger",
+    "niggers",
+    "nigers",
+    "nigga",
+    "niga",
+    "nyga",
+    "czarnuh",
+    "czarnoskórych",
+    "czarno/skórych",
+    "czarnymen",
+
+    // nasizm/fasyzm/komunizm
     "hitler",
+    "hit/ler",
+    "adolf",
+
+    // kysowate
     "zdechnij",
     "zdehnij",
     "umrzyj",
     "zabij sie",
     "zabij się",
-    "czarnuch",
+    "żyd",
+    "żyda",
+    "żydzi",
+    "żydów",
+
+    // inne zwyzywane
     "kurwo",
-    "smieć",
     "smiec",
     "cwel",
-    "pedał",
     "pedal",
     "pierdolony",
     "pojebany",
-    "czarnuh",
-    "nigga",
+    //---
+    //reszta do segregacji
     "idioto",
-    "niga",
-    "nyga",
     "kurewko",
     "kurewka",
     "zjebany",
     "zjebie",
-    "chuju",
+    "huju",
     "szmato",
     "przyjeb",
     "przyjebany",
@@ -34,15 +82,13 @@ const bannedWords = [
     "zjebana",
     "pierdolona",
     "szmata",
-    "chujowa",
+    "hujowa",
+    "hujowy",
     "przyjebana",
     "rozjebana",
     "kurwą",
     "idiotką",
-    "chujowa",
-    "chujowy",
     "gin",
-    "giń",
     "debil",
     "debilka",
     "chuj mu",
@@ -80,15 +126,7 @@ const bannedWords = [
     "sexu",
     "seks",
     "seksu",
-    "adolf",
     "aggin",
-    "chit/ler",
-    "chitler",
-    "czarno/skórych",
-    "czarno/skurych",
-    "czarnoskórych",
-    "czarnoskurych",
-    "hit/ler",
     "lgbt",
     "nig/er",
     "nigg/er",
@@ -97,14 +135,12 @@ const bannedWords = [
     "reggin",
     "sedun",
     "sta/lin",
-    "żyd",
     "tbgl",
-    "czarnymen"
 ]
 
 function checkAnyBadWords(text) {
     for (let i = 0; i < bannedWords.length; i++) {
-        const regex = new RegExp(`([^a-z0-9])${bannedWords[i]}([^a-z0-9])|^(${bannedWords[i]}(?: *))+`, "i")
+        const regex = new RegExp(`([^a-z0-9])${bannedWords[i].replace(/\(/, "\\(").replace(/\)/, "\\)")}([^a-z0-9])|^(${bannedWords[i]}(?: *))+`, "i")
         if (regex.test(text)) {
             return { checked: true, badWord: bannedWords[i] }
         }
