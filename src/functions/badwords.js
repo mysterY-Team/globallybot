@@ -1,4 +1,4 @@
-8const alternativeLetters = {
+const alternativeLetters = {
     a: ["4", "@", "ą"],
     // b: [],
     c: ["ć"],
