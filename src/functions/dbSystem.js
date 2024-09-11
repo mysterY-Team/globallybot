@@ -20,8 +20,8 @@ function gcdataGuildS(data) {
         channel: data[0],
         webhook: data[1] ?? "none",
         createdTimestamp: Number(data[2]) || Math.floor(Date.now() / 1000),
-        // showGCButtons: $$.stob(data[3]) ?? false,
-        // wbname: data[4] ?? "{username} ({userrole}; {userid}; {guildid})",
+        flag_showGCButtons: $$.stob(data[3]) ?? false,
+        flag_wbname: data[4] ?? "{username} ({userrole}; {userid}; {guildid})",
     }
 }
 
