@@ -57,7 +57,8 @@ const bannedWords = [
     "żyd",
     "żyda",
     "żydzi",
-    "żydów",
+    "żydów", //dla pierwszej alternatywny
+    "żydow", //dla drugiej alternatywy
     "sta/lin",
     "sta/lin",
 
@@ -123,16 +124,27 @@ const bannedWords = [
     "lgbt",
     "tbgl",
     "sex",
-    "sexx"
+    "sexx",
     "sexxx",
     "sexu",
-    "sexxu"
+    "sexxu",
     "sexxxu",
 ]
 
 function checkAnyBadWords(text) {
     for (let i = 0; i < bannedWords.length; i++) {
-        const regex = new RegExp(`([^a-z0-9])${bannedWords[i].replace(/\(/, "\\(").replace(/\)/, "\\)")}([^a-z0-9])|^(${bannedWords[i]}(?: *))+`, "i")
+        let word = ""
+        for (let j = 0; j < bannedWords[i].length; j++) {
+            const letter = bannedWords[i][j]
+            if (alternativeLetters[letter]) {
+                word += `(${letter}|${alternativeLetters[letter].join("|")})`
+            } else {
+                word += letter
+            }
+        }
+        // console.log(word)
+        word = word.replace(/\//, "\\/").replace(/\*/, "\\*").replace(/\./, "\\.")
+        const regex = new RegExp(`([^a-z0-9])${word}([^a-z0-9])|^(${word}(?: *))+`, "i")
         if (regex.test(text)) {
             return { checked: true, badWord: bannedWords[i] }
         }
