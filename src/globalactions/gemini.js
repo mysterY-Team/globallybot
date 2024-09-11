@@ -1,5 +1,6 @@
 const { User, WebhookMessageCreateOptions } = require("discord.js")
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai")
+const { othertokens } = require("../config")
 
 module.exports = {
     data: {
@@ -16,7 +17,7 @@ module.exports = {
      * @returns {Promise<WebhookMessageCreateOptions>}
      */
     execute: async function (msg, user, reply) {
-        const apiKey = "AIzaSyDVopUSUKuBeWiNUG5bf7eJKh3en2xJ-kE"
+        const apiKey = othertokens.gemini
         const genAI = new GoogleGenerativeAI(apiKey)
 
         const model = genAI.getGenerativeModel({

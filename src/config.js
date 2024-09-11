@@ -5,6 +5,7 @@ const ldb = new loc.Database("env")
 
 module.exports = {
     TOKEN: ldb.get("token").val,
+    othertokens: ldb.get("other_tokens").val,
     db: new loc.Database(
         "db/main.db",
         new loc.DatabaseFlags({

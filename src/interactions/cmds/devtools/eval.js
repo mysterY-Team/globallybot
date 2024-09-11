@@ -5,6 +5,7 @@ const { checkUserStatus } = require("../../../functions/useful")
 const { customEmoticons } = conf
 
 delete conf.TOKEN
+delete conf.othertokens
 
 module.exports = {
     /**
@@ -45,9 +46,7 @@ module.exports = {
                             break
                         case "object":
                             if (value === null) value = "null"
-                            else if (value instanceof Array) {
-                                value = `[${value.map((x) => '"' + String(x) + '"').join()}]`
-                            } else if (value instanceof Object) {
+                            else if (value instanceof Object || value instanceof Array) {
                                 try {
                                     value = JSON.stringify(value)
                                 } catch (e) {

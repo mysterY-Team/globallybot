@@ -23,7 +23,7 @@ module.exports = {
             headers: myHeaders,
             method: "POST",
             body: JSON.stringify({
-                key: "XmHvjFiY9BpOHbXibP81cGbDAco3CfG5phREFrVW9QPGrMJZIZ8myrOeHObM",
+                key: othertokens.stable_diff,
                 prompt: msg,
                 negative_prompt:
                     "extra fingers, mutated hands, poorly drawn hands, deformed, glitchy, double torso, extra arms, extra hands, mangled fingers, missing lips, distorted face",
