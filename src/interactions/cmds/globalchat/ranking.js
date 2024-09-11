@@ -1,4 +1,4 @@
-const { Client, CommandInteraction, EmbedBuilder, AttachmentBuilder } = require("discord.js")
+const { Client, ChatInputCommandInteraction, EmbedBuilder, AttachmentBuilder } = require("discord.js")
 const { Canvas, Image } = require("@napi-rs/canvas")
 const { request } = require("undici")
 const { db, supportServer } = require("../../../config")
@@ -9,7 +9,7 @@ module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         await interaction.deferReply()
@@ -129,10 +129,6 @@ module.exports = {
 
         interaction.editReply({
             embeds: [embed],
-        })
-
-        wait(10000).then(() => {
-            if (msg.deletable) msg.delete()
         })
     },
 }

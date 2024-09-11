@@ -1,4 +1,4 @@
-const { Client, CommandInteraction, AutocompleteFocusedOption } = require("discord.js")
+const { Client, ChatInputCommandInteraction, AutocompleteFocusedOption } = require("discord.js")
 const { customEmoticons, db } = require("../../../config")
 const { imacaData } = require("../../../functions/dbSystem")
 const { classes } = require("../../../functions/imaca")
@@ -16,7 +16,7 @@ module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         const sid = classes.map((x) => x.name).indexOf(interaction.options.get("styl", true).value)

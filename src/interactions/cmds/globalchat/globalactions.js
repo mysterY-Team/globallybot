@@ -1,11 +1,11 @@
 const { customEmoticons } = require("../../../config")
-const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
+const { ChatInputCommandInteraction, Client, EmbedBuilder } = require("discord.js")
 
 module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         var ga = interaction.options.get("globalaction")?.value

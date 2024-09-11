@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ChannelType, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js")
+const { Client, GatewayIntentBits, EmbedBuilder, ChannelType, ButtonBuilder, ActionRowBuilder, ButtonStyle, Partials } = require("discord.js")
 const { TOKEN, supportServer, debug, db } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
@@ -10,6 +10,7 @@ var active = false
 var forceUpdate = true
 
 const client = new Client({
+    partials: [Partials.Message],
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildModeration],
 })
 
@@ -41,8 +42,12 @@ client.on("ready", (log) => {
     timerToResetTheAPIInfo()
 })
 
-client.on("messageCreate", (msg) => {
-    globalchatFunction(client, msg)
+client.on("messageCreate", async (msg) => {
+    let fullmsg = msg
+    if (msg.partial) {
+        fullmsg = await msg.fetch()
+    }
+    globalchatFunction(client, fullmsg)
 })
 
 client.on("interactionCreate", async (int) => {
@@ -52,6 +57,7 @@ client.on("interactionCreate", async (int) => {
 
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano interakcję")
+
     if (int.isChatInputCommand()) {
         var customPaths = {
             "4fun": {
@@ -59,8 +65,8 @@ client.on("interactionCreate", async (int) => {
                 reakcja: "4fun/uczucia",
             },
         }
-
         listenerLog(3, "Jest komendą (slash cmd)")
+        listenerLog(4, "Typ kontekstu: " + ["nieznany", "serwer", "DM bota", "kanał o ograniczonym dostępie"][(int.context ?? -1) + 1])
         var fullname = [int.commandName, int.options._group, int.options._subcommand]
         fullname = fullname.filter((prop) => prop != null)
 

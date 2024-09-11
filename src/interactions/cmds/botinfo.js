@@ -1,4 +1,4 @@
-const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
+const { ChatInputCommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { customEmoticons } = require("../../config")
 const { codeTime } = require("../..")
 const { freemem, totalmem } = require("os")
@@ -7,7 +7,7 @@ module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         const time = Math.floor((Date.now() - codeTime()) / 1000)

@@ -1,4 +1,4 @@
-const { CommandInteraction, Client } = require("discord.js")
+const { ChatInputCommandInteraction, Client } = require("discord.js")
 const { db, customEmoticons } = require("../../../config")
 const { checkUserStatus } = require("../../../functions/useful")
 
@@ -6,7 +6,7 @@ module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         await interaction.deferReply()

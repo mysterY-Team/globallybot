@@ -1,4 +1,4 @@
-const { Client, CommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle, Snowflake } = require("discord.js")
+const { Client, ChatInputCommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle, Snowflake } = require("discord.js")
 const { customEmoticons, _bot } = require("../../../config")
 const { servers } = require("../../../functions/useful")
 
@@ -267,7 +267,7 @@ module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         const queryOption = interaction.options.get("query")

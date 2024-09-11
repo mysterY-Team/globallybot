@@ -1,11 +1,11 @@
-const { Client, CommandInteraction, PermissionsBitField } = require("discord.js")
+const { Client, ChatInputCommandInteraction, PermissionsBitField } = require("discord.js")
 const { customEmoticons } = require("../../../config")
 
 module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
 
     async execute(client, interaction) {

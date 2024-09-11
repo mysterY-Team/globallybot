@@ -1,5 +1,5 @@
 const djs = require("discord.js")
-const { CommandInteraction, Client, EmbedBuilder } = djs
+const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
 var conf = require("../../../config")
 const { checkUserStatus } = require("../../../functions/useful")
 const { customEmoticons } = conf
@@ -10,7 +10,7 @@ module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         await interaction.deferReply()
