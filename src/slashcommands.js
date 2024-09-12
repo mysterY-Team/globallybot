@@ -289,7 +289,14 @@ var slashList = [
                 .setDescription("Wyrzuca osobę ze serwera")
                 .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
                 .addStringOption((option) => option.setName("powód").setDescription("Powód kicka").setRequired(false))
-        ),
+        )
+        .addSubcommand((subcommand) =>
+        subcommand
+    .setName("stwórzRole")
+.setDescription("Tworzy role na serwerze")
+.addStringOption((option) => option.setName("nazwa").setDescription("Nazwa roli").setRequired(true))
+.addStringOption((option) => option.setName("kolor").setDescription("Kolor roli").setRequired(false))
+),
     //pojedyncze komendy
     new SlashCommandBuilder().setDMPermission(true).setName("dowcip").setDescription("Generuje dowcip ze strony PERELKI.NET"),
     new SlashCommandBuilder().setDMPermission(true).setName("botinfo").setDescription("Generuje informacje o bocie"),
