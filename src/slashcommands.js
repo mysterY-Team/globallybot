@@ -79,6 +79,16 @@ var slashList = [
                             option.setName("passwd").setDescription("Hasło do stacji, jeżeli takową posiada").setMinLength(8).setMaxLength(30).setRequired(false)
                         )
                 )
+                .addSubcommand((subcommand) =>
+                    subcommand
+                        .setName("ustawflagę")
+                        .setDescription("Zmienia konfigurację kanału")
+                        .addChannelOption((option) =>
+                            option.setName("kanał").setDescription("Kanał, na którym się znajduje GlobalChat").setRequired(true).addChannelTypes(ChannelType.GuildText)
+                        )
+                        .addStringOption((options) => options.setName("flaga").setDescription("Nazwa flagi").setRequired(true))
+                        .addStringOption((options) => options.setName("wartość").setDescription("Wartość ustawiana do flagi").setRequired(true))
+                )
         )
         .addSubcommand((subcommand) =>
             subcommand

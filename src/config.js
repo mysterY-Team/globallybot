@@ -1,7 +1,7 @@
 const loc = require("locallium")
 
 const debug = false
-const ldb = new loc.Database("env")
+const ldb = new loc.Database("env", new loc.DatabaseFlags())
 
 module.exports = {
     TOKEN: ldb.get("token").val,

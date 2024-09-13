@@ -294,7 +294,7 @@ async function globalchatFunction(client, message) {
         )
         var userHasPremium = botPremiumInfo(message.author.id, ssstatus).have
 
-        function wbName(modPerm) {
+        function wbName(modPerm, data) {
             if (modPerm === 2) var rank = "naczelnik"
             else if (modPerm === 1) var rank = "moderator"
             else var rank = "osoba"
@@ -302,8 +302,41 @@ async function globalchatFunction(client, message) {
             if (userHasPremium) rank += " premium"
             if (isInMysteryTeam) rank = "mysterY Team"
 
-            return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`
+            if (data.flag_showGCButtons)
+                return data.flag_wbUserName
+                    .replace(/%username%/i, message.author.username)
+                    .replace(/%userid%/i, message.author.id)
+                    .replace(/%userDisplayName%/i, message.author.displayName)
+                    .replace(/%userrole%/i, rank)
+                    .replace(/%guildid%/i, message.guildId)
+                    .replace(/%guildname%/i, message.guild.name)
+            else return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`
         }
+
+        const oldUserSnapshot = db.get(`userData/${message.author.id}/gc`)
+        var userData = gcdata.encode(oldUserSnapshot.val)
+
+        if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) return
+
+        if (message.author.bot || message.author.system) return
+
+        var snpsht = db.get(`serverData`)
+        var database = snpsht.val || {}
+
+        database = Object.entries(database)
+            .filter(([n, server]) => "gc" in server)
+            .map(([id, data]) => {
+                return { id: id, gc: gcdataGuild.encode(data.gc) }
+            })
+
+        //console.log(database)
+
+        var getDataByServerID = (id, classification = "serverID") => {
+            var x = database.map((x) => x[classification]).includes(id) ? database[database.map((x) => x[classification]).indexOf(id)] : null
+            return x
+        }
+
+        var serverdata = getDataByServerID(message.guildId, "id")
 
         /**
          * @returns {Promise<[EmbedBuilder, string] | undefined>}
@@ -315,7 +348,7 @@ async function globalchatFunction(client, message) {
                     var rContent = replayedMSG.content,
                         rAttachments
 
-                    if (!replayedMSG.author.bot) {
+                    if (!replayedMSG.author.bot || serverdata.flag_showGCButtons) {
                         return
                     }
 
@@ -345,31 +378,6 @@ async function globalchatFunction(client, message) {
                 }
             }
         }
-
-        const oldUserSnapshot = db.get(`userData/${message.author.id}/gc`)
-        var userData = gcdata.encode(oldUserSnapshot.val)
-
-        if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) return
-
-        if (message.author.bot || message.author.system) return
-
-        var snpsht = db.get(`serverData`)
-        var database = snpsht.val || {}
-
-        database = Object.entries(database)
-            .filter(([n, server]) => "gc" in server)
-            .map(([id, data]) => {
-                return { id: id, gc: gcdataGuild.encode(data.gc) }
-            })
-
-        //console.log(database)
-
-        var getDataByServerID = (id, classification = "serverID") => {
-            var x = database.map((x) => x[classification]).includes(id) ? database[database.map((x) => x[classification]).indexOf(id)] : null
-            return x
-        }
-
-        var serverdata = getDataByServerID(message.guildId, "id")
 
         if (
             !database
@@ -785,12 +793,23 @@ async function globalchatFunction(client, message) {
 
                 if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
 
+                const data = getDataByServerID(w.gid)
+
                 function generateBtns() {
                     let btns = []
+
                     if (typeof prefixes == "string")
                         btns = [[new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]]
                     else if (w.gid == message.guildId)
                         btns = [[new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000??`).setDisabled(true).setEmoji("🗑️")]]
+                    else if (data.flag_showGCButtons && isHisFirstMessage)
+                        btns = [
+                            [
+                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
+                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`),
+                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gctab\u0000${message.author.id}`).setEmoji("👉"),
+                            ],
+                        ]
                     else btns = [[]]
 
                     return btns.filter((row) => row.filter((x) => x).length > 0).map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x)))
@@ -798,7 +817,7 @@ async function globalchatFunction(client, message) {
 
                 var x = await w.wh.send({
                     avatarURL: message.author.displayAvatarURL({ size: 128, extension: "png" }),
-                    username: wbName(userData.modPerms),
+                    username: wbName(userData.modPerms, data),
                     content: w.gid == message.guildId ? message.content : deleteComments(message.content),
                     embeds: reply,
                     files: (w.gid == message.guildId ? message.attachments : gcapprovedAttachments).map((x) => x),
