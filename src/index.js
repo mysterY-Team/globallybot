@@ -268,7 +268,7 @@ function timerToResetTheAPIInfo() {
                     const premium = botPremiumInfo(x.userID, await checkUserStatus(client, x.userID), x.days)
                     if (!premium.have || premium.typeof !== "trial") return
                     if (x.days === 0) {
-                        db.delete(`userData/${x.userID}/premium`)
+                        db.adelete(`userData/${x.userID}/premium`)
                         try {
                             client.users.send(uID, {
                                 content:
@@ -281,7 +281,7 @@ function timerToResetTheAPIInfo() {
                             })
                         } catch (e) {}
                     } else {
-                        db.set(`userData/${x.userID}/premium`, x.days - 1)
+                        db.aset(`userData/${x.userID}/premium`, x.days - 1)
                     }
                 })
             }
