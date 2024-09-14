@@ -81,8 +81,8 @@ var slashList = [
                 )
                 .addSubcommand((subcommand) =>
                     subcommand
-                        .setName("ustawflagę")
-                        .setDescription("Zmienia konfigurację kanału")
+                        .setName("flaga")
+                        .setDescription("Zmienia konfigurację kanału GlobalChat")
                         .addChannelOption((option) =>
                             option.setName("kanał").setDescription("Kanał, na którym się znajduje GlobalChat").setRequired(true).addChannelTypes(ChannelType.GuildText)
                         )

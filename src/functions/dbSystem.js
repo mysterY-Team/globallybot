@@ -21,7 +21,8 @@ function gcdataGuildS(data) {
         webhook: data[1] ?? "none",
         createdTimestamp: Number(data[2]) || Math.floor(Date.now() / 1000),
         flag_showGCButtons: $$.stob(data[3]) ?? false,
-        flag_wbUserName: data[4] ?? "%username% (%userrole%; %userid%; %guildid%)",
+        flag_useGA: $$.stob(data[4]) ?? true,
+        // flag_wbUserName: data[4] ?? "%username% (%userrole%; %userid%; %guildid%)",
     }
 }
 

@@ -302,15 +302,15 @@ async function globalchatFunction(client, message) {
             if (userHasPremium) rank += " premium"
             if (isInMysteryTeam) rank = "mysterY Team"
 
-            if (data.flag_showGCButtons)
-                return data.flag_wbUserName
-                    .replace(/%username%/i, message.author.username)
-                    .replace(/%userid%/i, message.author.id)
-                    .replace(/%userDisplayName%/i, message.author.displayName)
-                    .replace(/%userrole%/i, rank)
-                    .replace(/%guildid%/i, message.guildId)
-                    .replace(/%guildname%/i, message.guild.name)
-            else return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`
+            // if (data.flag_showGCButtons)
+            //     return data.flag_wbUserName
+            //         .replace(/%username%/i, message.author.username)
+            //         .replace(/%userid%/i, message.author.id)
+            //         .replace(/%userDisplayName%/i, message.author.displayName)
+            //         .replace(/%userrole%/i, rank)
+            //         .replace(/%guildid%/i, message.guildId)
+            //         .replace(/%guildname%/i, message.guild.name)
+            /* else */ return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`
         }
 
         const oldUserSnapshot = db.get(`userData/${message.author.id}/gc`)
@@ -348,7 +348,7 @@ async function globalchatFunction(client, message) {
                     var rContent = replayedMSG.content,
                         rAttachments
 
-                    if (!replayedMSG.author.bot || serverdata.flag_showGCButtons) {
+                    if (!replayedMSG.author.bot) {
                         return
                     }
 
@@ -402,6 +402,21 @@ async function globalchatFunction(client, message) {
 
     try {
         listenerLog(3, "➿ Spełniono warunek (1/5)")
+
+        var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
+        if (serverdata.flag_useGA)
+            for (var i = 0; i < prefixes.length; i++) {
+                var quickdata = require(`./globalactions/${prefixes[i]}`).data
+
+                if (
+                    (withoutReply.startsWith(`${prefixes[i]},`) && quickdata.prompt_type == "chat") ||
+                    ((withoutReply.includes(`[${prefixes[i]}]`) || message.mentions.repliedUser?.displayName.startsWith(quickdata.name)) && quickdata.prompt_type == "chat2.0") ||
+                    (withoutReply.startsWith(`${prefixes[i]}!`) && quickdata.prompt_type == "cmd")
+                ) {
+                    prefixes = prefixes[i]
+                    break
+                }
+            }
 
         var station = Object.values(serverdata.gc)
             .map((x) => x.channel)
@@ -738,20 +753,6 @@ async function globalchatFunction(client, message) {
         //dla używania GlobalActions przez komentowanie
         var withoutReply = deleteComments(message.content).toLowerCase()
 
-        var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
-        for (var i = 0; i < prefixes.length; i++) {
-            var quickdata = require(`./globalactions/${prefixes[i]}`).data
-
-            if (
-                (withoutReply.startsWith(`${prefixes[i]},`) && quickdata.prompt_type == "chat") ||
-                ((withoutReply.includes(`[${prefixes[i]}]`) || message.mentions.repliedUser?.displayName.startsWith(quickdata.name)) && quickdata.prompt_type == "chat2.0") ||
-                (withoutReply.startsWith(`${prefixes[i]}!`) && quickdata.prompt_type == "cmd")
-            ) {
-                prefixes = prefixes[i]
-                break
-            }
-        }
-
         message.content = await formatText(message.content, client)
 
         const isHisFirstMessage = !lastUser.startsWith(`${GClocation}:${message.author.id}`)
@@ -807,7 +808,7 @@ async function globalchatFunction(client, message) {
                             [
                                 new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
                                 new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`),
-                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gctab\u0000${message.author.id}`).setEmoji("👉"),
+                                new ButtonBuilder().setStyle(ButtonStyle.Primary).setCustomId(`gctab\u0000${message.author.id}`).setEmoji("👉"),
                             ],
                         ]
                     else btns = [[]]
