@@ -172,7 +172,7 @@ var slashList = [
         .addBooleanOption((option) => option.setName("przekreślony").setDescription("Opcja przekreślenia")),
 
     new SlashCommandBuilder()
-        .setName("util")
+        .setName("utils")
         .setDescription("Komendy 4fun")
         .setContexts(InteractionContextType.Guild)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
@@ -320,20 +320,24 @@ var slashList = [
         .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall),
     new SlashCommandBuilder()
-
         .setName("botinfo")
         .setDescription("Generuje informacje o bocie")
         .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall),
     new SlashCommandBuilder()
-
         .setName("mem")
         .setDescription("Generuje mema ze serwera MEMHUB")
         .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall),
 ]
 
-var contextList = [new ContextMenuCommandBuilder().setContexts(InteractionContextType.Guild).setType(ApplicationCommandType.Message).setName("Pokaż przyciski GlobalChat")]
+var contextList = [
+    new ContextMenuCommandBuilder()
+        .setContexts(InteractionContextType.Guild)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
+        .setType(ApplicationCommandType.Message)
+        .setName("Pokaż przyciski GlobalChat"),
+]
 //console.log(slashList)
 
 module.exports = {
