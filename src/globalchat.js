@@ -403,21 +403,6 @@ async function globalchatFunction(client, message) {
     try {
         listenerLog(3, "➿ Spełniono warunek (1/5)")
 
-        var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
-        if (serverdata.flag_useGA)
-            for (var i = 0; i < prefixes.length; i++) {
-                var quickdata = require(`./globalactions/${prefixes[i]}`).data
-
-                if (
-                    (withoutReply.startsWith(`${prefixes[i]},`) && quickdata.prompt_type == "chat") ||
-                    ((withoutReply.includes(`[${prefixes[i]}]`) || message.mentions.repliedUser?.displayName.startsWith(quickdata.name)) && quickdata.prompt_type == "chat2.0") ||
-                    (withoutReply.startsWith(`${prefixes[i]}!`) && quickdata.prompt_type == "cmd")
-                ) {
-                    prefixes = prefixes[i]
-                    break
-                }
-            }
-
         var station = Object.values(serverdata.gc)
             .map((x) => x.channel)
             .indexOf(message.channelId)
@@ -589,30 +574,6 @@ async function globalchatFunction(client, message) {
 
         delete ddata
 
-        function gct() {
-            let gctI = [
-                true,
-                userData.karma >= 25n,
-                userData.modPerms > 0 || (userData.karma >= 25n && userHasPremium),
-                userData.karma >= 1000n,
-                userData.karma >= 1000n && (userData.modPerms === 1 || userHasPremium),
-                userData.karma >= 1000n && (userData.modPerms === 2 || (userData.modPerms === 1 && userHasPremium)),
-                userData.karma >= 1000n && userData.modPerms === 2 && userHasPremium,
-                isInMysteryTeam,
-            ]
-
-            return gctI.lastIndexOf(true)
-        }
-
-        listenerLog(3, "🪪 Dane")
-        listenerLog(4, `gct() => ${gct()}`)
-        listenerLog(4, `userCooldown(amount<${database.length}>, type<gct()>) => ${userCooldown(database.length, gct())}`)
-
-        userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct()) * (1 + (typeof prefixes == "string" * !userHasPremium * 0.6))
-        delete gct
-        userData.messageID_bbc = ""
-        db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
-
         listenerLog(4, `Różnica cooldownów: ${userData.timestampToSendMessage - Date.now()}`)
 
         listenerLog(3, "")
@@ -654,9 +615,8 @@ async function globalchatFunction(client, message) {
                                             })
                                         } else {
                                             listenerLog(5, "❕ Nie wczytano webhooka, tworzenie nowego...")
-                                            webhook = await guild_DClient.channels.createWebhook({
-                                                name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
-                                                channel: sData.channel,
+                                            webhook = await channel_DClient.createWebhook({
+                                                name: `GlobalChat (${station} | ${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                                 reason: "wykonania usługi GlobalChat (brakujący Webhook)",
                                             })
 
@@ -666,9 +626,8 @@ async function globalchatFunction(client, message) {
                                         }
                                     } catch (e) {
                                         listenerLog(5, "❕ Wyłapano błąd, ignorowanie i tworzenie nowego...")
-                                        webhook = await guild_DClient.channels.createWebhook({
-                                            name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
-                                            channel: sData.channel,
+                                        webhook = await channel_DClient.createWebhook({
+                                            name: `GlobalChat (${station} | ${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                             reason: "wykonania usługi GlobalChat (brakujący Webhook)",
                                         })
 
@@ -679,9 +638,8 @@ async function globalchatFunction(client, message) {
 
                                     return { wh: webhook, gid: guildID, cid: sData.channel }
                                 } else {
-                                    webhook = await guild_DClient.channels.createWebhook({
-                                        name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
-                                        channel: sData.channel,
+                                    webhook = await channel_DClient.createWebhook({
+                                        name: `GlobalChat (${station} | ${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                         reason: "wykonania usługi GlobalChat (brakujący Webhook)",
                                     })
 
@@ -752,6 +710,45 @@ async function globalchatFunction(client, message) {
         ).filter((x) => x)
         //dla używania GlobalActions przez komentowanie
         var withoutReply = deleteComments(message.content).toLowerCase()
+
+        var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
+        if (serverdata[station].flag_useGA)
+            for (var i = 0; i < prefixes.length; i++) {
+                var quickdata = require(`./globalactions/${prefixes[i]}`).data
+
+                if (
+                    (withoutReply.startsWith(`${prefixes[i]},`) && quickdata.prompt_type == "chat") ||
+                    ((withoutReply.includes(`[${prefixes[i]}]`) || message.mentions.repliedUser?.displayName.startsWith(quickdata.name)) && quickdata.prompt_type == "chat2.0") ||
+                    (withoutReply.startsWith(`${prefixes[i]}!`) && quickdata.prompt_type == "cmd")
+                ) {
+                    prefixes = prefixes[i]
+                    break
+                }
+            }
+
+        function gct() {
+            let gctI = [
+                true,
+                userData.karma >= 25n,
+                userData.modPerms > 0 || (userData.karma >= 25n && userHasPremium),
+                userData.karma >= 1000n,
+                userData.karma >= 1000n && (userData.modPerms === 1 || userHasPremium),
+                userData.karma >= 1000n && (userData.modPerms === 2 || (userData.modPerms === 1 && userHasPremium)),
+                userData.karma >= 1000n && userData.modPerms === 2 && userHasPremium,
+                isInMysteryTeam,
+            ]
+
+            return gctI.lastIndexOf(true)
+        }
+
+        listenerLog(3, "🪪 Dane")
+        listenerLog(4, `gct() => ${gct()}`)
+        listenerLog(4, `userCooldown(amount<${database.length}>, type<gct()>) => ${userCooldown(database.length, gct())}`)
+
+        userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct()) * (1 + (typeof prefixes == "string" - userHasPremium * 0.5))
+        delete gct
+        userData.messageID_bbc = ""
+        db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
 
         message.content = await formatText(message.content, client)
 

@@ -1,6 +1,5 @@
 const { ChatInputCommandInteraction, Client, InteractionContextType, PermissionFlagsBits, EmbedBuilder } = require("discord.js")
-const { db, customEmoticons, _bot, supportServer } = require("../../../../config")
-const { request } = require("undici")
+const { db, customEmoticons, supportServer } = require("../../../../config")
 const { checkUserStatus } = require("../../../../functions/useful")
 const { gcdataGuild } = require("../../../../functions/dbSystem")
 
@@ -14,6 +13,8 @@ module.exports = {
         if (interaction.context != InteractionContextType.Guild) return interaction.reply(`${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`)
         //argument kanału i serwer
         await interaction.deferReply()
+        const ssstatus = await checkUserStatus(client, interaction.user.id)
+        const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
         var channel = interaction.options.get("kanał", true)
         var guild = interaction.guild
         if (
