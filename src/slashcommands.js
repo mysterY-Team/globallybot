@@ -312,14 +312,15 @@ var slashList = [
                 .setDescription("Wyrzuca osobę ze serwera")
                 .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby ze serwera").setRequired(true))
                 .addStringOption((option) => option.setName("powód").setDescription("Powód kicka").setRequired(false))
-        ),
-    // .addSubcommand((subcommand) =>
-    //     subcommand
-    //         .setName("stwórzrole")
-    //         .setDescription("Tworzy role na serwerze")
-    //         .addStringOption((option) => option.setName("nazwa").setDescription("Nazwa roli").setRequired(true))
-    //         .addStringOption((option) => option.setName("kolor").setDescription("Kolor roli").setRequired(false))
-    // ),
+        )
+    .addSubcommand((subcommand) =>
+        subcommand
+            .setName("stwórzrole")
+            .setDescription("Tworzy role na serwerze")
+            .addStringOption((option) => option.setName("nazwa").setDescription("Nazwa roli").setRequired(true))
+            .addStringOption((option) => option.setName("kolor").setDescription("Kolor roli").setRequired(false))
+            .addStringOption((option) => option.setName("ikona").setDescription("Podaj URL ikony roli").setRequired(false))
+    ),
     //pojedyncze komendy
     new SlashCommandBuilder()
         .setName("dowcip")

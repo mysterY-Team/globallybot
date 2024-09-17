@@ -1,4 +1,4 @@
-const { CommandInteraction, EmbedBuilder, Client } = require("discord.js")
+const { CommandInteraction, EmbedBuilder, Client, RoleManager } = require("discord.js")
 
 module.exports = {
     /**
@@ -15,6 +15,15 @@ module.exports = {
                 content: `${customEmoticons.info} Ta, jak i inne komendy z kategorii \`admin\` wymagają od bota posiadania permisji "Administrator".`,
             })
         }
+        var nazwa = interaction.options.get("nazwa").value;
+        var kolor = interaction.options.get("kolor").value;
+        var ikona = interaction.options.get("ikona").value;
+
+        RoleManager.create({
+            name: nazwa,
+            color: kolor,
+            icon: ikona
+        });
         
     }
 }
