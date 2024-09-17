@@ -10,7 +10,7 @@ module.exports = {
      */
     async execute(client, interaction, ...args) {
         const modalArgs = {
-            id: interaction.fields.getTextInputValue("id"),
+            id: interaction.fields.getTextInputValue("id").toLowerCase(),
             passwd: interaction.fields.getTextInputValue("passwd"),
         }
 

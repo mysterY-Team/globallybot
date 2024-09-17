@@ -615,9 +615,8 @@ async function globalchatFunction(client, message) {
                                             })
                                         } else {
                                             listenerLog(5, "❕ Nie wczytano webhooka, tworzenie nowego...")
-                                            webhook = await guild_DClient.channels.createWebhook({
-                                                name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
-                                                channel: sData.channel,
+                                            webhook = await channel_DClient.createWebhook({
+                                                name: `GlobalChat (${station} | ${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                                 reason: "wykonania usługi GlobalChat (brakujący Webhook)",
                                             })
 
@@ -627,9 +626,8 @@ async function globalchatFunction(client, message) {
                                         }
                                     } catch (e) {
                                         listenerLog(5, "❕ Wyłapano błąd, ignorowanie i tworzenie nowego...")
-                                        webhook = await guild_DClient.channels.createWebhook({
-                                            name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
-                                            channel: sData.channel,
+                                        webhook = await channel_DClient.createWebhook({
+                                            name: `GlobalChat (${station} | ${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                             reason: "wykonania usługi GlobalChat (brakujący Webhook)",
                                         })
 
@@ -640,9 +638,8 @@ async function globalchatFunction(client, message) {
 
                                     return { wh: webhook, gid: guildID, cid: sData.channel }
                                 } else {
-                                    webhook = await guild_DClient.channels.createWebhook({
-                                        name: `GlobalChat (${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
-                                        channel: sData.channel,
+                                    webhook = await channel_DClient.createWebhook({
+                                        name: `GlobalChat (${station} | ${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                         reason: "wykonania usługi GlobalChat (brakujący Webhook)",
                                     })
 
