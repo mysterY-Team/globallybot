@@ -1,4 +1,4 @@
-const { CommandInteraction, EmbedBuilder, Client, GuildMember } = require("discord.js")
+const { ChatInputCommandInteraction, EmbedBuilder, Client, GuildMember } = require("discord.js")
 const { request } = require("undici")
 const { customEmoticons } = require("../../../config")
 const { wait } = require("../../../functions/useful")
@@ -6,7 +6,7 @@ const { wait } = require("../../../functions/useful")
 module.exports = {
     /**
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         const action = interaction.options.get("typ", true).value

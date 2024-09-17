@@ -1,13 +1,13 @@
-const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
+const { Client, EmbedBuilder, ChatInputCommandInteraction, InteractionContextType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const { db, customEmoticons } = require("../../config")
 const { gcdata } = require("../../functions/dbSystem")
-const { checkUserStatus, getModules, botPremiumInfo } = require("../../functions/useful")
+const { checkUserStatus, getModules, botPremiumInfo, servers } = require("../../functions/useful")
 
 module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         const user = interaction.options.get("osoba")?.user || interaction.user
@@ -20,6 +20,8 @@ module.exports = {
         var data = fdb.val ?? {}
         const premium = botPremiumInfo(user.id, ssstatus, data.premium)
         const modules = getModules(data)
+
+        const guildlist = servers.get().map((x) => x.id)
 
         const premiumTypeofToText = (() => {
             if (!premium.have) return ""
@@ -42,7 +44,7 @@ module.exports = {
                 ].join("\n"),
             })
 
-        if (!user.bot && !user.system) {
+        if (interaction.context !== InteractionContextType.PrivateChannel && guildlist.includes(interaction.guildId) && !user.bot && !user.system) {
             if (modules.length > 0) embed.addFields({ name: "Podpięte moduły", value: modules.join("\n") })
             if (modules.includes("GlobalChat")) {
                 data.gc = gcdata.encode(data.gc)
@@ -61,8 +63,23 @@ module.exports = {
                     ].join("\n"),
                 })
             }
+        } else if (interaction.context === InteractionContextType.PrivateChannel || !guildlist.includes(interaction.guildId)) {
+            var rows = [
+                new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setStyle(ButtonStyle.Link)
+                        .setURL(user.displayAvatarURL({ size: 4096 }))
+                        .setLabel("Avatar użytkownika")
+                ),
+            ]
+            if (user.banner)
+                rows[0].addComponents(
+                    new ButtonBuilder()
+                        .setStyle(ButtonStyle.Link)
+                        .setURL(user.bannerURL({ size: 4096 }))
+                        .setLabel("Banner użytkownika")
+                )
         }
-
-        return interaction.editReply({ embeds: [embed] })
+        return interaction.editReply({ embeds: [embed], components: rows ?? [] })
     },
 }

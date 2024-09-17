@@ -1,4 +1,4 @@
-const { CommandInteraction, Client, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require("discord.js")
+const { ChatInputCommandInteraction, Client, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require("discord.js")
 const { db, customEmoticons } = require("../../../config")
 const { imacaData } = require("../../../functions/dbSystem")
 
@@ -6,7 +6,7 @@ module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         function getRandomizedFunction() {

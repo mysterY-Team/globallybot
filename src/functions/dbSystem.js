@@ -15,13 +15,14 @@ const $$ = {
 }
 
 function gcdataGuildS(data) {
-    data = data.split(",")
+    data = data.split(/,|\u0000/)
     return {
         channel: data[0],
         webhook: data[1] ?? "none",
         createdTimestamp: Number(data[2]) || Math.floor(Date.now() / 1000),
-        // showGCButtons: $$.stob(data[3]) ?? false,
-        // wbname: data[4] ?? "{username} ({userrole}; {userid}; {guildid})",
+        flag_showGCButtons: $$.stob(data[3]) ?? false,
+        flag_useGA: $$.stob(data[4]) ?? true,
+        // flag_wbUserName: data[4] ?? "%username% (%userrole%; %userid%; %guildid%)",
     }
 }
 
@@ -77,7 +78,7 @@ module.exports = {
         decode: (data) => {
             var newData = []
             for (const [key, value] of Object.entries(data)) {
-                newData.push(`${key}{${Object.values(value).join(",")}}`)
+                newData.push(`${key}{${Object.values(value).join("\u0000")}}`)
             }
             return newData.join("")
         },

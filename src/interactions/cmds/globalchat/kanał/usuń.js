@@ -1,4 +1,4 @@
-const { CommandInteraction, Client, PermissionFlagsBits, WebhookClient, EmbedBuilder } = require("discord.js")
+const { ChatInputCommandInteraction, Client, PermissionFlagsBits, WebhookClient, EmbedBuilder, InteractionContextType } = require("discord.js")
 const { db, customEmoticons, _bot, supportServer } = require("../../../../config")
 const { gcdataGuild } = require("../../../../functions/dbSystem")
 const { request } = require("undici")
@@ -8,10 +8,10 @@ module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
-        if (interaction.guildId == null) return interaction.reply(`${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`)
+        if (interaction.context != InteractionContextType.Guild) return interaction.reply(`${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`)
         var guild = client.guilds.cache.get(interaction.guildId)
         var bot = guild.members.cache.get(_bot.id)
 

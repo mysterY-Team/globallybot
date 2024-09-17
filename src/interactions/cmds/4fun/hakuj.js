@@ -1,14 +1,15 @@
-const { Client, CommandInteraction, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
+const { Client, ChatInputCommandInteraction, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const { wait } = require("../../../functions/useful")
 
 module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
-        const osoba = interaction.options.get("osoba").user
+        const osoba = interaction.options.get("osoba", true).user
+        const membercheck = Boolean(interaction.options.get("osoba", true).member)
         // Suma cyfr w ID
         const idsum = (() => {
             var _x = osoba.id.split("")
@@ -153,6 +154,11 @@ module.exports = {
             return
         } else {
             await interaction.reply("Rozpoczynam hakowanie...")
+            if (!membercheck) {
+                await wait(500)
+                await interaction.reply("Szukanie informacji po każdym zakątku Internetu...")
+                await wait(5000)
+            }
             await wait(2000)
             await interaction.editReply("Skanowanie urządzeń ofiary...")
             await wait(3000)
@@ -185,7 +191,7 @@ module.exports = {
                 let mailMessage = "Adresy Mailowe: **Brak**"
 
                 if (randomCountMails > 0) {
-                    const mail = []
+                    let mail = []
                     for (let i = 0; i < randomCountMails; i++) {
                         const randomMail = mails[Math.floor(Math.random() * mails.length)]
                         mail.push(randomMail)

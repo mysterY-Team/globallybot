@@ -21,18 +21,23 @@ module.exports = {
             return
         }
 
-        var IDs = [targetMsg.author.username.split("(")[1]?.split("; ")[1], targetMsg.author.username.split("(")[1]?.split("; ")[2]?.replace(")", "")].filter((x) => x)
-
-        if (IDs.length != 2) {
-            interaction.reply({ content: `${customEmoticons.denided} Niepoprawny syntax Webhooka!`, ephemeral: true })
-            return
-        }
-
         await interaction.deferReply({ ephemeral: true })
 
         var data = Object.values(gcdataGuild.encode(db.get(`serverData/${targetMsg.guildId}/gc`).val)).find((v) => v.channel === targetMsg.channelId)
         if (!data) {
             interaction.editReply(`${customEmoticons.denided} Użyto na złym kanale!`)
+            return
+        }
+
+        if (data.flag_showGCButtons) {
+            interaction.editReply(`${customEmoticons.minus} To zostało wyłączone z powodu pokazywania owych przycisków w wiadomościach!`)
+            return
+        }
+
+        var IDs = [targetMsg.author.username.split("(")[1]?.split("; ")[1], targetMsg.author.username.split("(")[1]?.split("; ")[2]?.replace(")", "")].filter((x) => x)
+
+        if (IDs.length != 2) {
+            interaction.reply({ content: `${customEmoticons.denided} Niepoprawny syntax Webhooka!`, ephemeral: true })
             return
         }
 

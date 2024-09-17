@@ -1,4 +1,4 @@
-const { CommandInteraction, Client } = require("discord.js")
+const { ChatInputCommandInteraction, Client } = require("discord.js")
 const { db, customEmoticons } = require("../../../../config")
 const { gcdata } = require("../../../../functions/dbSystem")
 const { checkUserStatus } = require("../../../../functions/useful")
@@ -7,7 +7,7 @@ module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         const stationID = interaction.options.get("stacja", true).value

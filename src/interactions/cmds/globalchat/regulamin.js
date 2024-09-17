@@ -1,11 +1,11 @@
-const { CommandInteraction, Client } = require("discord.js")
+const { ChatInputCommandInteraction, Client } = require("discord.js")
 const { customEmoticons, db } = require("../../../config")
 const fs = require("fs")
 module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         let textes = fs.readFileSync("src/others/regulamingc.txt")

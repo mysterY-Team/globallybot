@@ -1,16 +1,17 @@
 const djs = require("discord.js")
-const { CommandInteraction, Client, EmbedBuilder } = djs
+const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
 var conf = require("../../../config")
 const { checkUserStatus } = require("../../../functions/useful")
 const { customEmoticons } = conf
 
 delete conf.TOKEN
+delete conf.othertokens
 
 module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         await interaction.deferReply()
@@ -45,9 +46,7 @@ module.exports = {
                             break
                         case "object":
                             if (value === null) value = "null"
-                            else if (value instanceof Array) {
-                                value = `[${value.map((x) => '"' + String(x) + '"').join()}]`
-                            } else if (value instanceof Object) {
+                            else if (value instanceof Object || value instanceof Array) {
                                 try {
                                     value = JSON.stringify(value)
                                 } catch (e) {

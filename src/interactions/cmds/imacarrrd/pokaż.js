@@ -1,4 +1,4 @@
-const { CommandInteraction, Client } = require("discord.js")
+const { ChatInputCommandInteraction, Client } = require("discord.js")
 const imacaInfo = require("../../../functions/imaca")
 const { db, customEmoticons } = require("../../../config")
 const { imacaData } = require("../../../functions/dbSystem")
@@ -7,7 +7,7 @@ module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         var user = interaction.options.get("osoba")?.user || interaction.user

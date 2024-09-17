@@ -1,4 +1,4 @@
-const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
+const { ChatInputCommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { wait } = require("../../../functions/useful")
 const { customEmoticons } = require("../../../config")
 
@@ -6,7 +6,7 @@ module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
 
     async execute(client, interaction) {

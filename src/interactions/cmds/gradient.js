@@ -1,11 +1,11 @@
-const { CommandInteraction, Client } = require("discord.js")
+const { ChatInputCommandInteraction, Client } = require("discord.js")
 const { customEmoticons } = require("../../config")
 const { generateGradientText } = require("../../functions/gradient")
 
 module.exports = {
     /**
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         // Zmienna do zwrócenia wartości końcowej

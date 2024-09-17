@@ -1,11 +1,11 @@
-const { CommandInteraction, Client, EmbedBuilder } = require("discord.js")
+const { ChatInputCommandInteraction, Client, EmbedBuilder } = require("discord.js")
 const { db } = require("../../../../config")
 
 module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         await interaction.deferReply()

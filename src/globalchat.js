@@ -294,7 +294,7 @@ async function globalchatFunction(client, message) {
         )
         var userHasPremium = botPremiumInfo(message.author.id, ssstatus).have
 
-        function wbName(modPerm) {
+        function wbName(modPerm, data) {
             if (modPerm === 2) var rank = "naczelnik"
             else if (modPerm === 1) var rank = "moderator"
             else var rank = "osoba"
@@ -302,8 +302,41 @@ async function globalchatFunction(client, message) {
             if (userHasPremium) rank += " premium"
             if (isInMysteryTeam) rank = "mysterY Team"
 
-            return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`
+            // if (data.flag_showGCButtons)
+            //     return data.flag_wbUserName
+            //         .replace(/%username%/i, message.author.username)
+            //         .replace(/%userid%/i, message.author.id)
+            //         .replace(/%userDisplayName%/i, message.author.displayName)
+            //         .replace(/%userrole%/i, rank)
+            //         .replace(/%guildid%/i, message.guildId)
+            //         .replace(/%guildname%/i, message.guild.name)
+            /* else */ return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`
         }
+
+        const oldUserSnapshot = db.get(`userData/${message.author.id}/gc`)
+        var userData = gcdata.encode(oldUserSnapshot.val)
+
+        if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) return
+
+        if (message.author.bot || message.author.system) return
+
+        var snpsht = db.get(`serverData`)
+        var database = snpsht.val || {}
+
+        database = Object.entries(database)
+            .filter(([n, server]) => "gc" in server)
+            .map(([id, data]) => {
+                return { id: id, gc: gcdataGuild.encode(data.gc) }
+            })
+
+        //console.log(database)
+
+        var getDataByServerID = (id, classification = "serverID") => {
+            var x = database.map((x) => x[classification]).includes(id) ? database[database.map((x) => x[classification]).indexOf(id)] : null
+            return x
+        }
+
+        var serverdata = getDataByServerID(message.guildId, "id")
 
         /**
          * @returns {Promise<[EmbedBuilder, string] | undefined>}
@@ -345,31 +378,6 @@ async function globalchatFunction(client, message) {
                 }
             }
         }
-
-        const oldUserSnapshot = db.get(`userData/${message.author.id}/gc`)
-        var userData = gcdata.encode(oldUserSnapshot.val)
-
-        if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) return
-
-        if (message.author.bot || message.author.system) return
-
-        var snpsht = db.get(`serverData`)
-        var database = snpsht.val || {}
-
-        database = Object.entries(database)
-            .filter(([n, server]) => "gc" in server)
-            .map(([id, data]) => {
-                return { id: id, gc: gcdataGuild.encode(data.gc) }
-            })
-
-        //console.log(database)
-
-        var getDataByServerID = (id, classification = "serverID") => {
-            var x = database.map((x) => x[classification]).includes(id) ? database[database.map((x) => x[classification]).indexOf(id)] : null
-            return x
-        }
-
-        var serverdata = getDataByServerID(message.guildId, "id")
 
         if (
             !database
@@ -566,30 +574,6 @@ async function globalchatFunction(client, message) {
 
         delete ddata
 
-        function gct() {
-            let gctI = [
-                true,
-                userData.karma >= 25n,
-                userData.modPerms > 0 || (userData.karma >= 25n && userHasPremium),
-                userData.karma >= 1000n,
-                userData.karma >= 1000n && (userData.modPerms === 1 || userHasPremium),
-                userData.karma >= 1000n && (userData.modPerms === 2 || (userData.modPerms === 1 && userHasPremium)),
-                userData.karma >= 1000n && userData.modPerms === 2 && userHasPremium,
-                isInMysteryTeam,
-            ]
-
-            return gctI.lastIndexOf(true)
-        }
-
-        listenerLog(3, "🪪 Dane")
-        listenerLog(4, `gct() => ${gct()}`)
-        listenerLog(4, `userCooldown(amount<${database.length}>, type<gct()>) => ${userCooldown(database.length, gct())}`)
-
-        userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct()) * (1 + (typeof prefixes == "string" * !userHasPremium * 0.6))
-        delete gct
-        userData.messageID_bbc = ""
-        db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
-
         listenerLog(4, `Różnica cooldownów: ${userData.timestampToSendMessage - Date.now()}`)
 
         listenerLog(3, "")
@@ -731,18 +715,43 @@ async function globalchatFunction(client, message) {
         var withoutReply = deleteComments(message.content).toLowerCase()
 
         var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
-        for (var i = 0; i < prefixes.length; i++) {
-            var quickdata = require(`./globalactions/${prefixes[i]}`).data
+        if (serverdata[station].flag_useGA)
+            for (var i = 0; i < prefixes.length; i++) {
+                var quickdata = require(`./globalactions/${prefixes[i]}`).data
 
-            if (
-                (withoutReply.startsWith(`${prefixes[i]},`) && quickdata.prompt_type == "chat") ||
-                ((withoutReply.includes(`[${prefixes[i]}]`) || message.mentions.repliedUser?.displayName.startsWith(quickdata.name)) && quickdata.prompt_type == "chat2.0") ||
-                (withoutReply.startsWith(`${prefixes[i]}!`) && quickdata.prompt_type == "cmd")
-            ) {
-                prefixes = prefixes[i]
-                break
+                if (
+                    (withoutReply.startsWith(`${prefixes[i]},`) && quickdata.prompt_type == "chat") ||
+                    ((withoutReply.includes(`[${prefixes[i]}]`) || message.mentions.repliedUser?.displayName.startsWith(quickdata.name)) && quickdata.prompt_type == "chat2.0") ||
+                    (withoutReply.startsWith(`${prefixes[i]}!`) && quickdata.prompt_type == "cmd")
+                ) {
+                    prefixes = prefixes[i]
+                    break
+                }
             }
+
+        function gct() {
+            let gctI = [
+                true,
+                userData.karma >= 25n,
+                userData.modPerms > 0 || (userData.karma >= 25n && userHasPremium),
+                userData.karma >= 1000n,
+                userData.karma >= 1000n && (userData.modPerms === 1 || userHasPremium),
+                userData.karma >= 1000n && (userData.modPerms === 2 || (userData.modPerms === 1 && userHasPremium)),
+                userData.karma >= 1000n && userData.modPerms === 2 && userHasPremium,
+                isInMysteryTeam,
+            ]
+
+            return gctI.lastIndexOf(true)
         }
+
+        listenerLog(3, "🪪 Dane")
+        listenerLog(4, `gct() => ${gct()}`)
+        listenerLog(4, `userCooldown(amount<${database.length}>, type<gct()>) => ${userCooldown(database.length, gct())}`)
+
+        userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct()) * (1 + (typeof prefixes == "string" - userHasPremium * 0.5))
+        delete gct
+        userData.messageID_bbc = ""
+        db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
 
         message.content = await formatText(message.content, client)
 
@@ -785,12 +794,23 @@ async function globalchatFunction(client, message) {
 
                 if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
 
+                const data = getDataByServerID(w.gid)
+
                 function generateBtns() {
                     let btns = []
+
                     if (typeof prefixes == "string")
                         btns = [[new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]]
                     else if (w.gid == message.guildId)
                         btns = [[new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000??`).setDisabled(true).setEmoji("🗑️")]]
+                    else if (data.flag_showGCButtons && isHisFirstMessage)
+                        btns = [
+                            [
+                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
+                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`),
+                                new ButtonBuilder().setStyle(ButtonStyle.Primary).setCustomId(`gctab\u0000${message.author.id}`).setEmoji("👉"),
+                            ],
+                        ]
                     else btns = [[]]
 
                     return btns.filter((row) => row.filter((x) => x).length > 0).map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x)))
@@ -798,7 +818,7 @@ async function globalchatFunction(client, message) {
 
                 var x = await w.wh.send({
                     avatarURL: message.author.displayAvatarURL({ size: 128, extension: "png" }),
-                    username: wbName(userData.modPerms),
+                    username: wbName(userData.modPerms, data),
                     content: w.gid == message.guildId ? message.content : deleteComments(message.content),
                     embeds: reply,
                     files: (w.gid == message.guildId ? message.attachments : gcapprovedAttachments).map((x) => x),

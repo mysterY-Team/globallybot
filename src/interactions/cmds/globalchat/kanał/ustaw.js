@@ -1,4 +1,4 @@
-const { CommandInteraction, Client, PermissionFlagsBits, EmbedBuilder } = require("discord.js")
+const { ChatInputCommandInteraction, Client, PermissionFlagsBits, EmbedBuilder, InteractionContextType } = require("discord.js")
 const { db, customEmoticons, _bot, supportServer, constPremiumServersIDs } = require("../../../../config")
 const { gcdataGuild } = require("../../../../functions/dbSystem")
 const { checkUserStatus } = require("../../../../functions/useful")
@@ -7,12 +7,12 @@ module.exports = {
     /**
      *
      * @param {Client} client
-     * @param {CommandInteraction} interaction
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         const pwd = interaction.options.get("passwd")?.value
 
-        if (interaction.guildId == null) return interaction.reply(`${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`)
+        if (interaction.context != InteractionContextType.Guild) return interaction.reply(`${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`)
 
         await interaction.deferReply({ ephemeral: Boolean(pwd) })
         const ssstatus = await checkUserStatus(client, interaction.user.id)
@@ -91,19 +91,7 @@ module.exports = {
             return interaction.editReply(`${customEmoticons.denided} Ten kanał ma już odrębną stację!`)
         }
 
-        data[$stacja] = {
-            channel: channel.value,
-            webhook: "none",
-            createdTimestamp: Math.floor(Date.now() / 1000),
-        }
-
-        const emb = new EmbedBuilder()
-            .setTitle("Podpięto kanał!")
-            .setDescription(
-                `ID kanału: \`${channel.channel.id}\`\nNazwa kanału: \`${channel.channel.name}\`\nID Serwera: \`${channel.channel.guildId}\`\nStacja: \`${$stacja}\`\nOsoba podłączająca: <@${interaction.user.id}> (\`${interaction.user.username}\`, \`${interaction.user.id}\`)`
-            )
-            .setColor("Blue")
-        await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })
+        data[$stacja] = gcdataGuild.encode("x{}").x
 
         db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
         //informacja o zapisie
@@ -113,5 +101,13 @@ module.exports = {
                 `${customEmoticons.info} Jako że ten serwer już miał ustawiony kanał GlobalChata na kanale <#${data.channel}> (stacja \`${$stacja}\`), spowodowało to nadpis na nowy kanał.`
             )
         }
+
+        const emb = new EmbedBuilder()
+            .setTitle("Podpięto kanał!")
+            .setDescription(
+                `ID kanału: \`${channel.channel.id}\`\nNazwa kanału: \`${channel.channel.name}\`\nID Serwera: \`${channel.channel.guildId}\`\nStacja: \`${$stacja}\`\nOsoba podłączająca: <@${interaction.user.id}> (\`${interaction.user.username}\`, \`${interaction.user.id}\`)`
+            )
+            .setColor("Blue")
+        await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })
     },
 }
