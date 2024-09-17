@@ -15,15 +15,14 @@ module.exports = {
                 content: `${customEmoticons.info} Ta, jak i inne komendy z kategorii \`admin\` wymagają od bota posiadania permisji "Administrator".`,
             })
         }
-        var nazwa = interaction.options.get("nazwa").value;
-        var kolor = interaction.options.get("kolor").value;
-        var ikona = interaction.options.get("ikona").value;
+        var nazwa = interaction.options.get("nazwa", true).value;
+        var kolor = interaction.options.get("kolor")?.value;
+        var ikona = interaction.options.get("ikona")?.value;
 
-        RoleManager.create({
+        interaction.guild.roles.create({
             name: nazwa,
             color: kolor,
             icon: ikona
         });
-        
     }
 }
