@@ -51,8 +51,7 @@ module.exports = {
 
         //wczytywanie danych
         var allsnpsht = db.get(`serverData/${interaction.guildId}/gc`)
-        allsnpsht.val ??= ""
-        var gccount = allsnpsht.exists ? Object.keys(gcdataGuild.encode(allsnpsht.val)).length : 0
+        var gccount = allsnpsht.exists ? Object.keys(gcdataGuild.encode(allsnpsht.val ?? "")).length : 0
 
         if (gccount >= 3 + 4 * constPremiumServersIDs.includes(interaction.guildId) && interaction.guildId !== supportServer.id) {
             return interaction.editReply(`${customEmoticons.denided} Przekroczony został limit ustawionych stacji!`)
@@ -84,7 +83,7 @@ module.exports = {
 
         var _bool = allsnpsht.val.includes(channel.value)
 
-        var data = gcdataGuild.encode(allsnpsht.val)
+        var data = gcdataGuild.encode(allsnpsht.val ?? "")
         if (data[$stacja]?.channel == channel.value) return interaction.editReply(`${customEmoticons.denided} Na tym kanale jest już ustawiony GlobalChat o tej stacji!`)
 
         if (_bool) {
@@ -93,7 +92,9 @@ module.exports = {
 
         var newStationData = gcdataGuild.encode("x{}").x
         newStationData.channel = channel.channel.id
-        data[$stacja] = db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
+        data[$stacja] = newStationData
+
+        db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
 
         db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
 
