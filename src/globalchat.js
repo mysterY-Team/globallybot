@@ -652,7 +652,7 @@ async function globalchatFunction(client, message) {
                                         return { wh: webhook, gid: guildID, cid: sData.channel }
                                     }
                                 } else {
-                                    listenerLog(5, `✖️ Zignorowanie serwera o ID ${guildID} (niepoprawny kanał)`)
+                                    listenerLog(5, `✖️ Zignorowanie serwera o ID ${guildID} (niepoprawny kanał, oczekiwano: 0, uzyskano: ${channel_DClient.type})`)
                                 }
                             } else {
                                 guild_DClient.fetchOwner({ cache: false }).then((gguildOwner) => {

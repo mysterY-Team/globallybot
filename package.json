@@ -12,7 +12,7 @@
         "perf_hooks": "^0.0.1"
     },
     "name": "globally",
-    "version": "2.3.3",
+    "version": "2.3.3-analyze.no1",
     "main": "src/index.js",
     "scripts": {
         "test": "node --trace-warnings src/index.js",
