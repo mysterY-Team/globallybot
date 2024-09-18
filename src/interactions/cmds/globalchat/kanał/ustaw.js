@@ -91,16 +91,13 @@ module.exports = {
             return interaction.editReply(`${customEmoticons.denided} Ten kanał ma już odrębną stację!`)
         }
 
-        data[$stacja] = gcdataGuild.encode("x{}").x
+        var newStationData = gcdataGuild.encode("x{}").x
+        newStationData.channel = channel.channel.id
+        data[$stacja] = db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
 
         db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
-        //informacja o zapisie
-        if (!_bool) interaction.editReply(`${customEmoticons.approved} Dodano pomyślnie kanał na stacji \`${$stacja}\`!`)
-        else {
-            interaction.editReply(
-                `${customEmoticons.info} Jako że ten serwer już miał ustawiony kanał GlobalChata na kanale <#${data.channel}> (stacja \`${$stacja}\`), spowodowało to nadpis na nowy kanał.`
-            )
-        }
+
+        interaction.editReply(`${customEmoticons.approved} Dodano pomyślnie kanał na stacji \`${$stacja}\`!`)
 
         const emb = new EmbedBuilder()
             .setTitle("Podpięto kanał!")

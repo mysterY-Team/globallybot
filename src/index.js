@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, EmbedBuilder, ChannelType, ButtonBuilder, ActionRowBuilder, ButtonStyle, Partials } = require("discord.js")
-const { TOKEN, supportServer, debug, db } = require("./config.js")
+const { TOKEN, supportServer, debug, db, _bot } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
 const { listenerLog, servers, checkUserStatus, botPremiumInfo } = require("./functions/useful.js")
