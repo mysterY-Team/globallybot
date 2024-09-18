@@ -390,6 +390,7 @@ async function globalchatFunction(client, message) {
 
         listenerLog(2, "")
         listenerLog(2, "❗ Wyłapano wiadomość do GC!")
+        listenerLog(3, "Data serwera: " + JSON.stringify(serverdata))
 
         if (freemem() < totalmem() * 0.05 * !debug) {
             message.reply(`${customEmoticons.loading} Pamięć została przekroczona, czekam na wolne miejsce...`)
@@ -605,16 +606,28 @@ async function globalchatFunction(client, message) {
                             const guild_DClient = await client.guilds.fetch({ guild: guildID, cache: false })
                             const channel_DClient = await guild_DClient.channels.fetch(sData.channel, { cache: false })
                             if (channel_DClient) {
-                                const dinfo = new Date()
-                                if (sData.webhook != "none") {
-                                    try {
-                                        var HTTPRes = await request("https://discord.com/api/webhooks/" + sData.webhook)
-                                        if (HTTPRes.statusCode >= 200 && HTTPRes.statusCode < 300) {
-                                            webhook = new WebhookClient({
-                                                url: "https://discord.com/api/webhooks/" + sData.webhook,
-                                            })
-                                        } else {
-                                            listenerLog(5, "❕ Nie wczytano webhooka, tworzenie nowego...")
+                                if (channel_DClient.type === ChannelType.GuildText) {
+                                    const dinfo = new Date()
+                                    if (sData.webhook != "none") {
+                                        try {
+                                            var HTTPRes = await request("https://discord.com/api/webhooks/" + sData.webhook)
+                                            if (HTTPRes.statusCode >= 200 && HTTPRes.statusCode < 300) {
+                                                webhook = new WebhookClient({
+                                                    url: "https://discord.com/api/webhooks/" + sData.webhook,
+                                                })
+                                            } else {
+                                                listenerLog(5, "❕ Nie wczytano webhooka, tworzenie nowego...")
+                                                webhook = await channel_DClient.createWebhook({
+                                                    name: `GlobalChat (${station} | ${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
+                                                    reason: "wykonania usługi GlobalChat (brakujący Webhook)",
+                                                })
+
+                                                var data = gcdataGuild.encode(snpsht.val[guildID].gc)
+                                                data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
+                                                db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
+                                            }
+                                        } catch (e) {
+                                            listenerLog(5, "❕ Wyłapano błąd, ignorowanie i tworzenie nowego...")
                                             webhook = await channel_DClient.createWebhook({
                                                 name: `GlobalChat (${station} | ${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                                 reason: "wykonania usługi GlobalChat (brakujący Webhook)",
@@ -624,8 +637,9 @@ async function globalchatFunction(client, message) {
                                             data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
                                             db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
                                         }
-                                    } catch (e) {
-                                        listenerLog(5, "❕ Wyłapano błąd, ignorowanie i tworzenie nowego...")
+
+                                        return { wh: webhook, gid: guildID, cid: sData.channel }
+                                    } else {
                                         webhook = await channel_DClient.createWebhook({
                                             name: `GlobalChat (${station} | ${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
                                             reason: "wykonania usługi GlobalChat (brakujący Webhook)",
@@ -634,20 +648,11 @@ async function globalchatFunction(client, message) {
                                         var data = gcdataGuild.encode(snpsht.val[guildID].gc)
                                         data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
                                         db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
+
+                                        return { wh: webhook, gid: guildID, cid: sData.channel }
                                     }
-
-                                    return { wh: webhook, gid: guildID, cid: sData.channel }
                                 } else {
-                                    webhook = await channel_DClient.createWebhook({
-                                        name: `GlobalChat (${station} | ${dinfo.getFullYear()}-${dinfo.getMonth()}-${dinfo.getDate()} ${dinfo.getHours()}:${dinfo.getMinutes()}:${dinfo.getSeconds()})`,
-                                        reason: "wykonania usługi GlobalChat (brakujący Webhook)",
-                                    })
-
-                                    var data = gcdataGuild.encode(snpsht.val[guildID].gc)
-                                    data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
-                                    db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
-
-                                    return { wh: webhook, gid: guildID, cid: sData.channel }
+                                    listenerLog(5, `✖️ Zignorowanie serwera o ID ${guildID} (niepoprawny kanał)`)
                                 }
                             } else {
                                 guild_DClient.fetchOwner({ cache: false }).then((gguildOwner) => {
@@ -712,7 +717,7 @@ async function globalchatFunction(client, message) {
         var withoutReply = deleteComments(message.content).toLowerCase()
 
         var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
-        if (serverdata[station].flag_useGA)
+        if (serverdata.gc[station].flag_useGA)
             for (var i = 0; i < prefixes.length; i++) {
                 var quickdata = require(`./globalactions/${prefixes[i]}`).data
 
