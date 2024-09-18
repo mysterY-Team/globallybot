@@ -323,7 +323,7 @@ var slashList = [
     ),
     //pojedyncze komendy
     new SlashCommandBuilder()
-        .setName("dowcip")
+        .setName("dowcip")  
         .setDescription("Generuje dowcip ze strony PERELKI.NET")
         .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall),

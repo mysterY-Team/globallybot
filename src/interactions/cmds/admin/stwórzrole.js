@@ -18,11 +18,14 @@ module.exports = {
         var nazwa = interaction.options.get("nazwa", true).value;
         var kolor = interaction.options.get("kolor")?.value;
         var ikona = interaction.options.get("ikona")?.value;
+        
+        var poprawnie = new EmbedBuilder().setDescription("Rola " + nazwa + " została stworzona poprawnie.").setColor("Green")
 
         interaction.guild.roles.create({
             name: nazwa,
             color: kolor,
             icon: ikona
-        });
-    }
+        })
+        interaction.reply({embeds: [poprawnie]})
+        }
 }
