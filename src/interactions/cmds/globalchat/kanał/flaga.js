@@ -58,13 +58,13 @@ module.exports = {
                 else errorReason = "błąd składni"
                 break
             }
-            // case "wbUserName": {
-            //     if (!key[1].flag_showGCButtons) errorReason = "wymagane włączenie przycisków GlobalChat we wiadomościach (`showGCButtons`)"
-            //     else if (!flagValue.match(/%username%/i) || !flagValue.match(/%userrole%/i)) errorReason = "brak tagów `%username%` i/lub `%userrole%`"
-            //     else if (flagValue.match(/[{}]/)) errorReason = "niedozwolony znak"
-            //     else val = flagValue
-            //     break
-            // }
+            case "wbUserName": {
+                if (!key[1].flag_showGCButtons) errorReason = "wymagane włączenie przycisków GlobalChat we wiadomościach (`showGCButtons`)"
+                else if (!flagValue.match(/%username%/i) || !flagValue.match(/%userrole%/i)) errorReason = "brak tagów `%username%` i/lub `%userrole%`"
+                else if (flagValue.match(/[{}]/)) errorReason = "niedozwolony znak"
+                else val = flagValue
+                break
+            }
             default: {
                 errorReason = "nieznana flaga"
             }
