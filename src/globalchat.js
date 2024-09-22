@@ -387,7 +387,10 @@ async function globalchatFunction(client, message) {
 
                     rContent = deleteComments(rContent)
 
-                    if (serverdata.gc[station].flag_showGCButtons) {
+                    if (replayedMSG.author.username.includes("GlobalAction")) {
+                        var ruid = "GlobalAction",
+                            rUser = replayedMSG.author.username
+                    } else if (serverdata.gc[station].flag_showGCButtons) {
                         var ruid = null,
                             rUser = (() => {
                                 const blockRegexFunctions = (string) => string.replace(/(\\|\.|\*|\[|\]|\||\^|\$|\(|\)|\*|\+)/g, "\\$1")
@@ -454,8 +457,8 @@ async function globalchatFunction(client, message) {
                                 return null
                             })()
                     } else {
-                        var ruid = replayedMSG.author.username.includes("GlobalAction)") ? "GlobalAction" : replayedMSG.author.username.split(" (")[1].split("; ")[1],
-                            rUser = replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.author.username : replayedMSG.author.username.split(" (")[0]
+                        var ruid = replayedMSG.author.username.split(" (")[1].split("; ")[1],
+                            rUser = replayedMSG.author.username.split(" (")[0]
                     }
 
                     var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }

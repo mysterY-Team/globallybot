@@ -48,6 +48,11 @@ module.exports = {
         var errorReason = null
         var val = null
 
+        if (key[1][`flag_${flag}`] == flagValue) {
+            interaction.editReply(`${customEmoticons.info} Ta flaga ma tą właśnie wartość!`)
+            return
+        }
+
         switch (flag) {
             case "useGA":
             case "showGCButtons": {
@@ -62,6 +67,8 @@ module.exports = {
                 if (!key[1].flag_showGCButtons) errorReason = "wymagane włączenie przycisków GlobalChat we wiadomościach (`showGCButtons`)"
                 else if (!flagValue.match(/%username%/i) || !flagValue.match(/%userrole%/i)) errorReason = "brak tagów `%username%` i/lub `%userrole%`"
                 else if (flagValue.match(/[{}]/)) errorReason = "niedozwolony znak"
+                else if (flagValue.includes("GlobalAction")) errorReason = "fraza `GlobalAction`"
+                else if (flagValue.length > 30) errorReason = "za długa nazwa"
                 else val = flagValue
                 break
             }

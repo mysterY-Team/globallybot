@@ -81,7 +81,7 @@ module.exports = {
             })
         )
 
-        if (args[0] !== interaction.user.id) {
+        if (args[0] === interaction.user.id) {
             data = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
             data.timestampToSendMessage = Math.max(data.timestampToSendMessage, Date.now()) + messagesToDelete.length * 250
             data.karma--
