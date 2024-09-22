@@ -68,7 +68,7 @@ module.exports = {
                 else if (!flagValue.match(/%username%/i) || !flagValue.match(/%userrole%/i)) errorReason = "brak tagów `%username%` i/lub `%userrole%`"
                 else if (flagValue.match(/[{}]/)) errorReason = "niedozwolony znak"
                 else if (flagValue.includes("GlobalAction")) errorReason = "fraza `GlobalAction`"
-                else if (flagValue.length > 30) errorReason = "za długa nazwa"
+                else if (flagValue.length > 40) errorReason = "za długa nazwa"
                 else val = flagValue
                 break
             }
