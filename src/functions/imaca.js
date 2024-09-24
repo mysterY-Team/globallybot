@@ -657,14 +657,7 @@ async function createCarrrd(data, user) {
                     context.textAlign = "left"
                     context.fillText(user.username, 200, 155)
                 }
-            }
-            case 4: {
-                if (data.bannerURL === null) {
-                    const add = await readFile("./src/others/imgs/imaca_addtional4.jpg")
-                    const addimg = new Image()
-                    addimg.src = add
-                    context.drawImage(addimg, 104, 0, 596, (596 / canvas.width) * 300)
-                }
+                break
             }
         }
     } catch (err) {
