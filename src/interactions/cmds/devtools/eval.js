@@ -4,9 +4,6 @@ var conf = require("../../../config")
 const { checkUserStatus } = require("../../../functions/useful")
 const { customEmoticons } = conf
 
-delete conf.TOKEN
-delete conf.othertokens
-
 module.exports = {
     /**
      *
@@ -56,11 +53,15 @@ module.exports = {
                             else value = value.constructor?.toString() ?? "[object]"
                     }
 
+                    value = value.split(conf.TOKEN).join(conf.TOKEN.slice(0, 3) + "*".repeat(conf.TOKEN.length - 3))
+                    value = value.split(conf.othertokens.gemini).join(conf.othertokens.gemini.slice(0, 3) + "*".repeat(conf.othertokens.gemini.length - 3))
+                    value = value.split(conf.othertokens.stable_diff).join(conf.othertokens.stable_diff.slice(0, 3) + "*".repeat(conf.othertokens.stable_diff.length - 3))
+
                     if (values.length === 1) consoled.push(value)
                     else {
-                        if (i === 0) consoled.push("┏ " + value)
-                        else if (i === values.length - 1) consoled.push("┗ " + value)
-                        else consoled.push("┣ " + value)
+                        if (i === 0) consoled.push("┏ " + value.split("\n").join("\n┃ "))
+                        else if (i === values.length - 1) consoled.push("┗ " + value.split("\n").join("\n  "))
+                        else consoled.push("┣ " + value.split("\n").join("\n┃ "))
                     }
                 })
             }
