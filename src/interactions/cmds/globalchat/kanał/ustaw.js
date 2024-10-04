@@ -81,7 +81,7 @@ module.exports = {
             return interaction.editReply(`${customEmoticons.denided} Niepoprawne hasło!`)
         }
 
-        var _bool = allsnpsht.val.includes(channel.value)
+        var _bool = Boolean(allsnpsht.val?.includes(channel.value))
 
         var data = gcdataGuild.encode(allsnpsht.val ?? "")
         if (data[$stacja]?.channel == channel.value) return interaction.editReply(`${customEmoticons.denided} Na tym kanale jest już ustawiony GlobalChat o tej stacji!`)
