@@ -267,7 +267,7 @@ function timerToResetTheAPIInfo() {
                 listOfUsers.premium.forEach(async (x) => {
                     const premium = botPremiumInfo(x.userID, await checkUserStatus(client, x.userID), x.days)
                     if (!premium.have || premium.typeof !== "trial") return
-                    if (x.days === 0) {
+                    if (x.days === 1) {
                         db.adelete(`userData/${x.userID}/premium`)
                         try {
                             client.users.send(uID, {
