@@ -167,47 +167,34 @@ client.on("interactionCreate", async (int) => {
     }
 })
 
-client.on("threadUpdate", (thread) => {
+client.on("threadUpdate", (oldThread, newThread) => {
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano aktualizację wątku")
-    if (thread.guildId === supportServer.id)
-        setTimeout(() => {
-            var accThread = client.channels.cache.get(thread.id)
-            const accTags = accThread.appliedTags
-            const accNames = Object.entries(accThread.parent.availableTags ?? {})
-                .filter(([key, value]) => accTags.includes(value.id))
-                .map(([key, value]) => value.name)
-            const oldTags = thread.appliedTags
-            const oldNames = Object.entries(thread.parent.availableTags ?? {})
-                .filter(([key, value]) => oldTags.includes(value.id))
-                .map(([key, value]) => value.name)
+    if (thread.guildId === supportServer.id) {
+        const newTags = newThread.appliedTags
+        const newNames = Object.entries(newThread.parent.availableTags ?? {})
+            .filter(([key, value]) => newTags.includes(value.id))
+            .map(([key, value]) => value.name)
+        const oldTags = oldThread.appliedTags
+        const oldNames = Object.entries(oldThread.parent.availableTags ?? {})
+            .filter(([key, value]) => oldTags.includes(value.id))
+            .map(([key, value]) => value.name)
 
-            if (typeof accThread == "undefined" && thread.parent.type != ChannelType.GuildForum) return
+        if (thread.parent.type != ChannelType.GuildForum) return
 
-            if (!oldNames.includes("Zamknięte") && accNames.includes("Zamknięte")) {
-                var embed = new EmbedBuilder()
-                    .setTitle("🔒 Zamykanie wątku")
-                    .setDescription("Do tego wątku dodano tag **Zamknięte**. Kanał został zaarchiwizowany i zamknięty.")
-                    .setColor("DarkGold")
+        if (!oldNames.includes("Zamknięte") && newNames.includes("Zamknięte")) {
+            var embed = new EmbedBuilder()
+                .setTitle("🔒 Zamykanie wątku")
+                .setDescription("Do tego wątku dodano tag **Zamknięte**. Kanał został zaarchiwizowany i zamknięty.")
+                .setColor("DarkGold")
 
-                thread.send({
-                    embeds: [embed],
-                })
+            thread.send({
+                embeds: [embed],
+            })
 
-                thread.setLocked().then(() => thread.setArchived())
-            }
-        }, 500)
-})
-client.on("guildMemberAdd", async (member) => {
-    if (member.id !== _bot.id) return
-    var guild = member.guild
-
-    listenerLog(3, `Nowy serwer: ${guild.name}`)
-    const embed = new EmbedBuilder()
-        .setAuthor({ iconURL: guild.iconURL({ extension: "webp", size: 32 }), name: "Nowy serwer" })
-        .setDescription(`ID serwera: \`${guild.id}\`\n\`Nazwa serwera: \`${guild.name}\`\nWłaściciel: <@${guild.ownerId}> (\`${guild.ownerId}\`)`)
-        .setColor("Green")
-    await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send(embed)
+            thread.setLocked().then(() => thread.setArchived())
+        }
+    }
 })
 
 client.on("debug", (info) => {
@@ -237,7 +224,10 @@ function timerToResetTheAPIInfo() {
         var listOfUsers = {
             gc: users.filter((x) => x[1].gc).map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] })),
             premium: users
-                .filter((x) => x[1].premium)
+                .filter((x) => {
+                    console.log((x[1].premium ?? "OK") != "OK")
+                    return (x[1].premium ?? "OK") != "OK"
+                })
                 .map((x) => {
                     return { userID: x[0], days: x[1].premium }
                 }),
@@ -263,14 +253,16 @@ function timerToResetTheAPIInfo() {
                 })
             }
 
-            if (date.getHours() == 0) {
+            if (date.getHours() == 0 || debug)
                 listOfUsers.premium.forEach(async (x) => {
+                    console.log(x, x.days)
+                    if (x.days == 0) return db.adelete(`userData/${x.userID}/premium`)
                     const premium = botPremiumInfo(x.userID, await checkUserStatus(client, x.userID), x.days)
                     if (!premium.have || premium.typeof !== "trial") return
-                    if (x.days === 1) {
+                    if (x.days == 1) {
                         db.adelete(`userData/${x.userID}/premium`)
                         try {
-                            client.users.send(uID, {
+                            client.users.send(x.userID, {
                                 content:
                                     "No cześć, mam złą wiadomość. Premium dobiegło końca! Może uda Ci się ponownie zdobyć w jakimś konkursie...\n-# Globally, powered by mysterY Team",
                                 components: [
@@ -284,7 +276,6 @@ function timerToResetTheAPIInfo() {
                         db.aset(`userData/${x.userID}/premium`, x.days - 1)
                     }
                 })
-            }
         }
         delete hours
 
