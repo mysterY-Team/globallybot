@@ -39,7 +39,7 @@ module.exports = {
                 karma: BigInt(obj[5] ?? 0n),
                 messageID_bbc: obj[6] ?? "",
                 /**
-                 * @type {0 | 1 | 2}
+                 * @type {0 | 1 | 2 | 3 | 4}
                  */
                 modPerms: Number(obj[7] ?? 0),
                 blockTimestamp: Number(obj[8] ?? NaN),

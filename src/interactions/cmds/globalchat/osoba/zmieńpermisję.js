@@ -12,13 +12,13 @@ module.exports = {
     async execute(client, interaction) {
         var user = interaction.options.get("osoba", true).user
         var perm = interaction.options.get("permisja", true).value
-        var roles = ["zwykłą osobę", "moderatora GlobalChatu", "naczelnego GlobalChatu"]
+        var roles = ["zwykłego użytkownika", "moderatora GlobalChatu", "starszego moderatora GlobalChatu", "naczelnego GlobalChatu", "starszego naczelnego GlobalChatu"]
         await interaction.deferReply()
         const ssstatus = await checkUserStatus(client, interaction.user.id)
         const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
-        var data = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
-        if (data.modPerms !== 2 && !isInMysteryTeam) {
+        var idata = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
+        if (idata.modPerms < 3 && !isInMysteryTeam) {
             interaction.editReply(`${customEmoticons.denided} Nie masz odpowiednich permisji do wykonania tej komendy!`)
             return
         }
@@ -28,7 +28,18 @@ module.exports = {
             return
         }
 
-        data = gcdata.encode(db.get(`userData/${user.id}/gc`).val)
+        var data = gcdata.encode(db.get(`userData/${user.id}/gc`).val)
+
+        if (data.modPerms > idata.modPerms) {
+            interaction.editReply(`${customEmoticons.denided} Ta osoba stoi ponad Ciebie!`)
+            return
+        }
+
+        if (perm > data.modPerms) {
+            interaction.editReply(`${customEmoticons.denided} Możesz przydzielać tylko niższe rangi!`)
+            return
+        }
+
         if (data.modPerms === perm) {
             interaction.editReply(`${customEmoticons.minus} Permisja <@${user.id}> jest już ustawiona na ${roles[perm]}, nic nie zostało zmienione!`)
         } else {

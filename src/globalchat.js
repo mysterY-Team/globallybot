@@ -311,11 +311,13 @@ async function globalchatFunction(client, message) {
         var userHasPremium = botPremiumInfo(message.author.id, ssstatus).have
 
         function wbName(modPerm, data) {
-            if (modPerm === 2) var rank = "naczelnik"
+            if (modPerm === 4) var rank = "st. naczelnik"
+            if (modPerm === 3) var rank = "naczelnik"
+            if (modPerm === 3) var rank = "st. moderator"
             else if (modPerm === 1) var rank = "moderator"
-            else var rank = "osoba"
+            else var rank = "użytkownik"
 
-            if (userHasPremium) rank += " premium"
+            if (userHasPremium) rank += "+"
             if (isInMysteryTeam) rank = "team mysterY"
 
             if (data.flag_showGCButtons)
@@ -825,9 +827,9 @@ async function globalchatFunction(client, message) {
                 userData.karma >= 25n,
                 userData.modPerms > 0 || (userData.karma >= 25n && userHasPremium),
                 userData.karma >= 1000n,
-                userData.karma >= 1000n && (userData.modPerms === 1 || userHasPremium),
-                userData.karma >= 1000n && (userData.modPerms === 2 || (userData.modPerms === 1 && userHasPremium)),
-                userData.karma >= 1000n && userData.modPerms === 2 && userHasPremium,
+                userData.karma >= 1000n && (userData.modPerms === 1 || userData.modPerms === 2 || userHasPremium),
+                userData.karma >= 1000n && (userData.modPerms === 3 || userData.modPerms === 4 || ((userData.modPerms === 1 || userData.modPerms === 2) && userHasPremium)),
+                userData.karma >= 1000n && (userData.modPerms === 3 || userData.modPerms === 4) && userHasPremium,
                 isInMysteryTeam,
             ]
 

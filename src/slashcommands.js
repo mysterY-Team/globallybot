@@ -44,7 +44,13 @@ var slashList = [
                                 .setName("permisja")
                                 .setDescription("Nazwa permisji")
                                 .setRequired(true)
-                                .setChoices({ name: "Naczelnik GlobalChata", value: 2 }, { name: "Moderator GlobalChata", value: 1 }, { name: "Zwykła osoba", value: 0 })
+                                .setChoices(
+                                    { name: "Starszy naczelnik GlobalChatu", value: 4 },
+                                    { name: "Naczelnik GlobalChatu", value: 3 },
+                                    { name: "Starszy moderator GlobalChatu", value: 2 },
+                                    { name: "Moderator GlobalChata", value: 1 },
+                                    { name: "Zwykły użytkownik", value: 0 }
+                                )
                         )
                 )
         )
