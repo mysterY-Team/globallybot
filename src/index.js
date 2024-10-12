@@ -53,7 +53,7 @@ client.on("messageCreate", async (msg) => {
 client.on("interactionCreate", async (int) => {
     const errorEmbed = new EmbedBuilder()
         .setDescription("# Whoops!\nNastąpił błąd interacji. Posiadamy jednak dane, więc postaramy się ten błąd naprawić jak najszybciej!")
-        .setFooter({ text: "Globally, powered by mysterY Team" })
+        .setFooter({ text: "Globally, powered by team mysterY" })
 
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano interakcję")
@@ -233,6 +233,11 @@ function timerToResetTheAPIInfo() {
                 }),
         }
 
+        var stations = Object.entries(db.get("stations")).map((x) => {
+            x[1] = x[1].split("|")
+            return { id: x[0] }
+        })
+
         delete users
 
         let date = new Date()
@@ -264,7 +269,7 @@ function timerToResetTheAPIInfo() {
                         try {
                             client.users.send(x.userID, {
                                 content:
-                                    "No cześć, mam złą wiadomość. Premium dobiegło końca! Może uda Ci się ponownie zdobyć w jakimś konkursie...\n-# Globally, powered by mysterY Team",
+                                    "No cześć, mam złą wiadomość. Premium dobiegło końca! Może uda Ci się ponownie zdobyć w jakimś konkursie...\n-# Globally, powered by team mysterY",
                                 components: [
                                     new ActionRowBuilder().addComponents(
                                         new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId("deleteThisMessage").setLabel(`Usuń tą wiadomość dla mnie`)
@@ -290,7 +295,7 @@ function timerToResetTheAPIInfo() {
             x.userID = uID
             try {
                 client.users.send(uID, {
-                    content: "Twoja czasowa blokada dobiegła końca! Możesz skorzystać z GlobalChat!\n-# Globally, powered by mysterY Team",
+                    content: "Twoja czasowa blokada dobiegła końca! Możesz skorzystać z GlobalChat!\n-# Globally, powered by team mysterY",
                     components: [
                         new ActionRowBuilder().addComponents(
                             new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId("deleteThisMessage").setLabel(`Usuń tą wiadomość dla mnie`)

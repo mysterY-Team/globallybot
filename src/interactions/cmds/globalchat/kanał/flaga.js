@@ -31,7 +31,7 @@ module.exports = {
                     - Nie masz obu uprawnień: **Zarządzanie webhoookami** oraz **Zarządzanie kanałami**
                     - Nie masz permisji administratora
                     - Nie jesteś właścicielem serwera
-                    - Nie posiadasz roli **mysterY Team** na serwerze support`
+                    - Nie posiadasz roli **team mysterY** na serwerze support`
                     .split("\n")
                     .map((x) => x.trim())
                     .join("\n"),

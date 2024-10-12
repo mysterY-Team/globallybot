@@ -300,7 +300,7 @@ async function globalchatFunction(client, message) {
             else var rank = "osoba"
 
             if (userHasPremium) rank += " premium"
-            if (isInMysteryTeam) rank = "mysterY Team"
+            if (isInMysteryTeam) rank = "team mysterY"
 
             if (data.flag_showGCButtons)
                 return data.flag_wbUserName
@@ -576,7 +576,7 @@ async function globalchatFunction(client, message) {
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: "Blokada linku" })
                     .setFields({ name: "Powód", value: "Niedozwolony link", inline: true }, { name: "Kara", value: "3 minuty osobistego cooldownu", inline: true })
-                    .setFooter({ text: "Globally, powered by mysterY Team" })
+                    .setFooter({ text: "Globally, powered by team mysterY" })
                     .setColor("Red")
                 message.channel.send({ embeds: [embed] })
             } catch (e) {}
@@ -594,7 +594,7 @@ async function globalchatFunction(client, message) {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada linku" })
                         .setFields({ name: "Powód", value: "Za mała ilość karmy", inline: true }, { name: "Kara", value: "30 sekund osobistego cooldownu", inline: true })
-                        .setFooter({ text: "Globally, powered by mysterY Team" })
+                        .setFooter({ text: "Globally, powered by team mysterY" })
                         .setColor("Red")
                     message.channel.send({ embeds: [embed] })
                 } catch (e) {}
@@ -623,7 +623,7 @@ async function globalchatFunction(client, message) {
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: "Blokada słowa" })
                     .setFields({ name: "Powód", value: `Niedozwolone słowo \`${bw.badWord}\``, inline: true }, { name: "Kara", value: "minuta osobistego cooldownu", inline: true })
-                    .setFooter({ text: "Globally, powered by mysterY Team" })
+                    .setFooter({ text: "Globally, powered by team mysterY" })
                     .setColor("Red")
                 message.channel.send({ embeds: [embed] })
             } catch (e) {}
@@ -739,7 +739,7 @@ async function globalchatFunction(client, message) {
                                             value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do [serwera support](https://discord.gg/536TSYqT)**",
                                         })
                                         .setFooter({
-                                            text: "Globally, powered by mysterY Team",
+                                            text: "Globally, powered by team mysterY",
                                         })
                                         .setColor("Orange")
 
@@ -766,7 +766,7 @@ async function globalchatFunction(client, message) {
                                             value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i usuń wcześniej utworzone Webhooki.',
                                         })
                                         .setFooter({
-                                            text: "Globally, powered by mysterY Team",
+                                            text: "Globally, powered by team mysterY",
                                         })
                                         .setColor("Orange")
 
