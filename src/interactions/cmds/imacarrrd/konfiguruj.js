@@ -26,7 +26,7 @@ module.exports = {
                         .setMaxLength(24)
                         .setLabel("Podaj swoją unikalną nazwę")
                         .setRequired(true)
-                        .setValue(data.name)
+                        .setValue(snpsht.exists ? data.name : "")
                         .setPlaceholder("Może to być imię, nick, pseudonim etc.")
                         .setStyle(TextInputStyle.Short)
                 ),
@@ -38,7 +38,7 @@ module.exports = {
                         .setLabel("Opisz siebie")
                         .setPlaceholder("Możesz dawać prawie wszystkie znaki")
                         .setRequired(true)
-                        .setValue(data.description)
+                        .setValue(snpsht.exists ? data.description : "")
                         .setStyle(TextInputStyle.Paragraph)
                 ),
                 new ActionRowBuilder().setComponents(
@@ -49,7 +49,7 @@ module.exports = {
                         .setMinLength(6)
                         .setMaxLength(7)
                         .setRequired(true)
-                        .setValue(data.nameGradient1)
+                        .setValue(snpsht.exists ? data.nameGradient1 : "")
                         .setStyle(TextInputStyle.Short)
                 ),
                 new ActionRowBuilder().setComponents(
@@ -60,7 +60,7 @@ module.exports = {
                         .setMinLength(6)
                         .setMaxLength(7)
                         .setRequired(true)
-                        .setValue(data.nameGradient2)
+                        .setValue(snpsht.exists ? data.nameGradient2 : "")
                         .setStyle(TextInputStyle.Short)
                 ),
                 new ActionRowBuilder().setComponents(
@@ -70,7 +70,7 @@ module.exports = {
                         .setPlaceholder("Optymalnie 700x300")
                         .setStyle(TextInputStyle.Short)
                         .setRequired(false)
-                        .setValue(data.bannerURL ?? "")
+                        .setValue(snpsht.exists ? data.bannerURL ?? "" : "")
                 )
             )
         interaction.showModal(modal)

@@ -1,8 +1,5 @@
 const { Client, ChatInputCommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle, Snowflake } = require("discord.js")
 const { customEmoticons, _bot } = require("../../../config")
-const { servers } = require("../../../functions/useful")
-
-const ServersNotUsingTheirEmotesFeature = ["1173361427159994478"]
 
 module.exports = {
     /**
@@ -255,12 +252,12 @@ module.exports = {
      */
     autocomplete(acFocusedInformation, client) {
         var options = this.emoticons.map((x) => x.savenames).flat()
-        options.push(
-            ...servers
-                .get()
-                .filter((x) => !ServersNotUsingTheirEmotesFeature.includes(x.id))
-                .map((x) => `serwer=${x.id}`)
-        )
+        // options.push(
+        //     ...servers
+        //         .get()
+        //         .filter((x) => !ServersNotUsingTheirEmotesFeature.includes(x.id))
+        //         .map((x) => `serwer=${x.id}`)
+        // )
         options = options.filter((x) => x.includes(acFocusedInformation.value)).filter((x, i) => i < 25)
         return options
     },
@@ -283,7 +280,7 @@ module.exports = {
                         })${typeof x.server === "undefined" ? "" : ` *//ze serwera [${client.guilds.cache.get(x.server.id).name}](<https://discord.gg/${x.server.iCode}>)*`}`
                     })}\n\nTutaj się wyświetla maksymalnie 10 emotek. Możesz użyć parametru \`query\`, aby wyszukać emotki`,
             })
-        } else if (queryOption.value.startsWith("serwer=")) {
+        } /*else if (queryOption.value.startsWith("serwer=")) {
             const ServersWithTheirEmotesFeature = servers.get().filter((x) => !ServersNotUsingTheirEmotesFeature.includes(x.id))
             const sid = queryOption.value.split("=")[1]
 
@@ -345,7 +342,7 @@ module.exports = {
                 interaction.reply(`${customEmoticons.denided} Nie widzę takiego serwera. Odświeżę teraz listę serwerów, a Ty spróbuj użyć komendy ponownie!`)
                 servers.fetch(client)
             }
-        } else {
+        }*/ else {
             const queryVal = queryOption.value
             var query = this.emoticons.filter((x) => {
                 var have = false

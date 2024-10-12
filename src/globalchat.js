@@ -34,26 +34,42 @@ function sprawdzNiedozwoloneLinki(text) {
     const linkList = [
         // blokada linków zaproszeniowych
         /(?:http[s]?:\/\/)?(?:www.|ptb.|canary.)?(?:discord(?:app)?.(?:(?:com|gg)\/(?:invite|servers)\/[a-z0-9-_]+)|discord.gg\/[a-z0-9-_]+)|(?:http[s]?:\/\/)?(?:www.)?(?:dsc.gg|invite.gg+|discord.link|(?:discord.(gg|io|me|li|id))|disboard.org)\/[a-z0-9-_\/]+/gim,
+        /(?:http[s]?:\/\/)?(?:www.)discordzik.pl\/(?:bot|server)\/[0-9]{17,19}/gim,
 
         // blokada linków do stron dla dorosłych
-        "pornhub.com",
+        "pornhub.com", //typowe
         "xvideos.com",
         "xhamster.com",
         "xnxx.com",
         "youporn.com",
         "redtube.com",
         "porn.com",
-        "hentaihaven.xxx",
-        "ichatonline.com",
-        "toppornsites.com",
         "tube8.com",
         "ixxx.com",
         "sunporno.com",
         "pornhat.com",
-        "sunporno.com",
+        "hentaihaven.xxx", //hentaice
+        "hentaigasm.com",
+        "fakku.net",
+        "gelbooru.com",
+        "porcore.com",
+        "cartoonporno.xxx",
+        "adulttime.xxx",
+        "ichatonline.com", //kamerki
+        "toppornsites.com", //listy
         "mypornbible.com",
         "badjojo.com",
-        "nutaku.net",
+        "findtubes.com",
+        "pornmd.com",
+        "nutaku.net", //sieci gier
+        "porngameshub.com",
+        "69games.xxx",
+        "gamcore.com",
+        "gamesofdesire.com",
+        "hooligapps.com",
+        "sexgamesclub.com",
+        "lifeselector.com",
+        "sexemulator.com",
     ]
 
     for (let i = 0; i < linkList.length; i++) {
@@ -228,23 +244,23 @@ async function formatText(text, client) {
         return rtext
     })
 
-    let matches = text.match(/{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/g)
-    if (matches) {
-        for (let match of matches) {
-            let [$, arg1, arg2] = /{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/.exec(match)
-            try {
-                const emojis = await (await client.guilds.fetch({ guild: arg1, cache: false })).emojis.fetch()
-                if (emojis.map((x) => x.name).includes(arg2)) {
-                    const emoji = emojis.map((x) => x)[emojis.map((x) => x.name).indexOf(arg2)]
-                    text = text.replace(match, `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>`)
-                } else {
-                    text = text.replace(match, customEmoticons.minus)
-                }
-            } catch (e) {
-                text = text.replace(match, customEmoticons.minus)
-            }
-        }
-    }
+    // let matches = text.match(/{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/g)
+    // if (matches) {
+    //     for (let match of matches) {
+    //         let [$, arg1, arg2] = /{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/.exec(match)
+    //         try {
+    //             const emojis = await (await client.guilds.fetch({ guild: arg1, cache: false })).emojis.fetch()
+    //             if (emojis.map((x) => x.name).includes(arg2)) {
+    //                 const emoji = emojis.map((x) => x)[emojis.map((x) => x.name).indexOf(arg2)]
+    //                 text = text.replace(match, `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>`)
+    //             } else {
+    //                 text = text.replace(match, customEmoticons.minus)
+    //             }
+    //         } catch (e) {
+    //             text = text.replace(match, customEmoticons.minus)
+    //         }
+    //     }
+    // }
 
     return text
 }
@@ -822,7 +838,8 @@ async function globalchatFunction(client, message) {
         listenerLog(4, `gct() => ${gct()}`)
         listenerLog(4, `userCooldown(amount<${database.length}>, type<gct()>) => ${userCooldown(database.length, gct())}`)
 
-        userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct()) * (1 + (typeof prefixes == "string" - userHasPremium * 0.5))
+        userData.timestampToSendMessage =
+            Date.now() + userCooldown(database.length, gct()) * (Math.max((typeof prefixes == "string") * 4 - (userHasPremium || isInMysteryTeam) * 2, 0) + 1)
         delete gct
         userData.messageID_bbc = ""
         db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -1051,7 +1068,7 @@ async function globalchatFunction(client, message) {
                 }
             }
 
-            if (typeof prefixes == "string") userData.karma += 12n + BigInt((userHasPremium || isInMysteryTeam) * 3)
+            if (typeof prefixes == "string") userData.karma += 10n + BigInt((userHasPremium || isInMysteryTeam) * 2)
             else if (gcapprovedAttachments.size > 0) userData.karma += BigInt(Math.round(gcapprovedAttachments.size / (2 - userHasPremium * 0.5)) + 2 + userHasPremium)
             else userData.karma += 1n
             if (message.reference && Math.random() < 0.05 * (1 + isInMysteryTeam)) userData.karma += 2n - BigInt(userHasPremium)

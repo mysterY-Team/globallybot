@@ -2,7 +2,7 @@ const { Client, GatewayIntentBits, EmbedBuilder, ChannelType, ButtonBuilder, Act
 const { TOKEN, supportServer, debug, db, _bot } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
-const { listenerLog, servers, checkUserStatus, botPremiumInfo } = require("./functions/useful.js")
+const { listenerLog, servers, checkUserStatus, botPremiumInfo, repeats } = require("./functions/useful.js")
 const { GlobalFonts } = require("@napi-rs/canvas")
 const { gcdata } = require("./functions/dbSystem.js")
 
@@ -225,7 +225,7 @@ function timerToResetTheAPIInfo() {
             gc: users.filter((x) => x[1].gc).map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] })),
             premium: users
                 .filter((x) => {
-                    console.log((x[1].premium ?? "OK") != "OK")
+                    // console.log((x[1].premium ?? "OK") != "OK")
                     return (x[1].premium ?? "OK") != "OK"
                 })
                 .map((x) => {
@@ -233,15 +233,17 @@ function timerToResetTheAPIInfo() {
                 }),
         }
 
-        var stations = Object.entries(db.get("stations")).map((x) => {
+        var stations = Object.entries(db.get("stations").val).map((x) => {
+            // console.log(x)
             x[1] = x[1].split("|")
-            return { id: x[0] }
+            return { id: x[0], ownerID: x[1][0], passwd: Boolean(x[1][1]), mods: (x[1][2] ?? "").split(",") }
         })
+        var stationOwners = Object.keys(repeats(...stations.map((x) => x.ownerID)))
 
         delete users
 
         let date = new Date()
-        if (date.getHours() == 0 || forceUpdate) {
+        if (date.getHours() === 0 || forceUpdate) {
             forceUpdate = false
 
             const slashCommandList = require(`./slashcommands.js`)
@@ -258,9 +260,9 @@ function timerToResetTheAPIInfo() {
                 })
             }
 
-            if (date.getHours() == 0 || debug)
+            if (date.getHours() === 0 || debug)
                 listOfUsers.premium.forEach(async (x) => {
-                    console.log(x, x.days)
+                    //console.log(x, x.days)
                     if (x.days == 0) return db.adelete(`userData/${x.userID}/premium`)
                     const premium = botPremiumInfo(x.userID, await checkUserStatus(client, x.userID), x.days)
                     if (!premium.have || premium.typeof !== "trial") return
@@ -281,6 +283,20 @@ function timerToResetTheAPIInfo() {
                         db.aset(`userData/${x.userID}/premium`, x.days - 1)
                     }
                 })
+
+            listenerLog(2, "🔎 Sprawdzanie stacji po zakończonym premium")
+            stationOwners.forEach(async (v) => {
+                listenerLog(3, `Właściciel ${v}`)
+                const ssstatus = await checkUserStatus(client, v)
+                const premium = botPremiumInfo(v, ssstatus)
+                if (premium.have || ssstatus.mysteryTeam) return listenerLog(4, "Posiada możliwość wielostacji, sprawdzanie następnego...")
+                const allStationsByThatOwner = stations.filter((x) => x.ownerID == v)
+                for (let i = 1; i < allStationsByThatOwner.length; i++) {
+                    const element = allStationsByThatOwner[i]
+                    db.delete(`stations/${element.id}`)
+                    listenerLog(4, `🗑️ usunięto stację ${element.id}${element.passwd ? " (hasłowana)" : ""}`)
+                }
+            })
         }
         delete hours
 

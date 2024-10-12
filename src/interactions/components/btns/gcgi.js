@@ -12,12 +12,35 @@ module.exports = {
         var sowner = await server.fetchOwner()
         const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`).sort(() => Math.random() - 0.5)
         var showedEmotes = allEmotes
+        const permsToInvite = _perms.has("Administrator") || (_perms.has("CreateInstantInvite") && _perms.has("ManageGuild"))
         var moreEmojis = false
         if (showedEmotes.length > 6) {
-            showedEmotes = showedEmotes.filter((X, i) => i < 6)
+            showedEmotes = showedEmotes.filter((X, i) => i < 15)
             moreEmojis = true
         }
         delete server
+
+        if (server.vanityURLCode) {
+            invition = server.vanityURLCode
+        }
+        if (permsToInvite && !invition) {
+            const inv = await server.invites.fetch()
+            var invition = inv.map((x) => x).filter((x) => x.inviterId === _bot.id)[0] ?? ""
+            var channels = (await server.channels.fetch()).map((x) => x)
+            var i = 0
+            while (i < channels.length && !invition) {
+                try {
+                    invition = await server.invites.create(channels[i].id, { maxAge: 0 })
+                    invition = invition.code
+                } catch (err) {
+                    i++
+                }
+            }
+        }
+
+        const components = !invition
+            ? []
+            : [new ActionRowBuilder().addComponents([new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(`https://discord.gg/${invition}`).setLabel("Dołącz do serwera")])]
 
         var embed = new EmbedBuilder()
             .setAuthor({ name: server.name })
@@ -43,13 +66,11 @@ module.exports = {
                 },
                 {
                     name: "Emotki",
-                    value: `${showedEmotes.join(" | ")}\nIlość emotek: ${allEmotes.length}\n*Możesz użyć komendy \`globalchat emotki query:serwer=${
-                        args[0]
-                    }\` w celu dodatkowych informacji*`,
+                    value: `${showedEmotes.join(" | ")}\nIlość emotek: **${allEmotes.length}**\n`,
                     inline: false,
                 }
             )
             .setColor("Random")
-        interaction.editReply({ embeds: [embed] })
+        interaction.editReply({ embeds: [embed], components })
     },
 }
