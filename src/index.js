@@ -170,7 +170,9 @@ client.on("interactionCreate", async (int) => {
 client.on("threadUpdate", (oldThread, newThread) => {
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano aktualizację wątku")
-    if (thread.guildId === supportServer.id) {
+    if (newThread.guildId === supportServer.id) {
+        if (newThread.parent.type != ChannelType.GuildForum) return
+
         const newTags = newThread.appliedTags
         const newNames = Object.entries(newThread.parent.availableTags ?? {})
             .filter(([key, value]) => newTags.includes(value.id))
@@ -180,19 +182,17 @@ client.on("threadUpdate", (oldThread, newThread) => {
             .filter(([key, value]) => oldTags.includes(value.id))
             .map(([key, value]) => value.name)
 
-        if (thread.parent.type != ChannelType.GuildForum) return
-
         if (!oldNames.includes("Zamknięte") && newNames.includes("Zamknięte")) {
             var embed = new EmbedBuilder()
                 .setTitle("🔒 Zamykanie wątku")
                 .setDescription("Do tego wątku dodano tag **Zamknięte**. Kanał został zaarchiwizowany i zamknięty.")
                 .setColor("DarkGold")
 
-            thread.send({
+            newThread.send({
                 embeds: [embed],
             })
 
-            thread.setLocked().then(() => thread.setArchived())
+            newThread.setLocked().then(() => newThread.setArchived())
         }
     }
 })

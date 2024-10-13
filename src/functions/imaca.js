@@ -778,7 +778,7 @@ async function createCarrrd(data, user) {
         }
 
         context.font = "15px sans-serif"
-        context.fillText("Globally, powered by team mysterY", 20, 720)
+        context.fillText("Globally, powered by mysterY", 20, 720)
 
         console.error(err)
     }

@@ -9,6 +9,7 @@ module.exports = {
     async execute(client, interaction, ...args) {
         await interaction.deferReply({ ephemeral: true })
         var server = await client.guilds.fetch(args[0])
+        var _perms = (await server.members.fetchMe()).permissions
         var sowner = await server.fetchOwner()
         const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`).sort(() => Math.random() - 0.5)
         var showedEmotes = allEmotes

@@ -312,13 +312,13 @@ async function globalchatFunction(client, message) {
 
         function wbName(modPerm, data) {
             if (modPerm === 4) var rank = "st. naczelnik"
-            if (modPerm === 3) var rank = "naczelnik"
-            if (modPerm === 3) var rank = "st. moderator"
+            else if (modPerm === 3) var rank = "naczelnik"
+            else if (modPerm === 2) var rank = "st. moderator"
             else if (modPerm === 1) var rank = "moderator"
             else var rank = "użytkownik"
 
             if (userHasPremium) rank += "+"
-            if (isInMysteryTeam) rank = "team mysterY"
+            if (isInMysteryTeam) rank = "mysterY"
 
             if (data.flag_showGCButtons)
                 return data.flag_wbUserName
@@ -594,7 +594,7 @@ async function globalchatFunction(client, message) {
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: "Blokada linku" })
                     .setFields({ name: "Powód", value: "Niedozwolony link", inline: true }, { name: "Kara", value: "3 minuty osobistego cooldownu", inline: true })
-                    .setFooter({ text: "Globally, powered by team mysterY" })
+                    .setFooter({ text: "Globally, powered by mysterY" })
                     .setColor("Red")
                 message.channel.send({ embeds: [embed] })
             } catch (e) {}
@@ -612,7 +612,7 @@ async function globalchatFunction(client, message) {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada linku" })
                         .setFields({ name: "Powód", value: "Za mała ilość karmy", inline: true }, { name: "Kara", value: "30 sekund osobistego cooldownu", inline: true })
-                        .setFooter({ text: "Globally, powered by team mysterY" })
+                        .setFooter({ text: "Globally, powered by mysterY" })
                         .setColor("Red")
                     message.channel.send({ embeds: [embed] })
                 } catch (e) {}
@@ -641,7 +641,7 @@ async function globalchatFunction(client, message) {
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: "Blokada słowa" })
                     .setFields({ name: "Powód", value: `Niedozwolone słowo \`${bw.badWord}\``, inline: true }, { name: "Kara", value: "minuta osobistego cooldownu", inline: true })
-                    .setFooter({ text: "Globally, powered by team mysterY" })
+                    .setFooter({ text: "Globally, powered by mysterY" })
                     .setColor("Red")
                 message.channel.send({ embeds: [embed] })
             } catch (e) {}
@@ -757,7 +757,7 @@ async function globalchatFunction(client, message) {
                                             value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do [serwera support](https://discord.gg/536TSYqT)**",
                                         })
                                         .setFooter({
-                                            text: "Globally, powered by team mysterY",
+                                            text: "Globally, powered by mysterY",
                                         })
                                         .setColor("Orange")
 
@@ -784,7 +784,7 @@ async function globalchatFunction(client, message) {
                                             value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i usuń wcześniej utworzone Webhooki.',
                                         })
                                         .setFooter({
-                                            text: "Globally, powered by team mysterY",
+                                            text: "Globally, powered by mysterY",
                                         })
                                         .setColor("Orange")
 
@@ -892,11 +892,11 @@ async function globalchatFunction(client, message) {
                 function generateBtns() {
                     let btns = []
 
-                    if (typeof prefixes == "string")
-                        btns = [[new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]]
-                    else if (w.gid == message.guildId)
-                        btns = [[new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}`).setDisabled(true).setEmoji("🗑️")]]
-                    else if (data.flag_showGCButtons && isHisFirstMessage)
+                    if (w.gid == message.guildId)
+                        if (typeof prefixes == "string")
+                            btns = [[new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]]
+                        else btns = [[new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}`).setDisabled(true).setEmoji("🗑️")]]
+                    else if (data.flag_showGCButtons && isHisFirstMessage) {
                         btns = [
                             [
                                 new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
@@ -904,7 +904,9 @@ async function globalchatFunction(client, message) {
                                 new ButtonBuilder().setStyle(ButtonStyle.Primary).setCustomId(`gctab\u0000${message.author.id}`).setEmoji("👉"),
                             ],
                         ]
-                    else btns = [[]]
+                        if (typeof prefixes == "string")
+                            btns.push([new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)])
+                    } else btns = [[]]
 
                     return btns.filter((row) => row.filter((x) => x).length > 0).map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x)))
                 }
