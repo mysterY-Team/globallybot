@@ -8,7 +8,7 @@ module.exports = {
     async execute(client, interaction) {
         const user = interaction.options.get("osoba")?.user || interaction.user
 
-        const bannerUrl = user.bannerURL({ size: 1024 })
+        const bannerUrl = user.bannerURL({ dynamic: true, size: 1024 })
         if (!bannerUrl) {
             await interaction.reply({ content: "Ten użytkownik nie posiada banneru", ephemeral: true })
             return
@@ -22,3 +22,4 @@ module.exports = {
         await interaction.reply({ embeds: [bannerEmbed], components: [btns] })
     },
 }
+a
