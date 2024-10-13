@@ -39,10 +39,12 @@ module.exports = {
                 value: [
                     `Założenie konta: <t:${Math.floor(user.createdTimestamp / 1000)}:R>`,
                     `ID: \`${user.id}\``,
-                    `W drużynie **mysterY Team**: ${isInMysteryTeam ? customEmoticons.approved : customEmoticons.denided}`,
+                    `W drużynie **mysterY**: ${isInMysteryTeam ? customEmoticons.approved : customEmoticons.denided}`,
                     `Premium: ${isInMysteryTeam ? "`[ nie dotyczy ]`" : premium.have ? `${customEmoticons.approved} (${premiumTypeofToText})` : customEmoticons.denided}`,
                 ].join("\n"),
             })
+
+        if (interaction.context === InteractionContextType.PrivateChannel || !guildlist.includes(interaction.guildId)) embed.setFooter({ text: "Globally, powered by mysterY" })
 
         if (interaction.context !== InteractionContextType.PrivateChannel && guildlist.includes(interaction.guildId) && !user.bot && !user.system) {
             if (modules.length > 0) embed.addFields({ name: "Podpięte moduły", value: modules.join("\n") })

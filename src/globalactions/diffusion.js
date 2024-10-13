@@ -1,5 +1,6 @@
 const { User, WebhookMessageCreateOptions, AttachmentBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const { request } = require("undici")
+const { othertokens } = require("../config")
 
 module.exports = {
     data: {

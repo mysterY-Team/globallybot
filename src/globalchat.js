@@ -34,26 +34,42 @@ function sprawdzNiedozwoloneLinki(text) {
     const linkList = [
         // blokada linków zaproszeniowych
         /(?:http[s]?:\/\/)?(?:www.|ptb.|canary.)?(?:discord(?:app)?.(?:(?:com|gg)\/(?:invite|servers)\/[a-z0-9-_]+)|discord.gg\/[a-z0-9-_]+)|(?:http[s]?:\/\/)?(?:www.)?(?:dsc.gg|invite.gg+|discord.link|(?:discord.(gg|io|me|li|id))|disboard.org)\/[a-z0-9-_\/]+/gim,
+        /(?:http[s]?:\/\/)?(?:www.)discordzik.pl\/(?:bot|server)\/[0-9]{17,19}/gim,
 
         // blokada linków do stron dla dorosłych
-        "pornhub.com",
+        "pornhub.com", //typowe
         "xvideos.com",
         "xhamster.com",
         "xnxx.com",
         "youporn.com",
         "redtube.com",
         "porn.com",
-        "hentaihaven.xxx",
-        "ichatonline.com",
-        "toppornsites.com",
         "tube8.com",
         "ixxx.com",
         "sunporno.com",
         "pornhat.com",
-        "sunporno.com",
+        "hentaihaven.xxx", //hentaice
+        "hentaigasm.com",
+        "fakku.net",
+        "gelbooru.com",
+        "porcore.com",
+        "cartoonporno.xxx",
+        "adulttime.xxx",
+        "ichatonline.com", //kamerki
+        "toppornsites.com", //listy
         "mypornbible.com",
         "badjojo.com",
-        "nutaku.net",
+        "findtubes.com",
+        "pornmd.com",
+        "nutaku.net", //sieci gier
+        "porngameshub.com",
+        "69games.xxx",
+        "gamcore.com",
+        "gamesofdesire.com",
+        "hooligapps.com",
+        "sexgamesclub.com",
+        "lifeselector.com",
+        "sexemulator.com",
     ]
 
     for (let i = 0; i < linkList.length; i++) {
@@ -228,23 +244,23 @@ async function formatText(text, client) {
         return rtext
     })
 
-    let matches = text.match(/{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/g)
-    if (matches) {
-        for (let match of matches) {
-            let [$, arg1, arg2] = /{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/.exec(match)
-            try {
-                const emojis = await (await client.guilds.fetch({ guild: arg1, cache: false })).emojis.fetch()
-                if (emojis.map((x) => x.name).includes(arg2)) {
-                    const emoji = emojis.map((x) => x)[emojis.map((x) => x.name).indexOf(arg2)]
-                    text = text.replace(match, `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>`)
-                } else {
-                    text = text.replace(match, customEmoticons.minus)
-                }
-            } catch (e) {
-                text = text.replace(match, customEmoticons.minus)
-            }
-        }
-    }
+    // let matches = text.match(/{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/g)
+    // if (matches) {
+    //     for (let match of matches) {
+    //         let [$, arg1, arg2] = /{(?:serverEmote|se)\.([0-9]{17,19}):([a-zA-Z0-9_]+)}/.exec(match)
+    //         try {
+    //             const emojis = await (await client.guilds.fetch({ guild: arg1, cache: false })).emojis.fetch()
+    //             if (emojis.map((x) => x.name).includes(arg2)) {
+    //                 const emoji = emojis.map((x) => x)[emojis.map((x) => x.name).indexOf(arg2)]
+    //                 text = text.replace(match, `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>`)
+    //             } else {
+    //                 text = text.replace(match, customEmoticons.minus)
+    //             }
+    //         } catch (e) {
+    //             text = text.replace(match, customEmoticons.minus)
+    //         }
+    //     }
+    // }
 
     return text
 }
@@ -295,27 +311,27 @@ async function globalchatFunction(client, message) {
         var userHasPremium = botPremiumInfo(message.author.id, ssstatus).have
 
         function wbName(modPerm, data) {
-            if (modPerm === 2) var rank = "naczelnik"
+            if (modPerm === 4) var rank = "st. naczelnik"
+            else if (modPerm === 3) var rank = "naczelnik"
+            else if (modPerm === 2) var rank = "st. moderator"
             else if (modPerm === 1) var rank = "moderator"
-            else var rank = "osoba"
+            else var rank = "użytkownik"
 
-            if (userHasPremium) rank += " premium"
-            if (isInMysteryTeam) rank = "mysterY Team"
+            if (userHasPremium) rank += "+"
+            if (isInMysteryTeam) rank = "mysterY"
 
-            // if (data.flag_showGCButtons)
-            //     return data.flag_wbUserName
-            //         .replace(/%username%/i, message.author.username)
-            //         .replace(/%userid%/i, message.author.id)
-            //         .replace(/%userDisplayName%/i, message.author.displayName)
-            //         .replace(/%userrole%/i, rank)
-            //         .replace(/%guildid%/i, message.guildId)
-            //         .replace(/%guildname%/i, message.guild.name)
+            if (data.flag_showGCButtons)
+                return data.flag_wbUserName
+                    .replace(/%username%/i, message.author.username)
+                    .replace(/%userid%/i, message.author.id)
+                    .replace(/%userrole%/i, rank)
+                    .replace(/%guildid%/i, message.guildId)
+                    .replace(/%guildname%/i, message.guild.name)
             /* else */ return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`
         }
 
         const oldUserSnapshot = db.get(`userData/${message.author.id}/gc`)
         var userData = gcdata.encode(oldUserSnapshot.val)
-
         if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) return
 
         if (message.author.bot || message.author.system) return
@@ -338,47 +354,6 @@ async function globalchatFunction(client, message) {
 
         var serverdata = getDataByServerID(message.guildId, "id")
 
-        /**
-         * @returns {Promise<[EmbedBuilder, string] | undefined>}
-         */
-        var repliedMessage = async function (gID) {
-            if (gID && message.reference) {
-                try {
-                    var replayedMSG = await message.fetchReference()
-                    var rContent = replayedMSG.content,
-                        rAttachments
-
-                    if (!replayedMSG.author.bot) {
-                        return
-                    }
-
-                    //działanie komentarzy w odpowiadanej wiadomości
-                    rContent = deleteComments(rContent)
-
-                    // const ruid = !replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.components?.[0].component?.[2].customId.split("\u0000")[1] : "GlobalAction"
-                    const ruid = replayedMSG.author.username.includes("GlobalAction)") ? "GlobalAction" : replayedMSG.author.username.split(" (")[1].split("; ")[1]
-                    var rUser = replayedMSG.author.username.includes("GlobalAction)") ? replayedMSG.author.username : replayedMSG.author.username.split(" (")[0]
-
-                    var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }
-                    if (gID == message.guildId) embed.url = replayedMSG.url
-                    embed = new EmbedBuilder().setAuthor(embed).setTimestamp(replayedMSG.createdTimestamp)
-                    if (rContent) embed = embed.setDescription(rContent)
-                    if (gID == message.guildId) embed = embed.setFooter({ text: "Kliknięcie w nagłówek spowoduje przeniesienie do odpowiadanej wiadomości" })
-                    if (replayedMSG.attachments.size > 0) {
-                        rAttachments = replayedMSG.attachments.map((x) => `[\`${x.name}\`](${x.url})`).join("\n")
-                        if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => x.url).join("\n")
-                        if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => `\`${x.name}\``).join("\n")
-                        if (rAttachments.length > 1000) rAttachments = `[ plików: ${replayedMSG.attachments.size} ]`
-                        embed = embed.addFields({ name: "Przesłane pliki", value: rAttachments })
-                    }
-
-                    return [embed, ruid]
-                } catch (e) {
-                    console.warn(e)
-                }
-            }
-        }
-
         if (
             !database
                 .map((x) => Object.values(x.gc))
@@ -399,6 +374,7 @@ async function globalchatFunction(client, message) {
         }
     } catch (err) {
         if (debug) console.error(err)
+        return
     }
 
     try {
@@ -408,6 +384,120 @@ async function globalchatFunction(client, message) {
             .map((x) => x.channel)
             .indexOf(message.channelId)
         station = Object.keys(serverdata.gc)[station]
+
+        /**
+         * @returns {Promise<[EmbedBuilder, string] | undefined>}
+         */
+        var repliedMessage = async function (gID) {
+            if (gID && message.reference) {
+                try {
+                    var replayedMSG = await message.fetchReference(),
+                        rContent = replayedMSG.content,
+                        rAttachments
+
+                    if (!replayedMSG.author.bot) {
+                        return
+                    }
+
+                    if (serverdata.gc[station].createdTimestamp > replayedMSG.createdTimestamp) {
+                        return
+                    }
+
+                    rContent = deleteComments(rContent)
+
+                    if (replayedMSG.author.username.includes("GlobalAction")) {
+                        var ruid = "GlobalAction",
+                            rUser = replayedMSG.author.username
+                    } else if (serverdata.gc[station].flag_showGCButtons) {
+                        var ruid = null,
+                            rUser = (() => {
+                                const blockRegexFunctions = (string) => string.replace(/(\\|\.|\*|\[|\]|\||\^|\$|\(|\)|\*|\+)/g, "\\$1")
+
+                                const usernametagIndex = serverdata.gc[station].flag_wbUserName.indexOf("%username%")
+                                let separators = {
+                                    before: "",
+                                    after: "",
+                                }
+                                let getFlags = {
+                                    start: true,
+                                    end: true,
+                                }
+
+                                for (let i = usernametagIndex - 1; i >= 0; i--) {
+                                    if (serverdata.gc[station].flag_wbUserName[i] === "%") {
+                                        getFlags.start = false
+                                        break
+                                    }
+                                    separators.before = serverdata.gc[station].flag_wbUserName[i] + separators.before
+                                }
+
+                                for (let i = usernametagIndex + "%username%".length; i < serverdata.gc[station].flag_wbUserName.length; i++) {
+                                    if (serverdata.gc[station].flag_wbUserName[i] === "%") {
+                                        getFlags.end = false
+                                        break
+                                    }
+                                    separators.after += serverdata.gc[station].flag_wbUserName[i]
+                                }
+
+                                const usernameRegexPart = "[a-z0-9._]{2,32}"
+
+                                const regex1 = RegExp(
+                                    `${getFlags.start ? "^" : ""}${blockRegexFunctions(separators.before)}(${usernameRegexPart})${blockRegexFunctions(separators.after)}${
+                                        getFlags.end ? "$" : ""
+                                    }`,
+                                    "g"
+                                )
+                                const regex2 = RegExp(
+                                    `${getFlags.start ? "^" : ""}${blockRegexFunctions(separators.before)}(${usernameRegexPart}|%username%)${blockRegexFunctions(
+                                        separators.after
+                                    )}${getFlags.end ? "$" : ""}`,
+                                    "g"
+                                )
+
+                                listenerLog(3, "Wykonanie odpowiedzi...")
+
+                                let a1, a2
+
+                                while ((a1 = regex1.exec(replayedMSG.author.username)) && (a2 = regex2.exec(serverdata.gc[station].flag_wbUserName))) {
+                                    if (a1.index === regex1.lastIndex) {
+                                        regex1.lastIndex++
+                                    }
+                                    if (a2.index === regex2.lastIndex) {
+                                        regex2.lastIndex++
+                                    }
+
+                                    listenerLog(4, `${a1[1]} vs ${a2[1]}`)
+                                    if (a1[1] !== a2[1]) {
+                                        return a1[1]
+                                    }
+                                }
+
+                                return null
+                            })()
+                    } else {
+                        var ruid = replayedMSG.author.username.split(" (")[1].split("; ")[1],
+                            rUser = replayedMSG.author.username.split(" (")[0]
+                    }
+
+                    var embed = { iconURL: replayedMSG.author.avatarURL({ extension: "png" }), name: `W odpowiedzi do ${rUser}` }
+                    if (gID == message.guildId) embed.url = replayedMSG.url
+                    embed = new EmbedBuilder().setAuthor(embed).setTimestamp(replayedMSG.createdTimestamp)
+                    if (rContent) embed = embed.setDescription(rContent)
+                    if (gID == message.guildId) embed = embed.setFooter({ text: "Kliknięcie w nagłówek spowoduje przeniesienie do odpowiadanej wiadomości" })
+                    if (replayedMSG.attachments.size > 0) {
+                        rAttachments = replayedMSG.attachments.map((x) => `[\`${x.name}\`](${x.url})`).join("\n")
+                        if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => x.url).join("\n")
+                        if (rAttachments.length > 1000) rAttachments = replayedMSG.attachments.map((x) => `\`${x.name}\``).join("\n")
+                        if (rAttachments.length > 1000) rAttachments = `[ plików: ${replayedMSG.attachments.size} ]`
+                        embed = embed.addFields({ name: "Przesłane pliki", value: rAttachments })
+                    }
+
+                    return [embed, ruid]
+                } catch (e) {
+                    console.warn(e)
+                }
+            }
+        }
 
         if (!db.get(`stations/${station}`).exists) {
             let msg = await message.channel.send("Ta stacja przestała istnieć! Usuwanie kanału z bazy danych...")
@@ -504,7 +594,7 @@ async function globalchatFunction(client, message) {
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: "Blokada linku" })
                     .setFields({ name: "Powód", value: "Niedozwolony link", inline: true }, { name: "Kara", value: "3 minuty osobistego cooldownu", inline: true })
-                    .setFooter({ text: "Globally, powered by mysterY Team" })
+                    .setFooter({ text: "Globally, powered by mysterY" })
                     .setColor("Red")
                 message.channel.send({ embeds: [embed] })
             } catch (e) {}
@@ -522,7 +612,7 @@ async function globalchatFunction(client, message) {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: "Blokada linku" })
                         .setFields({ name: "Powód", value: "Za mała ilość karmy", inline: true }, { name: "Kara", value: "30 sekund osobistego cooldownu", inline: true })
-                        .setFooter({ text: "Globally, powered by mysterY Team" })
+                        .setFooter({ text: "Globally, powered by mysterY" })
                         .setColor("Red")
                     message.channel.send({ embeds: [embed] })
                 } catch (e) {}
@@ -551,7 +641,7 @@ async function globalchatFunction(client, message) {
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: "Blokada słowa" })
                     .setFields({ name: "Powód", value: `Niedozwolone słowo \`${bw.badWord}\``, inline: true }, { name: "Kara", value: "minuta osobistego cooldownu", inline: true })
-                    .setFooter({ text: "Globally, powered by mysterY Team" })
+                    .setFooter({ text: "Globally, powered by mysterY" })
                     .setColor("Red")
                 message.channel.send({ embeds: [embed] })
             } catch (e) {}
@@ -652,7 +742,7 @@ async function globalchatFunction(client, message) {
                                         return { wh: webhook, gid: guildID, cid: sData.channel }
                                     }
                                 } else {
-                                    listenerLog(5, `✖️ Zignorowanie serwera o ID ${guildID} (niepoprawny kanał)`)
+                                    listenerLog(5, `✖️ Ignorowanie serwera (niepoprawny kanał, oczekiwano: 0, uzyskano: ${channel_DClient.type})`)
                                 }
                             } else {
                                 guild_DClient.fetchOwner({ cache: false }).then((gguildOwner) => {
@@ -667,7 +757,7 @@ async function globalchatFunction(client, message) {
                                             value: "`A:` Pobierając kanał, nie zwróciło po prostu poprawnej wartości, a dane usunięto. Należy spróbować ustawić kanały ponownie, jeżeli trzy próby zakończą się niepowodzeniem, należy **natychmiast zgłosić to do [serwera support](https://discord.gg/536TSYqT)**",
                                         })
                                         .setFooter({
-                                            text: "Globally, powered by mysterY Team",
+                                            text: "Globally, powered by mysterY",
                                         })
                                         .setColor("Orange")
 
@@ -694,7 +784,7 @@ async function globalchatFunction(client, message) {
                                             value: '`A:` Wejdź w ustawienia serwera, w zakładkę "Integracje" (W angielskim "Integrations"). Wybierz bota Globally, zjedź na sam dół i usuń wcześniej utworzone Webhooki.',
                                         })
                                         .setFooter({
-                                            text: "Globally, powered by mysterY Team",
+                                            text: "Globally, powered by mysterY",
                                         })
                                         .setColor("Orange")
 
@@ -737,9 +827,9 @@ async function globalchatFunction(client, message) {
                 userData.karma >= 25n,
                 userData.modPerms > 0 || (userData.karma >= 25n && userHasPremium),
                 userData.karma >= 1000n,
-                userData.karma >= 1000n && (userData.modPerms === 1 || userHasPremium),
-                userData.karma >= 1000n && (userData.modPerms === 2 || (userData.modPerms === 1 && userHasPremium)),
-                userData.karma >= 1000n && userData.modPerms === 2 && userHasPremium,
+                userData.karma >= 1000n && (userData.modPerms === 1 || userData.modPerms === 2 || userHasPremium),
+                userData.karma >= 1000n && (userData.modPerms === 3 || userData.modPerms === 4 || ((userData.modPerms === 1 || userData.modPerms === 2) && userHasPremium)),
+                userData.karma >= 1000n && (userData.modPerms === 3 || userData.modPerms === 4) && userHasPremium,
                 isInMysteryTeam,
             ]
 
@@ -750,7 +840,8 @@ async function globalchatFunction(client, message) {
         listenerLog(4, `gct() => ${gct()}`)
         listenerLog(4, `userCooldown(amount<${database.length}>, type<gct()>) => ${userCooldown(database.length, gct())}`)
 
-        userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct()) * (1 + (typeof prefixes == "string" - userHasPremium * 0.5))
+        userData.timestampToSendMessage =
+            Date.now() + userCooldown(database.length, gct()) * (Math.max((typeof prefixes == "string") * 4 - (userHasPremium || isInMysteryTeam) * 2, 0) + 1)
         delete gct
         userData.messageID_bbc = ""
         db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -801,11 +892,11 @@ async function globalchatFunction(client, message) {
                 function generateBtns() {
                     let btns = []
 
-                    if (typeof prefixes == "string")
-                        btns = [[new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]]
-                    else if (w.gid == message.guildId)
-                        btns = [[new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000??`).setDisabled(true).setEmoji("🗑️")]]
-                    else if (data.flag_showGCButtons && isHisFirstMessage)
+                    if (w.gid == message.guildId)
+                        if (typeof prefixes == "string")
+                            btns = [[new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]]
+                        else btns = [[new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}`).setDisabled(true).setEmoji("🗑️")]]
+                    else if (data.flag_showGCButtons && isHisFirstMessage) {
                         btns = [
                             [
                                 new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
@@ -813,7 +904,9 @@ async function globalchatFunction(client, message) {
                                 new ButtonBuilder().setStyle(ButtonStyle.Primary).setCustomId(`gctab\u0000${message.author.id}`).setEmoji("👉"),
                             ],
                         ]
-                    else btns = [[]]
+                        if (typeof prefixes == "string")
+                            btns.push([new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)])
+                    } else btns = [[]]
 
                     return btns.filter((row) => row.filter((x) => x).length > 0).map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x)))
                 }
@@ -979,7 +1072,7 @@ async function globalchatFunction(client, message) {
                 }
             }
 
-            if (typeof prefixes == "string") userData.karma += 12n + BigInt((userHasPremium || isInMysteryTeam) * 3)
+            if (typeof prefixes == "string") userData.karma += 10n + BigInt((userHasPremium || isInMysteryTeam) * 2)
             else if (gcapprovedAttachments.size > 0) userData.karma += BigInt(Math.round(gcapprovedAttachments.size / (2 - userHasPremium * 0.5)) + 2 + userHasPremium)
             else userData.karma += 1n
             if (message.reference && Math.random() < 0.05 * (1 + isInMysteryTeam)) userData.karma += 2n - BigInt(userHasPremium)
@@ -987,7 +1080,7 @@ async function globalchatFunction(client, message) {
         })
     } catch (err) {
         message.reply(`${customEmoticons.denided} Podczas analizy wystąpił błąd!`)
-        if (debug) console.error(err)
+        if (debug) return console.error(err)
     }
 }
 

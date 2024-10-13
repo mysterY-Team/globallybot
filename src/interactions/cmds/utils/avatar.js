@@ -11,7 +11,7 @@ module.exports = {
         const avatarUrl = user.displayAvatarURL({ size: 2048 })
 
         const avatarEmbed = new EmbedBuilder().setTitle("Avatar").setColor("Random").setImage(avatarUrl).setFooter({
-            text: `Globally, powered by mysterY Team`,
+            text: `Globally, powered by mysterY`,
         })
         const btns = new ActionRowBuilder().addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(avatarUrl).setLabel("Link do avatara"))
 

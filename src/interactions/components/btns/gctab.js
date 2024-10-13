@@ -82,7 +82,7 @@ module.exports = {
                     })(),
                 })
                 .setDescription(`Użytkownik <@${interaction.user.id}> zaczepił/-a Cię na GlobalChacie, pod stacją \`${station[0]}\`! Sprawdź, co się tam dzieje!`)
-                .setFooter({ text: "Globally, powered by mysterY Team" })
+                .setFooter({ text: "Globally, powered by mysterY" })
                 .setColor("Random")
 
             var user = await client.users.fetch(uid)

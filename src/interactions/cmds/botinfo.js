@@ -44,7 +44,7 @@ module.exports = {
                     inline: false,
                 }
             )
-            .setFooter({ text: "Globally, powered by mysterY Team" })
+            .setFooter({ text: "Globally, powered by mysterY | Licensed on GNU GPL v3" })
             .setColor("Yellow")
 
         interaction.reply({

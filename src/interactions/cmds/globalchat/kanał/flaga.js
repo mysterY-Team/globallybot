@@ -31,7 +31,7 @@ module.exports = {
                     - Nie masz obu uprawnień: **Zarządzanie webhoookami** oraz **Zarządzanie kanałami**
                     - Nie masz permisji administratora
                     - Nie jesteś właścicielem serwera
-                    - Nie posiadasz roli **mysterY Team** na serwerze support`
+                    - Nie jesteś w drużynie **mysterY**`
                     .split("\n")
                     .map((x) => x.trim())
                     .join("\n"),
@@ -48,6 +48,11 @@ module.exports = {
         var errorReason = null
         var val = null
 
+        if (key[1][`flag_${flag}`] == flagValue) {
+            interaction.editReply(`${customEmoticons.info} Ta flaga ma tą właśnie wartość!`)
+            return
+        }
+
         switch (flag) {
             case "useGA":
             case "showGCButtons": {
@@ -58,13 +63,15 @@ module.exports = {
                 else errorReason = "błąd składni"
                 break
             }
-            // case "wbUserName": {
-            //     if (!key[1].flag_showGCButtons) errorReason = "wymagane włączenie przycisków GlobalChat we wiadomościach (`showGCButtons`)"
-            //     else if (!flagValue.match(/%username%/i) || !flagValue.match(/%userrole%/i)) errorReason = "brak tagów `%username%` i/lub `%userrole%`"
-            //     else if (flagValue.match(/[{}]/)) errorReason = "niedozwolony znak"
-            //     else val = flagValue
-            //     break
-            // }
+            case "wbUserName": {
+                if (!key[1].flag_showGCButtons) errorReason = "wymagane włączenie przycisków GlobalChat we wiadomościach (`showGCButtons`)"
+                else if (!flagValue.match(/%username%/i) || !flagValue.match(/%userrole%/i)) errorReason = "brak tagów `%username%` i/lub `%userrole%`"
+                else if (flagValue.match(/[{}]/)) errorReason = "niedozwolony znak"
+                else if (flagValue.includes("GlobalAction")) errorReason = "fraza `GlobalAction`"
+                else if (flagValue.length > 40) errorReason = "za długa nazwa"
+                else val = flagValue
+                break
+            }
             default: {
                 errorReason = "nieznana flaga"
             }

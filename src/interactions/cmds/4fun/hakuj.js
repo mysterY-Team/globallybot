@@ -1,4 +1,4 @@
-const { Client, ChatInputCommandInteraction, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
+const { Client, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const { wait } = require("../../../functions/useful")
 
 module.exports = {
@@ -200,7 +200,7 @@ module.exports = {
                 }
 
                 interaction.user.send(
-                    `Udało Ci się zhakować użytkownika: ${osoba.user.username} (${osoba.user.id}). Tutaj są rozpisane wszystkie jego/jej dane:\nAdres IP: **||${ip}||**\nNr. Tel: **||${phone}||**\n${mailMessage}`
+                    `Udało Ci się zhakować użytkownika \`${osoba.username}\` (\`${osoba.id}\`). Tutaj są rozpisane wszystkie jego/jej dane:\nAdres IP: **||${ip}||**\nNr. Tel: **||${phone}||**\n${mailMessage}`
                 )
             }
         }

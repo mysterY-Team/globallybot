@@ -1,7 +1,7 @@
 const { Client, ButtonInteraction, ChannelType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const { customEmoticons, db, supportServer } = require("../../../config")
 const { gcdata } = require("../../../functions/dbSystem")
-const { listenerLog, checkUserStatus } = require("../../../functions/useful")
+const { listenerLog, checkUserStatus, botPremiumInfo } = require("../../../functions/useful")
 const { lastUserHandler } = require("../../../globalchat")
 
 module.exports = {
@@ -17,6 +17,7 @@ module.exports = {
 
         const ssstatus = await checkUserStatus(client, interaction.user.id)
         const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
+        const premium = botPremiumInfo(interaction.user.id, ssstatus)
 
         var $channels = [await client.channels.fetch(supportServer.gclogs.msg), await client.channels.fetch(supportServer.gclogs.main)]
         if ($channels[0] && $channels[0].type == ChannelType.GuildText) {
@@ -81,10 +82,11 @@ module.exports = {
             })
         )
 
-        if (args[0] !== interaction.user.id) {
+        if (args[0] === interaction.user.id && !premium.have && !isInMysteryTeam) {
             data = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
             data.timestampToSendMessage = Math.max(data.timestampToSendMessage, Date.now()) + messagesToDelete.length * 250
-            data.karma--
+            data.karma -= BigInt(1 + (data.karma >= 100n && data.modPerms == 0) * 2)
+            if (data.karma < 0) data.karma = 0n
             db.set(`userData/${interaction.user.id}/gc`, gcdata.decode(data))
         }
 

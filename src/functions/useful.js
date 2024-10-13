@@ -96,6 +96,25 @@ function botPremiumInfo(id, userstatus, cachedPremium = null) {
     return { have: false }
 }
 
+const repeats = (...args) => {
+    const count = {}
+
+    // Iteruj przez wszystkie argumenty
+    args.forEach((value) => {
+        count[value] = (count[value] || 0) + 1
+    })
+
+    // Zlicz ilość powtórzeń dla każdej wartości
+    const result = {}
+    for (const key in count) {
+        if (count.hasOwnProperty(key)) {
+            result[key] = count[key]
+        }
+    }
+
+    return result
+}
+
 /**
  *
  * @param {number} ms
@@ -110,5 +129,6 @@ module.exports = {
     wait,
     checkFontColor,
     servers,
+    repeats,
     checkUserStatus,
 }

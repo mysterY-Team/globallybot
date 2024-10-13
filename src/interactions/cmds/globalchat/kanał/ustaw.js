@@ -38,7 +38,7 @@ module.exports = {
                     - Nie masz permisji administratora
                     - Nie jesteś właścicielem serwera
                     - Bot nie ma permisji administrotara lub uprawnienia **Zarządzanie Webhookami**
-                    - Nie posiadasz roli **mysterY Team** na serwerze support`
+                    - Nie jesteś w drużynie **mysterY**`
                     .split("\n")
                     .map((x) => x.trim())
                     .join("\n"),
@@ -51,8 +51,7 @@ module.exports = {
 
         //wczytywanie danych
         var allsnpsht = db.get(`serverData/${interaction.guildId}/gc`)
-        allsnpsht.val ??= ""
-        var gccount = allsnpsht.exists ? Object.keys(gcdataGuild.encode(allsnpsht.val)).length : 0
+        var gccount = allsnpsht.exists ? Object.keys(gcdataGuild.encode(allsnpsht.val ?? "")).length : 0
 
         if (gccount >= 3 + 4 * constPremiumServersIDs.includes(interaction.guildId) && interaction.guildId !== supportServer.id) {
             return interaction.editReply(`${customEmoticons.denided} Przekroczony został limit ustawionych stacji!`)
@@ -82,25 +81,24 @@ module.exports = {
             return interaction.editReply(`${customEmoticons.denided} Niepoprawne hasło!`)
         }
 
-        var _bool = allsnpsht.val.includes(channel.value)
+        var _bool = Boolean(allsnpsht.val?.includes(channel.value))
 
-        var data = gcdataGuild.encode(allsnpsht.val)
+        var data = gcdataGuild.encode(allsnpsht.val ?? "")
         if (data[$stacja]?.channel == channel.value) return interaction.editReply(`${customEmoticons.denided} Na tym kanale jest już ustawiony GlobalChat o tej stacji!`)
 
         if (_bool) {
             return interaction.editReply(`${customEmoticons.denided} Ten kanał ma już odrębną stację!`)
         }
 
-        data[$stacja] = gcdataGuild.encode("x{}").x
+        var newStationData = gcdataGuild.encode("x{}").x
+        newStationData.channel = channel.channel.id
+        data[$stacja] = newStationData
 
         db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
-        //informacja o zapisie
-        if (!_bool) interaction.editReply(`${customEmoticons.approved} Dodano pomyślnie kanał na stacji \`${$stacja}\`!`)
-        else {
-            interaction.editReply(
-                `${customEmoticons.info} Jako że ten serwer już miał ustawiony kanał GlobalChata na kanale <#${data.channel}> (stacja \`${$stacja}\`), spowodowało to nadpis na nowy kanał.`
-            )
-        }
+
+        db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
+
+        interaction.editReply(`${customEmoticons.approved} Dodano pomyślnie kanał na stacji \`${$stacja}\`!`)
 
         const emb = new EmbedBuilder()
             .setTitle("Podpięto kanał!")

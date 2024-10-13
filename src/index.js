@@ -1,8 +1,8 @@
 const { Client, GatewayIntentBits, EmbedBuilder, ChannelType, ButtonBuilder, ActionRowBuilder, ButtonStyle, Partials } = require("discord.js")
-const { TOKEN, supportServer, debug, db } = require("./config.js")
+const { TOKEN, supportServer, debug, db, _bot } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
-const { listenerLog, servers, checkUserStatus, botPremiumInfo } = require("./functions/useful.js")
+const { listenerLog, servers, checkUserStatus, botPremiumInfo, repeats } = require("./functions/useful.js")
 const { GlobalFonts } = require("@napi-rs/canvas")
 const { gcdata } = require("./functions/dbSystem.js")
 
@@ -53,7 +53,7 @@ client.on("messageCreate", async (msg) => {
 client.on("interactionCreate", async (int) => {
     const errorEmbed = new EmbedBuilder()
         .setDescription("# Whoops!\nNastąpił błąd interacji. Posiadamy jednak dane, więc postaramy się ten błąd naprawić jak najszybciej!")
-        .setFooter({ text: "Globally, powered by mysterY Team" })
+        .setFooter({ text: "Globally, powered by mysterY" })
 
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano interakcję")
@@ -167,47 +167,34 @@ client.on("interactionCreate", async (int) => {
     }
 })
 
-client.on("threadUpdate", (thread) => {
+client.on("threadUpdate", (oldThread, newThread) => {
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano aktualizację wątku")
-    if (thread.guildId === supportServer.id)
-        setTimeout(() => {
-            var accThread = client.channels.cache.get(thread.id)
-            const accTags = accThread.appliedTags
-            const accNames = Object.entries(accThread.parent.availableTags ?? {})
-                .filter(([key, value]) => accTags.includes(value.id))
-                .map(([key, value]) => value.name)
-            const oldTags = thread.appliedTags
-            const oldNames = Object.entries(thread.parent.availableTags ?? {})
-                .filter(([key, value]) => oldTags.includes(value.id))
-                .map(([key, value]) => value.name)
+    if (newThread.guildId === supportServer.id) {
+        if (newThread.parent.type != ChannelType.GuildForum) return
 
-            if (typeof accThread == "undefined" && thread.parent.type != ChannelType.GuildForum) return
+        const newTags = newThread.appliedTags
+        const newNames = Object.entries(newThread.parent.availableTags ?? {})
+            .filter(([key, value]) => newTags.includes(value.id))
+            .map(([key, value]) => value.name)
+        const oldTags = oldThread.appliedTags
+        const oldNames = Object.entries(oldThread.parent.availableTags ?? {})
+            .filter(([key, value]) => oldTags.includes(value.id))
+            .map(([key, value]) => value.name)
 
-            if (!oldNames.includes("Zamknięte") && accNames.includes("Zamknięte")) {
-                var embed = new EmbedBuilder()
-                    .setTitle("🔒 Zamykanie wątku")
-                    .setDescription("Do tego wątku dodano tag **Zamknięte**. Kanał został zaarchiwizowany i zamknięty.")
-                    .setColor("DarkGold")
+        if (!oldNames.includes("Zamknięte") && newNames.includes("Zamknięte")) {
+            var embed = new EmbedBuilder()
+                .setTitle("🔒 Zamykanie wątku")
+                .setDescription("Do tego wątku dodano tag **Zamknięte**. Kanał został zaarchiwizowany i zamknięty.")
+                .setColor("DarkGold")
 
-                thread.send({
-                    embeds: [embed],
-                })
+            newThread.send({
+                embeds: [embed],
+            })
 
-                thread.setLocked().then(() => thread.setArchived())
-            }
-        }, 500)
-})
-client.on("guildMemberAdd", async (member) => {
-    if (member.id !== _bot.id) return
-    var guild = member.guild
-
-    listenerLog(3, `Nowy serwer: ${guild.name}`)
-    const embed = new EmbedBuilder()
-        .setAuthor({ iconURL: guild.iconURL({ extension: "webp", size: 32 }), name: "Nowy serwer" })
-        .setDescription(`ID serwera: \`${guild.id}\`\n\`Nazwa serwera: \`${guild.name}\`\nWłaściciel: <@${guild.ownerId}> (\`${guild.ownerId}\`)`)
-        .setColor("Green")
-    await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send(embed)
+            newThread.setLocked().then(() => newThread.setArchived())
+        }
+    }
 })
 
 client.on("debug", (info) => {
@@ -237,42 +224,52 @@ function timerToResetTheAPIInfo() {
         var listOfUsers = {
             gc: users.filter((x) => x[1].gc).map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] })),
             premium: users
-                .filter((x) => x[1].premium)
+                .filter((x) => {
+                    // console.log((x[1].premium ?? "OK") != "OK")
+                    return (x[1].premium ?? "OK") != "OK"
+                })
                 .map((x) => {
                     return { userID: x[0], days: x[1].premium }
                 }),
         }
 
+        var stations = Object.entries(db.get("stations").val).map((x) => {
+            // console.log(x)
+            x[1] = x[1].split("|")
+            return { id: x[0], ownerID: x[1][0], passwd: Boolean(x[1][1]), mods: (x[1][2] ?? "").split(",") }
+        })
+        var stationOwners = Object.keys(repeats(...stations.map((x) => x.ownerID)))
+
         delete users
 
         let date = new Date()
-        if (date.getHours() == 0 || forceUpdate) {
+        if (date.getHours() === 0 || forceUpdate) {
             forceUpdate = false
 
             const slashCommandList = require(`./slashcommands.js`)
             await client.application.commands.set(slashCommandList.list())
             listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
 
-            if (date.getDay() === 0 || forceUpdate) {
-                listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
-                listOfUsers.gc.forEach((x) => {
-                    if (x.karma < 25n && !x.isBlocked) {
-                        db.delete(`userData/${x.userID}/gc`)
-                        listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
-                    }
-                })
-            }
+            listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
+            listOfUsers.gc.forEach((x) => {
+                if (Math.max(x.timestampToSendMessage, x._sat) + 864000000 <= Date.now() && !x.isBlocked) {
+                    db.delete(`userData/${x.userID}/gc`)
+                    listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
+                }
+            })
 
-            if (date.getHours() == 0) {
+            if (date.getHours() === 0 || debug)
                 listOfUsers.premium.forEach(async (x) => {
+                    //console.log(x, x.days)
+                    if (x.days == 0) return db.adelete(`userData/${x.userID}/premium`)
                     const premium = botPremiumInfo(x.userID, await checkUserStatus(client, x.userID), x.days)
                     if (!premium.have || premium.typeof !== "trial") return
-                    if (x.days === 0) {
+                    if (x.days == 1) {
                         db.adelete(`userData/${x.userID}/premium`)
                         try {
-                            client.users.send(uID, {
+                            client.users.send(x.userID, {
                                 content:
-                                    "No cześć, mam złą wiadomość. Premium dobiegło końca! Może uda Ci się ponownie zdobyć w jakimś konkursie...\n-# Globally, powered by mysterY Team",
+                                    "No cześć, mam złą wiadomość. Premium dobiegło końca! Może uda Ci się ponownie zdobyć w jakimś konkursie...\n-# Globally, powered by mysterY",
                                 components: [
                                     new ActionRowBuilder().addComponents(
                                         new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId("deleteThisMessage").setLabel(`Usuń tą wiadomość dla mnie`)
@@ -284,7 +281,20 @@ function timerToResetTheAPIInfo() {
                         db.aset(`userData/${x.userID}/premium`, x.days - 1)
                     }
                 })
-            }
+
+            listenerLog(2, "🔎 Sprawdzanie stacji po zakończonym premium")
+            stationOwners.forEach(async (v) => {
+                listenerLog(3, `Właściciel ${v}`)
+                const ssstatus = await checkUserStatus(client, v)
+                const premium = botPremiumInfo(v, ssstatus)
+                if (premium.have || ssstatus.mysteryTeam) return listenerLog(4, "Posiada możliwość wielostacji, sprawdzanie następnego...")
+                const allStationsByThatOwner = stations.filter((x) => x.ownerID == v)
+                for (let i = 1; i < allStationsByThatOwner.length; i++) {
+                    const element = allStationsByThatOwner[i]
+                    db.delete(`stations/${element.id}`)
+                    listenerLog(4, `🗑️ usunięto stację ${element.id}${element.passwd ? " (hasłowana)" : ""}`)
+                }
+            })
         }
         delete hours
 
@@ -299,7 +309,7 @@ function timerToResetTheAPIInfo() {
             x.userID = uID
             try {
                 client.users.send(uID, {
-                    content: "Twoja czasowa blokada dobiegła końca! Możesz skorzystać z GlobalChat!\n-# Globally, powered by mysterY Team",
+                    content: "Twoja czasowa blokada dobiegła końca! Możesz skorzystać z GlobalChat!\n-# Globally, powered by mysterY",
                     components: [
                         new ActionRowBuilder().addComponents(
                             new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId("deleteThisMessage").setLabel(`Usuń tą wiadomość dla mnie`)

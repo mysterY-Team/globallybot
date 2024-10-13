@@ -41,15 +41,19 @@ module.exports = {
         var context = canvas.getContext("2d")
 
         function rank(data) {
-            if (data.ssstatus.mysteryTeam) return "mysterY Team"
+            if (data.ssstatus.mysteryTeam) return "mysterY"
             else
                 switch (data.modPerms) {
+                    case 4:
+                        return "Starszy naczelnik GlobalChatu"
+                    case 3:
+                        return "Naczelnik GlobalChatu"
                     case 2:
-                        return "Naczelnik GlobalChat"
+                        return "Starszy moderator GlobalChatu"
                     case 1:
-                        return "Moderator GlobalChat"
+                        return "Moderator GlobalChatu"
                     case 0:
-                        return "Osoba"
+                        return "Użytkownik"
                 }
         }
 

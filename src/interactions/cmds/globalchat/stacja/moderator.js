@@ -35,7 +35,7 @@ module.exports = {
         }
 
         if (isInMysteryTeam || udata.modPerms != 0) {
-            interaction.editReply(`${customEmoticons.denided} Ta osoba już ma dostęp do moderowania całym GlobalChatem`)
+            interaction.editReply(`${customEmoticons.denided} Ta osoba ma dostęp do moderowania całym GlobalChatem`)
             return
         }
 
@@ -46,8 +46,8 @@ module.exports = {
         if (data[2].includes(user.id)) {
             data[2] = data[2].filter((x) => x !== user.id).join(",")
             interaction.editReply(`${customEmoticons.approved} Pomyślnie usunięto ${user} jako moderatora stacji!`)
-        } else if (data[2].length >= 10) {
-            interaction.editReply(`${customEmoticons.minus} Przekroczono limit moderatorów (maksymalnie 10 na stację)!`)
+        } else if (data[2].length >= 15) {
+            interaction.editReply(`${customEmoticons.minus} Przekroczono limit moderatorów (maksymalnie 15 na stację)!`)
             return
         } else {
             data[2].push(user.id)

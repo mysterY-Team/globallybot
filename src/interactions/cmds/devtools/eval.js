@@ -1,11 +1,10 @@
 const djs = require("discord.js")
-const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
 var conf = require("../../../config")
-const { checkUserStatus } = require("../../../functions/useful")
+var useful = require("../../../functions/useful")
+var dbsys = require("../../../functions/dbSystem")
+const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
+const { checkUserStatus } = useful
 const { customEmoticons } = conf
-
-delete conf.TOKEN
-delete conf.othertokens
 
 module.exports = {
     /**
@@ -27,6 +26,23 @@ module.exports = {
         try {
             var thisGuild = interaction.guild
             var thisChannel = interaction.channel
+            /**
+             * @param {string} uid
+             * @param {string} time Czas. Suffixy dostępne to h, d, w oraz m
+             */
+            const setSAT = (uid, time) => {
+                const gc = dbsys.gcdata.encode(conf.db.get(`userData/${uid}`).val ?? "")
+                gc._sat =
+                    (() => {
+                        const time = time.toLowerCase()
+                        if (time.endsWith("h")) return Number(time.replace("h", "")) * 3600
+                        if (time.endsWith("d")) return Number(time.replace("d", "")) * 86400
+                        if (time.endsWith("w")) return Number(time.replace("w", "")) * 604800
+                        if (time.endsWith("m")) return Number(time.replace("m", "")) * 2592000
+                        return Number(time)
+                    })() + Date.now()
+                conf.db.set(`userData/${uid}`, dbsys.gcdata.decode(gc))
+            }
 
             var consoled = []
             function writeToAkaConsole(...values) {
@@ -56,11 +72,15 @@ module.exports = {
                             else value = value.constructor?.toString() ?? "[object]"
                     }
 
+                    value = value.split(conf.TOKEN).join(conf.TOKEN.slice(0, 3) + "*".repeat(conf.TOKEN.length - 3))
+                    value = value.split(conf.othertokens.gemini).join(conf.othertokens.gemini.slice(0, 3) + "*".repeat(conf.othertokens.gemini.length - 3))
+                    value = value.split(conf.othertokens.stable_diff).join(conf.othertokens.stable_diff.slice(0, 3) + "*".repeat(conf.othertokens.stable_diff.length - 3))
+
                     if (values.length === 1) consoled.push(value)
                     else {
-                        if (i === 0) consoled.push("┏ " + value)
-                        else if (i === values.length - 1) consoled.push("┗ " + value)
-                        else consoled.push("┣ " + value)
+                        if (i === 0) consoled.push("┏ " + value.split("\n").join("\n┃ "))
+                        else if (i === values.length - 1) consoled.push("┗ " + value.split("\n").join("\n  "))
+                        else consoled.push("┣ " + value.split("\n").join("\n┃ "))
                     }
                 })
             }

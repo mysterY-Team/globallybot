@@ -1,6 +1,6 @@
 const { ChatInputCommandInteraction, Client, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require("discord.js")
 const { db, customEmoticons } = require("../../../../config")
-const { servers } = require("../../../../functions/useful")
+const { servers, repeats } = require("../../../../functions/useful")
 
 module.exports = {
     /**
@@ -9,25 +9,6 @@ module.exports = {
      * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
-        const repeats = (...args) => {
-            const count = {}
-
-            // Iteruj przez wszystkie argumenty
-            args.forEach((value) => {
-                count[value] = (count[value] || 0) + 1
-            })
-
-            // Zlicz ilość powtórzeń dla każdej wartości
-            const result = {}
-            for (const key in count) {
-                if (count.hasOwnProperty(key)) {
-                    result[key] = count[key]
-                }
-            }
-
-            return result
-        }
-
         const stationsMakers = Object.values(db.get("stations").val || {}).map((x) => x.split("|")[0])
         if (Object.keys(repeats(stationsMakers)).length >= servers.get().length) {
             return interaction.reply({
