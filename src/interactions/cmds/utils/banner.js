@@ -7,8 +7,9 @@ module.exports = {
      */
     async execute(client, interaction) {
         const user = interaction.options.get("osoba")?.user || interaction.user
+        const fetchedUser = await interaction.client.users.fetch(user.id, { force: true });
 
-        const bannerUrl = user.bannerURL({ dynamic: true, size: 1024 })
+        const bannerUrl = fetchedUser.bannerURL({ size: 512 })
         if (!bannerUrl) {
             await interaction.reply({ content: "Ten użytkownik nie posiada banneru", ephemeral: true })
             return
