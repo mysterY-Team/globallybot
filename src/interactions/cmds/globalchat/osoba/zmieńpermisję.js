@@ -30,13 +30,13 @@ module.exports = {
 
         var data = gcdata.encode(db.get(`userData/${user.id}/gc`).val)
 
-        if (data.modPerms > idata.modPerms) {
+        if (data.modPerms > idata.modPerms && !isInMysteryTeam) {
             interaction.editReply(`${customEmoticons.denided} Ta osoba stoi ponad Ciebie!`)
             return
         }
 
-        if (perm > data.modPerms) {
-            interaction.editReply(`${customEmoticons.denided} Możesz przydzielać tylko niższe rangi!`)
+        if (perm > data.modPerms && !isInMysteryTeam) {
+            interaction.editReply(`${customEmoticons.denided} Możesz przydzielać tylko niższe lub równe rangi!`)
             return
         }
 

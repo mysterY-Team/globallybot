@@ -41,7 +41,7 @@ module.exports = {
         var context = canvas.getContext("2d")
 
         function rank(data) {
-            if (data.ssstatus.mysteryTeam) return "team mysterY"
+            if (data.ssstatus.mysteryTeam) return "mysterY"
             else
                 switch (data.modPerms) {
                     case 4:

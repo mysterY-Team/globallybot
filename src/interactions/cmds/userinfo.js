@@ -44,8 +44,7 @@ module.exports = {
                 ].join("\n"),
             })
 
-        if (interaction.context === InteractionContextType.PrivateChannel || !guildlist.includes(interaction.guildId))
-            embed.setFooter({ text: "Globally, powered by team mysterY" })
+        if (interaction.context === InteractionContextType.PrivateChannel || !guildlist.includes(interaction.guildId)) embed.setFooter({ text: "Globally, powered by mysterY" })
 
         if (interaction.context !== InteractionContextType.PrivateChannel && guildlist.includes(interaction.guildId) && !user.bot && !user.system) {
             if (modules.length > 0) embed.addFields({ name: "Podpięte moduły", value: modules.join("\n") })

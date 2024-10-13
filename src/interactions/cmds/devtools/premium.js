@@ -15,7 +15,7 @@ module.exports = {
 
         if (!isInMysteryTeam1)
             return interaction.editReply({
-                content: `${customEmoticons.denided} Nie jesteś członkiem **team mysterY**!`,
+                content: `${customEmoticons.denided} Nie jesteś członkiem drużyny **mysterY**!`,
                 ephemeral: true,
             })
 
@@ -27,7 +27,7 @@ module.exports = {
 
         if (isInMysteryTeam2)
             return interaction.editReply({
-                content: `${customEmoticons.info} Nie żeby coś, ale premium nie wpływa na członka **team mysterY**`,
+                content: `${customEmoticons.info} Nie żeby coś, ale premium nie wpływa na członka drużyny **mysterY**`,
                 ephemeral: true,
             })
 
@@ -37,7 +37,7 @@ module.exports = {
                 interaction.editReply(`${customEmoticons.approved} Usunięto pomyślnie użytkownikowi premium!`)
                 try {
                     user.send(
-                        `No cześć, mam złą wiadomość. ${interaction.user} (\`${interaction.user.username}\`) właśnie Ci usunął premium! Wierzę, że kiedyś go odzyskasz!\n-# Globally, powered by team mysterY`
+                        `No cześć, mam złą wiadomość. ${interaction.user} (\`${interaction.user.username}\`) właśnie Ci usunął premium! Wierzę, że kiedyś go odzyskasz!\n-# Globally, powered by mysterY`
                     )
                 } catch (e) {}
             } else {
@@ -45,7 +45,7 @@ module.exports = {
                 interaction.editReply(`${customEmoticons.approved} Nadano pomyślnie użytkownikowi **${days}** dni premium!`)
                 try {
                     user.send(
-                        `No cześć, mam dobrą wiadomość. ${interaction.user} (\`${interaction.user.username}\`) właśnie nadał Ci **${days} dni premium**! Gratuluję!\n-# Globally, powered by team mysterY`
+                        `No cześć, mam dobrą wiadomość. ${interaction.user} (\`${interaction.user.username}\`) właśnie nadał Ci **${days} dni premium**! Gratuluję!\n-# Globally, powered by mysterY`
                     )
                 } catch (e) {}
             }

@@ -38,7 +38,7 @@ module.exports = {
                     - Nie masz permisji administratora
                     - Nie jesteś właścicielem serwera
                     - Bot nie ma permisji administrotara lub uprawnienia **Zarządzanie Webhookami**
-                    - Nie posiadasz roli **team mysterY** na serwerze support`
+                    - Nie jesteś w drużynie **mysterY**`
                     .split("\n")
                     .map((x) => x.trim())
                     .join("\n"),
