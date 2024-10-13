@@ -1,7 +1,9 @@
 const djs = require("discord.js")
-const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
 var conf = require("../../../config")
-const { checkUserStatus } = require("../../../functions/useful")
+var useful = require("../../../functions/useful")
+var dbsys = require("../../../functions/dbSystem")
+const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
+const { checkUserStatus } = useful
 const { customEmoticons } = conf
 
 module.exports = {
@@ -24,6 +26,23 @@ module.exports = {
         try {
             var thisGuild = interaction.guild
             var thisChannel = interaction.channel
+            /**
+             * @param {string} uid
+             * @param {string} time Czas. Suffixy dostępne to h, d, w oraz m
+             */
+            const setSAT = (uid, time) => {
+                const gc = dbsys.gcdata.encode(conf.db.get(`userData/${uid}`).val ?? "")
+                gc._sat =
+                    (() => {
+                        const time = time.toLowerCase()
+                        if (time.endsWith("h")) return Number(time.replace("h", "")) * 3600
+                        if (time.endsWith("d")) return Number(time.replace("d", "")) * 86400
+                        if (time.endsWith("w")) return Number(time.replace("w", "")) * 604800
+                        if (time.endsWith("m")) return Number(time.replace("m", "")) * 2592000
+                        return Number(time)
+                    })() + Date.now()
+                conf.db.set(`userData/${uid}`, dbsys.gcdata.decode(gc))
+            }
 
             var consoled = []
             function writeToAkaConsole(...values) {

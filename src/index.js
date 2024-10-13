@@ -250,15 +250,13 @@ function timerToResetTheAPIInfo() {
             await client.application.commands.set(slashCommandList.list())
             listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
 
-            if (date.getDay() === 0 || forceUpdate) {
-                listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
-                listOfUsers.gc.forEach((x) => {
-                    if (x.karma < 25n && !x.isBlocked) {
-                        db.delete(`userData/${x.userID}/gc`)
-                        listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
-                    }
-                })
-            }
+            listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
+            listOfUsers.gc.forEach((x) => {
+                if (Math.max(x.timestampToSendMessage, x._sat) + 864000000 <= Date.now() && !x.isBlocked) {
+                    db.delete(`userData/${x.userID}/gc`)
+                    listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
+                }
+            })
 
             if (date.getHours() === 0 || debug)
                 listOfUsers.premium.forEach(async (x) => {

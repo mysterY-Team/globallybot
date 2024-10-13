@@ -30,19 +30,21 @@ module.exports = {
     gcdata: {
         encode: (data) => {
             var obj = (data ?? "").split(/{=·}|\u0000/g)
+            const karma = BigInt(obj[5] ?? 0n)
             return {
                 isBlocked: $$.stob(obj[0]) ?? false,
                 blockReason: obj[1] ?? "",
                 timestampToSendMessage: Number(obj[2] ?? Date.now() - 2),
                 timestampToTab: Number(obj[3] ?? Math.floor(Date.now() / 1000) - 1),
                 blockTimestampToTab: Number(obj[4] ?? Math.floor(Date.now() / 1000) - 1),
-                karma: BigInt(obj[5] ?? 0n),
+                karma,
                 messageID_bbc: obj[6] ?? "",
                 /**
                  * @type {0 | 1 | 2 | 3 | 4}
                  */
                 modPerms: Number(obj[7] ?? 0),
                 blockTimestamp: Number(obj[8] ?? NaN),
+                _sat: Number(obj[9] ?? (karma >= 1000n) * Date.now()),
             }
         },
         decode: (data) => {
