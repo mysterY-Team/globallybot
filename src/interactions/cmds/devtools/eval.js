@@ -26,23 +26,6 @@ module.exports = {
         try {
             var thisGuild = interaction.guild
             var thisChannel = interaction.channel
-            /**
-             * @param {string} uid
-             * @param {string} time Czas. Suffixy dostępne to h, d, w oraz m
-             */
-            const setSAT = (uid, time) => {
-                const gc = dbsys.gcdata.encode(conf.db.get(`userData/${uid}`).val ?? "")
-                gc._sat =
-                    (() => {
-                        time = time.toLowerCase()
-                        if (time.endsWith("h")) return Number(time.replace("h", "")) * 3600
-                        if (time.endsWith("d")) return Number(time.replace("d", "")) * 86400
-                        if (time.endsWith("w")) return Number(time.replace("w", "")) * 604800
-                        if (time.endsWith("m")) return Number(time.replace("m", "")) * 2592000
-                        return Number(time)
-                    })() + Date.now()
-                conf.db.set(`userData/${uid}`, dbsys.gcdata.decode(gc))
-            }
 
             var consoled = []
             function writeToAkaConsole(...values) {
@@ -84,6 +67,28 @@ module.exports = {
                     }
                 })
             }
+
+            /**
+             * @param {string} uid
+             * @param {string} time
+             */
+            const setSAT = (uid, time, force = false) => {
+                const snapshot = conf.db.get(`userData/${uid}/gc`)
+                if (snapshot.exists && !force) return writeToAkaConsole("Nie ustawiono SAT, bowiem użytkownik taki nie istnieje")
+                const gc = dbsys.gcdata.encode(snapshot.val ?? "")
+                gc._sat =
+                    (() => {
+                        time = time.toLowerCase()
+                        if (time.endsWith("h")) return Number(time.replace("h", "")) * 3600000
+                        if (time.endsWith("d")) return Number(time.replace("d", "")) * 86400000
+                        if (time.endsWith("w")) return Number(time.replace("w", "")) * 604800000
+                        if (time.endsWith("m")) return Number(time.replace("m", "")) * 2592000000
+                        return Number(time)
+                    })() + Date.now()
+                conf.db.set(`userData/${uid}`, dbsys.gcdata.decode(gc))
+                writeToAkaConsole(`Ustawiono SAT poprawnie! SAT: ${gc._sat}`)
+            }
+
             var func = async function () {}
             eval(`func = async function() { ${interaction.options.get("func", true).value.replace(/console\.log\(/g, "writeToAkaConsole(")} }`)
             await func()
