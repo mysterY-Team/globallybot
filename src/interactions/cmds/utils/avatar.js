@@ -7,6 +7,7 @@ module.exports = {
      */
     async execute(client, interaction) {
         const user = interaction.options.get("osoba")?.user || interaction.user
+        if (user.partial) user = await user.fetch(true)
 
         const avatarUrl = user.displayAvatarURL({ size: 2048 })
 

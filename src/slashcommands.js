@@ -48,7 +48,7 @@ var slashList = [
                                     { name: "Starszy naczelnik GlobalChatu", value: 4 },
                                     { name: "Naczelnik GlobalChatu", value: 3 },
                                     { name: "Starszy moderator GlobalChatu", value: 2 },
-                                    { name: "Moderator GlobalChata", value: 1 },
+                                    { name: "Moderator GlobalChatu", value: 1 },
                                     { name: "Zwykły użytkownik", value: 0 }
                                 )
                         )

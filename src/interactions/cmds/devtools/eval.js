@@ -34,7 +34,7 @@ module.exports = {
                 const gc = dbsys.gcdata.encode(conf.db.get(`userData/${uid}`).val ?? "")
                 gc._sat =
                     (() => {
-                        const time = time.toLowerCase()
+                        time = time.toLowerCase()
                         if (time.endsWith("h")) return Number(time.replace("h", "")) * 3600
                         if (time.endsWith("d")) return Number(time.replace("d", "")) * 86400
                         if (time.endsWith("w")) return Number(time.replace("w", "")) * 604800

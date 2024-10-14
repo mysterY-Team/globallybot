@@ -1,17 +1,16 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ChannelType, ButtonBuilder, ActionRowBuilder, ButtonStyle, Partials } = require("discord.js")
+const { Client, EmbedBuilder, ChannelType, ButtonBuilder, ActionRowBuilder, ButtonStyle, Partials } = require("discord.js")
 const { TOKEN, supportServer, debug, db, _bot } = require("./config.js")
 const { performance } = require("perf_hooks")
 const { globalchatFunction } = require("./globalchat.js")
 const { listenerLog, servers, checkUserStatus, botPremiumInfo, repeats } = require("./functions/useful.js")
 const { GlobalFonts } = require("@napi-rs/canvas")
 const { gcdata } = require("./functions/dbSystem.js")
-
 var active = false
 var forceUpdate = true
 
 const client = new Client({
-    partials: [Partials.Message],
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildModeration],
+    partials: [Partials.Message, Partials.User],
+    intents: ["Guilds", "MessageContent", "GuildMessages", "MessageContent", "GuildMembers", "GuildModeration"],
 })
 
 listenerLog(0, "Discord.js v.14", true)
