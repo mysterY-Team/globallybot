@@ -12,11 +12,12 @@
         "perf_hooks": "^0.0.1"
     },
     "name": "globally",
-    "version": "2.4.3",
+    "version": "2.4.4",
     "main": "src/index.js",
     "scripts": {
         "test": "node --trace-warnings src/index.js",
-        "dev": "nodemon src/index.js"
+        "dev": "nodemon src/index.js",
+        "update": "npm i locallium && npm i discord.js"
     },
     "author": "patYczakus",
     "license": "",
