@@ -327,7 +327,7 @@ async function globalchatFunction(client, message) {
                     .replace(/%userrole%/i, rank)
                     .replace(/%guildid%/i, message.guildId)
                     .replace(/%guildname%/i, message.guild.name)
-            /* else */ return `${message.author.username} (${rank}; ${message.author.id}; ${message.guildId})`
+            /* else */ return `${message.author.username} (${rank};${message.author.id};${message.guildId})`
         }
 
         const oldUserSnapshot = db.get(`userData/${message.author.id}/gc`)
@@ -366,18 +366,14 @@ async function globalchatFunction(client, message) {
         listenerLog(2, "")
         listenerLog(2, "❗ Wyłapano wiadomość do GC!")
         listenerLog(3, "Data serwera: " + JSON.stringify(serverdata))
-
-        if (freemem() < totalmem() * 0.05 * !debug) {
-            message.reply(`${customEmoticons.loading} Pamięć została przekroczona, czekam na wolne miejsce...`)
-            listenerLog(3, "")
-            return
-        }
     } catch (err) {
         if (debug) console.error(err)
         return
     }
 
     try {
+        const chpermissions = message.channel.permissionsFor(_bot.id, false)
+
         listenerLog(3, "➿ Spełniono warunek (1/5)")
 
         var station = Object.values(serverdata.gc)
@@ -475,7 +471,7 @@ async function globalchatFunction(client, message) {
                                 return null
                             })()
                     } else {
-                        var ruid = replayedMSG.author.username.split(" (")[1].split("; ")[1],
+                        var ruid = replayedMSG.author.username.split(" (")[1].split(";")[1].trim(),
                             rUser = replayedMSG.author.username.split(" (")[0]
                     }
 
@@ -540,16 +536,25 @@ async function globalchatFunction(client, message) {
 
         listenerLog(3, "➿ Spełniono warunek (2/5)")
 
-        if (userData.timestampToSendMessage - 300 > Date.now()) {
+        if (userData.timestampToSendMessage - 500 > Date.now()) {
             message.react(customEmoticons.denided)
             if (message.content.toLowerCase() !== "<p>")
                 var info = `\n${customEmoticons.info} Możesz cofnąć **tą** zablokowaną wiadomość za pomocą znacznika \`<p>\`. Po prostu to wpisz po usunięciu tej wiadomości, aby to ją właśnie użyć`
-            message
-                .reply(`${customEmoticons.denided} Jesteś objęty/-a cooldownem! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms${info ?? ""}`)
-                .then(async (msg) => {
-                    await wait(Math.max(userData.timestampToSendMessage - Date.now(), 2000))
-                    msg.delete()
-                })
+
+            if (chpermissions.has("ReadMessageHistory"))
+                var msg = message.reply(`${customEmoticons.denided} Jesteś objęty/-a cooldownem! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms${info ?? ""}`)
+            else 
+                var msg = message.channel.send(
+                    `${customEmoticons.denided} ${message.author}, jesteś objęty/-a cooldownem! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms${info ?? ""}`
+                )
+
+            delete info
+
+            msg.then(async (msg) => {
+                await wait(Math.max(userData.timestampToSendMessage - Date.now(), 3000))
+                msg.delete()
+            })
+
             if (message.content.toLowerCase() !== "<p>") {
                 userData.messageID_bbc = message.id
                 db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -557,6 +562,8 @@ async function globalchatFunction(client, message) {
             return
         }
 
+        userData.timestampToSendMessage = Date.now() + 2000
+        db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
         await wait(Math.max(userData.timestampToSendMessage - Date.now(), 0))
 
         database = database.filter((x) => Object.keys(x.gc).includes(station)).map((x) => Object.assign(x.gc[station], { serverID: x.id }))
@@ -593,12 +600,12 @@ async function globalchatFunction(client, message) {
             try {
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: "Blokada linku" })
-                    .setFields({ name: "Powód", value: "Niedozwolony link", inline: true }, { name: "Kara", value: "3 minuty osobistego cooldownu", inline: true })
+                    .setFields({ name: "Powód", value: "Niedozwolony link", inline: true }, { name: "Kara", value: "10 minut osobistego cooldownu", inline: true })
                     .setFooter({ text: "Globally, powered by mysterY" })
                     .setColor("Red")
                 message.channel.send({ embeds: [embed] })
             } catch (e) {}
-            userData.timestampToSendMessage = Date.now() + 180_000
+            userData.timestampToSendMessage = Date.now() + 600_000
             userData.messageID_bbc = ""
             db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
             return
@@ -621,7 +628,10 @@ async function globalchatFunction(client, message) {
                 db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 return
             }
-            if (!userHasPremium) gcapprovedAttachments = gcapprovedAttachments.filter(() => false)
+            if (!userHasPremium) {
+                gcapprovedAttachments = gcapprovedAttachments.filter(() => false)
+                var mustInform = true
+            }
         }
 
         if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) {
@@ -632,6 +642,19 @@ async function globalchatFunction(client, message) {
                     if (x.deletable) x.delete()
                 })
             return
+        } else if (mustInform) {
+            message.channel.send(`${customEmoticons.info} ${message.author}, posiadasz mniej niż 25 karmy - multimedia nie mogły zostać wysłane z tego powodu`).then(async (x) => {
+                await wait(10000)
+                if (x.deletable) x.delete()
+            })
+            delete mustInform
+        } else if (gcapprovedAttachments.size != message.attachments.size) {
+            message.channel
+                .send(`${customEmoticons.info} ${message.author}, nie wszystkie media mogły zostać wysłane, gdyż GlobalChat przyjmuje tylko niektóre typy plików`)
+                .then(async (x) => {
+                    await wait(7500)
+                    if (x.deletable) x.delete()
+                })
         }
 
         const bw = checkAnyBadWords(deleteComments(message.content))
@@ -640,12 +663,12 @@ async function globalchatFunction(client, message) {
             try {
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: "Blokada słowa" })
-                    .setFields({ name: "Powód", value: `Niedozwolone słowo \`${bw.badWord}\``, inline: true }, { name: "Kara", value: "minuta osobistego cooldownu", inline: true })
+                    .setFields({ name: "Powód", value: `Niedozwolone słowo`, inline: true }, { name: "Kara", value: "3 minuty osobistego cooldownu", inline: true })
                     .setFooter({ text: "Globally, powered by mysterY" })
                     .setColor("Red")
                 message.channel.send({ embeds: [embed] })
             } catch (e) {}
-            userData.timestampToSendMessage = Date.now() + 60_000
+            userData.timestampToSendMessage = Date.now() + 180_000
             userData.messageID_bbc = ""
             db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
             return
@@ -996,18 +1019,19 @@ async function globalchatFunction(client, message) {
                 } catch (err) {
                     measuringTime.ends = true
                     if (channel && channel.type === ChannelType.GuildText) {
-                        const embed = new EmbedBuilder()
-                            .setColor("DarkRed")
-                            .setAuthor({
-                                name: message.author.username,
-                                iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
-                            })
-                            .setDescription(`Niepowodzenie wykonania akcji *${file.data.name}* \`\`\`${deleteComments(message.content)}\`\`\``)
-                            .setFields({ name: "Błąd", value: `\`\`\`${err}\`\`\`` })
-                            .setFooter({ text: `${station}` })
-                        channel.send({
-                            embeds: [embed],
-                        })
+                        const embeds = [
+                            new EmbedBuilder()
+                                .setColor("DarkRed")
+                                .setAuthor({
+                                    name: message.author.username,
+                                    iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
+                                })
+                                .setDescription(`Niepowodzenie wykonania akcji *${file.data.name}* \`\`\`${deleteComments(message.content)}\`\`\``)
+                                .setFields({ name: `Błąd (typ: ${err.name})`, value: `\`\`\`${err.message}\`\`\`` })
+                                .setFooter({ text: `${station}` }),
+                            new EmbedBuilder().setTitle("*Stacktrace*").setDescription(`\`\`\`${err.stack}\`\`\``),
+                        ]
+                        channel.send({ embeds })
                     }
                     console.error(err)
                     message.channel.send(`Ojoj <@${message.author.id}>, złe wieści - owy GlobalAction nie został wykonany zgodnie z oczekiwaniami...`)
@@ -1065,7 +1089,11 @@ async function globalchatFunction(client, message) {
                             })
                             listenerLog(5, "✅ Pomyślnie zmieniono przycisk")
                             break
-                        } catch (e) {}
+                        } catch (e) {
+                            if (i == 4) {
+                                console.error(e)
+                            }
+                        }
                     }
 
                     listenerLog(3, `🌐 Zapisano informację o wiadomości użytkownika`)
@@ -1079,7 +1107,7 @@ async function globalchatFunction(client, message) {
             db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
         })
     } catch (err) {
-        message.reply(`${customEmoticons.denided} Podczas analizy wystąpił błąd!`)
+        message.channel.send(`${customEmoticons.denided} Podczas analizy wystąpił błąd!`)
         if (debug) return console.error(err)
     }
 }

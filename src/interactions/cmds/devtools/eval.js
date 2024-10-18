@@ -74,7 +74,7 @@ module.exports = {
              */
             const setSAT = (uid, time, force = false) => {
                 const snapshot = conf.db.get(`userData/${uid}/gc`)
-                if (snapshot.exists && !force) return writeToAkaConsole("Nie ustawiono SAT, bowiem użytkownik taki nie istnieje")
+                if (!snapshot.exists && !force) return writeToAkaConsole("Nie ustawiono SAT, bowiem użytkownik taki nie istnieje")
                 const gc = dbsys.gcdata.encode(snapshot.val ?? "")
                 gc._sat =
                     (() => {
@@ -85,7 +85,7 @@ module.exports = {
                         if (time.endsWith("m")) return Number(time.replace("m", "")) * 2592000000
                         return Number(time)
                     })() + Date.now()
-                conf.db.set(`userData/${uid}`, dbsys.gcdata.decode(gc))
+                conf.db.set(`userData/${uid}/gc`, dbsys.gcdata.decode(gc))
                 writeToAkaConsole(`Ustawiono SAT poprawnie! SAT: ${gc._sat}`)
             }
 

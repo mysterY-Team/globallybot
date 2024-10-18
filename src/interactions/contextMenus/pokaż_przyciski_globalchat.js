@@ -34,7 +34,7 @@ module.exports = {
             return
         }
 
-        var IDs = [targetMsg.author.username.split("(")[1]?.split("; ")[1], targetMsg.author.username.split("(")[1]?.split("; ")[2]?.replace(")", "")].filter((x) => x)
+        var IDs = [targetMsg.author.username.split("(")[1]?.split(";")[1].trim(), targetMsg.author.username.split("(")[1]?.split(";")[2]?.trim()?.replace(")", "")].filter((x) => x)
 
         if (IDs.length != 2) {
             interaction.reply({ content: `${customEmoticons.denided} Niepoprawny syntax Webhooka!`, ephemeral: true })

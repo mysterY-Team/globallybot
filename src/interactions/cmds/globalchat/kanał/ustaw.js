@@ -28,7 +28,10 @@ module.exports = {
                     interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
                     interaction.user.id == guild.ownerId ||
                     isInMysteryTeam) &&
-                (bot.permissions.has(PermissionFlagsBits.Administrator) || bot.permissions.has(PermissionFlagsBits.ManageWebhooks))
+                (bot.permissions.has(PermissionFlagsBits.Administrator) ||
+                    (bot.permissions.has(PermissionFlagsBits.ManageWebhooks) &&
+                        bot.permissions.has(PermissionFlagsBits.ManageMessages) &&
+                        bot.permissions.has(PermissionFlagsBits.SendMessages)))
             )
         )
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
@@ -37,7 +40,7 @@ module.exports = {
                     - Nie masz obu uprawnień: **Zarządzanie webhoookami** oraz **Zarządzanie kanałami**
                     - Nie masz permisji administratora
                     - Nie jesteś właścicielem serwera
-                    - Bot nie ma permisji administrotara lub uprawnienia **Zarządzanie Webhookami**
+                    - Bot nie ma permisji administrotara lub uprawnień **Zarządzanie Webhookami**, **Zarządzanie wiadomościami** oraz **Wysyłanie wiadomości**
                     - Nie jesteś w drużynie **mysterY**`
                     .split("\n")
                     .map((x) => x.trim())
