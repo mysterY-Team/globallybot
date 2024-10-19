@@ -629,8 +629,8 @@ async function globalchatFunction(client, message) {
                 return
             }
             if (!userHasPremium) {
+                var mustInform = gcapprovedAttachments.size > 0
                 gcapprovedAttachments = gcapprovedAttachments.filter(() => false)
-                var mustInform = true
             }
         }
 
@@ -647,7 +647,6 @@ async function globalchatFunction(client, message) {
                 await wait(10000)
                 if (x.deletable) x.delete()
             })
-            delete mustInform
         } else if (gcapprovedAttachments.size != message.attachments.size) {
             message.channel
                 .send(`${customEmoticons.info} ${message.author}, nie wszystkie media mogły zostać wysłane, gdyż GlobalChat przyjmuje tylko niektóre typy plików`)
@@ -656,6 +655,7 @@ async function globalchatFunction(client, message) {
                     if (x.deletable) x.delete()
                 })
         }
+        delete mustInform
 
         const bw = checkAnyBadWords(deleteComments(message.content))
         if (bw.checked) {
