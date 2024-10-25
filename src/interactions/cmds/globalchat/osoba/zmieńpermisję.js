@@ -35,7 +35,7 @@ module.exports = {
             return
         }
 
-        if (perm > data.modPerms && !isInMysteryTeam) {
+        if (perm > idata.modPerms && !isInMysteryTeam) {
             interaction.editReply(`${customEmoticons.denided} Możesz przydzielać tylko niższe lub równe rangi!`)
             return
         }
