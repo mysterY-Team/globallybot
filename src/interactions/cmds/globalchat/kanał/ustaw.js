@@ -22,29 +22,30 @@ module.exports = {
         var channel = interaction.options.get("kanał", true)
         var guild = interaction.guild
         var bot = guild.members.cache.get(_bot.id)
+
+        const botPerms = bot.permissions
+        const userPerms = interaction.member.permissions
         if (
-            !(
-                (interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks + PermissionFlagsBits.ManageChannels) ||
-                    interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
-                    interaction.user.id == guild.ownerId ||
-                    isInMysteryTeam) &&
-                (bot.permissions.has(PermissionFlagsBits.Administrator) ||
-                    (bot.permissions.has(PermissionFlagsBits.ManageWebhooks) &&
-                        bot.permissions.has(PermissionFlagsBits.ManageMessages) &&
-                        bot.permissions.has(PermissionFlagsBits.SendMessages)))
-            )
+            !(userPerms.has(PermissionFlagsBits.ManageWebhooks) && userPerms.has(PermissionFlagsBits.ManageChannels)) &&
+            !interaction.member.permissions.has(PermissionFlagsBits.Administrator) &&
+            interaction.user.id != guild.ownerId &&
+            !isInMysteryTeam
         )
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
             return interaction.editReply({
-                content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:
-                    - Nie masz obu uprawnień: **Zarządzanie webhoookami** oraz **Zarządzanie kanałami**
-                    - Nie masz permisji administratora
-                    - Nie jesteś właścicielem serwera
-                    - Bot nie ma permisji administrotara lub uprawnień **Zarządzanie Webhookami**, **Zarządzanie wiadomościami** oraz **Wysyłanie wiadomości**
-                    - Nie jesteś w drużynie **mysterY**`
+                content: `${customEmoticons.denided} Ta komenda jest dostępna dla osób:
+                    - poisadających jednocześnie uprawnienia **Zarządzanie webhoookami** oraz **Zarządzanie kanałami**
+                    - mających permisję administratora
+                    - jako właściciela serwera
+                    - z drużyny **mysterY**`
                     .split("\n")
                     .map((x) => x.trim())
                     .join("\n"),
+            })
+        if (!botPerms.has(PermissionFlagsBits.Administrator) && !(botPerms.has("ManageWebhooks") && botPerms.has("ManageMessages") && botPerms.has("SendMessages")))
+            //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
+            return interaction.editReply({
+                content: `${customEmoticons.denided} Bot potrzebuje permisji admina lub uprawnień **Zarządzanie webhookami**, **Zarządzanie wiadomościami** oraz **Wysyłanie wiadomości**`,
             })
 
         //sprawdzanie widoczności kanału

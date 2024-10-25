@@ -21,27 +21,29 @@ module.exports = {
         const ssstatus = await checkUserStatus(client, interaction.user.id)
         const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
+        const botPerms = bot.permissions
+        const userPerms = interaction.member.permissions
         if (
-            !(
-                (interaction.member.permissions.has(PermissionFlagsBits.ManageWebhooks + PermissionFlagsBits.ManageChannels) ||
-                    interaction.member.permissions.has(PermissionFlagsBits.Administrator) ||
-                    interaction.user.id == guild.ownerId ||
-                    isInMysteryTeam) &&
-                (bot.permissions.has(PermissionFlagsBits.Administrator) || bot.permissions.has(PermissionFlagsBits.ManageWebhooks))
-            )
+            !(userPerms.has(PermissionFlagsBits.ManageWebhooks) && userPerms.has(PermissionFlagsBits.ManageChannels)) &&
+            !userPerms.has(PermissionFlagsBits.Administrator) &&
+            interaction.user.id != guild.ownerId &&
+            !isInMysteryTeam
         )
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
             return interaction.editReply({
-                ephemeral: true,
-                content: `${customEmoticons.denided} Nie możesz wykonać tej funkcji! Możliwe powody:
-                    - Nie masz obu uprawnień: **Zarządzanie webhoookami** oraz **Zarządzanie kanałami**
-                    - Nie masz permisji administratora
-                    - Nie jesteś właścicielem serwera
-                    - Bot nie ma permisji administrotara lub uprawnienia **Zarządzanie Webhookami**
-                    - Nie jesteś na liście developerów bota`
+                content: `${customEmoticons.denided} Ta komenda jest dostępna dla osób:
+                    - poisadających jednocześnie uprawnienia **Zarządzanie webhoookami** oraz **Zarządzanie kanałami**
+                    - mających permisję administratora
+                    - jako właściciela serwera
+                    - z drużyny **mysterY**`
                     .split("\n")
                     .map((x) => x.trim())
                     .join("\n"),
+            })
+        if (!botPerms.has(PermissionFlagsBits.Administrator) && !botPerms.has("ManageWebhooks"))
+            //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
+            return interaction.editReply({
+                content: `${customEmoticons.denided} Bot potrzebuje permisji admina lub uprawnienia **Zarządzanie webhookami**`,
             })
 
         var snapshot = db.get(`serverData/${interaction.guildId}/gc`)
