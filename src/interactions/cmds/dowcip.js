@@ -1,9 +1,11 @@
-const cheerio = require("cheerio")
-const { ChatInputCommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { customEmoticons } = require("../../config")
-const { request } = require("undici")
+import cheerio from "cheerio"
+import djs from "discord.js"
+const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
+import conf from "../../config.js"
+const { customEmoticons } = conf
+import { request } from "undici"
 
-module.exports = {
+export default {
     /**
      *
      * @param {Client} client

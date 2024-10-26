@@ -1,8 +1,11 @@
-const { ChatInputCommandInteraction, Client, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require("discord.js")
-const { db, customEmoticons } = require("../../../../config")
-const { servers, repeats } = require("../../../../functions/useful")
+import djs from "discord.js"
+const { ChatInputCommandInteraction, Client, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = djs
 
-module.exports = {
+import conf from "../../../../config.js"
+const { db, customEmoticons } = conf
+import { servers, repeats } from "../../../../functions/useful.js"
+
+export default {
     /**
      *
      * @param {Client} client

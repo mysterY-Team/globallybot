@@ -1,9 +1,11 @@
-const { Client, ButtonInteraction, EmbedBuilder } = require("discord.js")
-const { customEmoticons, db } = require("../../../config")
-const { gcdata } = require("../../../functions/dbSystem")
-const { checkUserStatus } = require("../../../functions/useful")
+import djs from "discord.js"
+const { Client, ButtonInteraction, EmbedBuilder } = djs
+import conf from "../../../config.js"
+const { customEmoticons, db } = conf
+import { gcdata } from "../../../functions/dbSystem.js"
+import { checkUserStatus } from "../../../functions/useful.js"
 
-module.exports = {
+export default {
     /**
      * @param {Client} client
      * @param {ButtonInteraction} interaction

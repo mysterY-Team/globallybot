@@ -1,9 +1,11 @@
-const { ChatInputCommandInteraction, EmbedBuilder, Client, GuildMember } = require("discord.js")
-const { request } = require("undici")
-const { customEmoticons } = require("../../../config")
-const { wait } = require("../../../functions/useful")
+import djs from "discord.js"
+const { ChatInputCommandInteraction, EmbedBuilder, Client, GuildMember } = djs
+import { request } from "undici"
+import conf from "../../../config.js"
+const { customEmoticons } = conf
+import { wait } from "../../../functions/useful.js"
 
-module.exports = {
+export default {
     /**
      * @param {Client} client
      * @param {ChatInputCommandInteraction} interaction

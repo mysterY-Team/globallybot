@@ -1,12 +1,12 @@
-const djs = require("discord.js")
-var conf = require("../../../config")
-var useful = require("../../../functions/useful")
-var dbsys = require("../../../functions/dbSystem")
+import djs from "discord.js"
+import conf from "../../../config.js"
+import useful from "../../../functions/useful.js"
+import dbsys from "../../../functions/dbSystem.js"
 const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
 const { checkUserStatus } = useful
 const { customEmoticons } = conf
 
-module.exports = {
+export default {
     /**
      *
      * @param {Client} client

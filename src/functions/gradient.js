@@ -22,7 +22,7 @@ function interpolateColors(color1, color2, factor) {
     return rgbToHex(result)
 }
 
-function generateGradientText(colors, text) {
+export function generateGradientText(colors, text) {
     const gradient = []
     const colorCount = colors.length
     const textLength = text.length
@@ -36,8 +36,4 @@ function generateGradientText(colors, text) {
         gradient.push({ text: char, color: color })
     }
     return gradient
-}
-
-module.exports = {
-    generateGradientText,
 }

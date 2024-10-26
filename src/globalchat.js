@@ -1,23 +1,15 @@
-const {
-    Client,
-    Message,
-    EmbedBuilder,
-    WebhookClient,
-    WebhookMessageCreateOptions,
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    ChannelType,
-    DiscordAPIError,
-} = require("discord.js")
-const { db, customEmoticons, debug, supportServer, _bot } = require("./config")
-const fs = require("fs")
-const { emoticons } = require("./interactions/cmds/globalchat/emotki")
-const { listenerLog, wait, checkUserStatus, botPremiumInfo } = require("./functions/useful")
-const { freemem, totalmem } = require("os")
-const { gcdata, gcdataGuild } = require("./functions/dbSystem")
-const { request } = require("undici")
-const { checkAnyBadWords } = require("./functions/badwords")
+import djs from "discord.js"
+import conf from "./config.js"
+import fs from "fs"
+import emotki from "./interactions/cmds/globalchat/emotki.js"
+import { listenerLog, wait, checkUserStatus, botPremiumInfo } from "./functions/useful.js"
+import { freemem, totalmem } from "os"
+import { checkAnyBadWords } from "./functions/badwords.js"
+import { gcdata, gcdataGuild } from "./functions/dbSystem.js"
+import { request } from "undici"
+const { Client, Message, EmbedBuilder, WebhookClient, WebhookMessageCreateOptions, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, DiscordAPIError } = djs
+const { db, customEmoticons, debug, supportServer, _bot } = conf
+const { emoticons } = emotki
 
 const userCooldown = (amount, type = 0) =>
     [6500 + amount * 360, 5500 + amount * 280, 4500 + amount * 245, 4100 + amount * 230, 4100 + amount * 210, 4100 + amount * 190, 4000 + amount * 180, 3500 + amount * 150][type]
@@ -297,7 +289,7 @@ function deleteComments(text) {
  * @param {Client<true>} client
  * @param {Message<true>} message
  */
-async function globalchatFunction(client, message) {
+export async function globalchatFunction(client, message) {
     try {
         const ssstatus = await checkUserStatus(client, message.author.id, false)
         var isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
@@ -542,13 +534,17 @@ async function globalchatFunction(client, message) {
                 var info = `\n${customEmoticons.info} Możesz cofnąć **tą** zablokowaną wiadomość za pomocą znacznika \`<p>\`. Po prostu to wpisz po usunięciu tej wiadomości, aby to ją właśnie użyć`
 
             if (chpermissions.has("ReadMessageHistory"))
-                var msg = message.reply(`${customEmoticons.denided} Jesteś objęty/-a cooldownem! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms${info ?? ""}`)
-            else 
+                var msg = message.reply(
+                    `${customEmoticons.denided} Jesteś objęty/-a cooldownem! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms${info ?? ""}`
+                )
+            else
                 var msg = message.channel.send(
-                    `${customEmoticons.denided} ${message.author}, jesteś objęty/-a cooldownem! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms${info ?? ""}`
+                    `${customEmoticons.denided} ${message.author}, jesteś objęty/-a cooldownem! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms${
+                        info ?? ""
+                    }`
                 )
 
-            delete info
+            info = null
 
             msg.then(async (msg) => {
                 await wait(Math.max(userData.timestampToSendMessage - Date.now(), 3000))
@@ -655,7 +651,7 @@ async function globalchatFunction(client, message) {
                     if (x.deletable) x.delete()
                 })
         }
-        delete mustInform
+        mustInform = null
 
         const bw = checkAnyBadWords(deleteComments(message.content))
         if (bw.checked) {
@@ -686,7 +682,7 @@ async function globalchatFunction(client, message) {
 
         listenerLog(4, `📌 Stacja "${station}"`)
 
-        delete ddata
+        ddata = null
 
         listenerLog(4, `Różnica cooldownów: ${userData.timestampToSendMessage - Date.now()}`)
 
@@ -865,7 +861,7 @@ async function globalchatFunction(client, message) {
 
         userData.timestampToSendMessage =
             Date.now() + userCooldown(database.length, gct()) * (Math.max((typeof prefixes == "string") * 4 - (userHasPremium || isInMysteryTeam) * 2, 0) + 1)
-        delete gct
+        gct = null
         userData.messageID_bbc = ""
         db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
 
@@ -1112,8 +1108,7 @@ async function globalchatFunction(client, message) {
     }
 }
 
-module.exports = {
-    globalchatFunction,
+export default {
     lastUserHandler: {
         get: () => lastUser,
         reset: () => {

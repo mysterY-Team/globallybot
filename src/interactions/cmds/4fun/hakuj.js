@@ -1,7 +1,9 @@
-const { Client, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
-const { wait } = require("../../../functions/useful")
+import djs from "discord.js"
+const { Client, ChatInputCommandInteraction, ActionRowBuilder, ButtonBuilder, ButtonStyle } = djs
 
-module.exports = {
+import { wait } from "../../../functions/useful.js"
+
+export default {
     /**
      *
      * @param {Client} client

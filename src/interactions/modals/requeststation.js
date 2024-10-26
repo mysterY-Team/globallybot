@@ -1,8 +1,10 @@
-const { Client, ModalSubmitInteraction, EmbedBuilder } = require("discord.js")
-const { db, customEmoticons, supportServer } = require("../../config")
-const { checkUserStatus, botPremiumInfo } = require("../../functions/useful")
+import djs from "discord.js"
+const { Client, ModalSubmitInteraction, EmbedBuilder } = djs
+import conf from "../../config.js"
+const { db, customEmoticons, supportServer } = conf
+import { checkUserStatus, botPremiumInfo } from "../../functions/useful.js"
 
-module.exports = {
+export default {
     /**
      * @param {Client} client
      * @param {ModalSubmitInteraction} interaction

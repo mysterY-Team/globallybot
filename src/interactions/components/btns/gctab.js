@@ -1,13 +1,15 @@
-const { ButtonInteraction, Client, EmbedBuilder } = require("discord.js")
-const { customEmoticons, db } = require("../../../config")
-const { gcdata, gcdataGuild } = require("../../../functions/dbSystem")
+import djs from "discord.js"
+const { ButtonInteraction, Client, EmbedBuilder } = djs
+import conf from "../../../config.js"
+const { customEmoticons, db } = conf
+import { gcdata, gcdataGuild } from "../../../functions/dbSystem.js"
 
 const times = {
     cooldown: 300,
     blockrepl: 60,
 }
 
-module.exports = {
+export default {
     /**
      * @param {Client} client
      * @param {ButtonInteraction} interaction

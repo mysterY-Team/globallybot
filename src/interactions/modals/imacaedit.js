@@ -1,12 +1,15 @@
-const { Client, ModalSubmitInteraction } = require("discord.js")
-const { createCanvas, Image } = require("@napi-rs/canvas")
-const { drawText } = require("canvas-txt")
-const { db, customEmoticons } = require("../../config")
-const { imacaData } = require("../../functions/dbSystem")
-const imacaInfo = require("../../functions/imaca")
-const { request } = require("undici")
+import djs from "discord.js"
+const { Client, ModalSubmitInteraction } = djs
+import canvasPKG from "@napi-rs/canvas"
+const { createCanvas, Image } = canvasPKG
+import { drawText } from "canvas-txt"
+import conf from "../../config.js"
+const { db, customEmoticons } = conf
+import { imacaData } from "../../functions/dbSystem.js"
+import imacaInfo from "../../functions/imaca.js"
+import { request } from "undici"
 
-module.exports = {
+export default {
     /**
      * @param {Client} client
      * @param {ModalSubmitInteraction} interaction

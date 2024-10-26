@@ -1,9 +1,11 @@
-const { ChatInputCommandInteraction, Client } = require("discord.js")
-const imacaInfo = require("../../../functions/imaca")
-const { db, customEmoticons } = require("../../../config")
-const { imacaData } = require("../../../functions/dbSystem")
+import djs from "discord.js"
+const { ChatInputCommandInteraction, Client } = djs
+import imacaInfo from "../../../functions/imaca.js"
+import conf from "../../../config.js"
+const { db, customEmoticons } = conf
+import { imacaData } from "../../../functions/dbSystem.js"
 
-module.exports = {
+export default {
     /**
      *
      * @param {Client} client

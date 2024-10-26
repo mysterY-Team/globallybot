@@ -1,9 +1,10 @@
-const { Client, ChatInputCommandInteraction, AutocompleteFocusedOption, ActionRowBuilder, ButtonBuilder, ButtonStyle, Snowflake } = require("discord.js")
-const { customEmoticons, _bot } = require("../../../config")
+import djs from "discord.js"
+const { Client, ChatInputCommandInteraction, AutocompleteFocusedOption, Snowflake } = djs
+import conf from "../../../config.js"
 
-module.exports = {
+export default {
     /**
-     * @type {{savenames: string[], emote: string, server?: { id: Snowflake, iCode: string } | undefined }[]}
+     * @type {{savenames: string[], emote: string, server?: { id: dSnowflake, iCode: string } | undefined }[]}
      */
     emoticons: [
         { savenames: ["pixel.kekw", "px.kekw"], emote: "<:PX_kekw:1182025687566123078>" },
@@ -271,12 +272,12 @@ module.exports = {
         this.emoticons = this.emoticons.filter((x) => typeof x.server === "undefined" || typeof client.guilds.cache.get(x.server.id) !== "undefined")
         if (!queryOption) {
             interaction.reply({
-                content: `# Lista globalnych emotek\n${customEmoticons.info} Użycie: \`{e:<nazwa>}\` lub \`{emote:<nazwa>}\`\n${this.emoticons
+                content: `# Lista globalnych emotek\n${conf.customEmoticons.info} Użycie: \`{e:<nazwa>}\` lub \`{emote:<nazwa>}\`\n${this.emoticons
                     .sort(() => Math.random() - 0.5)
                     .filter((x, i) => i < 10)
                     .map((x) => {
                         return `\n${x.emote} - \`${x.savenames[0]}\` (aliasy: ${
-                            x.savenames.length > 1 ? `${customEmoticons.approved}, ilość: ${x.savenames.length - 1}` : customEmoticons.denided
+                            x.savenames.length > 1 ? `${conf.customEmoticons.approved}, ilość: ${x.savenames.length - 1}` : conf.customEmoticons.denided
                         })${typeof x.server === "undefined" ? "" : ` *//ze serwera [${client.guilds.cache.get(x.server.id).name}](<https://discord.gg/${x.server.iCode}>)*`}`
                     })}\n\nTutaj się wyświetla maksymalnie 10 emotek. Możesz użyć parametru \`query\`, aby wyszukać emotki`,
             })
@@ -354,7 +355,7 @@ module.exports = {
             })
 
             if (query.length == 0) {
-                interaction.reply(`${customEmoticons.denided} Niestety, ta emotka nie istnieje w bazie danych lub jest niedostępna`)
+                interaction.reply(`${conf.customEmoticons.denided} Niestety, ta emotka nie istnieje w bazie danych lub jest niedostępna`)
             } else if (query.length == 1) {
                 const em = query[0]
                 interaction.reply(
@@ -373,7 +374,7 @@ module.exports = {
                         .filter((x, i) => i < 12)
                         .map((x) => {
                             return `\n${x.emote} - \`${x.savenames[0]}\` (aliasy: ${
-                                x.savenames.length > 1 ? `${customEmoticons.approved}, ilość: ${x.savenames.length - 1}` : customEmoticons.denided
+                                x.savenames.length > 1 ? `${conf.customEmoticons.approved}, ilość: ${x.savenames.length - 1}` : conf.customEmoticons.denided
                             })${typeof x.server === "undefined" ? "" : ` *//ze serwera [${client.guilds.cache.get(x.server.id).name}](<https://discord.gg/${x.server.iCode}>)*`}`
                         })}`
                 )

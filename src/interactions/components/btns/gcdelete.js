@@ -1,10 +1,13 @@
-const { Client, ButtonInteraction, ChannelType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
-const { customEmoticons, db, supportServer } = require("../../../config")
-const { gcdata } = require("../../../functions/dbSystem")
-const { listenerLog, checkUserStatus, botPremiumInfo } = require("../../../functions/useful")
-const { lastUserHandler } = require("../../../globalchat")
+import djs from "discord.js"
+const { Client, ButtonInteraction, ChannelType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = djs
 
-module.exports = {
+import conf from "../../../config.js"
+const { customEmoticons, db, supportServer } = conf
+import { gcdata } from "../../../functions/dbSystem.js"
+import { listenerLog, checkUserStatus, botPremiumInfo } from "../../../functions/useful.js"
+import { lastUserHandler } from "../../../globalchat.js"
+
+export default {
     /**
      * @param {Client} client
      * @param {ButtonInteraction} interaction

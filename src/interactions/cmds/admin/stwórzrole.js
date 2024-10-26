@@ -1,7 +1,9 @@
-const { CommandInteraction, EmbedBuilder, Client, RoleManager } = require("discord.js")
-const { customEmoticons } = require("../../../config")
+import djs from "discord.js"
+const { CommandInteraction, EmbedBuilder, Client, RoleManager } = djs
+import conf from "../../../config.js"
+const { customEmoticons } = conf
 
-module.exports = {
+export default {
     /**
      *
      * @param {Client} client

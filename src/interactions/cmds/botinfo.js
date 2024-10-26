@@ -1,9 +1,11 @@
-const { ChatInputCommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { customEmoticons } = require("../../config")
-const { codeTime } = require("../..")
-const { freemem, totalmem } = require("os")
+import djs from "discord.js"
+const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
+import conf from "../../config.js"
+const { customEmoticons } = conf
+import { codeTime } from "../../index.js"
+import { freemem, totalmem } from "os"
 
-module.exports = {
+export default {
     /**
      *
      * @param {Client} client

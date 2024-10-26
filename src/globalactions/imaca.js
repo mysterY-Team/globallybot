@@ -1,10 +1,12 @@
-const { User, WebhookMessageCreateOptions, Client } = require("discord.js")
-const { createCarrrd } = require("../functions/imaca")
-const { db } = require("../config")
-const { imacaData } = require("../functions/dbSystem")
-const { wait } = require("../functions/useful")
+import djs from "discord.js"
+const { User, WebhookMessageCreateOptions, Client } = djs
+import { createCarrrd } from "../functions/imaca.js"
+import conf from "../config.js"
+const { db } = conf
+import { imacaData } from "../functions/dbSystem.js"
+import { wait } from "../functions/useful.js"
 
-module.exports = {
+export default {
     data: {
         name: "ImaCarrrd",
         description: "Twoje wyrażanie siebie na nowym poziomie - karty użytkownika z dużą opcją konfigurowywania. Zacznij od `pomoc`/`help` po więcej komend!",

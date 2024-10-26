@@ -1,8 +1,10 @@
-const { User, WebhookMessageCreateOptions } = require("discord.js")
-const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai")
-const { othertokens } = require("../config")
+import djs from "discord.js"
+const { User, WebhookMessageCreateOptions } = djs
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai"
+import conf from "../config.js"
+const { othertokens } = conf
 
-module.exports = {
+export default {
     data: {
         name: "Gemini",
         description:
@@ -10,12 +12,6 @@ module.exports = {
         avatar: "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/BB1i0xCB.img?w=512&h=512&m=6.png",
         prompt_type: "chat2.0",
     },
-    /**
-     * @param {string} msg
-     * @param {User} user
-     * @param {{ text: string, author: { name: string, id: string }, isGA: boolean } | null} reply
-     * @returns {Promise<WebhookMessageCreateOptions>}
-     */
     execute: async function (msg, user, reply) {
         const apiKey = othertokens.gemini
         const genAI = new GoogleGenerativeAI(apiKey)
@@ -27,7 +23,6 @@ module.exports = {
         })
 
         //console.log(reply)
-
         const replyToContent = reply
             ? {
                   role: "user",

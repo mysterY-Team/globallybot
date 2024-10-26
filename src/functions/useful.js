@@ -1,5 +1,6 @@
-const { Client, OAuth2Guild } = require("discord.js")
-const { debug, supportServer, db } = require("../config")
+import djs from "discord.js"
+const { Client, OAuth2Guild } = djs
+import conf from "../config.js"
 
 /**
  * @type {OAuth2Guild[]}
@@ -7,7 +8,7 @@ const { debug, supportServer, db } = require("../config")
 var __servers = []
 
 var listenerLog = function (space, info, priority = false) {
-    if (!debug && !priority) return
+    if (!conf.debug && !priority) return
 
     var text = ""
     for (let index = 0; index < space; index++) {
@@ -62,7 +63,7 @@ function checkFontColor(bgHEX) {
  */
 async function checkUserStatus(client, id) {
     try {
-        const member = await (await client.guilds.fetch(supportServer.id)).members.fetch({ user: id, cache: false })
+        const member = await (await client.guilds.fetch(conf.supportServer.id)).members.fetch({ user: id, cache: false })
         return { inSupport: true, mysteryTeam: member.roles.cache.has("1264341114941472848"), booster: member.roles.cache.has("1182813786609045605") }
     } catch (err) {
         return { inSupport: false }
@@ -92,7 +93,7 @@ function getModules(udata) {
  */
 function botPremiumInfo(id, userstatus, cachedPremium = null) {
     if (userstatus.inSupport && userstatus.booster && !userstatus.mysteryTeam) return { have: true, typeof: "supportBoost" }
-    if (((cachedPremium !== null ? cachedPremium : db.get(`userData/${id}/premium`).val) ?? 0) > 0) return { have: true, typeof: "trial" }
+    if (((cachedPremium !== null ? cachedPremium : conf.db.get(`userData/${id}/premium`).val) ?? 0) > 0) return { have: true, typeof: "trial" }
     return { have: false }
 }
 
@@ -122,13 +123,4 @@ const repeats = (...args) => {
  */
 var wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-module.exports = {
-    botPremiumInfo,
-    getModules,
-    listenerLog,
-    wait,
-    checkFontColor,
-    servers,
-    repeats,
-    checkUserStatus,
-}
+export { botPremiumInfo, getModules, listenerLog, wait, checkFontColor, servers, repeats, checkUserStatus }

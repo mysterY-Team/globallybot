@@ -1,9 +1,11 @@
-const { Client, ChatInputCommandInteraction, AutocompleteFocusedOption } = require("discord.js")
-const { customEmoticons, db } = require("../../../config")
-const { imacaData } = require("../../../functions/dbSystem")
-const { classes } = require("../../../functions/imaca")
+import djs from "discord.js"
+const { Client, ChatInputCommandInteraction, AutocompleteFocusedOption } = djs
+import conf from "../../../config.js"
+const { customEmoticons, db } = conf
+import { imacaData } from "../../../functions/dbSystem.js"
+import { classes } from "../../../functions/imaca.js"
 
-module.exports = {
+export default {
     /**
      * @param {AutocompleteFocusedOption} acFocusedInformation
      * @param {Client<true>} client

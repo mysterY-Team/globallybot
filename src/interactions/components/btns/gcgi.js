@@ -1,7 +1,9 @@
-const { Client, ButtonInteraction, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
-const { _bot } = require("../../../config")
+import { Client, ButtonInteraction, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js"
 
-module.exports = {
+import conf from "../../../config.js"
+const { _bot } = conf
+
+export default {
     /**
      * @param {Client} client
      * @param {ButtonInteraction} interaction
@@ -20,7 +22,7 @@ module.exports = {
             showedEmotes = showedEmotes.filter((X, i) => i < 15)
             moreEmojis = true
         }
-        delete server
+        server = null
 
         if (server.vanityURLCode) {
             invition = server.vanityURLCode

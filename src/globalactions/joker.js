@@ -1,23 +1,19 @@
-const { User, WebhookMessageCreateOptions, AttachmentBuilder, EmbedBuilder } = require("discord.js")
-const cheerio = require("cheerio")
-const { wait } = require("../functions/useful")
-const { customEmoticons } = require("../config")
-const { Octokit } = require("@octokit/rest")
-const { request } = require("undici")
+import djs from "discord.js"
+const { User, WebhookMessageCreateOptions, AttachmentBuilder, EmbedBuilder } = djs
+import { load } from "cheerio"
+import { wait } from "../functions/useful.js"
+import conf from "../config.js"
+const { customEmoticons } = conf
+import { Octokit } from "@octokit/rest"
+import { request } from "undici"
 
-module.exports = {
+export default {
     data: {
         name: "Memiarz",
         description: "Najlepszy przyjaciel z poczuciem humoru. Użyj komendy `help`/`pomoc`, abo poznać jego komendy!",
         avatar: "https://www.pngarts.com/files/11/Haha-Emoji-Transparent-Image.png",
         prompt_type: "cmd",
     },
-    /**
-     * @param {string} msg
-     * @param {User} user
-     * @param {{ text: string, author: { name: string, id: string }, isGA: boolean } | null} reply
-     * @returns {Promise<WebhookMessageCreateOptions>}
-     */
     execute: async function (msg, user, reply) {
         var a = msg.slice(msg.split("!")[0].length + 1).split(" ")
         const cmd = a[0]
@@ -51,7 +47,7 @@ module.exports = {
                     a = `${customEmoticons.denided} Nie udało się pobrać dowcipu!`
                     break
                 }
-                const $ = cheerio.load(await joke.body.text())
+                const $ = load(await joke.body.text())
                 $(".content .container:not(.cntr) .about").remove()
                 joke = $(".content .container:not(.cntr)")
                     .html()

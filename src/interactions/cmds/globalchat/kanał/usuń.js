@@ -1,10 +1,13 @@
-const { ChatInputCommandInteraction, Client, PermissionFlagsBits, WebhookClient, EmbedBuilder, InteractionContextType } = require("discord.js")
-const { db, customEmoticons, _bot, supportServer } = require("../../../../config")
-const { gcdataGuild } = require("../../../../functions/dbSystem")
-const { request } = require("undici")
-const { checkUserStatus } = require("../../../../functions/useful")
+import djs from "discord.js"
+const { ChatInputCommandInteraction, Client, PermissionFlagsBits, WebhookClient, EmbedBuilder, InteractionContextType } = djs
 
-module.exports = {
+import conf from "../../../../config.js"
+const { db, customEmoticons, _bot, supportServer } = conf
+import { gcdataGuild } from "../../../../functions/dbSystem.js"
+import { request } from "undici"
+import { checkUserStatus } from "../../../../functions/useful.js"
+
+export default {
     /**
      *
      * @param {Client} client
@@ -76,7 +79,7 @@ module.exports = {
             request("https://discord.com/api/webhooks/" + data[$stacja].webhook)
                 .then((res) => {
                     try {
-                        if (res.statusCode >= 200 && res.statusCode < 300) webhook.delete("użycia komendy /GLOBALCHAT")
+                        if (res.statusCode >= 200 && res.statusCode < 300) webhook.delete("użycia komendy /globalchat.js")
                     } catch (e) {}
 
                     removeData()

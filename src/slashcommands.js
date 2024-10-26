@@ -1,6 +1,17 @@
-const { SlashCommandBuilder, ContextMenuCommandBuilder } = require("@discordjs/builders")
-const { ChannelType, ApplicationCommandType, PermissionsBitField, InteractionContextType, ApplicationIntegrationType } = require("discord.js")
-const fs = require("fs")
+import { SlashCommandBuilder, ContextMenuCommandBuilder } from "@discordjs/builders"
+
+import djs from "discord.js"
+const { ChannelType, ApplicationCommandType, PermissionsBitField, InteractionContextType, ApplicationIntegrationType } = djs
+
+import fs from "fs"
+
+const gaChoices = []
+const files = fs.readdirSync("./src/globalactions/")
+for (let i = 0; i < files.length; i++) {
+    const ga = await import(`./globalactions/${files[i]}`)
+    // console.log(ga)
+    gaChoices.push({ name: ga.default.data.name, value: files[i].replace(".js", "") })
+}
 
 var slashList = [
     //globalchat
@@ -105,14 +116,7 @@ var slashList = [
                         .setName("globalaction")
                         .setDescription("Nazwa akcji, w której to mają być pokazane informacje o niej")
                         .setRequired(false)
-                        .addChoices(
-                            ...fs.readdirSync("./src/globalactions/").map((x) => {
-                                x = x.replace(".js", "")
-                                x = { name: require(`./globalactions/${x}`).data.name, value: x }
-
-                                return x
-                            })
-                        )
+                        .addChoices(...gaChoices)
                 )
         )
         .addSubcommandGroup((subcommand_group) =>
@@ -355,8 +359,6 @@ var contextList = [
 ]
 //console.log(slashList)
 
-module.exports = {
-    list: () => {
-        return Array().concat(slashList, contextList)
-    },
+export function list() {
+    return Array().concat(slashList, contextList)
 }

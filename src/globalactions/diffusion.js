@@ -1,8 +1,11 @@
-const { User, WebhookMessageCreateOptions, AttachmentBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
-const { request } = require("undici")
-const { othertokens } = require("../config")
+import djs from "discord.js"
+const { User, WebhookMessageCreateOptions, AttachmentBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = djs
 
-module.exports = {
+import { request } from "undici"
+import conf from "../config.js"
+const { othertokens } = conf
+
+export default {
     data: {
         name: "Stable Diffusion",
         description:

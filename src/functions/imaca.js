@@ -1,11 +1,14 @@
-const { AttachmentBuilder, User, DiscordAPIError, DiscordjsError } = require("discord.js")
-const { createCanvas, Image, SKRSContext2D, Path2D, Canvas } = require("@napi-rs/canvas")
-const { drawText } = require("canvas-txt")
-const { readFile } = require("fs/promises")
-const { request } = require("undici")
-const { generateGradientText } = require("./gradient")
-const { db } = require("../config")
-const { getModules } = require("./useful")
+import djs from "discord.js"
+const { AttachmentBuilder, User, DiscordAPIError, DiscordjsError } = djs
+import canvasPKG from "@napi-rs/canvas"
+const { createCanvas, Image, SKRSContext2D, Path2D, Canvas } = canvasPKG
+import { drawText } from "canvas-txt"
+import { readFile } from "fs/promises"
+import { request } from "undici"
+import { generateGradientText } from "./gradient.js"
+import conf from "../config.js"
+const { db } = conf
+import { getModules } from "./useful.js"
 
 const classes = [
     {
@@ -788,7 +791,4 @@ async function createCarrrd(data, user) {
     return attachment
 }
 
-module.exports = {
-    createCarrrd,
-    classes,
-}
+export { createCarrrd, classes }

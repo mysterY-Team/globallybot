@@ -1,7 +1,9 @@
-const { ChatInputCommandInteraction, Client, EmbedBuilder } = require("discord.js")
-const { db } = require("../../../../config")
+import djs from "discord.js"
+const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
+import conf from "../../../../config.js"
+const { db } = conf
 
-module.exports = {
+export default {
     /**
      *
      * @param {Client} client

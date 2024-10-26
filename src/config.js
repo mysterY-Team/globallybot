@@ -1,9 +1,9 @@
-const loc = require("locallium")
+import loc from "locallium"
 
-const debug = false
+const debug = true
 const ldb = new loc.Database("env", new loc.DatabaseFlags())
 
-module.exports = {
+export default {
     TOKEN: ldb.get("token").val,
     othertokens: ldb.get("other_tokens").val,
     db: new loc.Database(

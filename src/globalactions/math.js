@@ -1,9 +1,12 @@
-const { User, WebhookMessageCreateOptions, AttachmentBuilder } = require("discord.js")
-const { customEmoticons } = require("../config")
-const { wait, checkFontColor } = require("../functions/useful")
-const { createCanvas } = require("@napi-rs/canvas")
+import djs from "discord.js"
+const { User, WebhookMessageCreateOptions, AttachmentBuilder } = djs
+import conf from "../config.js"
+const { customEmoticons } = conf
+import { wait, checkFontColor } from "../functions/useful.js"
+import canvasPKG from "@napi-rs/canvas"
+const { createCanvas } = canvasPKG
 
-module.exports = {
+export default {
     data: {
         name: "Matematyczny gość",
         description:

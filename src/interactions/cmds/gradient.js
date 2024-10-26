@@ -1,8 +1,10 @@
-const { ChatInputCommandInteraction, Client } = require("discord.js")
-const { customEmoticons } = require("../../config")
-const { generateGradientText } = require("../../functions/gradient")
+import djs from "discord.js"
+const { ChatInputCommandInteraction, Client } = djs
+import conf from "../../config.js"
+const { customEmoticons } = conf
+import { generateGradientText } from "../../functions/gradient"
 
-module.exports = {
+export default {
     /**
      * @param {Client} client
      * @param {ChatInputCommandInteraction} interaction

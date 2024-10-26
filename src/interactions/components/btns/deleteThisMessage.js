@@ -1,6 +1,7 @@
-const { Client, ButtonInteraction, ButtonBuilder } = require("discord.js")
+import djs from "discord.js"
+const { Client, ButtonInteraction, ButtonBuilder } = djs
 
-module.exports = {
+export default {
     /**
      * @param {Client} client
      * @param {ButtonInteraction} interaction

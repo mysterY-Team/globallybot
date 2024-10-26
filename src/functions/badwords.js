@@ -131,7 +131,7 @@ const bannedWords = [
     "sexxxu",
 ]
 
-function checkAnyBadWords(text) {
+export function checkAnyBadWords(text) {
     for (let i = 0; i < bannedWords.length; i++) {
         let word = ""
         for (let j = 0; j < bannedWords[i].length; j++) {
@@ -151,5 +151,3 @@ function checkAnyBadWords(text) {
     }
     return { checked: false }
 }
-
-module.exports = { checkAnyBadWords }

@@ -1,7 +1,10 @@
-const { ChatInputCommandInteraction, Client } = require("discord.js")
-const { customEmoticons, db } = require("../../../config")
-const fs = require("fs")
-module.exports = {
+import djs from "discord.js"
+const { ChatInputCommandInteraction, Client } = djs
+import conf from "../../../config.js"
+const { customEmoticons, db } = conf
+import fs from "fs"
+
+export default {
     /**
      *
      * @param {Client} client

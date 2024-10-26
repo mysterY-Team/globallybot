@@ -1,6 +1,13 @@
-const { ChatInputCommandInteraction, EmbedBuilder, Client, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
+import {
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    Client,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+} from 'discord.js';
 
-module.exports = {
+export default {
     /**
      * @param {Client} client
      * @param {ChatInputCommandInteraction} interaction
@@ -21,4 +28,4 @@ module.exports = {
 
         await interaction.reply({ embeds: [bannerEmbed] })
     },
-}
+};

@@ -1,9 +1,12 @@
-const { Client, EmbedBuilder, ChatInputCommandInteraction, InteractionContextType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
-const { db, customEmoticons } = require("../../config")
-const { gcdata } = require("../../functions/dbSystem")
-const { checkUserStatus, getModules, botPremiumInfo, servers } = require("../../functions/useful")
+import djs from "discord.js"
+const { Client, EmbedBuilder, ChatInputCommandInteraction, InteractionContextType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = djs
 
-module.exports = {
+import conf from "../../config.js"
+const { db, customEmoticons } = conf
+import { gcdata } from "../../functions/dbSystem.js"
+import { checkUserStatus, getModules, botPremiumInfo, servers } from "../../functions/useful.js"
+
+export default {
     /**
      *
      * @param {Client} client

@@ -1,10 +1,13 @@
-const { Client, EmbedBuilder, ChannelType, ButtonBuilder, ActionRowBuilder, ButtonStyle, Partials } = require("discord.js")
-const { TOKEN, supportServer, debug, db, _bot } = require("./config.js")
-const { performance } = require("perf_hooks")
-const { globalchatFunction } = require("./globalchat.js")
-const { listenerLog, servers, checkUserStatus, botPremiumInfo, repeats } = require("./functions/useful.js")
-const { GlobalFonts } = require("@napi-rs/canvas")
-const { gcdata } = require("./functions/dbSystem.js")
+import djs from "discord.js"
+import conf from "./config.js"
+import { performance } from "perf_hooks"
+import { globalchatFunction } from "./globalchat.js"
+import canvasPKG from "@napi-rs/canvas"
+const { GlobalFonts } = canvasPKG
+import { gcdata } from "./functions/dbSystem.js"
+import { listenerLog, servers, checkUserStatus, botPremiumInfo, repeats } from "./functions/useful.js"
+const { Client, EmbedBuilder, ChannelType, ButtonBuilder, ActionRowBuilder, ButtonStyle, Partials } = djs
+const { TOKEN, supportServer, debug, db } = conf
 var active = false
 var forceUpdate = true
 
@@ -32,7 +35,6 @@ GlobalFonts.registerFromPath("./src/others/efonts/docomoji.ttf", "DoCoMo Emoji")
 client.on("ready", (log) => {
     active = true
     listenerLog(0, `✅ Zalogowany poprawnie jako ${log.user.username}#${log.user.discriminator}`, true)
-    listenerLog(1, `[+] Dodawanie komend...`)
     client.setMaxListeners(20)
 
     listenerLog(1, "👂 Nasłuchiwanie akcji bota...")
@@ -76,7 +78,7 @@ client.on("interactionCreate", async (int) => {
 
         listenerLog(3, `⚙️ Uruchamianie pliku ${path}.js`)
         //console.log(int.options)
-        const file = require(`./interactions/cmds/${path}`)
+        const file = (await import(`./interactions/cmds/${path}.js`)).default
         file.execute(client, int).catch((err) => {
             console.error(err)
             if (int.replied || int.deferred) {
@@ -98,7 +100,7 @@ client.on("interactionCreate", async (int) => {
 
         listenerLog(3, `⚙️ Uruchamianie pliku ${cmd}.js`)
         //console.log(int.options)
-        const file = require(`./interactions/components/btns/${cmd}`)
+        const file = (await import(`./interactions/components/btns/${cmd}.js`)).default
         file.execute(client, int, ...args).catch((err) => {
             console.error(err)
             if (int.deferred || int.replied) {
@@ -118,7 +120,7 @@ client.on("interactionCreate", async (int) => {
         fullname = fullname.filter((prop) => prop != null)
 
         listenerLog(3, `⚙️ Uruchamianie pliku ${fullname.join("/")}.js`)
-        const file = require(`./interactions/cmds/${fullname.join("/")}`)
+        const file = (await import(`./interactions/cmds/${fullname.join("/")}.js`)).default
 
         const choices = file.autocomplete(int.options.getFocused(true), client)
         await int.respond(choices.map((choice) => (typeof choice === "object" ? choice : { name: choice, value: choice })))
@@ -130,7 +132,7 @@ client.on("interactionCreate", async (int) => {
 
         listenerLog(3, `⚙️ Uruchamianie pliku ${cmd}.js`)
         //console.log(int.options)
-        const file = require(`./interactions/modals/${cmd}`)
+        const file = (await import(`./interactions/modals/${cmd}.js`)).default
         file.execute(client, int, ...args).catch((err) => {
             console.error(err)
             if (int.replied || int.deferred) {
@@ -239,13 +241,13 @@ function timerToResetTheAPIInfo() {
         })
         var stationOwners = Object.keys(repeats(...stations.map((x) => x.ownerID)))
 
-        delete users
+        users = null
 
         let date = new Date()
         if (date.getHours() === 0 || forceUpdate) {
             forceUpdate = false
 
-            const slashCommandList = require(`./slashcommands.js`)
+            const slashCommandList = await import(`./slashcommands.js`)
             await client.application.commands.set(slashCommandList.list())
             listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
 
@@ -295,9 +297,8 @@ function timerToResetTheAPIInfo() {
                 }
             })
         }
-        delete hours
 
-        const usersToUB = listOfUsers.gc.filter((x) => x.isBlocked && x.blockTimestamp <= Math.round(Date.now() / 3_600_000))
+        const usersToUB = listOfUsers.gc.filter((x) => x.isBlocked && x.blockTimestamp <= Math.round(date.getTime() / 3_600_000))
         usersToUB.forEach((x) => {
             x.blockTimestamp = NaN
             x.blockReason = ""
@@ -334,8 +335,6 @@ function timerToResetTheAPIInfo() {
     }, 3_600_000)
 }
 
-module.exports = {
-    codeTime: () => {
-        return performance.now()
-    },
+export const codeTime = () => {
+    return performance.now()
 }
