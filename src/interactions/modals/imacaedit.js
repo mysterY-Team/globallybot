@@ -6,7 +6,7 @@ import { drawText } from "canvas-txt"
 import conf from "../../config.js"
 const { db, customEmoticons } = conf
 import { imacaData } from "../../functions/dbSystem.js"
-import imacaInfo from "../../functions/imaca.js"
+import { classes } from "../../functions/imaca.js"
 import { request } from "undici"
 
 export default {
@@ -30,7 +30,7 @@ export default {
         newData.nameGradient2 = `#${interaction.fields.getTextInputValue("gradient2")}`.replace("##", "#").replace("#$", "$").toUpperCase()
         newData.bannerURL = interaction.fields.getTextInputValue("imgurl")
 
-        const _class = imacaInfo.classes[0]
+        const _class = classes[newData.cardID]
 
         var g = drawText(context, txt, {
             x: 0,

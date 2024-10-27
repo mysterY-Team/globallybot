@@ -2,7 +2,7 @@ import djs from "discord.js"
 const { ChatInputCommandInteraction, Client } = djs
 import conf from "../../config.js"
 const { customEmoticons } = conf
-import { generateGradientText } from "../../functions/gradient"
+import { generateGradientText } from "../../functions/gradient.js"
 
 export default {
     /**

@@ -1,4 +1,5 @@
-import { Client, ButtonInteraction, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js"
+import djs from "discord.js"
+const { Client, ButtonInteraction, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = djs
 
 import conf from "../../../config.js"
 const { _bot } = conf

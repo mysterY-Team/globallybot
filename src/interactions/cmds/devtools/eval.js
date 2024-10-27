@@ -1,7 +1,7 @@
 import djs from "discord.js"
 import conf from "../../../config.js"
-import useful from "../../../functions/useful.js"
-import dbsys from "../../../functions/dbSystem.js"
+import * as useful from "../../../functions/useful.js"
+import * as dbsys from "../../../functions/dbSystem.js"
 const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
 const { checkUserStatus } = useful
 const { customEmoticons } = conf

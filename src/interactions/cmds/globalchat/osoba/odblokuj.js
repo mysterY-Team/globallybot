@@ -71,9 +71,11 @@ export default {
             .setColor("Green")
         await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.blocks)).send({ embeds: [emb] })
 
-        client.users.send(uID, {
-            embeds: [embedblock],
-        })
+        try {
+            client.users.send(uID, {
+                embeds: [embedblock],
+            })
+        } catch (e) {}
 
         interaction.editReply(`${customEmoticons.approved} Pomyślnie odblokowano użytkownika <@${uID}> (\`${interaction.options.get("osoba", true).user.username}\`, \`${uID}\`)`)
         db.set(`userData/${uID}/gc`, gcdata.decode(info))

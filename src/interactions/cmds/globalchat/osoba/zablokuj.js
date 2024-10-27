@@ -74,9 +74,11 @@ export default {
                 }
             )
 
-        client.users.send(buser.id, {
-            embeds: [embedblock],
-        })
+        try {
+            client.users.send(buser.id, {
+                embeds: [embedblock],
+            })
+        } catch (e) {}
         const emb = new EmbedBuilder()
             .setTitle("Zablokowano użytkownika!")
             .setDescription(

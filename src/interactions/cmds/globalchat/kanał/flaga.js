@@ -1,12 +1,38 @@
 import djs from "discord.js"
-const { ChatInputCommandInteraction, Client, InteractionContextType, PermissionFlagsBits, EmbedBuilder } = djs
-
 import conf from "../../../../config.js"
-const { db, customEmoticons, supportServer } = conf
 import { checkUserStatus } from "../../../../functions/useful.js"
 import { gcdataGuild } from "../../../../functions/dbSystem.js"
 
+const { ChatInputCommandInteraction, Client, InteractionContextType, PermissionFlagsBits, EmbedBuilder, AutocompleteFocusedOption } = djs
+const { db, customEmoticons, supportServer } = conf
+
+const list = {
+    useGA: {
+        name: "Używaj GlobalActions",
+        type: "boolean",
+    },
+    showGCButtons: {
+        name: "Pokaż przyciski GlobalChat we wiadomości",
+        type: "boolean",
+    },
+    wbUserName: {
+        name: "Nazwa Webhooka (użytkownik)",
+        type: "GCWebhookUSystem",
+    },
+}
+
 export default {
+    /**
+     * @param {AutocompleteFocusedOption} acFocusedInformation
+     * @param {Client<true>} client
+     */
+    async autocomplete(acFocusedInformation, client) {
+        return Object.entries(list)
+            .map((x) => [x[0], { name: x[1].name, value: x[0] }])
+            .flat()
+            .filter((x) => (x.name ?? x).includes(acFocusedInformation.value))
+            .filter((x, i) => i < 25)
+    },
     /**
      *
      * @param {Client} client
@@ -45,20 +71,23 @@ export default {
         if (!key) return interaction.editReply(`${customEmoticons.denided} Nie ma podpiętej stacji na tym kanale`)
         var data = gcdataGuild.encode(snapshot.val)
 
-        // create the setting structure. Use properties started with "flag_"
         var flag = interaction.options.get("flaga", true).value
         var flagValue = interaction.options.get("wartość", true).value
         var errorReason = null
         var val = null
+
+        if (!Object.keys(list).includes(flag)) {
+            interaction.editReply(`${customEmoticons.info} Ta flaga ma tą właśnie wartość!`)
+            return
+        }
 
         if (key[1][`flag_${flag}`] == flagValue) {
             interaction.editReply(`${customEmoticons.info} Ta flaga ma tą właśnie wartość!`)
             return
         }
 
-        switch (flag) {
-            case "useGA":
-            case "showGCButtons": {
+        switch (list[flag].type) {
+            case "boolean": {
                 const yes = ["yes", "y", "true", "tak", "t", "prawda"]
                 const no = ["no", "nie", "n", "false", "fałsz"]
                 if (yes.includes(flagValue.toLowerCase())) val = true
@@ -66,7 +95,7 @@ export default {
                 else errorReason = "błąd składni"
                 break
             }
-            case "wbUserName": {
+            case "GCWebhookUSystem": {
                 if (!key[1].flag_showGCButtons) errorReason = "wymagane włączenie przycisków GlobalChat we wiadomościach (`showGCButtons`)"
                 else if (!flagValue.match(/%username%/i) || !flagValue.match(/%userrole%/i)) errorReason = "brak tagów `%username%` i/lub `%userrole%`"
                 else if (flagValue.match(/[{}]/)) errorReason = "niedozwolony znak"
@@ -75,12 +104,8 @@ export default {
                 else val = flagValue
                 break
             }
-            default: {
-                errorReason = "nieznana flaga"
-            }
         }
 
-        //check the errorReason, and save "val" to data
         if (errorReason) {
             interaction.editReply(`${customEmoticons.denided} Nie udało się ustawić tej flagi. Powód: ${errorReason}`)
             return

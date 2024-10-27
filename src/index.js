@@ -122,7 +122,8 @@ client.on("interactionCreate", async (int) => {
         listenerLog(3, `⚙️ Uruchamianie pliku ${fullname.join("/")}.js`)
         const file = (await import(`./interactions/cmds/${fullname.join("/")}.js`)).default
 
-        const choices = file.autocomplete(int.options.getFocused(true), client)
+        const choices = await file.autocomplete(int.options.getFocused(true), client)
+        // console.log(choices)
         await int.respond(choices.map((choice) => (typeof choice === "object" ? choice : { name: choice, value: choice })))
     } else if (int.isModalSubmit()) {
         listenerLog(3, "Został wywołany za pomocą formularza")

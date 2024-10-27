@@ -302,26 +302,6 @@ export async function globalchatFunction(client, message) {
         )
         var userHasPremium = botPremiumInfo(message.author.id, ssstatus).have
 
-        function wbName(modPerm, data) {
-            if (modPerm === 4) var rank = "st. naczelnik"
-            else if (modPerm === 3) var rank = "naczelnik"
-            else if (modPerm === 2) var rank = "st. moderator"
-            else if (modPerm === 1) var rank = "moderator"
-            else var rank = "użytkownik"
-
-            if (userHasPremium) rank += "+"
-            if (isInMysteryTeam) rank = "mysterY"
-
-            if (data.flag_showGCButtons)
-                return data.flag_wbUserName
-                    .replace(/%username%/i, message.author.username)
-                    .replace(/%userid%/i, message.author.id)
-                    .replace(/%userrole%/i, rank)
-                    .replace(/%guildid%/i, message.guildId)
-                    .replace(/%guildname%/i, message.guild.name)
-            /* else */ return `${message.author.username} (${rank};${message.author.id};${message.guildId})`
-        }
-
         const oldUserSnapshot = db.get(`userData/${message.author.id}/gc`)
         var userData = gcdata.encode(oldUserSnapshot.val)
         if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) return
@@ -364,6 +344,26 @@ export async function globalchatFunction(client, message) {
     }
 
     try {
+        function wbName(modPerm, data) {
+            if (modPerm === 4) var rank = "st. naczelnik"
+            else if (modPerm === 3) var rank = "naczelnik"
+            else if (modPerm === 2) var rank = "st. moderator"
+            else if (modPerm === 1) var rank = "moderator"
+            else var rank = "użytkownik"
+
+            if (userHasPremium) rank += "+"
+            if (isInMysteryTeam) rank = "mysterY"
+
+            if (data.flag_showGCButtons)
+                return data.flag_wbUserName
+                    .replace(/%username%/i, message.author.username)
+                    .replace(/%userid%/i, message.author.id)
+                    .replace(/%userrole%/i, rank)
+                    .replace(/%guildid%/i, message.guildId)
+                    .replace(/%guildname%/i, message.guild.name)
+            /* else */ return `${message.author.username} (${rank};${message.author.id};${message.guildId})`
+        }
+
         const chpermissions = message.channel.permissionsFor(_bot.id, false)
 
         listenerLog(3, "➿ Spełniono warunek (1/5)")
@@ -682,8 +682,6 @@ export async function globalchatFunction(client, message) {
 
         listenerLog(4, `📌 Stacja "${station}"`)
 
-        ddata = null
-
         listenerLog(4, `Różnica cooldownów: ${userData.timestampToSendMessage - Date.now()}`)
 
         listenerLog(3, "")
@@ -828,7 +826,7 @@ export async function globalchatFunction(client, message) {
         var prefixes = fs.readdirSync("./src/globalactions/").map((x) => x.replace(".js", ""))
         if (serverdata.gc[station].flag_useGA)
             for (var i = 0; i < prefixes.length; i++) {
-                var quickdata = require(`./globalactions/${prefixes[i]}`).data
+                var quickdata = (await import(`./globalactions/${prefixes[i]}.js`)).default.data
 
                 if (
                     (withoutReply.startsWith(`${prefixes[i]},`) && quickdata.prompt_type == "chat") ||

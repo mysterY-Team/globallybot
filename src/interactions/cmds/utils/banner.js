@@ -1,11 +1,5 @@
-import {
-    ChatInputCommandInteraction,
-    EmbedBuilder,
-    Client,
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-} from 'discord.js';
+import djs from "discord.js"
+const { ChatInputCommandInteraction, EmbedBuilder, Client } = djs
 
 export default {
     /**
@@ -28,4 +22,4 @@ export default {
 
         await interaction.reply({ embeds: [bannerEmbed] })
     },
-};
+}

@@ -11,8 +11,10 @@ export default {
      * @param {Client<true>} client
      */
     autocomplete(acFocusedInformation, client) {
-        var options = classes.map((x) => x.name)
-        options = options.filter((x) => x.includes(acFocusedInformation.value)).filter((x, i) => i < 25)
+        var options = classes.map((x, i) => {
+            return { name: x.name, value: i.toString() }
+        })
+        options = options.filter((x) => x.name.toLowerCase().includes(acFocusedInformation.value.toLowerCase())).filter((x, i) => i < 25)
         return options
     },
     /**
@@ -21,8 +23,9 @@ export default {
      * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
-        const sid = classes.map((x) => x.name).indexOf(interaction.options.get("styl", true).value)
-        if (sid === -1) {
+        const receivedVal = interaction.options.get("styl", true).value
+        const sid = classes.map((x) => x.name).indexOf(receivedVal)
+        if (sid === -1 && !classes[receivedVal]) {
             return interaction.reply({ content: `${customEmoticons.denided} Ten styl nie istnieje!`, ephemeral: true })
         }
 

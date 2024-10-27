@@ -103,7 +103,7 @@ var slashList = [
                         .addChannelOption((option) =>
                             option.setName("kanał").setDescription("Kanał, na którym się znajduje GlobalChat").setRequired(true).addChannelTypes(ChannelType.GuildText)
                         )
-                        .addStringOption((options) => options.setName("flaga").setDescription("Nazwa flagi").setRequired(true))
+                        .addStringOption((options) => options.setName("flaga").setDescription("Nazwa flagi").setRequired(true).setAutocomplete(true))
                         .addStringOption((options) => options.setName("wartość").setDescription("Wartość ustawiana do flagi").setRequired(true))
                 )
         )
