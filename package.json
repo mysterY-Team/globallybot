@@ -1,23 +1,23 @@
 {
     "dependencies": {
-        "@google/generative-ai": "^0.13.0",
-        "@napi-rs/canvas": "^0.1.52",
-        "@octokit/rest": "^20.1.0",
+        "@google/generative-ai": "^0.21.0",
+        "@napi-rs/canvas": "^0.1.59",
+        "@octokit/rest": "^21.0.2",
         "canvas-txt": "^4.1.1",
-        "cheerio": "^1.0.0-rc.12",
+        "cheerio": "^1.0.0",
         "discord.js": "^14.16.3",
-        "dotenv": "^16.3.1",
         "fs": "^0.0.1-security",
-        "locallium": "^1.1.0",
+        "locallium": "^1.2.0",
         "perf_hooks": "^0.0.1"
     },
     "name": "globally",
-    "version": "2.4.4",
+    "version": "2.5.0",
     "main": "src/index.js",
+    "type": "module",
     "scripts": {
         "test": "node --trace-warnings src/index.js",
         "dev": "nodemon src/index.js",
-        "update": "npm i locallium && npm i discord.js"
+        "update": "ncu && ncu -u && npm i"
     },
     "author": "patYczakus",
     "license": "",
