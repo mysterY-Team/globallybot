@@ -235,7 +235,7 @@ function timerToResetTheAPIInfo() {
                 }),
         }
 
-        var stations = Object.entries((await db.aget("stations")).val).map((x) => {
+        var stations = Object.entries((await db.aget("stations")).val ?? {}).map((x) => {
             // console.log(x)
             x[1] = x[1].split("|")
             return { id: x[0], ownerID: x[1][0], passwd: Boolean(x[1][1]), mods: (x[1][2] ?? "").split(",") }
