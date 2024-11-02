@@ -1,6 +1,6 @@
 import loc from "locallium"
 
-const debug = true
+const debug = false
 const ldb = new loc.Database("env", new loc.DatabaseFlags())
 
 export default {
