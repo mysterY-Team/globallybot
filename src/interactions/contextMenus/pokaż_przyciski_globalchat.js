@@ -24,7 +24,7 @@ async function execute(client, interaction) {
 
     await interaction.deferReply({ ephemeral: true })
 
-    var data = Object.values(gcdataGuild.encode(db.get(`serverData/${targetMsg.guildId}/gc`).val)).find((v) => v.channel === targetMsg.channelId)
+    var data = Object.values(gcdataGuild.encode((await db.aget(`serverData/${targetMsg.guildId}/gc`)).val)).find((v) => v.channel === targetMsg.channelId)
     if (!data) {
         interaction.editReply(`${customEmoticons.denided} Użyto na złym kanale!`)
         return
@@ -47,7 +47,7 @@ async function execute(client, interaction) {
         return
     }
 
-    const uData = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
+    const uData = gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val)
     if (uData.karma < 25n) {
         interaction.editReply(`${customEmoticons.denided} Aby użyć tego elementu, potrzeba **minimum** 25 karmy`)
         return

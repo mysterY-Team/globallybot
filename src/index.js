@@ -221,7 +221,7 @@ function timerToResetTheAPIInfo() {
         listenerLog(2, "")
         listenerLog(2, "✅ Zapisano serwery na lokalnej zmiennej. Liczba oznaczająca zmianę: " + y)
 
-        let users = Object.entries(db.get("userData").val ?? {})
+        let users = Object.entries((await db.aget("userData")).val ?? {})
 
         var listOfUsers = {
             gc: users.filter((x) => x[1].gc).map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] })),
@@ -235,7 +235,7 @@ function timerToResetTheAPIInfo() {
                 }),
         }
 
-        var stations = Object.entries(db.get("stations").val).map((x) => {
+        var stations = Object.entries((await db.aget("stations")).val).map((x) => {
             // console.log(x)
             x[1] = x[1].split("|")
             return { id: x[0], ownerID: x[1][0], passwd: Boolean(x[1][1]), mods: (x[1][2] ?? "").split(",") }
@@ -253,9 +253,9 @@ function timerToResetTheAPIInfo() {
             listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
 
             listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
-            listOfUsers.gc.forEach((x) => {
+            listOfUsers.gc.forEach(async (x) => {
                 if (Math.max(x.timestampToSendMessage, x._sat) + 864000000 <= Date.now() && !x.isBlocked) {
-                    db.delete(`userData/${x.userID}/gc`)
+                    await db.adelete(`userData/${x.userID}/gc`)
                     listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
                 }
             })
@@ -264,7 +264,7 @@ function timerToResetTheAPIInfo() {
                 listOfUsers.premium.forEach(async (x) => {
                     //console.log(x, x.days)
                     if (x.days == 0) return db.adelete(`userData/${x.userID}/premium`)
-                    const premium = botPremiumInfo(x.userID, await checkUserStatus(client, x.userID), x.days)
+                    const premium = await botPremiumInfo(x.userID, await checkUserStatus(client, x.userID), x.days)
                     if (!premium.have || premium.typeof !== "trial") return
                     if (x.days == 1) {
                         db.adelete(`userData/${x.userID}/premium`)
@@ -288,25 +288,25 @@ function timerToResetTheAPIInfo() {
             stationOwners.forEach(async (v) => {
                 listenerLog(3, `Właściciel ${v}`)
                 const ssstatus = await checkUserStatus(client, v)
-                const premium = botPremiumInfo(v, ssstatus)
+                const premium = await botPremiumInfo(v, ssstatus)
                 if (premium.have || ssstatus.mysteryTeam) return listenerLog(4, "Posiada możliwość wielostacji, sprawdzanie następnego...")
                 const allStationsByThatOwner = stations.filter((x) => x.ownerID == v)
                 for (let i = 1; i < allStationsByThatOwner.length; i++) {
                     const element = allStationsByThatOwner[i]
-                    db.delete(`stations/${element.id}`)
+                    await db.adelete(`stations/${element.id}`)
                     listenerLog(4, `🗑️ usunięto stację ${element.id}${element.passwd ? " (hasłowana)" : ""}`)
                 }
             })
         }
 
         const usersToUB = listOfUsers.gc.filter((x) => x.isBlocked && x.blockTimestamp <= Math.round(date.getTime() / 3_600_000))
-        usersToUB.forEach((x) => {
+        usersToUB.forEach(async (x) => {
             x.blockTimestamp = NaN
             x.blockReason = ""
             x.isBlocked = false
             const uID = x.userID
             delete x.userID
-            db.set(`userData/${uID}/gc`, gcdata.decode(x))
+            await db.aset(`userData/${uID}/gc`, gcdata.decode(x))
             x.userID = uID
             try {
                 client.users.send(uID, {

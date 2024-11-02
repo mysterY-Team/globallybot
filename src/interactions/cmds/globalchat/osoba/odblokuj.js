@@ -15,7 +15,7 @@ export default {
         await interaction.deferReply({
             ephemeral: interaction.inGuild(),
         })
-        var yourInfo = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
+        var yourInfo = gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val)
         const ssstatus1 = await checkUserStatus(client, interaction.user.id)
         const isInMysteryTeam1 = ssstatus1.inSupport && ssstatus1.mysteryTeam
 
@@ -36,7 +36,7 @@ export default {
             return
         }
 
-        var info = gcdata.encode(db.get(`userData/${uID}/gc`).val)
+        var info = gcdata.encode((await db.aget(`userData/${uID}/gc`)).val)
         if (Math.max(yourInfo.modPerms, isInMysteryTeam1 * 11 - 1) <= info.modPerms || isInMysteryTeam2) {
             interaction.editReply({
                 content: `${customEmoticons.denided} Ta osoba jest ponad/na równi twoich permisji!`,
@@ -78,6 +78,6 @@ export default {
         } catch (e) {}
 
         interaction.editReply(`${customEmoticons.approved} Pomyślnie odblokowano użytkownika <@${uID}> (\`${interaction.options.get("osoba", true).user.username}\`, \`${uID}\`)`)
-        db.set(`userData/${uID}/gc`, gcdata.decode(info))
+        await db.aset(`userData/${uID}/gc`, gcdata.decode(info))
     },
 }

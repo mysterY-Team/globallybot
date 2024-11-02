@@ -26,7 +26,7 @@ export default {
 
         await interaction.deferReply({ ephemeral: true })
 
-        var userData1 = db.get(`userData/${interaction.user.id}/gc`)
+        var userData1 = await db.aget(`userData/${interaction.user.id}/gc`)
         if (!userData1.exists) {
             interaction.editReply(`${customEmoticons.denided} Musisz napisać jakąś wiadomość`)
             return
@@ -41,7 +41,7 @@ export default {
             return
         }
 
-        var userData2 = db.get(`userData/${uid}/gc`)
+        var userData2 = await db.aget(`userData/${uid}/gc`)
         var data2 = gcdata.encode(userData2.val)
         if (data2.isBlocked) {
             interaction.editReply(`${customEmoticons.denided} Użytkownik jest zablokowany! Daj mu spokój!`)
@@ -54,7 +54,7 @@ export default {
 
         // console.log(data2.blockTimestampToTab, data1.timestampToTab, Math.floor(Date.now() / 1000))
 
-        var station = Object.values(db.get("serverData").val)
+        var station = Object.values(await db.aget("serverData").val)
             .filter((x) => "gc" in x)
             .map((x) => Object.entries(gcdataGuild.encode(x.gc)))
             .flat()
@@ -96,8 +96,8 @@ export default {
             data1.timestampToTab = Math.floor(Date.now() / 1000) + times.cooldown
             data2.blockTimestampToTab = Math.floor(Date.now() / 1000) + times.blockrepl
 
-            db.set(`userData/${interaction.user.id}/gc`, gcdata.decode(data1))
-            db.set(`userData/${uid}/gc`, gcdata.decode(data2))
+            await db.aset(`userData/${interaction.user.id}/gc`, gcdata.decode(data1))
+            await db.aset(`userData/${uid}/gc`, gcdata.decode(data2))
         } catch (err) {
             interaction.editReply(`${customEmoticons.denided} Nie udało się wysłać zaczepki!`)
         }

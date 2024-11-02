@@ -18,12 +18,12 @@ export default {
 
         var users = []
         await Promise.all(
-            Object.entries(db.get("userData").val).map(async (x) => {
+            Object.entries((await db.aget("userData")).val).map(async (x) => {
                 var fastData = { gc: gcdata.encode(x[1].gc), userID: x[0], premium: x[1].premium }
                 try {
                     const ssstatus = await checkUserStatus(client, fastData.userID)
                     var user = await client.users.fetch(fastData.userID, { cache: false })
-                    var z = Object.assign(fastData.gc, { user, premium: botPremiumInfo(fastData.userID, ssstatus, fastData.premium).have, ssstatus })
+                    var z = Object.assign(fastData.gc, { user, premium: (await botPremiumInfo(fastData.userID, ssstatus, fastData.premium)).have, ssstatus })
                     users.push(z)
                 } catch (e) {}
 
@@ -124,7 +124,7 @@ export default {
         var embed = new EmbedBuilder()
             .setImage(msg.attachments.first().url)
             .setDescription(
-                `Twoja ilość karmy: **${gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val).karma}**\nTwoje miejsce w rankingu: ${
+                `Twoja ilość karmy: **${gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val).karma}**\nTwoje miejsce w rankingu: ${
                     _place ? "**" + _place + "**" : "brak - Twoja karma jest za mała, aby móc brać udział w rankingu"
                 }`
             )

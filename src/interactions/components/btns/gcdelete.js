@@ -20,7 +20,7 @@ export default {
 
         const ssstatus = await checkUserStatus(client, interaction.user.id)
         const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
-        const premium = botPremiumInfo(interaction.user.id, ssstatus)
+        const premium = await botPremiumInfo(interaction.user.id, ssstatus)
 
         var $channels = [await client.channels.fetch(supportServer.gclogs.msg), await client.channels.fetch(supportServer.gclogs.main)]
         if ($channels[0] && $channels[0].type == ChannelType.GuildText) {
@@ -38,13 +38,13 @@ export default {
             return
         }
 
-        var data = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
+        var data = gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val)
         var lastUser = lastUserHandler.get()
         if (lastUser === `${interaction.guildId}/${interaction.channelId}:${args[0]}[true]`) {
             lastUserHandler.reset()
         }
 
-        var snpsht = db.get(`stations/${stationWhereItIsSent}`)
+        var snpsht = await db.aget(`stations/${stationWhereItIsSent}`)
         if (args[0] !== interaction.user.id && (!snpsht.exists || !snpsht.val.includes(interaction.user.id)) && data.modPerms === 0 && !isInMysteryTeam) {
             return interaction.editReply({
                 content: `${customEmoticons.denided} Nie masz permisji do usunięcia tej wiadodmości!`,
@@ -86,11 +86,11 @@ export default {
         )
 
         if (args[0] === interaction.user.id && !premium.have && !isInMysteryTeam) {
-            data = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
+            data = gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val)
             data.timestampToSendMessage = Math.max(data.timestampToSendMessage, Date.now()) + messagesToDelete.length * 250
             data.karma -= BigInt(1 + (data.karma >= 100n && data.modPerms == 0) * 2)
             if (data.karma < 0) data.karma = 0n
-            db.set(`userData/${interaction.user.id}/gc`, gcdata.decode(data))
+            await db.aset(`userData/${interaction.user.id}/gc`, gcdata.decode(data))
         }
 
         const firstEmbed = $message.embeds[0]

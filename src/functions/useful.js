@@ -89,11 +89,11 @@ function getModules(udata) {
  *
  * @param {string} id
  * @param {number} [cachedPremium=null]
- * @returns {{ have: true, typeof: "supportBoost" | "trial" } | { have: false }}
+ * @returns {Promise<{ have: true, typeof: "supportBoost" | "trial" } | { have: false }>}
  */
-function botPremiumInfo(id, userstatus, cachedPremium = null) {
+async function botPremiumInfo(id, userstatus, cachedPremium = null) {
     if (userstatus.inSupport && userstatus.booster && !userstatus.mysteryTeam) return { have: true, typeof: "supportBoost" }
-    if (((cachedPremium !== null ? cachedPremium : conf.db.get(`userData/${id}/premium`).val) ?? 0) > 0) return { have: true, typeof: "trial" }
+    if (((cachedPremium !== null ? cachedPremium : (await conf.db.aget(`userData/${id}/premium`)).val) ?? 0) > 0) return { have: true, typeof: "trial" }
     return { have: false }
 }
 

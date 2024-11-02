@@ -15,7 +15,7 @@ export default {
         await interaction.deferReply({
             ephemeral: interaction.inGuild(),
         })
-        var yourInfo = gcdata.encode(db.get(`userData/${interaction.user.id}/gc`).val)
+        var yourInfo = gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val)
         const ssstatus = await checkUserStatus(client, interaction.user.id)
         const isInMysteryTeam1 = ssstatus.inSupport && ssstatus.mysteryTeam
         if (!isInMysteryTeam1 && yourInfo.modPerms === 0)
@@ -35,7 +35,7 @@ export default {
             return
         }
 
-        var info = gcdata.encode(db.get(`userData/${buser.id}/gc`).val)
+        var info = gcdata.encode((await db.aget(`userData/${buser.id}/gc`)).val)
 
         if (Math.max(yourInfo.modPerms, isInMysteryTeam1 * 11 - 1) <= info.modPerms || isInMysteryTeam2) {
             interaction.editReply({
@@ -95,6 +95,6 @@ export default {
         interaction.editReply({
             content: `${customEmoticons.approved} Pomyślnie zablokowano użytkownika ${buser} (\`${buser.username}\`, \`${buser.id}\`)`,
         })
-        db.set(`userData/${buser.id}/gc`, gcdata.decode(info))
+        await db.aset(`userData/${buser.id}/gc`, gcdata.decode(info))
     },
 }

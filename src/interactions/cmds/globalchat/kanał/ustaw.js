@@ -57,7 +57,7 @@ export default {
         }
 
         //wczytywanie danych
-        var allsnpsht = db.get(`serverData/${interaction.guildId}/gc`)
+        var allsnpsht = await db.aget(`serverData/${interaction.guildId}/gc`)
         var gccount = allsnpsht.exists ? Object.keys(gcdataGuild.encode(allsnpsht.val ?? "")).length : 0
 
         if (gccount >= 3 + 4 * constPremiumServersIDs.includes(interaction.guildId) && interaction.guildId !== supportServer.id) {
@@ -66,13 +66,13 @@ export default {
 
         var $stacja = interaction.options.get("stacja", true).value
         // Daj listę stacji
-        var stationData = db.get(`stations/${$stacja}`).val
+        var stationData = (await db.aget(`stations/${$stacja}`)).val
 
         if (!stationData) {
             return interaction.editReply(`${customEmoticons.denided} Nie ma takiej stacji!`)
         }
 
-        var serverData = Object.values(db.get("serverData").val || {})
+        var serverData = Object.values((await db.aget("serverData")).val || {})
         serverData = serverData.filter((x) => x.gc && x.gc.includes($stacja))
 
         if (serverData.length >= 25) {
@@ -101,9 +101,9 @@ export default {
         newStationData.channel = channel.channel.id
         data[$stacja] = newStationData
 
-        db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
+        await db.aset(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
 
-        db.set(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
+        await db.aset(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
 
         interaction.editReply(`${customEmoticons.approved} Dodano pomyślnie kanał na stacji \`${$stacja}\`!`)
 

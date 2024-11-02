@@ -12,7 +12,7 @@ export default {
      * @param {ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
-        const stationsMakers = Object.values(db.get("stations").val || {}).map((x) => x.split("|")[0])
+        const stationsMakers = Object.values((await db.aget("stations").val) || {}).map((x) => x.split("|")[0])
         if (Object.keys(repeats(stationsMakers)).length >= servers.get().length) {
             return interaction.reply({
                 content: `${customEmoticons.minus} Stacji jest już za dużo, spróbuj ponownie później!`,

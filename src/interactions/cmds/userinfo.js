@@ -19,9 +19,9 @@ export default {
         const ssstatus = await checkUserStatus(client, user.id)
         const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
-        const fdb = db.get(`userData/${user.id}`)
+        const fdb = await db.aget(`userData/${user.id}`)
         var data = fdb.val ?? {}
-        const premium = botPremiumInfo(user.id, ssstatus, data.premium)
+        const premium = await botPremiumInfo(user.id, ssstatus, data.premium)
         const modules = getModules(data)
 
         const guildlist = servers.get().map((x) => x.id)

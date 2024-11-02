@@ -369,7 +369,7 @@ async function createCarrrd(data, user) {
                     200
                 )
                 context.fillText(`ID: ${user.id}`, 190, 225)
-                context.fillText(`Modules: ${getModules(db.get(`userData/${user.id}`).val).length}`, 190, 250)
+                context.fillText(`Modules: ${getModules((await db.aget(`userData/${user.id}`)).val).length}`, 190, 250)
 
                 context.fillStyle = "rgb(65, 65, 65)"
                 context.fillRect(0, 300, 700, 700)

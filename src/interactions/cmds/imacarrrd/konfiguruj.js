@@ -16,7 +16,7 @@ export default {
             return data[Math.floor(Math.random() * data.length)]
         }
 
-        var snpsht = db.get(`userData/${interaction.user.id}/imaca`)
+        var snpsht = await db.aget(`userData/${interaction.user.id}/imaca`)
         var data = imacaData.encode(snpsht.val)
 
         const imacaName = new TextInputBuilder()

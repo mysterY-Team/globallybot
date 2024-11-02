@@ -20,8 +20,8 @@ export default {
         const ssstatus = await checkUserStatus(client, args[0])
         const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
-        var data = gcdata.encode(db.get(`userData/${args[0]}/gc`).val)
-        var haveImacarrrd = db.get(`userData/${args[0]}/imaca`).exists
+        var data = gcdata.encode((await db.aget(`userData/${args[0]}/gc`)).val)
+        var haveImacarrrd = (await db.aget(`userData/${args[0]}/imaca`)).exists
 
         var embed = new EmbedBuilder()
             .setAuthor({ name: `${user.displayName} (${user.discriminator === "0" ? user.username : user.username + "#" + user.discriminator})` })

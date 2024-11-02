@@ -35,7 +35,7 @@ export default {
 
         if (typeof days === "number") {
             if (days === 0) {
-                db.delete(`userData/${user.id}/premium`)
+                await db.adelete(`userData/${user.id}/premium`)
                 interaction.editReply(`${customEmoticons.approved} Usunięto pomyślnie użytkownikowi premium!`)
                 try {
                     user.send(
@@ -43,7 +43,7 @@ export default {
                     )
                 } catch (e) {}
             } else {
-                db.set(`userData/${user.id}/premium`, days)
+                await db.aset(`userData/${user.id}/premium`, days)
                 interaction.editReply(`${customEmoticons.approved} Nadano pomyślnie użytkownikowi **${days}** dni premium!`)
                 try {
                     user.send(
@@ -52,7 +52,7 @@ export default {
                 } catch (e) {}
             }
         } else {
-            const dbDays = db.get(`userData/${user.id}/premium`).val ?? 0
+            const dbDays = (await db.aget(`userData/${user.id}/premium`)).val ?? 0
             if (dbDays === 0) {
                 interaction.editReply(`Użytkownik ${user} (\`${user.username}\`) nie ma premium`)
             } else {

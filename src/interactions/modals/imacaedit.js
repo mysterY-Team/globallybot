@@ -22,7 +22,7 @@ export default {
         const context = canvas.getContext("2d")
         var txt = interaction.fields.getTextInputValue("description")
 
-        var snpsht = db.get(`userData/${interaction.user.id}/imaca`)
+        var snpsht = await db.aget(`userData/${interaction.user.id}/imaca`)
         var newData = imacaData.encode(snpsht.val)
         newData.description = interaction.fields.getTextInputValue("description")
         newData.name = interaction.fields.getTextInputValue("name")
@@ -77,7 +77,7 @@ export default {
                 return
             }
 
-        db.set(`userData/${interaction.user.id}/imaca`, imacaData.decode(newData))
+        await db.aset(`userData/${interaction.user.id}/imaca`, imacaData.decode(newData))
         interaction.editReply(`${customEmoticons.approved} Dane zostały zaktualizowane!`)
     },
 }

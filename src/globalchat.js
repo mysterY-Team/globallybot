@@ -300,15 +300,15 @@ export async function globalchatFunction(client, message) {
         var gcapprovedAttachments = message.attachments.filter(
             (x) => x.contentType && (x.contentType.startsWith("image") || x.contentType.startsWith("video") || x.contentType.startsWith("audio"))
         )
-        var userHasPremium = botPremiumInfo(message.author.id, ssstatus).have
+        var userHasPremium = (await botPremiumInfo(message.author.id, ssstatus)).have
 
-        const oldUserSnapshot = db.get(`userData/${message.author.id}/gc`)
+        const oldUserSnapshot = await db.aget(`userData/${message.author.id}/gc`)
         var userData = gcdata.encode(oldUserSnapshot.val)
         if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) return
 
         if (message.author.bot || message.author.system) return
 
-        var snpsht = db.get(`serverData`)
+        var snpsht = await db.aget(`serverData`)
         var database = snpsht.val || {}
 
         database = Object.entries(database)
@@ -487,12 +487,12 @@ export async function globalchatFunction(client, message) {
             }
         }
 
-        if (!db.get(`stations/${station}`).exists) {
+        if (!(await db.aget(`stations/${station}`)).exists) {
             let msg = await message.channel.send("Ta stacja przestała istnieć! Usuwanie kanału z bazy danych...")
             let removeData = async function () {
                 delete serverdata.gc[station]
-                if (Object.keys(serverdata.gc).length > 0) db.set(`serverData/${serverdata.id}/gc`, gcdataGuild.decode(serverdata.gc))
-                else db.delete(`serverData/${serverdata.id}/gc`)
+                if (Object.keys(serverdata.gc).length > 0) await db.aset(`serverData/${serverdata.id}/gc`, gcdataGuild.decode(serverdata.gc))
+                else await db.adelete(`serverData/${serverdata.id}/gc`)
                 msg.edit(`~~Ta stacja przestała istnieć! Usuwanie kanału z bazy danych...~~\n${customEmoticons.approved} Usunięto kanał z bazy danych!`)
 
                 const emb = new EmbedBuilder()
@@ -524,7 +524,7 @@ export async function globalchatFunction(client, message) {
             return
         }
 
-        const stationHasPasswd = Boolean(db.get(`stations/${station}`).val.split("|")[1])
+        const stationHasPasswd = Boolean((await db.aget(`stations/${station}`)).val.split("|")[1])
 
         listenerLog(3, "➿ Spełniono warunek (2/5)")
 
@@ -553,7 +553,7 @@ export async function globalchatFunction(client, message) {
 
             if (message.content.toLowerCase() !== "<p>") {
                 userData.messageID_bbc = message.id
-                db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+                await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
             }
             return
         }
@@ -603,7 +603,7 @@ export async function globalchatFunction(client, message) {
             } catch (e) {}
             userData.timestampToSendMessage = Date.now() + 600_000
             userData.messageID_bbc = ""
-            db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+            await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
             return
         }
 
@@ -621,7 +621,7 @@ export async function globalchatFunction(client, message) {
                 } catch (e) {}
                 userData.timestampToSendMessage = Date.now() + 30_000
                 userData.messageID_bbc = ""
-                db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+                await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
                 return
             }
             if (!userHasPremium) {
@@ -666,7 +666,7 @@ export async function globalchatFunction(client, message) {
             } catch (e) {}
             userData.timestampToSendMessage = Date.now() + 180_000
             userData.messageID_bbc = ""
-            db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+            await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
             return
         }
 
@@ -731,7 +731,7 @@ export async function globalchatFunction(client, message) {
 
                                                 var data = gcdataGuild.encode(snpsht.val[guildID].gc)
                                                 data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
-                                                db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
+                                                await db.aset(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
                                             }
                                         } catch (e) {
                                             listenerLog(5, "❕ Wyłapano błąd, ignorowanie i tworzenie nowego...")
@@ -742,7 +742,7 @@ export async function globalchatFunction(client, message) {
 
                                             var data = gcdataGuild.encode(snpsht.val[guildID].gc)
                                             data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
-                                            db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
+                                            await db.aset(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
                                         }
 
                                         return { wh: webhook, gid: guildID, cid: sData.channel }
@@ -754,7 +754,7 @@ export async function globalchatFunction(client, message) {
 
                                         var data = gcdataGuild.encode(snpsht.val[guildID].gc)
                                         data[station].webhook = webhook.url.replace("https://discord.com/api/webhooks/", "")
-                                        db.set(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
+                                        await db.aset(`serverData/${guildID}/gc`, gcdataGuild.decode(data))
 
                                         return { wh: webhook, gid: guildID, cid: sData.channel }
                                     }
@@ -762,7 +762,7 @@ export async function globalchatFunction(client, message) {
                                     listenerLog(5, `✖️ Ignorowanie serwera (niepoprawny kanał, oczekiwano: 0, uzyskano: ${channel_DClient.type})`)
                                 }
                             } else {
-                                guild_DClient.fetchOwner({ cache: false }).then((gguildOwner) => {
+                                guild_DClient.fetchOwner({ cache: false }).then(async (gguildOwner) => {
                                     //embed z informacją o braku kanału
                                     const embedError = new EmbedBuilder()
                                         .setTitle("Nieznaleziony kanał")
@@ -783,13 +783,13 @@ export async function globalchatFunction(client, message) {
                                         embeds: [embedError],
                                     })
 
-                                    db.delete(`serverData/${guildID}/gc`)
+                                    await db.adelete(`serverData/${guildID}/gc`)
                                     return
                                 })
                             }
                         } catch (err) {
                             if (err instanceof DiscordAPIError && err.code === 30007) {
-                                ;(await client.guilds.fetch({ guild: guildID, cache: false })).fetchOwner().then((gguildOwner) => {
+                                ;(await client.guilds.fetch({ guild: guildID, cache: false })).fetchOwner().then(async (gguildOwner) => {
                                     //embed z informacją o braku kanału
                                     const embedError = new EmbedBuilder()
                                         .setTitle("Za duża ilość Webhooków")
@@ -809,11 +809,11 @@ export async function globalchatFunction(client, message) {
                                         content: `${customEmoticons.info} Tu bot Globally. Jako, że jesteś właścicielem serwera *${guild_DClient.name}*, jest bardzo ważna informacja dla Ciebie!`,
                                         embeds: [embedError],
                                     })
-                                    db.delete(`serverData/${guildID}/gc`)
+                                    await db.adelete(`serverData/${guildID}/gc`)
                                 })
                             } else {
                                 console.warn(err)
-                                db.delete(`serverData/${guildID}`)
+                                await db.adelete(`serverData/${guildID}`)
                             }
                             return
                         }
@@ -861,7 +861,7 @@ export async function globalchatFunction(client, message) {
             Date.now() + userCooldown(database.length, gct()) * (Math.max((typeof prefixes == "string") * 4 - (userHasPremium || isInMysteryTeam) * 2, 0) + 1)
         gct = null
         userData.messageID_bbc = ""
-        db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+        await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
 
         message.content = await formatText(message.content, client)
 
@@ -1098,7 +1098,7 @@ export async function globalchatFunction(client, message) {
             else if (gcapprovedAttachments.size > 0) userData.karma += BigInt(Math.round(gcapprovedAttachments.size / (2 - userHasPremium * 0.5)) + 2 + userHasPremium)
             else userData.karma += 1n
             if (message.reference && Math.random() < 0.05 * (1 + isInMysteryTeam)) userData.karma += 2n - BigInt(userHasPremium)
-            db.set(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+            await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
         })
     } catch (err) {
         message.channel.send(`${customEmoticons.denided} Podczas analizy wystąpił błąd!`)

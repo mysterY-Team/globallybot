@@ -11,11 +11,11 @@ export default {
      */
     async execute(client, interaction) {
         await interaction.deferReply()
-        var guilds = Object.values(db.get("serverData").val)
+        var guilds = Object.values((await db.aget("serverData")).val)
             .filter((x) => "gc" in x)
             .map((x) => x.gc)
         //console.log(guilds.length)
-        var stations = Object.entries(db.get("stations").val ?? {})
+        var stations = Object.entries((await db.aget("stations")).val ?? {})
             .sort(() => Math.random() - 0.5)
             .map((x) => {
                 return { sid: x[0], passwd: x[1].split("|")[1], uid: x[1].split("|")[0], serverCount: guilds.filter((y) => y.includes(x[0])).length }

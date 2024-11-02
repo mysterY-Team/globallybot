@@ -31,13 +31,13 @@ export default {
 
         await interaction.deferReply()
 
-        var snpsht = db.get(`userData/${interaction.user.id}/imaca`)
+        var snpsht = await db.aget(`userData/${interaction.user.id}/imaca`)
         var data = imacaData.encode(snpsht.val)
 
         data.cardID = sid
         data.description = data.description.replace(/\n/g, " ")
 
-        db.set(`userData/${interaction.user.id}/imaca`, imacaData.decode(data))
+        await db.aset(`userData/${interaction.user.id}/imaca`, imacaData.decode(data))
 
         interaction.editReply(
             `${customEmoticons.approved} Zmieniono styl karty\n${customEmoticons.info} Aby uniknąć ewentualnych problemów renderowania, zamieniono wszystkie nowe linie spacjami. Możesz uruchomić ponownie komendę \`imacarrrd konfiguruj\` i zedytować swój opis`

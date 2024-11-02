@@ -15,7 +15,7 @@ export default {
         var user = interaction.options.get("osoba")?.user || interaction.user
 
         await interaction.deferReply()
-        var snpsht = db.get(`userData/${user.id}/imaca`)
+        var snpsht = await db.aget(`userData/${user.id}/imaca`)
         var data = imacaData.encode(snpsht.val)
 
         const attachment = await createCarrrd(data, user)
