@@ -499,7 +499,7 @@ export async function globalchatFunction(client, message) {
 
                 const emb = new EmbedBuilder()
                     .setTitle("Usunięto kanał!")
-                    .setDescription(`ID: \`${message.channel.id}\`\nNazwa kanału: \`${message.channel.name}\`\nStacja: \`${station}\`\nOsoba odłączająca: <@${_bot.id}>)`)
+                    .setDescription(`ID: \`${message.channel.id}\`\nNazwa kanału: \`${message.channel.name}\`\nStacja: \`${station}\`\nOsoba odłączająca: <@${_bot.id}>`)
                     .setColor("Blue")
                 await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.main)).send({ embeds: [emb] })
             }
