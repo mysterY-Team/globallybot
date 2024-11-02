@@ -487,7 +487,9 @@ export async function globalchatFunction(client, message) {
             }
         }
 
-        if (!(await db.aget(`stations/${station}`)).exists) {
+        const stationSnapshot = await db.aget(`stations/${station}`)
+
+        if (!stationSnapshot.exists) {
             let msg = await message.channel.send("Ta stacja przestała istnieć! Usuwanie kanału z bazy danych...")
             let removeData = async function () {
                 delete serverdata.gc[station]
