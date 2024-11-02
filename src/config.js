@@ -13,6 +13,7 @@ export default {
             getAdvancedWarns: debug,
             createDatabaseFileOnReadIfDoesntExist: true,
             setValueToDatabaseFileOnReadIfDoesntExist: "{}",
+            keepEmptyKeysWhileDeleting: true,
         })
     ),
     supportServer: {
