@@ -1,6 +1,5 @@
-import djs from "discord.js"
-const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
-import { wait } from "../../../functions/useful.js"
+import djs, { ChatInputCommandInteraction } from "discord.js"
+const { ChatInputCommandInteraction, Client } = djs
 import conf from "../../../config.js"
 const { customEmoticons } = conf
 
@@ -12,10 +11,10 @@ export default {
      */
 
     async execute(client, interaction) {
-        const osoba = interaction.options.get("osoba", true).member
+        const osoba = await interaction.options.get("osoba", true).member?.fetch()
         const powod = interaction.options.get("powód")?.value
 
-        if (interaction.user.id === osoba.id) {
+        if (interaction.user.id === osoba?.id) {
             return interaction.reply({ content: `${customEmoticons.denided} Nie możesz wyrzucić siebie.`, ephemeral: true })
         }
 
@@ -35,7 +34,9 @@ export default {
 
         try {
             await osoba.kick(powod)
-            await interaction.editReply(`${customEmoticons.approved} Udało się wyrzucić ${osoba.username}!\n${customEmoticons.info} Powód: ${powod}`)
+            await interaction.editReply(
+                `${customEmoticons.approved} Udało się wyrzucić ${osoba} (\`${osoba.username}\`, \`${osoba.id}\`)!\n${customEmoticons.info} Powód: ${powod}`
+            )
         } catch (error) {
             console.error(error)
             await interaction.editReply(`${customEmoticons.denided} Wystąpił błąd podczas próby zbanowania tej osoby.`)
