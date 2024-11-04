@@ -44,6 +44,7 @@ export const gcdata = {
             modPerms: Number(obj[7] ?? 0),
             blockTimestamp: Number(obj[8] ?? NaN),
             _sat: Number(obj[9] ?? (karma >= 1000n) * Date.now()),
+            gcUses: Number(obj[10] ?? 0),
         }
     },
     decode: (data) => {

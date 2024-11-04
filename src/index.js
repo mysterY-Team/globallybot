@@ -44,6 +44,7 @@ client.on("ready", (log) => {
 })
 
 client.on("messageCreate", async (msg) => {
+    listenerLog(2, "❗ Wyłapano wiadomość")
     let fullmsg = msg
     if (msg.partial) {
         fullmsg = await msg.fetch()
@@ -151,7 +152,7 @@ client.on("interactionCreate", async (int) => {
         listenerLog(3, "Jest komendą (kontekstowe menu)")
         var filename = int.commandName.toLowerCase().replace(/ /g, "_")
         listenerLog(3, `⚙️ Uruchamianie pliku ${filename}.js`)
-        const file = require(`./interactions/contextMenus/${filename}`)
+        const file = (await import(`./interactions/contextMenus/${filename}.js`)).default
 
         file.execute(client, int).catch((err) => {
             if (int.replied || int.deferred) {
@@ -210,7 +211,7 @@ client.on("warn", (err) => {
     if (debug) console.warn(err)
 })
 client.on("error", (err) => {
-    if (debug) console.error(err)
+    console.error(err)
 })
 
 client.login(TOKEN)
@@ -257,7 +258,13 @@ function timerToResetTheAPIInfo() {
                 if (Math.max(x.timestampToSendMessage, x._sat) + 864000000 <= Date.now() && !x.isBlocked) {
                     await db.adelete(`userData/${x.userID}/gc`)
                     listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
+                    return
                 }
+
+                x.gcUses = 0
+                const uID = x.userID
+                delete x.userID
+                await db.aset(`userData/${uID}/gc`, gcdata.decode(x))
             })
 
             if (date.getHours() === 0 || debug)

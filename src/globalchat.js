@@ -3,7 +3,6 @@ import conf from "./config.js"
 import fs from "fs"
 import emotki from "./interactions/cmds/globalchat/emotki.js"
 import { listenerLog, wait, checkUserStatus, botPremiumInfo } from "./functions/useful.js"
-import { freemem, totalmem } from "os"
 import { checkAnyBadWords } from "./functions/badwords.js"
 import { gcdata, gcdataGuild } from "./functions/dbSystem.js"
 import { request } from "undici"
@@ -19,7 +18,7 @@ let lastUser = "unknown"
  *
  * @param {string} text
  */
-function sprawdzNiedozwoloneLinki(text) {
+function checkDisallowedLinks(text) {
     /**
      * @type {(RegExp | string)[]}
      */
@@ -97,7 +96,7 @@ async function formatText(text, client) {
         }
         return text
     })
-    text = text.replace(/{(?:textFormat|txf)\.(doubleline|gothic):([^`\n}]+)}/g, (match, arg1, arg2) => {
+    text = text.replace(/{(?:textFormat|txf)\.(doubleline|gothic|sup):([^`\n}]+)}/g, (match, arg1, arg2) => {
         const formatLetters = {
             doubleline: {
                 A: "𝔸",
@@ -227,6 +226,71 @@ async function formatText(text, client) {
                 8: "𝟖",
                 9: "𝟗",
             },
+            sup: {
+                A: "ᴬ",
+                B: "ᴮ",
+                C: "ꟲ",
+                D: "ᴰ",
+                E: "ᴱ",
+                F: "ꟳ",
+                G: "ᴳ",
+                H: "ᴴ",
+                I: "ᴵ",
+                J: "ᴶ",
+                K: "ᴷ",
+                L: "ᴸ",
+                M: "ᴹ",
+                N: "ᴺ",
+                O: "ᴼ",
+                P: "ᴾ",
+                Q: "ꟴ",
+                R: "ᴿ",
+                T: "ᵀ",
+                U: "ᵁ",
+                V: "ⱽ",
+                W: "ᵂ",
+                a: "ᵃ",
+                b: "ᵇ",
+                c: "ᶜ",
+                d: "ᵈ",
+                e: "ᵉ",
+                f: "ᶠ",
+                g: "ᵍ",
+                h: "ʰ",
+                i: "ⁱ",
+                j: "ʲ",
+                k: "ᵏ",
+                l: "ˡ",
+                m: "ᵐ",
+                n: "ⁿ",
+                o: "ᵒ",
+                p: "ᵖ",
+                q: "𐞥",
+                r: "ʳ",
+                s: "ˢ",
+                t: "ᵗ",
+                u: "ᵘ",
+                v: "ᵛ",
+                w: "ʷ",
+                x: "ˣ",
+                y: "ʸ",
+                z: "ᶻ",
+                0: "⁰",
+                1: "¹",
+                2: "²",
+                3: "³",
+                4: "⁴",
+                5: "⁵",
+                6: "⁶",
+                7: "⁷",
+                8: "⁸",
+                9: "⁹",
+                "+": "⁺",
+                "-": "⁻",
+                "=": "⁼",
+                "(": "⁽",
+                ")": "⁾",
+            },
         }
 
         let rtext = ""
@@ -309,6 +373,9 @@ export async function globalchatFunction(client, message) {
         if (message.author.bot || message.author.system) return
 
         var snpsht = await db.aget(`serverData`)
+        /**
+         * @type {Array<{ id: string, gc: Object }}
+         */
         var database = snpsht.val || {}
 
         database = Object.entries(database)
@@ -317,23 +384,15 @@ export async function globalchatFunction(client, message) {
                 return { id: id, gc: gcdataGuild.encode(data.gc) }
             })
 
-        //console.log(database)
-
         var getDataByServerID = (id, classification = "serverID") => {
-            var x = database.map((x) => x[classification]).includes(id) ? database[database.map((x) => x[classification]).indexOf(id)] : null
+            var x = database.find((x) => x[classification] == id) ?? null
             return x
         }
 
         var serverdata = getDataByServerID(message.guildId, "id")
 
-        if (
-            !database
-                .map((x) => Object.values(x.gc))
-                .flat()
-                .map((x) => x.channel)
-                .includes(message.channelId)
-        )
-            return
+        // console.log(Object.values(serverdata?.gc || {}))
+        if (!Object.values(serverdata?.gc || {}).find((x) => x.channel === message.channelId)) return
 
         listenerLog(2, "")
         listenerLog(2, "❗ Wyłapano wiadomość do GC!")
@@ -395,7 +454,7 @@ export async function globalchatFunction(client, message) {
 
                     if (replayedMSG.author.username.includes("GlobalAction")) {
                         var ruid = "GlobalAction",
-                            rUser = replayedMSG.author.username
+                            rUser = replayedMSG.author.username.split("(")[0].split(" aka ").at(-1).trim() + " (GlobalAction)"
                     } else if (serverdata.gc[station].flag_showGCButtons) {
                         var ruid = null,
                             rUser = (() => {
@@ -593,7 +652,7 @@ export async function globalchatFunction(client, message) {
 
         //---
 
-        if (sprawdzNiedozwoloneLinki(deleteComments(message.content)) && !isInMysteryTeam) {
+        if (checkDisallowedLinks(deleteComments(message.content)) && !isInMysteryTeam) {
             message.react(customEmoticons.denided)
             try {
                 const embed = new EmbedBuilder()
@@ -860,7 +919,9 @@ export async function globalchatFunction(client, message) {
         listenerLog(4, `userCooldown(amount<${database.length}>, type<gct()>) => ${userCooldown(database.length, gct())}`)
 
         userData.timestampToSendMessage =
-            Date.now() + userCooldown(database.length, gct()) * (Math.max((typeof prefixes == "string") * 4 - (userHasPremium || isInMysteryTeam) * 2, 0) + 1)
+            Date.now() +
+            userCooldown(database.length, gct()) +
+            Math.round((typeof prefixes == "string") * Math.pow(userData.gcUses, 1.2137) * (750 - 250 * (userHasPremium || isInMysteryTeam)))
         gct = null
         userData.messageID_bbc = ""
         await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -889,13 +950,12 @@ export async function globalchatFunction(client, message) {
                         author: {
                             name: (() => {
                                 const wbname = reply[0].toJSON().author.name.replace("W odpowiedzi do ", "")
-                                if (wbname.endsWith(", GlobalAction)")) return wbname.split(" (")[1].split(",")[0].replace(/"/g, "")
-                                else if (wbname.endsWith("GlobalAction)")) return wbname.split(" (")[0]
+                                if (wbname.includes("GlobalAction")) return wbname.split("(")[0].trim()
                                 else return wbname
                             })(),
                             id: reply[1],
                         },
-                        isGA: reply[0].toJSON().author.name.endsWith("GlobalAction)"),
+                        isGA: reply[0].toJSON().author.name.includes("GlobalAction"),
                     }
 
                 // console.log(reply)
@@ -904,7 +964,10 @@ export async function globalchatFunction(client, message) {
 
                 if (userData.karma == 0n) reply.push(new EmbedBuilder().setDescription("🎉 **Nowy użytkownik!**").setColor("Blue"))
 
-                if (typeof prefixes == "string") var _file = require(`./globalactions/${prefixes}`)
+                if (typeof prefixes == "string") {
+                    var _file = await import(`./globalactions/${prefixes}.js`)
+                    _file = _file.default || _file
+                }
 
                 const data = getDataByServerID(w.gid)
 
@@ -968,7 +1031,8 @@ export async function globalchatFunction(client, message) {
             }
 
             if (typeof prefixes == "string") {
-                const file = require(`./globalactions/${prefixes}`)
+                let file = await import(`./globalactions/${prefixes}.js`)
+                file = file.default || file
                 try {
                     setTimeout(() => {
                         if (!measuringTime.ends) {
@@ -983,8 +1047,9 @@ export async function globalchatFunction(client, message) {
                      */
                     var response = await file.execute(deleteComments(message.content), message.author, replyJSON, client)
                     response.avatarURL ??= file.data.avatar
-                    response.username ??= file.data.name
-                    response.username += ` (${response.username === file.data.name ? "" : `"${file.data.name}", `}GlobalAction)`
+                    if (response.username !== file.data.username && response.username.length > 0 && response.username.length <= 36) response.username += ` aka ${file.data.name}`
+                    else response.username = file.data.name
+                    response.username += " (GlobalAction)"
                     response.allowedMentions = { parse: [] }
 
                     measuringTime.ends = true
@@ -1096,8 +1161,10 @@ export async function globalchatFunction(client, message) {
                 }
             }
 
-            if (typeof prefixes == "string") userData.karma += 10n + BigInt((userHasPremium || isInMysteryTeam) * 2)
-            else if (gcapprovedAttachments.size > 0) userData.karma += BigInt(Math.round(gcapprovedAttachments.size / (2 - userHasPremium * 0.5)) + 2 + userHasPremium)
+            if (typeof prefixes == "string") {
+                userData.karma += 10n + BigInt((userHasPremium || isInMysteryTeam) * 2)
+                userData.gcUses++
+            } else if (gcapprovedAttachments.size > 0) userData.karma += BigInt(Math.round(gcapprovedAttachments.size / (2 - userHasPremium * 0.5)) + 2 + userHasPremium)
             else userData.karma += 1n
             if (message.reference && Math.random() < 0.05 * (1 + isInMysteryTeam)) userData.karma += 2n - BigInt(userHasPremium)
             await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -1108,11 +1175,9 @@ export async function globalchatFunction(client, message) {
     }
 }
 
-export default {
-    lastUserHandler: {
-        get: () => lastUser,
-        reset: () => {
-            lastUser = "unknown"
-        },
+export const lastUserHandler = {
+    get: () => lastUser,
+    reset: () => {
+        lastUser = "unknown"
     },
 }

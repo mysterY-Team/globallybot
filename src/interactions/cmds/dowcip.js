@@ -1,4 +1,4 @@
-import cheerio from "cheerio"
+import * as cheerio from "cheerio"
 import djs from "discord.js"
 const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
 import conf from "../../config.js"

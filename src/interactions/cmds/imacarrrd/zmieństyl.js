@@ -24,10 +24,11 @@ export default {
      */
     async execute(client, interaction) {
         const receivedVal = interaction.options.get("styl", true).value
-        const sid = classes.map((x) => x.name).indexOf(receivedVal)
+        const sid = classes.findIndex((x) => x.name == receivedVal)
         if (sid === -1 && !classes[receivedVal]) {
             return interaction.reply({ content: `${customEmoticons.denided} Ten styl nie istnieje!`, ephemeral: true })
         }
+        if (sid === -1) sid === Number(receivedVal)
 
         await interaction.deferReply()
 
