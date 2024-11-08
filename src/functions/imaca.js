@@ -1,7 +1,7 @@
 import djs from "discord.js"
-const { AttachmentBuilder, User, DiscordAPIError, DiscordjsError } = djs
+const { AttachmentBuilder, User, DiscordAPIError, DiscordjsError, GuildMember } = djs
 import canvasPKG from "@napi-rs/canvas"
-const { createCanvas, SKRSContext2D, Path2D, Canvas, loadImage } = canvasPKG
+const { createCanvas, SKRSContext2D, Path2D, Canvas, loadImage, Image } = canvasPKG
 import { drawText } from "canvas-txt"
 import fsp from "fs/promises"
 import { request } from "undici"
@@ -83,10 +83,15 @@ class ImacarrrdError extends Error {
 /**
  *
  * @param {any} data
- * @param {User} user
+ * @param {User | GuildMember} user
  * @returns
  */
 async function createCarrrd(data, user) {
+    if (user.user) {
+        var member = user
+        user = user.user
+    }
+
     function getColorToGradient(color, nameType) {
         switch ((nameType || "").toLowerCase()) {
             case "dc":
@@ -181,25 +186,44 @@ async function createCarrrd(data, user) {
             }
         }
 
+        /**
+         *
+         * @param {SKRSContext2D} $canvasContext
+         * @param {string | Buffer} banner (banner powinien mieć wymiary 700x300)
+         * @param {number} x
+         * @param {number} y
+         * @param {{ type: "width" | "height", value: number}} dependencyFix
+         */
+        async function setBanner($canvasContext, banner, x, y, dependencyFix) {
+            try {
+                banner = await loadImage(banner)
+            } catch (err) {
+                throw new ImacarrrdError(err.message, "b400")
+            }
+
+            if (dependencyFix.type == "width") {
+                var minWidth = dependencyFix.value
+                var minHeight = (minWidth / canvas.width) * 300
+            } else {
+                var minHeight = dependencyFix.value
+                var minWidth = (minHeight / canvas.height) * 700
+            }
+
+            var width = minWidth
+            var height = (minWidth / banner.width) * banner.height
+            if (height < minHeight) {
+                width = (minHeight / height) * width
+                height = minHeight
+            }
+
+            $canvasContext.drawImage(banner, Math.min((canvas.width - width) / 2 + x, x), Math.min((minHeight - height) / 2 + y, y), width, height)
+        }
+
         switch (data.cardID) {
             default:
             case 0: {
                 if (data.bannerURL !== null) {
-                    const minHeight = 300
-
-                    try {
-                        var banner = await loadImage(data.bannerURL)
-                    } catch (err) {
-                        throw new ImacarrrdError(err.message, "b400")
-                    }
-
-                    var width = canvas.width
-                    var height = (canvas.width / banner.width) * banner.height
-                    if (height < minHeight) {
-                        width = (minHeight / height) * width
-                        height = minHeight
-                    }
-                    context.drawImage(banner, Math.min((canvas.width - width) / 2, 0), Math.min((minHeight - height) / 2, 0), width, height)
+                    await setBanner(context, data.bannerURL, 0, 0, { type: "height", value: 300 })
                 }
 
                 const background = await fsp.readFile("./src/others/imgs/imacarrrd0.png")
@@ -238,28 +262,7 @@ async function createCarrrd(data, user) {
                 break
             }
             case 1: {
-                if (data.bannerURL === null) {
-                    const add = await fsp.readFile("./src/others/imgs/imaca_addtional1_1.png")
-                    const addimg = await loadImage(add)
-                    context.drawImage(addimg, 104, 0, 596, (596 / canvas.width) * 300)
-                } else {
-                    const minWidth = 596
-                    const minHeight = (minWidth / canvas.width) * 300
-
-                    try {
-                        var banner = await loadImage(data.bannerURL)
-                    } catch (err) {
-                        throw new ImacarrrdError(err.message, "b400")
-                    }
-
-                    var width = minWidth
-                    var height = (minWidth / banner.width) * banner.height
-                    if (height < minHeight) {
-                        width = (minHeight / height) * width
-                        height = minHeight
-                    }
-                    context.drawImage(banner, Math.min((596 - width) / 2 + 104, 104), Math.min((minHeight - height) / 2, 0), width, height)
-                }
+                setBanner(context, data.bannerURL ?? (await fsp.readFile("./src/others/imgs/imaca_addtional1_1.png")), 104, 0, { type: "width", value: 596 })
 
                 const background = await fsp.readFile("./src/others/imgs/imacarrrd1.png")
                 const backgroundImage = await loadImage(background)
@@ -307,21 +310,7 @@ async function createCarrrd(data, user) {
             }
             case 2: {
                 if (data.bannerURL !== null) {
-                    const minHeight = 300
-
-                    try {
-                        var banner = await loadImage(data.bannerURL)
-                    } catch (err) {
-                        throw new ImacarrrdError(err.message, "b400")
-                    }
-
-                    var width = canvas.width
-                    var height = (canvas.width / banner.width) * banner.height
-                    if (height < minHeight) {
-                        width = (minHeight / height) * width
-                        height = minHeight
-                    }
-                    context.drawImage(banner, Math.min((canvas.width - width) / 2, 0), Math.min((minHeight - height) / 2, 0), width, height)
+                    await setBanner(context, data.bannerURL, 0, 0, { type: "height", value: 300 })
 
                     context.fillStyle = "rgba(65, 65, 65, 0.5)"
                     context.fillRect(0, 0, 700, 300)
@@ -433,7 +422,7 @@ async function createCarrrd(data, user) {
 
                 const crt = await fsp.readFile("./src/others/crt.png")
                 const crtBG = await loadImage(crt)
-                for (i = 0; i < 2; i++) context.drawImage(crtBG, 0, 0, 700, 2300)
+                for (let i = 0; i < 2; i++) context.drawImage(crtBG, 0, 0, 700, 2300)
 
                 break
             }
@@ -648,6 +637,9 @@ async function createCarrrd(data, user) {
                     context.textAlign = "left"
                     context.fillText(user.username, 200, 155)
                 }
+                break
+            }
+            case 4: {
                 break
             }
         }

@@ -13,12 +13,13 @@ export default {
      */
     async execute(client, interaction) {
         var user = interaction.options.get("osoba")?.user || interaction.user
+        var member = interaction.options.get("osoba")?.member || interaction.member
 
         await interaction.deferReply()
         var snpsht = await db.aget(`userData/${user.id}/imaca`)
         var data = imacaData.encode(snpsht.val)
 
-        const attachment = await createCarrrd(data, user)
+        const attachment = await createCarrrd(data, member || user)
 
         interaction.editReply({ files: [attachment] })
     },
