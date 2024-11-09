@@ -4,6 +4,7 @@ import conf from "../../config.js"
 const { customEmoticons } = conf
 import { codeTime } from "../../index.js"
 import { freemem, totalmem } from "os"
+import locallium from "locallium"
 
 export default {
     /**
@@ -22,6 +23,8 @@ export default {
             i++
         })
 
+        const packageData = new locallium.Database("package.json").get().val
+
         var uCount = 0
         client.guilds.cache.forEach((serv) => {
             uCount += serv.memberCount
@@ -29,16 +32,28 @@ export default {
 
         var embed = new EmbedBuilder()
             .setTitle(`${customEmoticons.info} Informacje o bocie`)
-            .setDescription("Dodaj bota: [link](https://discord.com/oauth2/authorize?client_id=1173359300299718697)\nSerwer support: [link](https://discord.gg/7S3P2DUwAm)")
+            .setDescription(
+                "Dodaj bota: [link](https://discord.com/oauth2/authorize?client_id=1173359300299718697)\nSerwer support: [link](https://discord.gg/7S3P2DUwAm)\nAktualna wersja bota: `" +
+                    packageData.version +
+                    "`"
+            )
             .addFields(
                 {
-                    name: "Czasy",
-                    value: `Uruchomienia bota: **<t:${time}:F> (<t:${time}:R>)**\nGotowości bota: **<t:${readyTime}:F> (<t:${readyTime}:R>)**`,
-                    inline: false,
+                    name: "Wersja paczek",
+                    value: Object.entries(packageData.dependencies)
+                        .map((x) => `${x[0]}: \`${x[1].replace(/[^0-9]*([0-9])/, "$1")}\``)
+                        .join("\n"),
+                    inline: true,
                 },
                 {
                     name: "Pamięci",
                     value: `RAM: **${Math.round(totalmem() * 10 * 2 ** -20) / 10}** MB (**${Math.round(((totalmem() - freemem()) / totalmem()) * 10000) / 100}%** zajęte)`,
+                    inline: true,
+                },
+                {
+                    name: "Czasy",
+                    value: `Uruchomienia bota: **<t:${time}:F> (<t:${time}:R>)**\nGotowości bota: **<t:${readyTime}:F> (<t:${readyTime}:R>)**`,
+                    inline: false,
                 },
                 {
                     name: "Serwery",

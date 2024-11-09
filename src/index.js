@@ -5,7 +5,7 @@ import { globalchatFunction } from "./globalchat.js"
 import canvasPKG from "@napi-rs/canvas"
 const { GlobalFonts } = canvasPKG
 import { gcdata } from "./functions/dbSystem.js"
-import { listenerLog, servers, checkUserStatus, botPremiumInfo, repeats } from "./functions/useful.js"
+import { listenerLog, servers, checkUserStatus, botPremiumInfo, repeats, wait } from "./functions/useful.js"
 const { Client, EmbedBuilder, ChannelType, ButtonBuilder, ActionRowBuilder, ButtonStyle, Partials } = djs
 const { TOKEN, supportServer, debug, db } = conf
 var active = false
@@ -254,29 +254,31 @@ function timerToResetTheAPIInfo() {
             listenerLog(2, "✅ Zresetowano komendy do stanu pierworodnego!")
 
             listenerLog(2 * debug, "🔎 Sprawdzanie nieaktywnych użytkowników", true)
-            listOfUsers.gc.forEach(async (x) => {
+            for (let i = 0; i < listOfUsers.gc.length; i++) {
+                const x = listOfUsers.gc[i]
                 if (Math.max(x.timestampToSendMessage, x._sat) + 864000000 <= Date.now() && !x.isBlocked) {
                     await db.adelete(`userData/${x.userID}/gc`)
+                    await wait(100)
                     listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
-                    return
+                    continue
                 }
 
                 x.gcUses = 0
                 const uID = x.userID
                 delete x.userID
                 await db.aset(`userData/${uID}/gc`, gcdata.decode(x))
-            })
+                await wait(100)
+            }
 
-            if (date.getHours() === 0 || debug)
-                listOfUsers.premium.forEach(async (x) => {
-                    //console.log(x, x.days)
-                    if (x.days == 0) return db.adelete(`userData/${x.userID}/premium`)
+            if (date.getHours() === 0 || debug) {
+                for (let i = 0; i < listOfUsers.premium.length; i++) {
+                    const x = listOfUsers.premium[i]
                     const premium = await botPremiumInfo(x.userID, await checkUserStatus(client, x.userID), x.days)
-                    if (!premium.have || premium.typeof !== "trial") return
+                    if (!premium.have || premium.typeof !== "trial") continue
                     if (x.days == 1) {
-                        db.adelete(`userData/${x.userID}/premium`)
+                        await db.adelete(`userData/${x.userID}/premium`)
                         try {
-                            client.users.send(x.userID, {
+                            await client.users.send(x.userID, {
                                 content:
                                     "No cześć, mam złą wiadomość. Premium dobiegło końca! Może uda Ci się ponownie zdobyć w jakimś konkursie...\n-# Globally, powered by mysterY",
                                 components: [
@@ -286,24 +288,29 @@ function timerToResetTheAPIInfo() {
                                 ],
                             })
                         } catch (e) {}
-                    } else {
-                        db.aset(`userData/${x.userID}/premium`, x.days - 1)
-                    }
-                })
+                    } else await db.aset(`userData/${x.userID}/premium`, x.days - 1)
+                    await wait(100)
+                }
+            }
 
             listenerLog(2, "🔎 Sprawdzanie stacji po zakończonym premium")
-            stationOwners.forEach(async (v) => {
+            for (let i = 0; i < stationOwners.length; i++) {
+                const v = stationOwners[i]
                 listenerLog(3, `Właściciel ${v}`)
                 const ssstatus = await checkUserStatus(client, v)
                 const premium = await botPremiumInfo(v, ssstatus)
-                if (premium.have || ssstatus.mysteryTeam) return listenerLog(4, "Posiada możliwość wielostacji, sprawdzanie następnego...")
+                if (premium.have || ssstatus.mysteryTeam) {
+                    listenerLog(4, "Posiada możliwość wielostacji, sprawdzanie następnego...")
+                    continue
+                }
                 const allStationsByThatOwner = stations.filter((x) => x.ownerID == v)
-                for (let i = 1; i < allStationsByThatOwner.length; i++) {
-                    const element = allStationsByThatOwner[i]
+                for (let j = 1; j < allStationsByThatOwner.length; j++) {
+                    const element = allStationsByThatOwner[j]
                     await db.adelete(`stations/${element.id}`)
                     listenerLog(4, `🗑️ usunięto stację ${element.id}${element.passwd ? " (hasłowana)" : ""}`)
+                    await wait(100)
                 }
-            })
+            }
         }
 
         const usersToUB = listOfUsers.gc.filter((x) => x.isBlocked && x.blockTimestamp <= Math.round(date.getTime() / 3_600_000))

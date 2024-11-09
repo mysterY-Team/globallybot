@@ -18,12 +18,9 @@ export default {
         const allEmotes = (await server.emojis.fetch()).map((em) => `<${em.animated ? "a" : ""}:${em.name}:${em.id}>`).sort(() => Math.random() - 0.5)
         var showedEmotes = allEmotes
         const permsToInvite = _perms.has("Administrator") || (_perms.has("CreateInstantInvite") && _perms.has("ManageGuild"))
-        var moreEmojis = false
         if (showedEmotes.length > 6) {
             showedEmotes = showedEmotes.filter((X, i) => i < 15)
-            moreEmojis = true
         }
-        server = null
 
         if (server.vanityURLCode) {
             invition = server.vanityURLCode
@@ -36,7 +33,7 @@ export default {
             while (i < channels.length && !invition) {
                 try {
                     invition = await server.invites.create(channels[i].id, { maxAge: 0 })
-                    invition = invition.code
+                    invition = invition
                 } catch (err) {
                     i++
                 }
@@ -45,7 +42,7 @@ export default {
 
         const components = !invition
             ? []
-            : [new ActionRowBuilder().addComponents([new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(`https://discord.gg/${invition}`).setLabel("Dołącz do serwera")])]
+            : [new ActionRowBuilder().addComponents([new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(invition.toString()).setLabel("Dołącz do serwera")])]
 
         var embed = new EmbedBuilder()
             .setAuthor({ name: server.name })
@@ -59,9 +56,7 @@ export default {
             .setFields(
                 {
                     name: "Właściciel(-ka)",
-                    value: `<@${sowner.id}>\nNick: \`${
-                        sowner.user.discriminator === "0" ? sowner.user.username : sowner.user.username + "#" + sowner.user.discriminator
-                    }\`\nID: \`${sowner.id}\``,
+                    value: `<@${sowner.id}>\nNick: \`${sowner.user.username}\`\nID: \`${sowner.id}\``,
                     inline: true,
                 },
                 {
@@ -76,6 +71,7 @@ export default {
                 }
             )
             .setColor("Random")
+            .setFooter({ value: "Globally, powered by mysterY" })
         interaction.editReply({ embeds: [embed], components })
     },
 }
