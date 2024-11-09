@@ -1,7 +1,7 @@
 {
     "dependencies": {
         "@google/generative-ai": "^0.21.0",
-        "@napi-rs/canvas": "^0.1.59",
+        "@napi-rs/canvas": "^0.1.60",
         "@octokit/rest": "^21.0.2",
         "canvas-txt": "^4.1.1",
         "cheerio": "^1.0.0",
@@ -11,13 +11,13 @@
         "perf_hooks": "^0.0.1"
     },
     "name": "globally",
-    "version": "2.5.2",
+    "version": "2.5.3",
     "main": "src/index.js",
     "type": "module",
     "scripts": {
         "test": "node --trace-warnings src/index.js",
         "dev": "nodemon src/index.js",
-        "update": "ncu && ncu -u && npm i"
+        "update": "ncu -u && npm i"
     },
     "author": "patYczakus",
     "license": "",
