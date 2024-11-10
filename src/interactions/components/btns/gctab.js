@@ -54,7 +54,7 @@ export default {
 
         // console.log(data2.blockTimestampToTab, data1.timestampToTab, Math.floor(Date.now() / 1000))
 
-        var station = Object.values(await db.aget("serverData").val)
+        var station = Object.values((await db.aget("serverData")).val)
             .filter((x) => "gc" in x)
             .map((x) => Object.entries(gcdataGuild.encode(x.gc)))
             .flat()

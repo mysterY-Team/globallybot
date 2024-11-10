@@ -27,7 +27,7 @@ export default {
 
         const guilsSnpsht = await db.aget(`serverData/${targetMsg.guildId}/gc`)
 
-        console.log(guilsSnpsht)
+        // console.log(guilsSnpsht)
 
         var data
         if (!guilsSnpsht.exists || !(data = Object.values(gcdataGuild.encode(guilsSnpsht.val)).find((v) => v.channel === targetMsg.channelId))) {

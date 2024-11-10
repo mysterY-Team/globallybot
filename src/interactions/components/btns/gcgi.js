@@ -71,7 +71,7 @@ export default {
                 }
             )
             .setColor("Random")
-            .setFooter({ value: "Globally, powered by mysterY" })
+            .setFooter({ text: "Globally, powered by mysterY" })
         interaction.editReply({ embeds: [embed], components })
     },
 }
