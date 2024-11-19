@@ -77,6 +77,7 @@ export default {
         try {
             client.users.send(buser.id, {
                 embeds: [embedblock],
+                components: [new ActionRowBuilder().addComponents(new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`howtounblock`).setLabel("Niesłuszna blokada?"))],
             })
         } catch (e) {}
         const emb = new EmbedBuilder()

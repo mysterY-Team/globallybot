@@ -19,7 +19,7 @@ export default {
         const ssstatus = await checkUserStatus(client, user.id, false)
         const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
-        const udata = gcdata.encode((await db.aget(`userData/${user.id}`)).val)
+        const udata = gcdata.encode((await db.aget(`userData/${user.id}/gc`)).val)
 
         var snapshot = await db.aget(`stations/${stationID}`)
         if (!snapshot.exists) {

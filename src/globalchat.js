@@ -368,7 +368,7 @@ export async function globalchatFunction(client, message) {
 
         const oldUserSnapshot = await db.aget(`userData/${message.author.id}/gc`)
         var userData = gcdata.encode(oldUserSnapshot.val)
-        if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) return
+        if ((!deleteComments(message.content) && gcapprovedAttachments.size == 0) || message.content.startsWith("<###>")) return
 
         if (message.author.bot || message.author.system) return
 
@@ -522,7 +522,7 @@ export async function globalchatFunction(client, message) {
                                 return null
                             })()
                     } else {
-                        var ruid = replayedMSG.author.username.split(" (")[1].split(";")[1].trim(),
+                        var ruid = replayedMSG.author.username.split(" (")[1]?.split(";")[1].trim() ?? null,
                             rUser = replayedMSG.author.username.split(" (")[0]
                     }
 
@@ -1100,65 +1100,56 @@ export async function globalchatFunction(client, message) {
             } else {
                 if (channel && channel.type === ChannelType.GuildText) {
                     let embeds = []
-                    if (stationHasPasswd) {
-                        const embed = new EmbedBuilder().setDescription("[ wysłane za pośrednictwem prywatnej stacji ]").setFooter({ text: station })
-                        embeds.push(embed)
-                    } else {
-                        const embed = new EmbedBuilder()
-                            .setColor("Green")
-                            .setAuthor({
-                                name: message.author.username,
-                                iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
-                            })
-                            .setDescription(deleteComments(message.content) || "[ brak tekstu ]")
-                            .setFields({
-                                name: "Stan",
-                                value: "Nie usunięto",
-                            })
-                            .setFooter({ text: station })
-                        embeds.push(embed)
-                        if (gcapprovedAttachments.size > 0) {
-                            const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(gcapprovedAttachments.map((x) => x.url).join("\n"))
-                            embeds.push(mediaEmbed)
-                        }
+                    const embed = new EmbedBuilder()
+                        .setColor("Green")
+                        .setAuthor({
+                            name: message.author.username,
+                            iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
+                        })
+                        .setDescription(deleteComments(message.content) || "[ brak tekstu ]")
+                        .setFields({
+                            name: "Stan",
+                            value: "Nie usunięto",
+                        })
+                        .setFooter({ text: station + stationHasPasswd ? " | Stacja hasłowana" : "" })
+                    embeds.push(embed)
+                    if (gcapprovedAttachments.size > 0) {
+                        const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(gcapprovedAttachments.map((x) => x.url).join("\n"))
+                        embeds.push(mediaEmbed)
                     }
                     var msg = await channel.send({
                         embeds,
                         content: messages.join("|"),
                     })
-                    var row = new ActionRowBuilder()
-                    if (!stationHasPasswd) {
-                        row.setComponents(
-                            new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
-                            new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`)
-                        )
-                    }
-                    await msg.edit({
-                        components: [
-                            row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000${msg.id}`).setEmoji("🗑️")),
-                        ],
-                    })
+                }
+                var row = new ActionRowBuilder().setComponents(
+                    new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
+                    new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`),
+                    new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}\u0000${msg.id}`).setEmoji("🗑️")
+                )
+                await msg.edit({
+                    components: [row],
+                })
 
-                    listenerLog(3, "Próba zmiany przycisku webhooka")
+                listenerLog(3, "Próba zmiany przycisku webhooka")
 
-                    for (let i = 0; i < 5; i++) {
-                        listenerLog(4, "Próba nr. " + (i + 1))
-                        try {
-                            editLater.wh.editMessage(editLater.message, {
-                                avatarURL: message.author.displayAvatarURL({ size: 128, extension: "png" }),
-                                components: [new ActionRowBuilder().addComponents(new ButtonBuilder(row.toJSON().components.at(-1)))],
-                            })
-                            listenerLog(5, "✅ Pomyślnie zmieniono przycisk")
-                            break
-                        } catch (e) {
-                            if (i == 4) {
-                                console.error(e)
-                            }
+                for (let i = 0; i < 5; i++) {
+                    listenerLog(4, "Próba nr. " + (i + 1))
+                    try {
+                        editLater.wh.editMessage(editLater.message, {
+                            avatarURL: message.author.displayAvatarURL({ size: 128, extension: "png" }),
+                            components: [new ActionRowBuilder().addComponents(new ButtonBuilder(row.toJSON().components.at(-1)))],
+                        })
+                        listenerLog(5, "✅ Pomyślnie zmieniono przycisk")
+                        break
+                    } catch (e) {
+                        if (i == 4) {
+                            console.error(e)
                         }
                     }
-
-                    listenerLog(3, `🌐 Zapisano informację o wiadomości użytkownika`)
                 }
+
+                listenerLog(3, `🌐 Zapisano informację o wiadomości użytkownika`)
             }
 
             if (typeof prefixes == "string") {

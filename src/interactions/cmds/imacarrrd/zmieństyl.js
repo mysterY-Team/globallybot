@@ -11,11 +11,15 @@ export default {
      * @param {Client<true>} client
      */
     autocomplete(acFocusedInformation, client) {
-        var options = classes.map((x, i) => {
-            return { name: x.name, value: i.toString() }
-        })
-        options = options.filter((x) => x.name.toLowerCase().includes(acFocusedInformation.value.toLowerCase())).filter((x, i) => i < 25)
-        return options
+        return classes
+            .filter((x) => {
+                if (x.name.toLowerCase().includes(acFocusedInformation.value.toLowerCase())) return true
+                if (x.author.toLowerCase() == x.author) return true
+            })
+            .filter((x, i) => i < 25)
+            .map((x, i) => {
+                return { name: x.toString(), value: i.toString() }
+            })
     },
     /**
      *

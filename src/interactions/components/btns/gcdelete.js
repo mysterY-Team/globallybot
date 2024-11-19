@@ -94,32 +94,33 @@ export default {
         }
 
         const firstEmbed = $message.embeds[0]
-        if (!stationHasPasswd) {
-            {
-                const embeds = $message.embeds
-                embeds[0] = new EmbedBuilder()
-                    .setAuthor({ iconURL: firstEmbed.author.iconURL, name: firstEmbed.author.name })
-                    .setTitle("Usunięta wiadomość")
-                    .setDescription(firstEmbed.description)
-                    .setColor("Red")
-                    .setFooter({ text: firstEmbed.footer.text })
-                if ($channels[1] && $channels[1].type == ChannelType.GuildText)
-                    await $channels[1].send({
-                        embeds,
-                        components: [
-                            new ActionRowBuilder().setComponents(
-                                new ButtonBuilder($message.components[0].components[0].toJSON()),
-                                new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${args[0]}`).setEmoji(`👤`)
-                            ),
-                        ],
-                    })
-            }
-            {
-                const embeds = $message.embeds
-                let embed = new EmbedBuilder(firstEmbed).setFields({ name: "Stan", value: `Usunięto <t:${Math.floor(Date.now() / 1000)}:R>` }).setColor("Red")
-                embeds[0] = embed
-                await $message.edit({
-                    content: "",
+        {
+            const embeds = $message.embeds
+            embeds[0] = new EmbedBuilder()
+                .setAuthor({ iconURL: firstEmbed.author.iconURL, name: firstEmbed.author.name })
+                .setTitle("Usunięta wiadomość")
+                .setDescription(firstEmbed.description)
+                .setFields({
+                    name: "Responsywna osoba",
+                    value: `${interaction.user} (\`${interaction.user.username}\`, \`${interaction.user.id}\`)\n- ${(() => {
+                        switch (true) {
+                            case args[0] === interaction.user.id:
+                                return "Autor wiadomości"
+                            case isInMysteryTeam:
+                                return "Członek drużyny **mysterY**"
+                            case data.modPerms > 0:
+                                return "Zarząd usługi GlobalChat"
+                            case snpsht.val.includes(`${interaction.user.id}|`):
+                                return "Założyciel stacji"
+                            case snpsht.val.includes(interaction.user.id):
+                                return "Moderator stacji"
+                        }
+                    })()}`,
+                })
+                .setColor("Red")
+                .setFooter({ text: firstEmbed.footer.text })
+            if ($channels[1] && $channels[1].type == ChannelType.GuildText)
+                await $channels[1].send({
                     embeds,
                     components: [
                         new ActionRowBuilder().setComponents(
@@ -128,12 +129,20 @@ export default {
                         ),
                     ],
                 })
-            }
-        } else {
+        }
+        {
+            const embeds = $message.embeds
+            let embed = new EmbedBuilder(firstEmbed).setFields({ name: "Stan", value: `Usunięto <t:${Math.floor(Date.now() / 1000)}:R>` }).setColor("Red")
+            embeds[0] = embed
             await $message.edit({
                 content: "",
-                embeds: [firstEmbed],
-                components: [],
+                embeds,
+                components: [
+                    new ActionRowBuilder().setComponents(
+                        new ButtonBuilder($message.components[0].components[0].toJSON()),
+                        new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${args[0]}`).setEmoji(`👤`)
+                    ),
+                ],
             })
         }
 

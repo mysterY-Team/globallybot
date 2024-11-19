@@ -2,16 +2,28 @@ import djs from "discord.js"
 const { AttachmentBuilder, User, DiscordAPIError, DiscordjsError, GuildMember } = djs
 import canvasPKG from "@napi-rs/canvas"
 const { createCanvas, SKRSContext2D, Path2D, Canvas, loadImage, Image } = canvasPKG
-import { drawText } from "canvas-txt"
+import { drawText, getTextHeight, splitText } from "canvas-txt"
 import fsp from "fs/promises"
-import { request } from "undici"
 import { generateGradientText } from "./gradient.js"
 import conf from "../config.js"
 const { db } = conf
 import { getModules } from "./useful.js"
 
+class ImacarrrdTheme {
+    constructor(data) {
+        this.name = data.name
+        this.author = data.author ?? null
+        this.TextDesc = data.TextDesc
+        this.Flags = data.Flags
+    }
+
+    toString() {
+        return `${this.name}${this.author ? ` (autorstwa ${this.author})` : ""}`
+    }
+}
+
 const classes = [
-    {
+    new ImacarrrdTheme({
         name: "Klasyczny styl Globally",
         TextDesc: {
             MaxHeight: 477,
@@ -22,9 +34,10 @@ const classes = [
         Flags: {
             themeColor: "#FFFFFF",
         },
-    },
-    {
-        name: "Styl Starcia Internetu (twórcy patYczakus)",
+    }),
+    new ImacarrrdTheme({
+        name: "Styl Starcia Internetu",
+        author: "patYczakus",
         TextDesc: {
             MaxHeight: 595,
             FontName: "Audiowide,Noto Emoji",
@@ -34,21 +47,23 @@ const classes = [
         Flags: {
             themeColor: "#000000",
         },
-    },
-    {
-        name: "Hackerman (twórcy patYczakus)",
+    }),
+    new ImacarrrdTheme({
+        name: "Hackerman",
+        author: "patYczakus",
         TextDesc: {
             MaxHeight: 590,
-            FontName: "Space Mono,DoCoMo Emoji,Firefox Emoji",
+            FontName: "Space Mono,DoCoMo Emoji,Noto Emoji",
             TextSize: 20,
             LineWidth: 24,
         },
         Flags: {
             themeColor: "#FFFFFF",
         },
-    },
-    {
-        name: "Geometryczny ImaCarrrd (twórcy vehti)",
+    }),
+    new ImacarrrdTheme({
+        name: "Geometryczny ImaCarrrd",
+        author: "vehti",
         TextDesc: {
             MaxHeight: 550,
             FontName: "Source Code Pro,Noto Emoji",
@@ -58,9 +73,10 @@ const classes = [
         Flags: {
             themeColor: ["#FFFFFF", "#000000"],
         },
-    },
+    }),
     // {
-    //     name: "Piraci z Globally",
+    //     name: "Grand Theft Auto",
+    //     author: "---"
     //     TextDesc: {
     //         MaxHeight: 550,
     //         FontName: "Space Mono, DoCoMo Emoji,Firefox Emoji",
@@ -223,7 +239,7 @@ async function createCarrrd(data, user) {
             default:
             case 0: {
                 if (data.bannerURL !== null) {
-                    await setBanner(context, data.bannerURL, 0, 0, { type: "height", value: 300 })
+                    await setBanner(context, data.bannerURL, 0, 0, { type: "width", value: 700 })
                 }
 
                 const background = await fsp.readFile("./src/others/imgs/imacarrrd0.png")
@@ -310,7 +326,7 @@ async function createCarrrd(data, user) {
             }
             case 2: {
                 if (data.bannerURL !== null) {
-                    await setBanner(context, data.bannerURL, 0, 0, { type: "height", value: 300 })
+                    await setBanner(context, data.bannerURL, 0, 0, { type: "width", value: 700 })
 
                     context.fillStyle = "rgba(65, 65, 65, 0.5)"
                     context.fillRect(0, 0, 700, 300)
