@@ -157,8 +157,8 @@ export function checkAnyBadWords(text) {
             }
         }
         // console.log(word)
-        word = word.replace(/\//, "\\/").replace(/\*/, "\\*").replace(/\./, "\\.")
-        const regex = new RegExp(`([^a-z0-9])${word}([^a-z0-9])|^(${word}(?: *))+`, "i")
+        word = word.replace(/\//g, "\\/").replace(/\*/g, "\\*").replace(/\./g, "\\.")
+        const regex = new RegExp(`([^a-z0-9])${word}([^a-z0-9])|^(${word}(?: *))+|${word}$`, "im")
         if (regex.test(text)) {
             return { checked: true, badWord: bannedWords[i] }
         }
