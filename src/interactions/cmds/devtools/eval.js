@@ -89,6 +89,42 @@ export default {
                 writeToAkaConsole(`Ustawiono SAT poprawnie! SAT: ${gc._sat}`)
             }
 
+            const GlobalChatEvalFunc = {
+                /**
+                 * @param {string} string
+                 * @param {"gcmessage" | "rawloc"} type
+                 * @returns
+                 */
+                delete: async (string, type = "gcmessage") => {
+                    var loc = [""]
+                    if (type == "gcmessage") loc = (await (await client.channels.fetch(supportServer.gclogs.msg))?.messages.fetch(string))?.content.split("|") || string.split("|")
+                    else if (type == "rawloc") loc = string.split("|")
+                    else return writeToAkaConsole("Nieprawidłowy typ!")
+
+                    const x = await Promise.all(
+                        loc.map(async (location, i) => {
+                            location = location.split("/")
+
+                            try {
+                                const server = await client.guilds.fetch(location[0])
+                                const channel = await server.channels.fetch(location[1])
+                                if (channel && channel.type === ChannelType.GuildText) {
+                                    const message = await channel.messages.fetch(location[2])
+                                    if (message?.deletable) {
+                                        await message.delete()
+                                    }
+                                }
+                                return true
+                            } catch (e) {
+                                return false
+                            }
+                        })
+                    )
+
+                    writeToAkaConsole(`Usunięto ${x.filter((x) => x).length} wiadomości z ${x.length}!`)
+                },
+            }
+
             var func = async function () {}
             eval(`func = async function() { ${interaction.options.get("func", true).value.replace(/console\.log\(/g, "writeToAkaConsole(")} }`)
             await func()

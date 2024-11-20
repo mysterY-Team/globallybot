@@ -47,6 +47,11 @@ function checkDisallowedLinks(text) {
         "cartoonporno.xxx",
         "adulttime.xxx",
         "ichatonline.com", //kamerki
+        "stripchat.pl",
+        "stripchat.com",
+        "bongacams.com",
+        "bongocams.net",
+        "smutcam.com",
         "toppornsites.com", //listy
         "mypornbible.com",
         "badjojo.com",
