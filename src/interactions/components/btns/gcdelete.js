@@ -27,7 +27,7 @@ export default {
             try {
                 var $message = await $channels[0].messages.fetch(args[1])
                 var messagesToDelete = $message.content.split("|")
-                var stationWhereItIsSent = $message.embeds[0].footer.text
+                var stationWhereItIsSent = $message.embeds[0].footer.text.split(" | ").at(0)
             } catch (err) {
                 console.log(err)
                 interaction.editReply("Możliwość usunięcia tej wiadomości wygasła!")
@@ -52,6 +52,7 @@ export default {
             })
         }
 
+        console.log(snpsht.val)
         var stationHasPasswd = Boolean(snpsht.val.split("|")[1])
 
         await interaction.editReply(`${customEmoticons.loading} Usuwanie...`)

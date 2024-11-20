@@ -23,7 +23,7 @@ export default {
         }
 
         if (server.vanityURLCode) {
-            invition = server.vanityURLCode
+            invition = `https://discord.gg/${server.vanityURLCode}`
         }
         if (permsToInvite && !invition) {
             const inv = await server.invites.fetch()

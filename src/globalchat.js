@@ -1111,7 +1111,7 @@ export async function globalchatFunction(client, message) {
                             name: "Stan",
                             value: "Nie usunięto",
                         })
-                        .setFooter({ text: station + stationHasPasswd ? " | Stacja hasłowana" : "" })
+                        .setFooter({ text: station + (stationHasPasswd ? " | Stacja hasłowana" : "") })
                     embeds.push(embed)
                     if (gcapprovedAttachments.size > 0) {
                         const mediaEmbed = new EmbedBuilder().setTitle("Wysłane multimedia").setDescription(gcapprovedAttachments.map((x) => x.url).join("\n"))
