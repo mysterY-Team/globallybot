@@ -97,7 +97,8 @@ export default {
                  */
                 delete: async (string, type = "gcmessage") => {
                     var loc = [""]
-                    if (type == "gcmessage") loc = (await (await client.channels.fetch(supportServer.gclogs.msg))?.messages.fetch(string))?.content.split("|") || string.split("|")
+                    if (type == "gcmessage")
+                        loc = (await (await client.channels.fetch(conf.supportServer.gclogs.msg))?.messages.fetch(string))?.content.split("|") || string.split("|")
                     else if (type == "rawloc") loc = string.split("|")
                     else return writeToAkaConsole("Nieprawidłowy typ!")
 
