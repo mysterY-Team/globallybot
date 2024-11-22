@@ -10,8 +10,7 @@ const { Client, Message, EmbedBuilder, WebhookClient, WebhookMessageCreateOption
 const { db, customEmoticons, debug, supportServer, _bot } = conf
 const { emoticons } = emotki
 
-const userCooldown = (amount, type = 0) =>
-    [6500 + amount * 360, 5500 + amount * 280, 4500 + amount * 245, 4100 + amount * 230, 4100 + amount * 210, 4100 + amount * 190, 4000 + amount * 180, 3500 + amount * 150][type]
+const userCooldown = (amount, type = 0) => 6000 - 300 * type + (500 - 50 * type) * amount
 let lastUser = "unknown"
 
 /**

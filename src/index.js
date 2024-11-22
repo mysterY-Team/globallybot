@@ -314,11 +314,13 @@ function timerToResetTheAPIInfo() {
         }
 
         const usersToUB = listOfUsers.gc.filter((x) => x.isBlocked && x.blockTimestamp <= Math.round(date.getTime() / 3_600_000))
+        const ids = []
         usersToUB.forEach(async (x) => {
             x.blockTimestamp = NaN
             x.blockReason = ""
             x.isBlocked = false
             const uID = x.userID
+            ids.push(uID)
             delete x.userID
             await db.aset(`userData/${uID}/gc`, gcdata.decode(x))
             x.userID = uID
@@ -337,7 +339,7 @@ function timerToResetTheAPIInfo() {
         if (usersToUB.length > 0) {
             const emb = new EmbedBuilder()
                 .setTitle("Zakończenie czasowej blokady!")
-                .setDescription(`Osoby odblokowane (tylko ID):\n${usersToUB.map((x) => `- \`${x.userID}\``).join("\n")}`)
+                .setDescription(`Osoby odblokowane (tylko ID):\n${ids.map((x) => `- \`${x}\``).join("\n")}`)
                 .setColor("Blue")
             await (await (await client.guilds.fetch(supportServer.id)).channels.fetch(supportServer.gclogs.blocks)).send({ embeds: [emb] })
         }

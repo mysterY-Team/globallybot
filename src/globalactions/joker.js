@@ -68,21 +68,16 @@ export default {
                 break
             }
             case cmds[4]: {
-                //pobieranie wszystkich memów z repozytorium "patYczakus/Memhub-API-filesystem" na GitHubie (@octokit/rest)
-                const octokit = new Octokit()
-                const { data } = await octokit.repos.getContent({ owner: "patYczakus", repo: "Memhub-API-filesystem", path: "images" })
-                var files = data.filter((it) => it.type == "file").map((it) => it.name)
-                files = files[Math.floor(Math.random() * files.length)]
-                var ext = files.split(".").at(-1)
+                var x = await request("http://srv27.mikr.us:30105/memhubapi/randomimg")
+                x = await x.body.json()
+                const file = x.image
 
                 main.embeds = [
                     new EmbedBuilder().setDescription(
                         "**Źródło:** [Memhub](<https://discord.gg/memhub>), za pomocą repo [patYczakus/Memhub-API-filesystem](<https://github.com/patYczakus/Memhub-API-filesystem>)"
                     ),
                 ]
-                main.files = [
-                    new AttachmentBuilder().setFile("https://raw.githubusercontent.com/patYczakus/Memhub-API-filesystem/main/images/" + files).setName(`mem_memhub.` + ext),
-                ]
+                main.files = [new AttachmentBuilder().setFile(file).setName(`mem_memhub.` + ext)]
 
                 break
             }

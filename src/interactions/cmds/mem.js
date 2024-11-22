@@ -13,18 +13,12 @@ export default {
     execute: async function (client, interaction) {
         await interaction.deferReply()
         try {
-            const octokit = new Octokit()
-            const { data } = await octokit.repos.getContent({ owner: "patYczakus", repo: "Memhub-API-filesystem", path: "images" })
-            var files = data.filter((it) => it.type == "file").map((it) => it.name)
-            files = files[Math.floor(Math.random() * files.length)]
+            var x = await request("http://srv27.mikr.us:30105/memhubapi/randomimg")
+            x = await x.body.json()
+            const file = x.image
 
             interaction.editReply({
-                embeds: [
-                    new EmbedBuilder()
-                        .setImage("https://raw.githubusercontent.com/patYczakus/Memhub-API-filesystem/main/images/" + files)
-                        .setColor("Random")
-                        .setFooter({ text: "Źródło: Memhub (repo patYczakus/Memhub-API-filesystem)" }),
-                ],
+                embeds: [new EmbedBuilder().setImage(file).setColor("Random").setFooter({ text: "Źródło: Memhub (repo patYczakus/Memhub-API-filesystem)" })],
             })
         } catch (error) {
             interaction.editReply({
