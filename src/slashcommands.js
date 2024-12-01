@@ -23,9 +23,9 @@ var slashList = [
         .addSubcommand((subcommand) => subcommand.setName("regulamin").setDescription("Wysyła regulamin dotyczący GlobalChata"))
         .addSubcommand((subcommand) =>
             subcommand
-                .setName("emotki")
-                .setDescription("Daje listę emotek dostępnych do użycia na GlobalChacie")
-                .addStringOption((option) => option.setName("query").setDescription("Wyszukiwanie nazwy emotek").setAutocomplete(true).setMinLength(3))
+                .setName("unicode")
+                .setDescription("Pokazuje listę wspieranych znaków unicode")
+                .addStringOption((option) => option.setName("query").setDescription("Wyszukiwanie nazwy znaków").setAutocomplete(true).setMinLength(3))
         )
         .addSubcommandGroup((subcommand_group) =>
             subcommand_group

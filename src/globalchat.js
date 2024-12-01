@@ -1,14 +1,14 @@
 import djs from "discord.js"
 import conf from "./config.js"
 import fs from "fs"
-import emotki from "./interactions/cmds/globalchat/emotki.js"
+import uc from "./interactions/cmds/globalchat/unicode.js"
 import { listenerLog, wait, checkUserStatus, botPremiumInfo } from "./functions/useful.js"
 import { checkAnyBadWords } from "./functions/badwords.js"
 import { gcdata, gcdataGuild } from "./functions/dbSystem.js"
 import { request } from "undici"
 const { Client, Message, EmbedBuilder, WebhookClient, WebhookMessageCreateOptions, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, DiscordAPIError } = djs
 const { db, customEmoticons, debug, supportServer, _bot } = conf
-const { emoticons } = emotki
+const { unicodeList } = uc
 
 const userCooldown = (amount, type = 0) => 6000 - 300 * type + (500 - 50 * type) * amount
 let lastUser = "unknown"
@@ -82,15 +82,17 @@ function checkDisallowedLinks(text) {
  * @returns {Promise<string>}
  */
 async function formatText(text, client) {
-    text = text.replace(/{(?:emote|e):([^`\n}\s]+)}/g, (match, arg1) => {
-        var info = {}
-        emoticons.forEach((emoteInfo) => {
-            emoteInfo.savenames.forEach((name) => {
-                info[name] = emoteInfo.emote
+    if (text.match(/{(?:unicode|uc):([^`\n}\s]+)}/g)) {
+        var ucInfo = {}
+        unicodeList.forEach((ucinfo) => {
+            ucinfo.savenames.forEach((name) => {
+                ucInfo[name] = ucinfo.symbol
             })
         })
+    }
 
-        return info[arg1] ?? customEmoticons.minus
+    text = text.replace(/{(?:unicode|uc):([^`\n}\s]+)}/g, (match, arg1) => {
+        return ucInfo[arg1] ?? customEmoticons.minus
     })
     text = text.replace(/{(?:textFormat|txf)\.mix:([^`\n}]+)}/g, (match, arg1) => {
         var text = ""

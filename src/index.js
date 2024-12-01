@@ -13,7 +13,7 @@ var forceUpdate = true
 
 const client = new Client({
     partials: [Partials.Message, Partials.User],
-    intents: ["Guilds", "MessageContent", "GuildMessages", "MessageContent", "GuildMembers", "GuildModeration"],
+    intents: ["Guilds", "MessageContent", "GuildMessages", "MessageContent", "GuildMembers", "GuildModeration", "GuildPresences"],
 })
 
 listenerLog(0, "Discord.js v.14", true)

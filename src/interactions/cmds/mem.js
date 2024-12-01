@@ -1,6 +1,5 @@
 import djs from "discord.js"
 const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
-import { Octokit } from "@octokit/rest"
 import conf from "../../config.js"
 const { customEmoticons } = conf
 

@@ -1,7 +1,7 @@
 import djs from "discord.js"
 const { AttachmentBuilder, User, DiscordAPIError, DiscordjsError, GuildMember } = djs
 import canvasPKG from "@napi-rs/canvas"
-const { createCanvas, SKRSContext2D, Path2D, Canvas, loadImage, Image } = canvasPKG
+const { createCanvas, SKRSContext2D, Path2D, Canvas, loadImage } = canvasPKG
 import { drawText, getTextHeight, splitText } from "canvas-txt"
 import fsp from "fs/promises"
 import { generateGradientText } from "./gradient.js"
@@ -99,14 +99,14 @@ class ImacarrrdError extends Error {
 /**
  *
  * @param {any} data
- * @param {User | GuildMember} user
+ * @param {User | GuildMember} oData
  * @returns
  */
-async function createCarrrd(data, user) {
-    if (user.user) {
-        var member = user
-        user = user.user
-    }
+async function createCarrrd(data, oData) {
+    var member = oData.guild,
+        user = oData.global,
+        id = oData.id,
+        username = oData.username
 
     function getColorToGradient(color, nameType) {
         switch ((nameType || "").toLowerCase()) {
@@ -246,7 +246,7 @@ async function createCarrrd(data, user) {
                 const backgroundImage = await loadImage(background)
                 context.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
 
-                await setImageInCircle(context, 23, 123, 210, user.displayAvatarURL({ extension: "png", size: 512, forceStatic: true }))
+                await setImageInCircle(context, 23, 123, 210, user.avatar)
 
                 createGradientText(
                     context,
@@ -260,7 +260,7 @@ async function createCarrrd(data, user) {
                     context,
                     23,
                     443,
-                    user.username,
+                    username,
                     [getColorToGradient(data.nameGradient1, "dc"), getColorToGradient(data.nameGradient2, "dc"), classes[0].Flags.themeColor],
                     "34px Jersey 10"
                 )
@@ -275,6 +275,58 @@ async function createCarrrd(data, user) {
                     vAlign: "top",
                     font: classes[0].TextDesc.FontName,
                 })
+
+                if (member?.status) {
+                    context.beginPath()
+                    context.fillStyle = "#565656"
+                    context.arc(208, 303, 27, 0, 2 * Math.PI)
+                    context.fill()
+                    context.closePath()
+                }
+                switch (member?.status) {
+                    case "online":
+                        context.beginPath()
+                        context.fillStyle = "#43B581"
+                        context.arc(208, 303, 20, 0, 2 * Math.PI)
+                        context.fill()
+                        context.closePath()
+                        break
+                    case "dnd":
+                        context.beginPath()
+                        context.strokeStyle = "#F04747"
+                        context.lineWidth = 7
+                        context.arc(208, 303, 14, 0, 2 * Math.PI)
+                        context.moveTo(208 + 12, 303 - 12)
+                        context.lineTo(208 - 12, 303 + 12)
+
+                        context.stroke()
+                        context.closePath()
+                        break
+                    case "idle":
+                        context.beginPath()
+                        context.fillStyle = "#FAA61A"
+                        context.arc(208, 303, 20, 0, Math.PI * 2, true)
+                        context.fill()
+                        context.beginPath()
+                        context.fillStyle = "#565656"
+                        context.arc(200, 295, 14, 0, Math.PI * 2, true)
+                        context.fill()
+                        context.closePath()
+                        break
+                    case "invisible":
+                    case "offline":
+                        context.beginPath()
+                        context.fillStyle = "#898989"
+                        context.arc(208, 303, 20, 0, Math.PI * 2, true)
+                        context.fill()
+                        context.beginPath()
+                        context.fillStyle = "#565656"
+                        context.arc(208, 303, 10, 0, Math.PI * 2, true)
+                        context.fill()
+                        context.closePath()
+                        break
+                }
+
                 break
             }
             case 1: {
@@ -285,7 +337,7 @@ async function createCarrrd(data, user) {
                 backgroundImage.src = background
                 context.drawImage(backgroundImage, 0, 0, 700, 1000)
 
-                await setImageInCircle(context, 8, 73, 160, user.displayAvatarURL({ extension: "png", size: 512, forceStatic: true }))
+                await setImageInCircle(context, 8, 73, 160, user.avatar)
 
                 {
                     context.font = "44px Audiowide"
@@ -300,13 +352,13 @@ async function createCarrrd(data, user) {
 
                 {
                     context.font = "21px Audiowide"
-                    let w = context.measureText(user.username).width
+                    let w = context.measureText(username).width
                     let gradient = context.createLinearGradient(140, 0, 140 + w, 0)
                     gradient.addColorStop(0, getColorToGradient(data.nameGradient1, "imaca"))
                     gradient.addColorStop(0.5, getColorToGradient(data.nameGradient2, "imaca"))
                     gradient.addColorStop(1, classes[1].Flags.themeColor)
                     context.fillStyle = gradient
-                    context.fillText(user.username, 140, 295)
+                    context.fillText(username, 140, 295)
                 }
 
                 context.fillStyle = "black"
@@ -336,7 +388,7 @@ async function createCarrrd(data, user) {
                 }
 
                 {
-                    const imgs = await loadImage(user.displayAvatarURL({ extension: "png", size: 512, forceStatic: true }))
+                    const imgs = await loadImage(user.avatar)
                     context.drawImage(imgs, 50, 130, 130, 130)
                 }
 
@@ -353,28 +405,28 @@ async function createCarrrd(data, user) {
 
                 {
                     context.font = "22px Galiver Sans"
-                    let w = context.measureText(user.username).width
+                    let w = context.measureText(username).width
                     let gradient = context.createLinearGradient(190, 0, 190 + w, 0)
                     gradient.addColorStop(0, getColorToGradient(data.nameGradient1, "dc"))
                     gradient.addColorStop(0.5, getColorToGradient(data.nameGradient2, "dc"))
                     gradient.addColorStop(1, classes[2].Flags.themeColor)
                     context.fillStyle = gradient
-                    context.fillText(user.username, 190, 152)
+                    context.fillText(username, 190, 152)
                 }
 
                 context.font = "20px Galiver Sans"
                 context.fillStyle = "#FFF"
                 context.fillText(
-                    `In Discord: ${user.createdAt.getDate() < 10 ? "0" : ""}${user.createdAt.getDate()}-${user.createdAt.getMonth() < 9 ? "0" : ""}${
-                        user.createdAt.getMonth() + 1
-                    }-${user.createdAt.getFullYear()} ${user.createdAt.getHours() < 10 ? "0" : ""}${user.createdAt.getHours()}:${
-                        user.createdAt.getMinutes() < 10 ? "0" : ""
-                    }${user.createdAt.getMinutes()}:${user.createdAt.getSeconds() < 10 ? "0" : ""}${user.createdAt.getSeconds()}`,
+                    `In Discord: ${user.joinedAt.getDate() < 10 ? "0" : ""}${user.joinedAt.getDate()}-${user.joinedAt.getMonth() < 9 ? "0" : ""}${
+                        user.joinedAt.getMonth() + 1
+                    }-${user.joinedAt.getFullYear()} ${user.joinedAt.getHours() < 10 ? "0" : ""}${user.joinedAt.getHours()}:${
+                        user.joinedAt.getMinutes() < 10 ? "0" : ""
+                    }${user.joinedAt.getMinutes()}:${user.joinedAt.getSeconds() < 10 ? "0" : ""}${user.joinedAt.getSeconds()}`,
                     190,
                     200
                 )
-                context.fillText(`ID: ${user.id}`, 190, 225)
-                context.fillText(`Modules: ${getModules((await db.aget(`userData/${user.id}`)).val).length}`, 190, 250)
+                context.fillText(`ID: ${id}`, 190, 225)
+                context.fillText(`Modules: ${getModules((await db.aget(`userData/${id}`)).val).length}`, 190, 250)
 
                 context.fillStyle = "rgb(65, 65, 65)"
                 context.fillRect(0, 300, 700, 700)
@@ -628,7 +680,7 @@ async function createCarrrd(data, user) {
                     drawRandomShape()
                 }
 
-                await setImageInCircle(context, 30, 100, 150, user.displayAvatarURL({ extension: "png", size: 512, forceStatic: true }))
+                await setImageInCircle(context, 30, 100, 150, user.avatar)
 
                 {
                     context.font = "bold 25px Kode Mono"
@@ -644,14 +696,14 @@ async function createCarrrd(data, user) {
 
                 {
                     context.font = "bold 30px Kode Mono"
-                    let w = context.measureText(user.username).width
+                    let w = context.measureText(username).width
                     let gradient = context.createLinearGradient(200, 0, 200 + w, 0)
                     gradient.addColorStop(0, getColorToGradient(data.nameGradient1, "dc"))
                     gradient.addColorStop(0.5, getColorToGradient(data.nameGradient2, "dc"))
                     gradient.addColorStop(1, classes[3].Flags.themeColor[1])
                     context.fillStyle = gradient
                     context.textAlign = "left"
-                    context.fillText(user.username, 200, 155)
+                    context.fillText(username, 200, 155)
                 }
                 break
             }
@@ -794,7 +846,7 @@ async function createCarrrd(data, user) {
         console.error(err)
     }
 
-    const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"), { name: `imacarrrd_${user.id}.png` })
+    const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"), { name: `imacarrrd_${id}.png` })
 
     return attachment
 }

@@ -4,7 +4,6 @@ import { load } from "cheerio"
 import { wait } from "../functions/useful.js"
 import conf from "../config.js"
 const { customEmoticons } = conf
-import { Octokit } from "@octokit/rest"
 import { request } from "undici"
 
 export default {
