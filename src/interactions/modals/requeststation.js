@@ -38,7 +38,7 @@ export default {
                     interaction.editReply(`${customEmoticons.denided} Już istnieje taka stacja!`)
                     setTimeout(() => interaction.deleteReply(), 3000)
                 } else {
-                    await db.aset(`stations/${modalArgs.id}`, `${interaction.user.id}|${modalArgs.passwd}|[]`)
+                    await db.aset(`stations/${modalArgs.id}`, `${interaction.user.id}|${modalArgs.passwd}|`)
                     const emb = new EmbedBuilder()
                         .setTitle("Nowa stacja!")
                         .setDescription(

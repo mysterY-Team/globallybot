@@ -13,14 +13,23 @@ export default {
      * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
+        const option = interaction.options.get("osoba")
         /**
          * @type {import("discord.js").User}
          */
-        var user = interaction.options.get("osoba")?.user || interaction.user
+        var user
         /**
-         * @type {import("discord.js").GuildMember | import("discord.js").APIGuildMember | null | undefined}
+         * @type {import("discord.js").GuildMember | import("discord.js").APIInteractionGuildMember | null | undefined}
          */
-        var member = interaction.options.get("osoba")?.member || interaction.member
+        var member
+
+        if (option) {
+            user = option.user
+            member = option.member
+        } else {
+            user = interaction.user
+            member = interaction.member
+        }
 
         const imacaOptionsData = {
             username: user.username,

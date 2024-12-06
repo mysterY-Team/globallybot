@@ -53,9 +53,10 @@ client.on("messageCreate", async (msg) => {
 })
 
 client.on("interactionCreate", async (int) => {
-    const errorEmbed = new EmbedBuilder()
-        .setDescription("# Whoops!\nNastąpił błąd interacji. Posiadamy jednak dane, więc postaramy się ten błąd naprawić jak najszybciej!")
-        .setFooter({ text: "Globally, powered by mysterY" })
+    const errorEmbed = (errmsg) =>
+        new EmbedBuilder()
+            .setDescription(`# Whoops!\nNastąpił błąd interacji. Posiadamy jednak dane, więc postaramy się ten błąd naprawić jak najszybciej!\n\nBłąd:\n\`\`\`${errmsg}\`\`\``)
+            .setFooter({ text: "Globally, powered by mysterY" })
 
     listenerLog(2, "")
     listenerLog(2, "❗ Wyłapano interakcję")
@@ -87,10 +88,10 @@ client.on("interactionCreate", async (int) => {
                     content: "",
                     components: [],
                     files: [],
-                    embeds: [errorEmbed],
+                    embeds: [errorEmbed(err.message ?? err)],
                 })
             } else {
-                int.reply({ embeds: [errorEmbed], ephemeral: true })
+                int.reply({ embeds: [errorEmbed(err.message ?? err)], ephemeral: true })
             }
         })
     } else if (int.isButton()) {
@@ -106,12 +107,12 @@ client.on("interactionCreate", async (int) => {
             console.error(err)
             if (int.deferred || int.replied) {
                 try {
-                    int.editReply({ content: "", components: [], files: [], embeds: [errorEmbed] })
+                    int.editReply({ content: "", components: [], files: [], embeds: [errorEmbed(err.message ?? err)] })
                 } catch (e) {
-                    int.update({ content: "", components: [], files: [], embeds: [errorEmbed] })
+                    int.update({ content: "", components: [], files: [], embeds: [errorEmbed(err.message ?? err)] })
                 }
             } else {
-                int.reply({ embeds: [errorEmbed] })
+                int.reply({ embeds: [errorEmbed(err.message ?? err)], ephemeral: true })
             }
         })
     } else if (int.isAutocomplete()) {
@@ -142,10 +143,10 @@ client.on("interactionCreate", async (int) => {
                     content: "",
                     components: [],
                     files: [],
-                    embeds: [errorEmbed],
+                    embeds: [errorEmbed(e.message ?? e)],
                 })
             } else {
-                int.reply({ embeds: [errorEmbed], ephemeral: true })
+                int.reply({ embeds: [errorEmbed(e.message ?? e)], ephemeral: true })
             }
         })
     } else if (int.isContextMenuCommand()) {
@@ -160,10 +161,10 @@ client.on("interactionCreate", async (int) => {
                     content: "",
                     components: [],
                     files: [],
-                    embeds: [errorEmbed],
+                    embeds: [errorEmbed(e.message ?? e)],
                 })
             } else {
-                int.reply({ embeds: [errorEmbed], ephemeral: true })
+                int.reply({ embeds: [errorEmbed(e.message ?? e)], ephemeral: true })
             }
             console.error(err)
         })

@@ -152,13 +152,12 @@ export default {
         }
         // Sprawdzanie czy użytkownik nie próbuje użyć komendy na sobie
         if (interaction.user.id === osoba.id) {
-            interaction.reply("Nie możesz zhakować samego siebie...")
-            return
+            return interaction.reply("Nie możesz zhakować samego siebie...")
         } else {
             await interaction.reply("Rozpoczynam hakowanie...")
             if (!membercheck) {
-                await wait(500)
-                await interaction.reply("Szukanie informacji po każdym zakątku Internetu...")
+                await wait(1000)
+                await interaction.editReply("Szukanie informacji po każdym zakątku Internetu...")
                 await wait(5000)
             }
             await wait(2000)
@@ -166,15 +165,19 @@ export default {
             await wait(3000)
 
             if (Math.floor(Math.random() * 2) + 1 === 1) {
-                await interaction.editReply("Urządzenia ofiary były dobrze zabezpieczone. Ofiara dostała powiadomienie o próbie zhakowania jego urządzeń przez Ciebie.")
-                osoba.send({
-                    content: `${interaction.user} (\`${interaction.user.username}\`) próbował Cię zhakować... Pokaż mu co potrafisz!`,
-                    components: [
-                        new ActionRowBuilder().addComponents(
-                            new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId("deleteThisMessage").setLabel(`Usuń tą wiadomość dla mnie`)
-                        ),
-                    ],
-                })
+                try {
+                    osoba.send({
+                        content: `${interaction.user} (\`${interaction.user.username}\`) próbował Cię zhakować... Pokaż mu co potrafisz!`,
+                        components: [
+                            new ActionRowBuilder().addComponents(
+                                new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId("deleteThisMessage").setLabel(`Usuń tą wiadomość dla mnie`)
+                            ),
+                        ],
+                    })
+                    await interaction.editReply("Urządzenia ofiary były dobrze zabezpieczone. Ofiara dostała powiadomienie o próbie zhakowania jej urządzeń przez Ciebie.")
+                } catch (err) {
+                    await interaction.editReply("Urządzenia ofiary były dobrze zabezpieczone. Ofiara jednak nie wie o próbie hakerskiej przez Ciebie.")
+                }
             } else {
                 await interaction.editReply("Wykradanie kont bankowych, haseł...")
                 await wait(2000)

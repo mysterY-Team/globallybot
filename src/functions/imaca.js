@@ -55,7 +55,7 @@ const classes = [
             MaxHeight: 590,
             FontName: "Space Mono,DoCoMo Emoji,Noto Emoji",
             TextSize: 20,
-            LineWidth: 24,
+            LineWidth: 23.6,
         },
         Flags: {
             themeColor: "#FFFFFF",

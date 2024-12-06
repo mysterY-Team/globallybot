@@ -1,9 +1,9 @@
 import djs from "discord.js"
-const { Client, OAuth2Guild } = djs
+const { Client } = djs
 import conf from "../config.js"
 
 /**
- * @type {OAuth2Guild[]}
+ * @type {import("discord.js").OAuth2Guild[]}
  */
 var __servers = []
 

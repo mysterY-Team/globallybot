@@ -1,14 +1,14 @@
 import djs from "discord.js"
-const { ChatInputCommandInteraction, EmbedBuilder, Client, GuildMember } = djs
+const { EmbedBuilder, GuildMember } = djs
 import { request } from "undici"
 import conf from "../../../config.js"
 const { customEmoticons } = conf
-import { wait } from "../../../functions/useful.js"
+import { servers, wait } from "../../../functions/useful.js"
 
 export default {
     /**
-     * @param {Client} client
-     * @param {ChatInputCommandInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         const action = interaction.options.get("typ", true).value
@@ -97,16 +97,19 @@ export default {
             shout: {
                 uses_user: true,
                 action_what_user_did: "nakrzyczał(-a)",
-                interaction_responses: [`${interaction.user} wpadł w furię, i chce się wyżyć na {user}`],
+                interaction_responses: [`${interaction.user} wpadł w furię, i chce się wyżyć na {user}`, `${interaction.user} nie wytrzymał emocjonalnie przez {user}`],
             },
         }
+
+        const serverInList = servers.get().find((x) => x.id == interaction.guildId)
 
         if (!fondnesses[action].uses_user) {
             await interaction.deferReply()
             var response = fondnesses[action].interaction_responses[Math.floor(Math.random() * fondnesses[action].interaction_responses.length)]
         } else {
             const member = interaction.options.get("osoba", true).member
-            if (!member || !(member instanceof GuildMember)) {
+            const user = interaction.options.get("osoba", true).user
+            if (!member) {
                 interaction.reply({
                     content: `${customEmoticons.minus} Najlepiej byłoby gdyby ta osoba była na serwerze...`,
                     ephemeral: true,
@@ -114,7 +117,7 @@ export default {
                 return
             }
 
-            if (member.id === interaction.user.id) {
+            if (user.id === interaction.user.id) {
                 interaction.reply({
                     content: `${customEmoticons.minus} Trochę tak jakby... nie ma sensu robić czegoś dla siebie samego`,
                     ephemeral: true,
@@ -122,7 +125,7 @@ export default {
                 return
             }
 
-            if (member.user.bot || member.user.system) {
+            if (user.bot || user.system) {
                 interaction.reply({
                     content: `${customEmoticons.info} Botów nie uwzględniam!`,
                     ephemeral: true,
@@ -132,17 +135,18 @@ export default {
 
             await interaction.deferReply()
             var response = fondnesses[action].interaction_responses[Math.floor(Math.random() * fondnesses[action].interaction_responses.length)]
-                .replace("{user}", member)
-                .replace(/{user:([a-zA-Z]+)}/, (match, arg1) => member.user[arg1])
+                .replace("{user}", user)
+                .replace(/{user:([a-zA-Z]+)}/, (match, arg1) => user[arg1])
             try {
-                var msg = await member.send({
-                    content: `Ej, ja tylko w ramach informacji, że ${interaction.user} w tym momencie Cię ${fondnesses[action].action_what_user_did} na kanale ${interaction.channel}!`,
-                    components: [
-                        new ActionRowBuilder().addComponents(
-                            new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId("deleteThisMessage").setLabel(`Usuń tą wiadomość dla mnie`)
-                        ),
-                    ],
-                })
+                if (serverInList)
+                    await member.send({
+                        content: `Ej, ja tylko w ramach informacji, że ${interaction.user} w tym momencie Cię ${fondnesses[action].action_what_user_did} na kanale ${interaction.channel}!`,
+                        components: [
+                            new ActionRowBuilder().addComponents(
+                                new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId("deleteThisMessage").setLabel(`Usuń tą wiadomość dla mnie`)
+                            ),
+                        ],
+                    })
             } catch (e) {}
         }
 

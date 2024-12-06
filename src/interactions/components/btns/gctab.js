@@ -1,5 +1,5 @@
 import djs from "discord.js"
-const { ButtonInteraction, Client, EmbedBuilder } = djs
+const { ButtonInteraction, Client, EmbedBuilder, DiscordAPIError } = djs
 import conf from "../../../config.js"
 const { customEmoticons, db } = conf
 import { gcdata, gcdataGuild } from "../../../functions/dbSystem.js"
@@ -42,7 +42,7 @@ export default {
         }
 
         var userData2 = await db.aget(`userData/${uid}/gc`)
-        var data2 = gcdata.encode(userData2.val)
+        var data2 = gcdata.encode(userData2.val ?? "")
         if (data2.isBlocked) {
             interaction.editReply(`${customEmoticons.denided} Użytkownik jest zablokowany! Daj mu spokój!`)
             return
@@ -99,7 +99,9 @@ export default {
             await db.aset(`userData/${interaction.user.id}/gc`, gcdata.decode(data1))
             await db.aset(`userData/${uid}/gc`, gcdata.decode(data2))
         } catch (err) {
-            interaction.editReply(`${customEmoticons.denided} Nie udało się wysłać zaczepki!`)
+            if (!err instanceof DiscordAPIError || (err instanceof DiscordAPIError && err.code !== 50007))
+                interaction.editReply(`${customEmoticons.denided} Nie udało się wysłać zaczepki!`)
+            else throw err
         }
     },
 }
