@@ -138,14 +138,14 @@ export default {
                 const timestampted = Date.now().toString(20) + interaction.createdTimestamp.toString(36)
                 const fsp = await import("fs/promises")
                 await fsp.writeFile(`./eval-${timestampted}.tmp.log`, consoled.join("\n"))
-                const attachment = new AttachmentBuilder("./db/eval.tmp.log", { name: "eval.txt" })
+                const attachment = new AttachmentBuilder(`./eval-${timestampted}.tmp.log`, { name: "eval.txt" })
 
                 await interaction.editReply({
                     embeds: [x],
                     files: [attachment],
                 })
 
-                await fsp.unlink(`./eval-${timestampted}.tmp.log`, "")
+                await fsp.rm(`./eval-${timestampted}.tmp.log`)
             } else {
                 interaction.editReply({ embeds: [x] })
             }
