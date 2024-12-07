@@ -2,12 +2,12 @@ import djs from "discord.js"
 const { AttachmentBuilder, User, DiscordAPIError, DiscordjsError, GuildMember } = djs
 import canvasPKG from "@napi-rs/canvas"
 const { createCanvas, SKRSContext2D, Path2D, Canvas, loadImage } = canvasPKG
-import { drawText, getTextHeight, splitText } from "canvas-txt"
+import { drawText } from "canvas-txt"
 import fsp from "fs/promises"
 import { generateGradientText } from "./gradient.js"
 import conf from "../config.js"
 const { db } = conf
-import { getModules } from "./useful.js"
+import { getModules, wait } from "./useful.js"
 
 class ImacarrrdTheme {
     constructor(data) {
@@ -26,13 +26,13 @@ const classes = [
     new ImacarrrdTheme({
         name: "Klasyczny styl Globally",
         TextDesc: {
-            MaxHeight: 477,
-            FontName: "Nova Square,Noto Emoji",
-            TextSize: 24,
+            MaxHeight: 435,
+            FontName: "sans-serif,Noto Emoji",
+            TextSize: 23,
             LineWidth: undefined,
         },
         Flags: {
-            themeColor: "#FFFFFF",
+            themeColor: "#000000",
         },
     }),
     new ImacarrrdTheme({
@@ -74,19 +74,18 @@ const classes = [
             themeColor: ["#FFFFFF", "#000000"],
         },
     }),
-    // {
-    //     name: "Grand Theft Auto",
-    //     author: "---"
-    //     TextDesc: {
-    //         MaxHeight: 550,
-    //         FontName: "Space Mono, DoCoMo Emoji,Firefox Emoji",
-    //         TextSize: 20,
-    //         LineWidth: 24,
-    //     },
-    //     Flags: {
-    //         themeColor: ["#FFFFFF", "#000000"],
-    //     },
-    // },
+    new ImacarrrdTheme({
+        name: "Globally Alpha",
+        TextDesc: {
+            MaxHeight: 477,
+            FontName: "Nova Square,Noto Emoji",
+            TextSize: 24,
+            LineWidth: undefined,
+        },
+        Flags: {
+            themeColor: "#FFFFFF",
+        },
+    }),
 ]
 
 class ImacarrrdError extends Error {
@@ -238,37 +237,38 @@ async function createCarrrd(data, oData) {
         switch (data.cardID) {
             default:
             case 0: {
-                if (data.bannerURL !== null) {
-                    await setBanner(context, data.bannerURL, 0, 0, { type: "width", value: 700 })
+                if (data.bannerURL !== null) await setBanner(context, data.bannerURL, 0, 0, { type: "width", value: 700 })
+
+                await setImageInCircle(context, 15, 105, 300, user.avatar)
+
+                {
+                    const background = await fsp.readFile("./src/others/imgs/imacarrrd0.png")
+                    const backgroundImage = await loadImage(background)
+                    context.drawImage(backgroundImage, 0, 0, 700, 1000)
                 }
 
-                const background = await fsp.readFile("./src/others/imgs/imacarrrd0.png")
-                const backgroundImage = await loadImage(background)
-                context.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
-
-                await setImageInCircle(context, 23, 123, 210, user.avatar)
-
                 createGradientText(
                     context,
-                    23,
-                    396,
+                    22,
+                    482,
                     data.name,
-                    [getColorToGradient(data.nameGradient1, "imaca"), getColorToGradient(data.nameGradient2, "imaca"), classes[0].Flags.themeColor],
-                    "68px Jersey 10"
+                    [getColorToGradient(data.nameGradient1, "imaca"), getColorToGradient(data.nameGradient1, "imaca"), "#000000"],
+                    `70px Jersey 10`
                 )
                 createGradientText(
                     context,
-                    23,
-                    443,
+                    22,
+                    512,
                     username,
-                    [getColorToGradient(data.nameGradient1, "dc"), getColorToGradient(data.nameGradient2, "dc"), classes[0].Flags.themeColor],
-                    "34px Jersey 10"
+                    [getColorToGradient(data.nameGradient1, "imaca"), getColorToGradient(data.nameGradient1, "imaca"), "#000000"],
+                    `35px Jersey 10`
                 )
 
+                context.fillStyle = "#000000"
                 drawText(context, data.description, {
-                    x: 23,
-                    y: 500,
-                    width: 654,
+                    x: 20,
+                    y: 565,
+                    width: 660,
                     height: classes[0].TextDesc.MaxHeight,
                     fontSize: classes[0].TextDesc.TextSize,
                     align: "left",
@@ -277,60 +277,32 @@ async function createCarrrd(data, oData) {
                 })
 
                 if (member?.status) {
-                    context.beginPath()
-                    context.fillStyle = "#565656"
-                    context.arc(208, 303, 27, 0, 2 * Math.PI)
-                    context.fill()
-                    context.closePath()
-                }
-                switch (member?.status) {
-                    case "online":
-                        context.beginPath()
-                        context.fillStyle = "#43B581"
-                        context.arc(208, 303, 20, 0, 2 * Math.PI)
-                        context.fill()
-                        context.closePath()
-                        break
-                    case "dnd":
-                        context.beginPath()
-                        context.strokeStyle = "#F04747"
-                        context.lineWidth = 7
-                        context.arc(208, 303, 14, 0, 2 * Math.PI)
-                        context.moveTo(208 + 12, 303 - 12)
-                        context.lineTo(208 - 12, 303 + 12)
-
-                        context.stroke()
-                        context.closePath()
-                        break
-                    case "idle":
-                        context.beginPath()
-                        context.fillStyle = "#FAA61A"
-                        context.arc(208, 303, 20, 0, Math.PI * 2, true)
-                        context.fill()
-                        context.beginPath()
-                        context.fillStyle = "#565656"
-                        context.arc(200, 295, 14, 0, Math.PI * 2, true)
-                        context.fill()
-                        context.closePath()
-                        break
-                    case "invisible":
-                    case "offline":
-                        context.beginPath()
-                        context.fillStyle = "#898989"
-                        context.arc(208, 303, 20, 0, Math.PI * 2, true)
-                        context.fill()
-                        context.beginPath()
-                        context.fillStyle = "#565656"
-                        context.arc(208, 303, 10, 0, Math.PI * 2, true)
-                        context.fill()
-                        context.closePath()
-                        break
+                    const fs = await fsp.readFile("./src/others/imgs/imaca_addtional_0_5.png")
+                    const img = await loadImage(fs)
+                    context.drawImage(img, 0, 0, 700, 1000)
+                    let x
+                    switch (member.status) {
+                        case "online":
+                            x = await loadImage(await fsp.readFile("./src/others/imgs/imaca_addtional_0_1.png"))
+                            break
+                        case "dnd":
+                            x = await loadImage(await fsp.readFile("./src/others/imgs/imaca_addtional_0_2.png"))
+                            break
+                        case "idle":
+                            x = await loadImage(await fsp.readFile("./src/others/imgs/imaca_addtional_0_3.png"))
+                            break
+                        case "invisible":
+                        case "offline":
+                            x = await loadImage(await fsp.readFile("./src/others/imgs/imaca_addtional_0_4.png"))
+                            break
+                    }
+                    context.drawImage(x, 243, 335, 83, 83)
                 }
 
                 break
             }
             case 1: {
-                setBanner(context, data.bannerURL ?? (await fsp.readFile("./src/others/imgs/imaca_addtional1_1.png")), 104, 0, { type: "width", value: 596 })
+                await setBanner(context, data.bannerURL ?? (await fsp.readFile("./src/others/imgs/imaca_addtional1_1.png")), 104, 0, { type: "width", value: 596 })
 
                 const background = await fsp.readFile("./src/others/imgs/imacarrrd1.png")
                 const backgroundImage = await loadImage(background)
@@ -708,6 +680,95 @@ async function createCarrrd(data, oData) {
                 break
             }
             case 4: {
+                if (data.bannerURL !== null) {
+                    await setBanner(context, data.bannerURL, 0, 0, { type: "width", value: 700 })
+                }
+
+                const background = await fsp.readFile("./src/others/imgs/imacarrrd4.png")
+                const backgroundImage = await loadImage(background)
+                context.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
+
+                await setImageInCircle(context, 23, 123, 210, user.avatar)
+
+                createGradientText(
+                    context,
+                    23,
+                    396,
+                    data.name,
+                    [getColorToGradient(data.nameGradient1, "imaca"), getColorToGradient(data.nameGradient2, "imaca"), classes[0].Flags.themeColor],
+                    "68px Jersey 10"
+                )
+                createGradientText(
+                    context,
+                    23,
+                    443,
+                    username,
+                    [getColorToGradient(data.nameGradient1, "dc"), getColorToGradient(data.nameGradient2, "dc"), classes[0].Flags.themeColor],
+                    "34px Jersey 10"
+                )
+
+                drawText(context, data.description, {
+                    x: 23,
+                    y: 500,
+                    width: 654,
+                    height: classes[4].TextDesc.MaxHeight,
+                    fontSize: classes[4].TextDesc.TextSize,
+                    align: "left",
+                    vAlign: "top",
+                    font: classes[4].TextDesc.FontName,
+                })
+
+                if (member?.status) {
+                    context.beginPath()
+                    context.fillStyle = "#565656"
+                    context.arc(208, 303, 27, 0, 2 * Math.PI)
+                    context.fill()
+                    context.closePath()
+                }
+                switch (member?.status) {
+                    case "online":
+                        context.beginPath()
+                        context.fillStyle = "#43B581"
+                        context.arc(208, 303, 20, 0, 2 * Math.PI)
+                        context.fill()
+                        context.closePath()
+                        break
+                    case "dnd":
+                        context.beginPath()
+                        context.strokeStyle = "#F04747"
+                        context.lineWidth = 7
+                        context.arc(208, 303, 14, 0, 2 * Math.PI)
+                        context.moveTo(208 + 12, 303 - 12)
+                        context.lineTo(208 - 12, 303 + 12)
+
+                        context.stroke()
+                        context.closePath()
+                        break
+                    case "idle":
+                        context.beginPath()
+                        context.fillStyle = "#FAA61A"
+                        context.arc(208, 303, 20, 0, Math.PI * 2, true)
+                        context.fill()
+                        context.beginPath()
+                        context.fillStyle = "#565656"
+                        context.arc(200, 295, 14, 0, Math.PI * 2, true)
+                        context.fill()
+                        context.closePath()
+                        break
+                    case "invisible":
+                    case "offline":
+                        context.beginPath()
+                        context.fillStyle = "#898989"
+                        context.arc(208, 303, 20, 0, Math.PI * 2, true)
+                        context.fill()
+                        context.beginPath()
+                        context.fillStyle = "#565656"
+                        context.arc(208, 303, 10, 0, Math.PI * 2, true)
+                        context.fill()
+                        context.closePath()
+                        break
+                }
+
                 break
             }
         }

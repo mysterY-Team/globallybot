@@ -92,8 +92,8 @@ export const imacaData = {
             cardID: Number(obj[0] ?? 0),
             name: obj[1] ?? "Użytkownik ImaCarrrd",
             description: obj[2] ?? "Brak podanego opisu.",
-            nameGradient1: obj[3] ?? "#0B8553",
-            nameGradient2: obj[4] ?? "#74B198",
+            nameGradient1: obj[3] ?? "#663399",
+            nameGradient2: obj[4] ?? "#F8DF5F",
             bannerURL: !obj[5] ? null : obj[5],
         }
     },

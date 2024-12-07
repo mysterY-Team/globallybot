@@ -18,7 +18,7 @@ const client = new Client({
 
 listenerLog(0, "Discord.js v.14", true)
 
-GlobalFonts.registerFromPath("./src/others/fonts/outfit.ttf", "sans-serif")
+GlobalFonts.registerFromPath("./src/others/fonts/lexend.ttf", "sans-serif")
 
 GlobalFonts.registerFromPath("./src/others/fonts/novasq.ttf", "Nova Square")
 GlobalFonts.registerFromPath("./src/others/fonts/jersey10.ttf", "Jersey 10")

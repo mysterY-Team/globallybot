@@ -1,42 +1,5 @@
-> GlobalChat, stawia misję stworzenia miejsca, w którym to każdy mógłby się poczuć bezpiecznie i otworzyć się na ludzi. Chcąc utrzymać więc ład i harmonię, wytyczonych jest kilka zasad - stojących ponad regulaminy innych serwerów, ale tylko obowiązujących na kanałach do tego przeznaczonych; surowych, ale potrzebnych do spełnienia misji; ograniczających zachowania niestosowne, ale gwarantujących wolność użytkownika.
-# §1 - Zasady wstępne
-1. Regulamin stoi ponad regulaminy wszystkich serwerów i jest NIEZALEŻNY od stacji, czy to prywatnej czy publicznej.
-1. Regulamin może być zmieniony w każdej chwili, użytkownicy zostaną poinformowani.
-1. Utworzenie profilu wiąże się z automatyczną akceptacją regulaminu.
-1. Użytkownik przy czasowej blokadzie SAM powinien się upomnieć o odblokowanie konta.
-1. Możesz się odwołać do blokady na serwerze support bota - znajdziesz go m.in. w komendzie `botinfo`.
-1. Nazwa "GlobalActions" jest nazwą zarezerwowaną TYLKO dla projektu Globally i NIE może być użyte do własnych celów komercyjnych, poza owymi akcjami.
-1. Niektóre zasady MOGĄ być nadpisane tzw. dekretem - może być stałe lub na określony czas. Każdy dekret będzie informowany na bieżąco na serwerze support.
-1. ZABRONIONE jest tworzenie wielu kont w celach omijania blokady.
-1. Każde zgłoszenie na użytkownika i prośba o odblokowywanie jest traktowane jednakowo. Im więcej pójdzie zgłoszeń, tym blokada użytkownika MOŻE być bardziej uzasadniona.
-#--#
-# §2 - Zarząd GlobalChata
-1. TYLKO GDY jest to apelacyjne, moderator MOŻE zablokować osobę bez względu na regulamin.
-1. Naczelnik pozwala dodatkowo na powoływanie i wydalanie moderatorów.
-1. Blokada użytkownika NIE MUSI mieć sprecyzowanego powodu zablokowania.
-1. Moderator lub naczelnik, który się nie wywiązuje ze swoich obowiązków i/lub nakłada/znosi blokadę użytkownikowi, któremu nie powinien się zmienić jego status blokady w GlobalChacie, zostanie wydalony w mniej niż 48 godzin (sprawdź: §6 ptk. 3).
-1. Zdanie deweloperów ZAWSZE jest ostateczne, lecz warto pamiętać o omyłkach.
-# §3 - Wiadomości a GlobalChat
-1. Wiadomości także idą zasadami ToS-u Discorda.
-1. Każda wiadomość wysłana za pośrednictwem usługi zawiera dane dla moderacji Discord.
-1. Komentowanie karane będzie TYLKO regulaminem serwera.
-1. Linki oraz multimedia są dostępne TYLKO dla osób posiadających conajmniej 25 karmy
-1. Zakazane jest wysyłanie materiałów/pisania o tematach takich jak: religijne, rasistowskie\*, faszystowskie/komunistyczne, pornograficzne\*, zagrażające życiu, wrażliwe, z seksualnym podtekstem\* czy zawierające dane poufne (sprawdź: §6 ptk. 4).
-1. Należy się CAŁKOWITA tolerancja do drugiej osoby, niezależnie od karnacji, płci, poglądów różnego rodzaju, miejsca pochodzenia i innych aspektów ludzkich.
-1. ZABRANIA się spamowania, floodowania oraz zapychania "łańcuszkami".
-1. Usługa blokuje linki z zaproszeniami na serwer i dla dorosłych oraz niedozwolone słowa obraźliwe. Omijanie takiej zapory (także upublicznianie niebezpiecznych linków) wiąże się blokadą użytkownika AŻ DO ODWOŁANIA.
-1. Przeklinanie jest dozwolone, ale umiarkowaną ilością.
-1. Usługa przyjmuje tylko zdjęcia, filmy i dźwięki z powodu bezpieczeństwa.
-# §4 - Prezentacja użytkownika a GlobalChat
-1. Użytkownik MUSI mieć neutralny nick dla każdego z użytowników, serwerów ORAZ usługi.
-2. Profilowe użytkownika NIE MOŻE ukazywać żadnych tematów wspomnianych w §3 ptk. 4.
-#--#
-# §5 - Inne funkcje w GlobalChacie
-1. NIE wolno używać emotek NSFW z innych serwerów, za to grozi blokada AŻ DO ODWOŁANIA.
-1. GlobalActions mogą mieć własne warunki użytkowania, gdzie się godzisz wraz z ich użyciem.
-1. Za uciążliwe "zaczepianie" (m.in. spam zaczepiania bez powodu konkretnego) wiąże się blokada do 5 dni, lub AŻ DO ODWOŁANIA w przypadku powtórzenia tego wyczynu.
-# §6 - Dodatkowe informacje
-1. Reakcja X ({{custom:denided}}) przy niewysłanej wiadomości oznacza brak dostępu do usługi (blokada) LUB blokady linku. Podczas używania tagu `<p>` oznacza ona błąd podczas konwertowania wiadomości.
-1. Reakcja minusa ({{custom:minus}}) podczas używania tagu `<p>` oznacza brak wiadomości zablokowanej przez cooldown.
-1. Czas może się wydłużyć w zależności od dostępności deweloperów i/lub naczelników.
-1. Jedna gwiazdka oznacza możliwość wysłania w celach humorystycznych, __W PRZYPADKU pornograficznego materiału__ mogą być wysyłanie humorystycznie TYLKO w spoilerze, nie może też przedstawiać ŻADNEJ części intymnej. Należy też przestrzegać tolerancji.
+GlobalChat stawia misję stworzenia miejsca, w którym to każdy mógłby się poczuć bezpiecznie i otworzyć się na ludzi. Chcąc utrzymać więc ład i harmonię, napisanych zostało kilka fundamentalnych zasad, których WARTO znać
+- **Zachowaj kulturę osobistą.** Kultura świadczy o nas samych. Zachowaj (__absolutną__) tolerancję do drugiej osoby (więc nie wspominaj o rasizmie, faszyzmie, komunizmie, itp). Wulgaryzmy są dozwolone, ale nie z przesadą.  
+- **Pamiętaj, że jest tylko jedna __prawdziwa__ religia.** Jesteśmy w kraju chrześcijańskim, a co za tym idzie, kierujemy się zasadami i wartościami typowymi dla tej religii. Zabrania się wytykania wad w niej oraz używanie religii szatanizmu nie w celach naukowych. *Miłuj bliźniego jak siebie samego* - każdy z nas bowiem ma uczucia.  
+- **Używaj czatu globalnego zgodnie z przeznaczeniem.** To znaczy, abyś nie robił z niego “giełdy”, tyralnii, zakątku NSFW, i tego typu spraw.  
+- **Pamiętaj, że to Ty jesteś odpowiedzialny za swój kontent.** Ponad tymi punktami i *suchymi* karami z [taryfikatora](<https://docs.google.com/document/d/1NHmhOcDhR8SJx9y2_1bj33Ey3BubR2i47G6p8IIIYi8/edit?tab=t.1m8rh4lmwvp4#heading=h.zeeghd9b5gmt>) stoi zdrowy rozsądek - pisanie więc “tego nie było w regulaminie”, “tutaj nic nie można robić”, “za mówienie prawdy jest blokada” i inne tego typu teksty, czy brak znajomości z regulaminem, nie stanowią __żadnego__ wytłumaczenia.

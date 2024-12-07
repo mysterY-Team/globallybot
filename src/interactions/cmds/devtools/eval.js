@@ -2,15 +2,15 @@ import djs from "discord.js"
 import conf from "../../../config.js"
 import * as useful from "../../../functions/useful.js"
 import * as dbsys from "../../../functions/dbSystem.js"
-const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
+const { EmbedBuilder, AttachmentBuilder } = djs
 const { checkUserStatus } = useful
 const { customEmoticons } = conf
 
 export default {
     /**
      *
-     * @param {Client} client
-     * @param {ChatInputCommandInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         await interaction.deferReply()
@@ -47,7 +47,7 @@ export default {
                             if (value === null) value = "null"
                             else if (value instanceof Object || value instanceof Array) {
                                 try {
-                                    value = JSON.stringify(value)
+                                    value = JSON.stringify(value, null, 4)
                                 } catch (e) {
                                     value = value.toString()
                                 }
@@ -66,27 +66,6 @@ export default {
                         else consoled.push("┣ " + value.split("\n").join("\n┃ "))
                     }
                 })
-            }
-
-            /**
-             * @param {string} uid
-             * @param {string} time
-             */
-            const setSAT = async (uid, time, force = false) => {
-                const snapshot = await conf.db.aget(`userData/${uid}/gc`)
-                if (!snapshot.exists && !force) return writeToAkaConsole("Nie ustawiono SAT, bowiem użytkownik taki nie istnieje")
-                const gc = dbsys.gcdata.encode(snapshot.val ?? "")
-                gc._sat =
-                    (() => {
-                        time = time.toLowerCase()
-                        if (time.endsWith("h")) return Number(time.replace("h", "")) * 3600000
-                        if (time.endsWith("d")) return Number(time.replace("d", "")) * 86400000
-                        if (time.endsWith("w")) return Number(time.replace("w", "")) * 604800000
-                        if (time.endsWith("m")) return Number(time.replace("m", "")) * 2592000000
-                        return Number(time)
-                    })() + Date.now()
-                await conf.db.aset(`userData/${uid}/gc`, dbsys.gcdata.decode(gc))
-                writeToAkaConsole(`Ustawiono SAT poprawnie! SAT: ${gc._sat}`)
             }
 
             const GlobalChatEvalFunc = {
@@ -124,6 +103,26 @@ export default {
 
                     writeToAkaConsole(`Usunięto ${x.filter((x) => x).length} wiadomości z ${x.length}!`)
                 },
+                /**
+                 * @param {string} uid
+                 * @param {string} time
+                 */
+                setSAT: async (uid, time, force = false) => {
+                    const snapshot = await conf.db.aget(`userData/${uid}/gc`)
+                    if (!snapshot.exists && !force) return writeToAkaConsole("Nie ustawiono SAT - użytkownik nie istnieje w bazie danych")
+                    const gc = dbsys.gcdata.encode(snapshot.val ?? "")
+                    gc._sat =
+                        (() => {
+                            time = time.toLowerCase()
+                            if (time.endsWith("h")) return Number(time.replace("h", "")) * 3600000
+                            if (time.endsWith("d")) return Number(time.replace("d", "")) * 86400000
+                            if (time.endsWith("w")) return Number(time.replace("w", "")) * 604800000
+                            if (time.endsWith("m")) return Number(time.replace("m", "")) * 2592000000
+                            return Number(time)
+                        })() + Date.now()
+                    await conf.db.aset(`userData/${uid}/gc`, dbsys.gcdata.decode(gc))
+                    writeToAkaConsole(`Ustawiono SAT poprawnie! SAT: ${gc._sat}`)
+                },
             }
 
             var func = async function () {}
@@ -133,32 +132,34 @@ export default {
             var x = new EmbedBuilder()
                 .setColor("Green")
                 .setTitle(`${customEmoticons.approved} \`/eval\` wykonany poprawnie!`)
-                .addFields(
-                    {
-                        name: "Kod",
-                        value: `\`\`\`javascript\n${interaction.options.get("func", true).value.replace(/;/g, "\n")}\n\`\`\``,
-                    },
-                    {
-                        name: "Konsola",
-                        value:
-                            consoled.length > 0
-                                ? `\`\`\`\n${consoled
-                                      .map((val) => {
-                                          if (typeof val == "object") val = JSON.stringify(val)
-                                          return val
-                                      })
-                                      .join("\n")}\n\`\`\``
-                                : customEmoticons.denided,
-                    }
-                )
-            interaction.editReply({
-                embeds: [x],
-            })
+                .setDescription(`\`\`\`javascript\n${interaction.options.get("func", true).value.replace(/;/g, "\n")}\n\`\`\``)
+
+            if (consoled.length > 0) {
+                const timestampted = Date.now().toString(20) + interaction.createdTimestamp.toString(36)
+                const fsp = await import("fs/promises")
+                await fsp.writeFile(`./eval-${timestampted}.tmp.log`, consoled.join("\n"))
+                const attachment = new AttachmentBuilder("./db/eval.tmp.log", { name: "eval.txt" })
+
+                await interaction.editReply({
+                    embeds: [x],
+                    files: [attachment],
+                })
+
+                await fsp.unlink(`./eval-${timestampted}.tmp.log`, "")
+            } else {
+                interaction.editReply({ embeds: [x] })
+            }
         } catch (error) {
+            console.warn(error)
             var x = new EmbedBuilder()
                 .setColor("Red")
                 .setTitle(`${customEmoticons.approved} \`/eval\` zwrócił błąd!`)
-                .setDescription(`\`\`\`${error}\`\`\``)
+                .setDescription(
+                    (() => {
+                        if (error instanceof Error) return `\`\`\`${error.stack}\`\`\`(błąd typu \`${error.name}\`)`
+                        return `\`\`\`${error}\`\`\``
+                    })()
+                )
                 .addFields({
                     name: "Kod",
                     value: `\`\`\`javascript\n${interaction.options

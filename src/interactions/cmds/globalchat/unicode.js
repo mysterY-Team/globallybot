@@ -110,7 +110,7 @@ export default {
                         return `\n\`${x.symbol}\` (${x.name[0].toLowerCase() + x.name.substring(1)}) - \`${x.savenames[0]}\` (aliasy: ${
                             x.savenames.length > 1 ? `${conf.customEmoticons.approved}, ilość: ${x.savenames.length - 1}` : conf.customEmoticons.denided
                         })`
-                    })}\n-# Tutaj się wyświetla maksymalnie 10 emotek. Możesz użyć parametru \`query\`, aby wyszukać emotki.\n-# Wpisuj nazwę bez ostrych nawiasów.`,
+                    })}\n-# Tutaj się wyświetla maksymalnie 10 znaków. Możesz użyć parametru \`query\`, aby je wyszukać.\n-# Wpisuj nazwę bez ostrych nawiasów.`,
             })
         } else {
             const queryVal = queryOption.value
@@ -124,7 +124,7 @@ export default {
             })
 
             if (query.length == 0) {
-                interaction.reply(`${conf.customEmoticons.denided} Niestety, nie posiadamy obecnie emotki`)
+                interaction.reply(`# ¯\\_(ツ)_/¯\nBrak takich znaków Unicode. Spróbuj poszukać nieco inaczej...`)
             } else if (query.length == 1) {
                 const em = query[0]
                 interaction.reply(
@@ -134,13 +134,13 @@ export default {
                 )
             } else {
                 interaction.reply(
-                    `Znaleziono kilka znaków  z tym zapytaniem. Wyświetlanie losowych **${Math.min(query.length, 12)}** z **${query.length}**\n${query
+                    `Znaleziono kilka znaków z tym zapytaniem. Wyświetlanie losowych **${Math.min(query.length, 12)}** z **${query.length}**\n${query
                         .sort(() => Math.random() - 0.5)
                         .filter((x, index) => index < 12)
                         .map((x) => {
-                            return `\n${x.emote} - \`${x.savenames[0]}\` (aliasy: ${
+                            return `\n\`${x.symbol}\` (${x.name[0].toLowerCase() + x.name.substring(1)}) - \`${x.savenames[0]}\` (aliasy: ${
                                 x.savenames.length > 1 ? `${conf.customEmoticons.approved}, ilość: ${x.savenames.length - 1}` : conf.customEmoticons.denided
-                            })${typeof x.server === "undefined" ? "" : ` *//ze serwera [${client.guilds.cache.get(x.server.id).name}](<https://discord.gg/${x.server.iCode}>)*`}`
+                            })`
                         })}`
                 )
             }

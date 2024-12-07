@@ -4,3 +4,4 @@ node_modules
 env.json
 nodemon.json
 db/*
+*.tmp.*
