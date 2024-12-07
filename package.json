@@ -1,8 +1,7 @@
 {
     "dependencies": {
         "@google/generative-ai": "^0.21.0",
-        "@napi-rs/canvas": "^0.1.62",
-        "@octokit/rest": "^21.0.2",
+        "@napi-rs/canvas": "^0.1.65",
         "canvas-txt": "^4.1.1",
         "cheerio": "^1.0.0",
         "discord.js": "^14.16.3",
@@ -11,7 +10,7 @@
         "perf_hooks": "^0.0.1"
     },
     "name": "globally",
-    "version": "2.5.5-forcedfixv1",
+    "version": "2.6.0",
     "main": "src/index.js",
     "type": "module",
     "scripts": {
