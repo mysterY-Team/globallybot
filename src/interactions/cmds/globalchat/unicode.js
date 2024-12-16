@@ -128,9 +128,14 @@ export default {
             } else if (query.length == 1) {
                 const em = query[0]
                 interaction.reply(
-                    `# \`${em.symbol}\` jako \`{emote:${em.savenames[0]}}\`\nAlternatywy dla tej emotki: ${
-                        em.savenames.filter((x, i) => i > 0).length > 0 ? `\`\`\`\n${em.savenames.filter((x, i) => i > 0).join("\n")}\n\`\`\`` : "brak"
-                    }\n*Możesz także użyć \`{e:${em.savenames[0]}}\`*`
+                    `# ${em.name} (\`${em.symbol}\`) jako \`{unicode:${em.savenames[0]}}\`\nAlternatywy dla tego znaku: ${
+                        em.savenames.filter((x, i) => i > 0).length > 0
+                            ? `\`\`\`\n${em.savenames
+                                  .filter((x, i) => i > 0)
+                                  .map((x) => "{unicode:" + x + "}")
+                                  .join("\n")}\n\`\`\``
+                            : "brak"
+                    }\n*Możesz także użyć \`{uc:${em.savenames[0]}}\`*`
                 )
             } else {
                 interaction.reply(

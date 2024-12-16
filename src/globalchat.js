@@ -10,7 +10,7 @@ const { Client, Message, EmbedBuilder, WebhookClient, WebhookMessageCreateOption
 const { db, customEmoticons, debug, supportServer, _bot } = conf
 const { unicodeList } = uc
 
-const userCooldown = (amount, type = 0) => 6000 - 300 * type + (500 - 50 * type) * amount
+const userCooldown = (amount, type = 0) => 1500 + 125 * type + (40 + 15 * type) * amount
 let lastUser = "unknown"
 
 /**
@@ -38,6 +38,11 @@ function checkDisallowedLinks(text) {
         "ixxx.com",
         "sunporno.com",
         "pornhat.com",
+        "porn300.com",
+        "pornone.com",
+        "sexvid.xxx",
+        "tubegalore.com",
+        "tubecup.com",
         "hentaihaven.xxx", //hentaice
         "hentaigasm.com",
         "fakku.net",
@@ -426,7 +431,7 @@ export async function globalchatFunction(client, message) {
                     .replace(/%userrole%/i, rank)
                     .replace(/%guildid%/i, message.guildId)
                     .replace(/%guildname%/i, message.guild.name)
-            /* else */ return `${message.author.username} (${rank};${message.author.id};${message.guildId})`
+            return `${message.author.username} (${rank};${message.author.id};${message.guildId})`
         }
 
         const chpermissions = message.channel.permissionsFor(_bot.id, false)
@@ -907,17 +912,24 @@ export async function globalchatFunction(client, message) {
 
         function gct() {
             let gctI = [
-                true,
-                userData.karma >= 25n,
-                userData.modPerms > 0 || (userData.karma >= 25n && userHasPremium),
+                (userData.karma >= 5000n && (userHasPremium || userData.modPerms > 0)) || isInMysteryTeam, //0
+                userData.karma >= 5000n,
+                false,
+                false,
+                false,
+                false,
+                userData.karma >= 1000n && userData.modPerms > 0 && userHasPremium,
+                userData.karma >= 1000n && (userData.modPerms > 0 || userHasPremium),
                 userData.karma >= 1000n,
-                userData.karma >= 1000n && (userData.modPerms === 1 || userData.modPerms === 2 || userHasPremium),
-                userData.karma >= 1000n && (userData.modPerms === 3 || userData.modPerms === 4 || ((userData.modPerms === 1 || userData.modPerms === 2) && userHasPremium)),
-                userData.karma >= 1000n && (userData.modPerms === 3 || userData.modPerms === 4) && userHasPremium,
-                isInMysteryTeam,
+                false,
+                userData.modPerms > 0 || (userData.karma >= 25n && userHasPremium),
+                userData.karma >= 25n,
+                false,
+                false,
+                true, //15
             ]
 
-            return gctI.lastIndexOf(true)
+            return gctI.indexOf(true)
         }
 
         listenerLog(3, "🪪 Dane")

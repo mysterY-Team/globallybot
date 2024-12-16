@@ -96,11 +96,20 @@ export default {
                 break
             }
             case "GCWebhookUSystem": {
+                var tv = ""
                 if (!key[1].flag_showGCButtons) errorReason = "wymagane włączenie przycisków GlobalChat we wiadomościach (`showGCButtons`)"
-                else if (!flagValue.match(/%username%/i) || !flagValue.match(/%userrole%/i)) errorReason = "brak tagów `%username%` i/lub `%userrole%`"
+                else if (!flagValue.match(/%username%/i)) errorReason = "brak tagu `%username%`"
                 else if (flagValue.match(/[{}]/)) errorReason = "niedozwolony znak"
                 else if (flagValue.includes("GlobalAction")) errorReason = "fraza `GlobalAction`"
-                else if (flagValue.length > 40) errorReason = "za długa nazwa"
+                else if (
+                    (tv = String(flagValue)
+                        .replace(/%username%/i, "*".repeat(36))
+                        .replace(/%userid%/i, "*".repeat(19))
+                        .replace(/%userrole%/i, "*".repeat(14))
+                        .replace(/%guildid%/i, "*".repeat(13))
+                        .replace(/%guildname%/i, "*".repeat(36))).length > 80
+                )
+                    errorReason = "za długa nazwa"
                 else val = flagValue
                 break
             }

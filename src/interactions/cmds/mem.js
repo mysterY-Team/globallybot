@@ -2,6 +2,7 @@ import djs from "discord.js"
 const { ChatInputCommandInteraction, Client, EmbedBuilder } = djs
 import conf from "../../config.js"
 const { customEmoticons } = conf
+import { request } from "undici"
 
 export default {
     /**
