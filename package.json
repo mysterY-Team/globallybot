@@ -10,7 +10,7 @@
         "perf_hooks": "^0.0.1"
     },
     "name": "globally",
-    "version": "2.6.0",
+    "version": "2.6.1",
     "main": "src/index.js",
     "type": "module",
     "scripts": {
