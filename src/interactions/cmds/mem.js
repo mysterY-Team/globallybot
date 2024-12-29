@@ -24,7 +24,7 @@ export default {
             interaction.editReply({
                 content: `${customEmoticons.denided} Nie udało się pobrać mema`,
             })
-            throw console.error(error)
+            throw console.warn(error)
         }
     },
 }

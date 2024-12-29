@@ -38,7 +38,7 @@ export default {
                 `${customEmoticons.approved} Udało się wyrzucić ${osoba} (\`${osoba.username}\`, \`${osoba.id}\`)!\n${customEmoticons.info} Powód: ${powod}`
             )
         } catch (error) {
-            console.error(error)
+            console.warn(error)
             await interaction.editReply(`${customEmoticons.denided} Wystąpił błąd podczas próby zbanowania tej osoby.`)
         }
     },

@@ -52,7 +52,7 @@ export default {
             })
         }
 
-        console.log(snpsht.val)
+        // console.log(snpsht.val)
         var stationHasPasswd = Boolean(snpsht.val.split("|")[1])
 
         await interaction.editReply(`${customEmoticons.loading} Usuwanie...`)

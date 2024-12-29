@@ -1,7 +1,7 @@
 import djs from "discord.js"
 const { AttachmentBuilder, User, DiscordAPIError, DiscordjsError, GuildMember } = djs
 import canvasPKG from "@napi-rs/canvas"
-const { createCanvas, SKRSContext2D, Path2D, Canvas, loadImage } = canvasPKG
+const { createCanvas, Path2D, Canvas, loadImage } = canvasPKG
 import { drawText } from "canvas-txt"
 import fsp from "fs/promises"
 import { generateGradientText } from "./gradient.js"
@@ -162,7 +162,7 @@ async function createCarrrd(data, oData) {
 
         /**
          *
-         * @param {SKRSContext2D} $canvasContext
+         * @param {import("@napi-rs/canvas").SKRSContext2D} $canvasContext
          * @param {number} x
          * @param {number} y
          * @param {number} wh
@@ -180,34 +180,43 @@ async function createCarrrd(data, oData) {
 
         /**
          *
-         * @param {SKRSContext2D} $canvasContext
+         * @param {canvasPKG.SKRSContext2D} $canvasContext
          * @param {number} x
          * @param {number} y
          * @param {string} text
          * @param {`#${string}`[]} colors
          * @param {string} font
-         * @param {string} [alignX="left"]
+         * @param {{ stroke: boolean, fill: boolean, alignX: "left" | "center" | "right" }} [settings={}]
          */
-        function createGradientText($canvasContext, x, y, text, colors, font) {
+        function createGradientText($canvasContext, x, y, text, colors, font, settings = {}) {
+            //analyze the settings
+            settings.fill ??= true
+            settings.stroke ??= false
+            settings.alignX ??= "left"
+
             var info = generateGradientText(colors, text)
             var width = 0
+
+            const letterW = $canvasContext.measureText(info[i].text).width
+            const st = ["left", "center", "right"]
+            x -= width * (st.indexOf(settings.alignX) / 2)
 
             for (let i = 0; i < info.length; i++) {
                 $canvasContext.font = font
                 $canvasContext.fillStyle = info[i].color
-                const letterW = $canvasContext.measureText(info[i].text).width
-                $canvasContext.fillText(info[i].text, x + width, y)
+                if (settings.fill) $canvasContext.fillText(info[i].text, x + width, y)
+                if (settings.stroke) $canvasContext.strokeText(info[i].text, x + width, y)
                 width += letterW
             }
         }
 
         /**
          *
-         * @param {SKRSContext2D} $canvasContext
+         * @param {canvasPKG.SKRSContext2D} $canvasContext
          * @param {string | Buffer} banner (banner powinien mieć wymiary 700x300)
          * @param {number} x
          * @param {number} y
-         * @param {{ type: "width" | "height", value: number}} dependencyFix
+         * @param {{ type: "width" | "height", value: number }} dependencyFix
          */
         async function setBanner($canvasContext, banner, x, y, dependencyFix) {
             try {
@@ -252,7 +261,7 @@ async function createCarrrd(data, oData) {
                     22,
                     482,
                     data.name,
-                    [getColorToGradient(data.nameGradient1, "imaca"), getColorToGradient(data.nameGradient1, "imaca"), "#000000"],
+                    [getColorToGradient(data.nameGradient1, "imaca"), getColorToGradient(data.nameGradient2, "imaca"), "#000000"],
                     `70px Jersey 10`
                 )
                 createGradientText(
@@ -260,7 +269,7 @@ async function createCarrrd(data, oData) {
                     22,
                     512,
                     username,
-                    [getColorToGradient(data.nameGradient1, "imaca"), getColorToGradient(data.nameGradient1, "imaca"), "#000000"],
+                    [getColorToGradient(data.nameGradient1, "imaca"), getColorToGradient(data.nameGradient2, "imaca"), "#000000"],
                     `35px Jersey 10`
                 )
 

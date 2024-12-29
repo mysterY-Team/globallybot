@@ -46,7 +46,7 @@ export default {
             interaction.editReply({
                 content: `${customEmoticons.denided} Nie udało się pobrać dowcipu`,
             })
-            throw console.error(error)
+            throw console.warn(error)
         }
     },
 }
