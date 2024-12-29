@@ -14,8 +14,8 @@ export default {
         await interaction.deferReply()
         try {
             var x = await request("http://srv27.mikr.us:30105/memhubapi/randomimg")
-            x = await x.body.json()
-            const file = x.image
+            const file = (await x.body.json()).image
+            x.body.destroy()
 
             interaction.editReply({
                 embeds: [new EmbedBuilder().setImage(file).setColor("Random").setFooter({ text: "Źródło: Memhub (repo patYczakus/Memhub-API-filesystem)" })],
