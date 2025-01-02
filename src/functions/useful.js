@@ -64,7 +64,7 @@ function checkFontColor(bgHEX) {
 async function checkUserStatus(client, id) {
     try {
         const member = await (await client.guilds.fetch(conf.supportServer.id)).members.fetch({ user: id, cache: false })
-        return { inSupport: true, mysteryTeam: member.roles.cache.has("1264341114941472848"), booster: member.roles.cache.has("1182813786609045605") }
+        return { inSupport: true, mysteryTeam: member.roles.cache.has("1323610813285535765"), booster: member.roles.cache.has("1182813786609045605") }
     } catch (err) {
         return { inSupport: false }
     }
