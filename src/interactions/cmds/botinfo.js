@@ -9,8 +9,8 @@ import locallium from "locallium"
 export default {
     /**
      *
-     * @param {Client} client
-     * @param {ChatInputCommandInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         const time = Math.floor((Date.now() - codeTime()) / 1000)
@@ -57,7 +57,9 @@ export default {
                 },
                 {
                     name: "Serwery",
-                    value: `Ilość: **${client.guilds.cache.size}**\nIlość osób: **${uCount}**\nNazwy: ||Wyświetlane są max. 10 serwerów|| \`\`\`${guildsName}\`\`\``,
+                    value: `Ilość: **${
+                        import("discord.js").Client.guilds.cache.size
+                    }**\nIlość osób: **${uCount}**\nNazwy: ||Wyświetlane są max. 10 serwerów|| \`\`\`${guildsName}\`\`\``,
                     inline: false,
                 }
             )

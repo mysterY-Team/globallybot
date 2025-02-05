@@ -6,8 +6,8 @@ const { _bot } = conf
 
 export default {
     /**
-     * @param {Client} client
-     * @param {ButtonInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ButtonInteraction} interaction
      * @param {string[]} args
      */
     async execute(client, interaction, ...args) {

@@ -7,8 +7,8 @@ import { classes } from "../../../functions/imaca.js"
 
 export default {
     /**
-     * @param {AutocompleteFocusedOption} acFocusedInformation
-     * @param {Client<true>} client
+     * @param {import("discord.js").AutocompleteFocusedOption} acFocusedInformation
+     * @param {import("discord.js").Client<true>} client
      */
     autocomplete(acFocusedInformation, client) {
         return classes
@@ -23,8 +23,8 @@ export default {
     },
     /**
      *
-     * @param {Client} client
-     * @param {ChatInputCommandInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         const receivedVal = interaction.options.get("styl", true).value

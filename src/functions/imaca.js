@@ -7,7 +7,7 @@ import fsp from "fs/promises"
 import { generateGradientText } from "./gradient.js"
 import conf from "../config.js"
 const { db } = conf
-import { getModules, wait } from "./useful.js"
+import { getModules } from "./useful.js"
 
 class ImacarrrdTheme {
     constructor(data) {
@@ -186,28 +186,57 @@ async function createCarrrd(data, oData) {
          * @param {string} text
          * @param {`#${string}`[]} colors
          * @param {string} font
-         * @param {{ stroke: boolean, fill: boolean, alignX: "left" | "center" | "right" }} [settings={}]
+         * @param {{ stroke: boolean, fill: boolean, alignX: "left" | "center" | "right", lineWidth: number, addingSystem: "constant" | "fixed", addingWidth: number }} [settings={}]
          */
         function createGradientText($canvasContext, x, y, text, colors, font, settings = {}) {
             //analyze the settings
             settings.fill ??= true
             settings.stroke ??= false
+            settings.lineWidth ??= 1
             settings.alignX ??= "left"
+            settings.addingSystem ??= "fixed"
+            settings.addingWidth ??= 0
 
             var info = generateGradientText(colors, text)
             var width = 0
 
-            const letterW = $canvasContext.measureText(info[i].text).width
             const st = ["left", "center", "right"]
-            x -= width * (st.indexOf(settings.alignX) / 2)
+            x -= $canvasContext.measureText(text).width * (st.indexOf(settings.alignX) / 2)
 
             for (let i = 0; i < info.length; i++) {
                 $canvasContext.font = font
-                $canvasContext.fillStyle = info[i].color
-                if (settings.fill) $canvasContext.fillText(info[i].text, x + width, y)
-                if (settings.stroke) $canvasContext.strokeText(info[i].text, x + width, y)
-                width += letterW
+                $canvasContext.lineWidth = settings.lineWidth
+                if (settings.fill) {
+                    $canvasContext.fillStyle = info[i].color
+                    $canvasContext.fillText(info[i].text, x + width, y)
+                }
+                if (settings.stroke) {
+                    $canvasContext.strokeStyle = info[i].color
+                    $canvasContext.strokeText(info[i].text, x + width, y)
+                }
+                width += $canvasContext.measureText(info[i].text).width * (settings.addingSystem === "fixed") + settings.addingWidth
             }
+        }
+
+        /**
+         * Funkcja preferująca kolor tekstu (czarny lub biały) na podstawie koloru tła.
+         * @param {string} hex - Kolor tła w formacie szesnastkowym.
+         * @returns {string} - Preferowany kolor tekstu ("#000000" lub "#FFFFFF").
+         */
+        function preferTextColor(hex) {
+            // Usuń znak hash (#) jeśli jest obecny
+            hex = hex.replace(/^#/, "")
+
+            // Zamień kolor na wartości RGB
+            let r = parseInt(hex.substring(0, 2), 16)
+            let g = parseInt(hex.substring(2, 4), 16)
+            let b = parseInt(hex.substring(4, 6), 16)
+
+            // Oblicz jasność koloru
+            let brightness = (r * 299 + g * 587 + b * 114) / 1000
+
+            // Zwróć czarny lub biały kolor tekstu na podstawie jasności
+            return brightness > 128 ? "#000000" : "#FFFFFF"
         }
 
         /**
@@ -248,7 +277,7 @@ async function createCarrrd(data, oData) {
             case 0: {
                 if (data.bannerURL !== null) await setBanner(context, data.bannerURL, 0, 0, { type: "width", value: 700 })
 
-                await setImageInCircle(context, 15, 105, 300, user.avatar)
+                await setImageInCircle(context, 0, 105, 315, user.avatar)
 
                 {
                     const background = await fsp.readFile("./src/others/imgs/imacarrrd0.png")
@@ -262,15 +291,16 @@ async function createCarrrd(data, oData) {
                     482,
                     data.name,
                     [getColorToGradient(data.nameGradient1, "imaca"), getColorToGradient(data.nameGradient2, "imaca"), "#000000"],
-                    `70px Jersey 10`
+                    `70px Jersey 10`,
+                    { stroke: true, lineWidth: 1 }
                 )
                 createGradientText(
                     context,
                     22,
-                    512,
+                    516,
                     username,
                     [getColorToGradient(data.nameGradient1, "imaca"), getColorToGradient(data.nameGradient2, "imaca"), "#000000"],
-                    `35px Jersey 10`
+                    `38px Jersey 10`
                 )
 
                 context.fillStyle = "#000000"

@@ -22,7 +22,7 @@ var listenerLog = function (space, info, priority = false) {
 const servers = {
     /**
      *
-     * @param {Client<true>} client
+     * @param {import("discord.js").Client<true>} client
      * @returns {Promise<number>}
      */
     async fetch(client) {
@@ -57,7 +57,7 @@ function checkFontColor(bgHEX) {
 
 /**
  *
- * @param {Client<true>} client
+ * @param {import("discord.js").Client<true>} client
  * @param {string} id
  * @param {boolean} [forced=true]
  */

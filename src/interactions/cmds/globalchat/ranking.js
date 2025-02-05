@@ -1,5 +1,5 @@
 import djs from "discord.js"
-const { Client, ChatInputCommandInteraction, EmbedBuilder, AttachmentBuilder } = djs
+const { EmbedBuilder, AttachmentBuilder } = djs
 import canvasPKG from "@napi-rs/canvas"
 const { Canvas, loadImage } = canvasPKG
 import conf from "../../../config.js"
@@ -10,8 +10,8 @@ import { checkUserStatus, botPremiumInfo } from "../../../functions/useful.js"
 export default {
     /**
      *
-     * @param {Client} client
-     * @param {ChatInputCommandInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     execute: async function (client, interaction) {
         await interaction.deferReply()
@@ -110,7 +110,8 @@ export default {
             }
         }
 
-        var attachment = new AttachmentBuilder().setFile(canvas.toBuffer("image/png")).setName("rank.png")
+        const timestamp = Date.now() - 1738000000000
+        var attachment = new AttachmentBuilder().setFile(canvas.toBuffer("image/png")).setName(`ranking_${timestamp}.png`)
 
         let channel = await client.channels.fetch(supportServer.gclogs.msg)
         if (channel && channel.isTextBased())
@@ -122,14 +123,11 @@ export default {
 
         const _place = leaderboard.findIndex((x) => x.user.id == interaction.user.id) + 1
         var embed = new EmbedBuilder()
-            .setImage(msg.attachments.first().url)
-            .setDescription(
-                `Twoja ilość karmy: **${gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val).karma}**\nTwoje miejsce w rankingu: ${
-                    _place ? "**" + _place + "**" : "brak - Twoja karma jest za mała, aby móc brać udział w rankingu"
-                }`
-            )
+            .setImage(`attachment://ranking_${timestamp}.png`)
+            .setDescription(`Twoja ilość karmy: **${gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val).karma}**\nTwoje miejsce w rankingu: **${_place}**`)
 
         interaction.editReply({
+            files: [attachment],
             embeds: [embed],
         })
     },

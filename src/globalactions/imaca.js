@@ -17,7 +17,7 @@ export default {
      * @param {string} msg
      * @param {User} user
      * @param {{ text: string, author: { name: string, id: string }, isGA: boolean } | null} reply
-     * @param {Client<true>} client
+     * @param {import("discord.js").Client<true>} client
      * @returns {Promise<WebhookMessageCreateOptions>}
      */
     execute: async function (msg, user, reply, client) {

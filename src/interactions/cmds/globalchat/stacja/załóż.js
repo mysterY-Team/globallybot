@@ -8,8 +8,8 @@ import { servers, repeats } from "../../../../functions/useful.js"
 export default {
     /**
      *
-     * @param {Client} client
-     * @param {ChatInputCommandInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         const stationsMakers = Object.values((await db.aget("stations").val) || {}).map((x) => x.split("|")[0])

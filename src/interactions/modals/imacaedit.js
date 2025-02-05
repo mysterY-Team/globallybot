@@ -11,8 +11,8 @@ import { request } from "undici"
 
 export default {
     /**
-     * @param {Client} client
-     * @param {ModalSubmitInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ModalSubmitInteraction} interaction
      * @param {string[]} args
      */
     async execute(client, interaction, ...args) {

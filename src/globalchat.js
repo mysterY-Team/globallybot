@@ -83,7 +83,7 @@ function checkDisallowedLinks(text) {
 /**
  *
  * @param {string} text
- * @param {Client<true>} client
+ * @param {import("discord.js").Client<true>} client
  * @returns {Promise<string>}
  */
 async function formatText(text, client) {
@@ -361,8 +361,8 @@ function deleteComments(text) {
 }
 /**
  * GlobalChat, edycja czwarta, wersja druga systemu
- * @param {Client<true>} client
- * @param {Message<true>} message
+ * @param {import("discord.js").Client<true>} client
+ * @param {import("discord.js").Message<true>} message
  */
 export async function globalchatFunction(client, message) {
     try {

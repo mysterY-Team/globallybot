@@ -7,8 +7,8 @@ import fs from "fs"
 export default {
     /**
      *
-     * @param {Client} client
-     * @param {ChatInputCommandInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         let textes = fs.readFileSync("src/others/regulamingc.txt")

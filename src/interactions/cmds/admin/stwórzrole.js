@@ -6,7 +6,7 @@ const { customEmoticons } = conf
 export default {
     /**
      *
-     * @param {Client} client
+     * @param {import("discord.js").Client} client
      * @param {CommandInteraction} interaction
      */
 

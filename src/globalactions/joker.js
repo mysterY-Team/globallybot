@@ -67,7 +67,7 @@ export default {
                 break
             }
             case cmds[4]: {
-                var x = await request("http://srv27.mikr.us:30105/memhubapi/randomimg")
+                var x = await request("https://memapi.vercel.app/memhubapi/randomimg")
                 x = await x.body.json()
                 const file = x.image
 

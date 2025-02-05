@@ -7,8 +7,8 @@ import { imacaData } from "../../../functions/dbSystem.js"
 export default {
     /**
      *
-     * @param {Client} client
-     * @param {ChatInputCommandInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     execute: async function (client, interaction) {
         function getRandomizedFunction() {

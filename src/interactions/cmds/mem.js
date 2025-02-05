@@ -7,13 +7,13 @@ import { request } from "undici"
 export default {
     /**
      *
-     * @param {Client} client
-     * @param {ChatInputCommandInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     execute: async function (client, interaction) {
         await interaction.deferReply()
         try {
-            var x = await request("http://srv27.mikr.us:30105/memhubapi/randomimg")
+            var x = await request("https://memapi.vercel.app/memhubapi/randomimg")
             const file = (await x.body.json()).image
             x.body.destroy()
 

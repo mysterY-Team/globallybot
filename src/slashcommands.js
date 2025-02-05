@@ -288,7 +288,7 @@ var slashList = [
             subcommand
                 .setName("pokaż")
                 .setDescription("Pokazuje kartę ImaCarrrd użytkownika")
-                .addUserOption((option) => option.setName("osoba").setDescription("Osoba z aktywnym modułem ImaCarrrd"))
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby"))
         )
         .addSubcommand((subcommand) => subcommand.setName("konfiguruj").setDescription("Pozwala na edycję informacji karty ImaCarrrd użytkownika"))
         .addSubcommand((subcommand) =>

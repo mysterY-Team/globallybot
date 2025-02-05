@@ -7,8 +7,8 @@ import { gcdataGuild, gcdata } from "../../functions/dbSystem.js"
 export default {
     /**
      *
-     * @param {Client} client
-     * @param {ContextMenuCommandInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ContextMenuCommandInteraction} interaction
      */
     execute: async function (client, interaction) {
         var targetMsg = await interaction.channel.messages.fetch(interaction.targetId)

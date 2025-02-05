@@ -9,8 +9,8 @@ import { checkUserStatus, getModules, botPremiumInfo, servers } from "../../func
 export default {
     /**
      *
-     * @param {Client} client
-     * @param {ChatInputCommandInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
         const user = interaction.options.get("osoba")?.user || interaction.user

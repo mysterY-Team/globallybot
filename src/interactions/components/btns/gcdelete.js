@@ -9,8 +9,8 @@ import { lastUserHandler } from "../../../globalchat.js"
 
 export default {
     /**
-     * @param {Client} client
-     * @param {ButtonInteraction} interaction
+     * @param {import("discord.js").Client} client
+     * @param {import("discord.js").ButtonInteraction} interaction
      * @param {string[]} argss
      */
     async execute(client, interaction, ...args) {
