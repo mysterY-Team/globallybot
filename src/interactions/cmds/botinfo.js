@@ -57,9 +57,7 @@ export default {
                 },
                 {
                     name: "Serwery",
-                    value: `Ilość: **${
-                        import("discord.js").Client.guilds.cache.size
-                    }**\nIlość osób: **${uCount}**\nNazwy: ||Wyświetlane są max. 10 serwerów|| \`\`\`${guildsName}\`\`\``,
+                    value: `Ilość: **${client.guilds.cache.size}**\nIlość osób: **${uCount}**\nNazwy: ||Wyświetlane są max. 10 serwerów|| \`\`\`${guildsName}\`\`\``,
                     inline: false,
                 }
             )
