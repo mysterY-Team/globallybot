@@ -24,9 +24,9 @@ export default {
         //argument kanału i serwer
         var channel = interaction.options.get("kanał", true)
         var guild = interaction.guild
-        var bot = guild.members.cache.get(_bot.id)
+        var bot = guild.members.me
 
-        const botPerms = bot.permissions
+        const botPerms = channel.channel.permissionsFor(bot)
         const userPerms = interaction.member.permissions
         if (
             !(userPerms.has(PermissionFlagsBits.ManageWebhooks) && userPerms.has(PermissionFlagsBits.ManageChannels)) &&
@@ -45,16 +45,15 @@ export default {
                     .map((x) => x.trim())
                     .join("\n"),
             })
+        //sprawdzanie widoczności kanału
+        if (!channel.channel || !botPerms.has("ViewChannel")) {
+            return interaction.editReply(`${customEmoticons.denided} Kanał jest niedostępny! Czy na pewno mam do niego dostęp?`)
+        }
         if (!botPerms.has(PermissionFlagsBits.Administrator) && !(botPerms.has("ManageWebhooks") && botPerms.has("ManageMessages") && botPerms.has("SendMessages")))
             //zwraca informację widoczną tylko dla niego za pomocą interaction.reply(), że nie ma odpowiednich permisji.
             return interaction.editReply({
                 content: `${customEmoticons.denided} Bot potrzebuje permisji admina lub uprawnień **Zarządzanie webhookami**, **Zarządzanie wiadomościami** oraz **Wysyłanie wiadomości**`,
             })
-
-        //sprawdzanie widoczności kanału
-        if (!channel.channel || !channel.channel.permissionsFor(guild.members.me).has(PermissionFlagsBits.ViewChannel)) {
-            return interaction.editReply(`${customEmoticons.denided} Kanał jest niedostępny! Czy na pewno mam do niego dostęp?`)
-        }
 
         //wczytywanie danych
         var allsnpsht = await db.aget(`serverData/${interaction.guildId}/gc`)

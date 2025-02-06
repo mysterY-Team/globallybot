@@ -16,7 +16,7 @@ export default {
     async execute(client, interaction) {
         if (interaction.context != InteractionContextType.Guild) return interaction.reply(`${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`)
         var guild = client.guilds.cache.get(interaction.guildId)
-        var bot = guild.members.cache.get(_bot.id)
+        var bot = guild.members.me
 
         var channel = interaction.options.get("kanał", true)
 
@@ -24,7 +24,7 @@ export default {
         const ssstatus = await checkUserStatus(client, interaction.user.id)
         const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
-        const botPerms = bot.permissions
+        const botPerms = channel.channel.permissionsFor(bot)
         const userPerms = interaction.member.permissions
         if (
             !(userPerms.has(PermissionFlagsBits.ManageWebhooks) && userPerms.has(PermissionFlagsBits.ManageChannels)) &&
