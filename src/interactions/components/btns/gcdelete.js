@@ -15,7 +15,7 @@ export default {
      */
     async execute(client, interaction, ...args) {
         await interaction.deferReply({
-            ephemeral: true,
+            flags: ["Ephemeral"],
         })
 
         const ssstatus = await checkUserStatus(client, interaction.user.id)
@@ -48,7 +48,7 @@ export default {
         if (args[0] !== interaction.user.id && (!snpsht.exists || !snpsht.val.includes(interaction.user.id)) && data.modPerms === 0 && !isInMysteryTeam) {
             return interaction.editReply({
                 content: `${customEmoticons.denided} Nie masz permisji do usunięcia tej wiadodmości!`,
-                ephemeral: true,
+                flags: ["Ephemeral"],
             })
         }
 

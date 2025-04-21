@@ -112,7 +112,7 @@ export default {
             if (!member) {
                 interaction.reply({
                     content: `${customEmoticons.minus} Najlepiej byłoby gdyby ta osoba była na serwerze...`,
-                    ephemeral: true,
+                    flags: ["Ephemeral"],
                 })
                 return
             }
@@ -120,7 +120,7 @@ export default {
             if (user.id === interaction.user.id) {
                 interaction.reply({
                     content: `${customEmoticons.minus} Trochę tak jakby... nie ma sensu robić czegoś dla siebie samego`,
-                    ephemeral: true,
+                    flags: ["Ephemeral"],
                 })
                 return
             }
@@ -128,7 +128,7 @@ export default {
             if (user.bot || user.system) {
                 interaction.reply({
                     content: `${customEmoticons.info} Botów nie uwzględniam!`,
-                    ephemeral: true,
+                    flags: ["Ephemeral"],
                 })
                 return
             }

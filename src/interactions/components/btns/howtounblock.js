@@ -12,7 +12,7 @@ export default {
 1. Powinieneś widzieć kanał <#1258535179232874516>. Utwórz post z tagiem "Prośba odblokowania" zawierający:
   - Zrzut ekranu blokady, odnośnik wiadomości z kanału <#1265268467167133747> lub treść blokady, czas i jego autora
   - Dowód na niewinność`,
-            ephemeral: true,
+            flags: ["Ephemeral"],
         })
     },
 }

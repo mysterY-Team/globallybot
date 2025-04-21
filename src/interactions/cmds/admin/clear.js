@@ -16,7 +16,7 @@ export default {
 
         if (!(await interaction.guild.members.fetchMe()).permissions.has("Administrator")) {
             interaction.reply({
-                ephemeral: true,
+                flags: ["Ephemeral"],
                 content: `${customEmoticons.info} Ta, jak i inne komendy z kategorii \`admin\` wymagają od bota posiadania permisji "Administrator".`,
             })
         }

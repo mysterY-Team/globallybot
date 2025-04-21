@@ -18,7 +18,7 @@ export default {
         if (!isInMysteryTeam1)
             return interaction.editReply({
                 content: `${customEmoticons.denided} Nie jesteś członkiem drużyny **mysterY**!`,
-                ephemeral: true,
+                flags: ["Ephemeral"],
             })
 
         const user = interaction.options.get("osoba", true).user
@@ -30,7 +30,7 @@ export default {
         if (isInMysteryTeam2)
             return interaction.editReply({
                 content: `${customEmoticons.info} Nie żeby coś, ale premium nie wpływa na członka drużyny **mysterY**`,
-                ephemeral: true,
+                flags: ["Ephemeral"],
             })
 
         if (typeof days === "number") {

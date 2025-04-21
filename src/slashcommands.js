@@ -348,6 +348,11 @@ var slashList = [
         .setDescription("Generuje mema ze serwera MEMHUB")
         .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall),
+    new SlashCommandBuilder()
+        .setName("ping")
+        .setDescription("Generuje ping bota")
+        .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall),
 ]
 
 var contextList = [

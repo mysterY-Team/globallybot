@@ -15,19 +15,19 @@ export default {
         const powod = interaction.options.get("powód")?.value
 
         if (interaction.user.id === osoba?.id) {
-            return interaction.reply({ content: `${customEmoticons.denided} Nie możesz wyrzucić siebie.`, ephemeral: true })
+            return interaction.reply({ content: `${customEmoticons.denided} Nie możesz wyrzucić siebie.`, flags: ["Ephemeral"] })
         }
 
         if (!osoba) {
-            return interaction.reply({ content: `${customEmoticons.denided} Nie mogę znaleźć tej osoby na serwerze.`, ephemeral: true })
+            return interaction.reply({ content: `${customEmoticons.denided} Nie mogę znaleźć tej osoby na serwerze.`, flags: ["Ephemeral"] })
         }
 
         if (interaction.member.roles.highest.position <= osoba.roles.highest.position && !interaction.guild.ownerId === interaction.member.id) {
-            return interaction.reply({ content: `${customEmoticons.denided} Nie możesz wyrzucić osoby wyższej od siebie.`, ephemeral: true })
+            return interaction.reply({ content: `${customEmoticons.denided} Nie możesz wyrzucić osoby wyższej od siebie.`, flags: ["Ephemeral"] })
         }
 
         if (!osoba.kickable) {
-            return interaction.reply({ content: `${customEmoticons.denided} Nie mogę wyrzucić tej osoby!`, ephemeral: true })
+            return interaction.reply({ content: `${customEmoticons.denided} Nie mogę wyrzucić tej osoby!`, flags: ["Ephemeral"] })
         }
 
         await interaction.deferReply()

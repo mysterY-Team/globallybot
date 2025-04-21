@@ -17,7 +17,8 @@ export default {
 
         if (interaction.context != InteractionContextType.Guild) return interaction.reply(`${customEmoticons.denided} Nie możesz wykonać tej funkcji w prywatnej konserwacji!`)
 
-        await interaction.deferReply({ ephemeral: Boolean(pwd) })
+        if (pwd) await interaction.deferReply({ flags: ["Ephemeral"] })
+        else await interaction.deferReply()
         const ssstatus = await checkUserStatus(client, interaction.user.id)
         const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 

@@ -12,7 +12,7 @@ export default {
      * @param {string[]} args
      */
     async execute(client, interaction, ...args) {
-        await interaction.deferReply({ ephemeral: true })
+        await interaction.deferReply({ flags: ["Ephemeral"] })
         var user = await client.users.fetch(args[0])
 
         const booltext = (x) => (x ? customEmoticons.approved : customEmoticons.denided)

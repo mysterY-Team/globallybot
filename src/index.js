@@ -91,7 +91,7 @@ client.on("interactionCreate", async (int) => {
                     embeds: [errorEmbed(err.message ?? err)],
                 })
             } else {
-                int.reply({ embeds: [errorEmbed(err.message ?? err)], ephemeral: true })
+                int.reply({ embeds: [errorEmbed(err.message ?? err)], flags: ["Ephemeral"] })
             }
         })
     } else if (int.isButton()) {
@@ -112,7 +112,7 @@ client.on("interactionCreate", async (int) => {
                     int.update({ content: "", components: [], files: [], embeds: [errorEmbed(err.message ?? err)] })
                 }
             } else {
-                int.reply({ embeds: [errorEmbed(err.message ?? err)], ephemeral: true })
+                int.reply({ embeds: [errorEmbed(err.message ?? err)], flags: ["Ephemeral"] })
             }
         })
     } else if (int.isAutocomplete()) {
@@ -146,7 +146,7 @@ client.on("interactionCreate", async (int) => {
                     embeds: [errorEmbed(e.message ?? e)],
                 })
             } else {
-                int.reply({ embeds: [errorEmbed(e.message ?? e)], ephemeral: true })
+                int.reply({ embeds: [errorEmbed(e.message ?? e)], flags: ["Ephemeral"] })
             }
         })
     } else if (int.isContextMenuCommand()) {
@@ -164,7 +164,7 @@ client.on("interactionCreate", async (int) => {
                     embeds: [errorEmbed(e.message ?? e)],
                 })
             } else {
-                int.reply({ embeds: [errorEmbed(e.message ?? e)], ephemeral: true })
+                int.reply({ embeds: [errorEmbed(e.message ?? e)], flags: ["Ephemeral"] })
             }
             console.error(err)
         })

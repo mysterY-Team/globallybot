@@ -14,16 +14,16 @@ export default {
         var targetMsg = await interaction.channel.messages.fetch(interaction.targetId)
 
         if (!targetMsg.author.bot || targetMsg.author.system) {
-            interaction.reply({ content: `${customEmoticons.minus} To **NIE** jest wiadomość od "aplikacji"`, ephemeral: true })
+            interaction.reply({ content: `${customEmoticons.minus} To **NIE** jest wiadomość od "aplikacji"`, flags: ["Ephemeral"] })
             return
         }
 
         if (targetMsg.author.discriminator !== "0000") {
-            interaction.reply({ content: `${customEmoticons.minus} Wiadomość GlobalChat powinna być Webhookiem!`, ephemeral: true })
+            interaction.reply({ content: `${customEmoticons.minus} Wiadomość GlobalChat powinna być Webhookiem!`, flags: ["Ephemeral"] })
             return
         }
 
-        await interaction.deferReply({ ephemeral: true })
+        await interaction.deferReply({ flags: ["Ephemeral"] })
 
         const guilsSnpsht = await db.aget(`serverData/${targetMsg.guildId}/gc`)
 
@@ -43,7 +43,7 @@ export default {
         var IDs = [targetMsg.author.username.split("(")[1]?.split(";")[1].trim(), targetMsg.author.username.split("(")[1]?.split(";")[2]?.trim()?.replace(")", "")].filter((x) => x)
 
         if (IDs.length != 2) {
-            interaction.reply({ content: `${customEmoticons.denided} Niepoprawny syntax Webhooka!`, ephemeral: true })
+            interaction.reply({ content: `${customEmoticons.denided} Niepoprawny syntax Webhooka!`, flags: ["Ephemeral"] })
             return
         }
 
@@ -72,7 +72,7 @@ export default {
                 ),
             ],
             components: [row],
-            ephemeral: true,
+            flags: ["Ephemeral"],
         })
     },
 }

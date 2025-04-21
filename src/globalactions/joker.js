@@ -70,6 +70,7 @@ export default {
                 var x = await request("https://memapi.vercel.app/memhubapi/randomimg")
                 x = await x.body.json()
                 const file = x.image
+                const ext = file.split(".").pop()
 
                 main.embeds = [
                     new EmbedBuilder().setDescription(

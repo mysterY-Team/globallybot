@@ -12,9 +12,10 @@ export default {
      * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
-        await interaction.deferReply({
-            ephemeral: interaction.inGuild(),
+        if (interaction.inGuild()) await interaction.deferReply({
+            flags: ["Ephemeral"],
         })
+        else await interaction.deferUpdate()
         var yourInfo = gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val)
         const ssstatus1 = await checkUserStatus(client, interaction.user.id)
         const isInMysteryTeam1 = ssstatus1.inSupport && ssstatus1.mysteryTeam

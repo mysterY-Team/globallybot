@@ -20,7 +20,7 @@ export default {
         if (!isInMysteryTeam)
             return interaction.editReply({
                 content: `${customEmoticons.denided} Nie jesteś właścicielem bota!`,
-                ephemeral: true,
+                flags: ["Ephemeral"],
             })
 
         try {

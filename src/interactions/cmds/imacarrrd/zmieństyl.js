@@ -30,7 +30,7 @@ export default {
         const receivedVal = interaction.options.get("styl", true).value
         let sid = classes.findIndex((x) => x.name == receivedVal)
         if (sid === -1 && !classes[receivedVal]) {
-            return interaction.reply({ content: `${customEmoticons.denided} Ten styl nie istnieje!`, ephemeral: true })
+            return interaction.reply({ content: `${customEmoticons.denided} Ten styl nie istnieje!`, flags: ["Ephemeral"] })
         }
         if (sid === -1) sid = Number(receivedVal)
 

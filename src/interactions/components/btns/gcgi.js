@@ -11,7 +11,7 @@ export default {
      * @param {string[]} args
      */
     async execute(client, interaction, ...args) {
-        await interaction.deferReply({ ephemeral: true })
+        await interaction.deferReply({ flags: ["Ephemeral"] })
         var server = await client.guilds.fetch(args[0])
         var _perms = (await server.members.fetchMe()).permissions
         var sowner = await server.fetchOwner()

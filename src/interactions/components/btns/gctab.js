@@ -24,7 +24,7 @@ export default {
         }
         var repliedMessageTimestamp = interaction.message.createdTimestamp
 
-        await interaction.deferReply({ ephemeral: true })
+        await interaction.deferReply({ flags: ["Ephemeral"] })
 
         var userData1 = await db.aget(`userData/${interaction.user.id}/gc`)
         if (!userData1.exists) {

@@ -11,7 +11,7 @@ export default {
 
         const bannerUrl = user.bannerURL({ size: 512, extension: "webp" })
         if (!bannerUrl) {
-            await interaction.reply({ content: "Ten użytkownik nie posiada banneru", ephemeral: true })
+            await interaction.reply({ content: "Ten użytkownik nie posiada banneru", flags: ["Ephemeral"] })
             return
         }
 
