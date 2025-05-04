@@ -1,1 +1,5 @@
-> Wersja ta została być wspierana na rzecz Globally 3.0
+> Rozpoczęto prace nad Globally 3.0.
+
+# Globally
+
+Globally to bot Discord, który jako jedyny tworzy zaawansowany czat globalny.
