@@ -27,13 +27,13 @@ export default {
         await interaction.deferReply({ flags: ["Ephemeral"] })
 
         var userData1 = await db.aget(`userData/${interaction.user.id}/gc`)
-        if (!userData1.exists) {
-            interaction.editReply(`${customEmoticons.denided} Musisz napisać jakąś wiadomość`)
-            return
-        }
         var data1 = gcdata.encode(userData1.val)
         if (data1.isBlocked) {
             interaction.editReply(`${customEmoticons.denided} Jesteś zablokowany w usłudze GlobalChat!`)
+            return
+        }
+        if (data1.karma < 25n) {
+            interaction.editReply(`${customEmoticons.denided} Aby użyć zaczepki, potrzeba **minimum** 25 karmy`)
             return
         }
         if (data1.timestampToTab > Math.floor(Date.now() / 1000)) {
@@ -99,8 +99,7 @@ export default {
             await db.aset(`userData/${interaction.user.id}/gc`, gcdata.decode(data1))
             await db.aset(`userData/${uid}/gc`, gcdata.decode(data2))
         } catch (err) {
-            if (!err instanceof DiscordAPIError || (err instanceof DiscordAPIError && err.code !== 50007))
-                interaction.editReply(`${customEmoticons.denided} Nie udało się wysłać zaczepki!`)
+            if (err instanceof DiscordAPIError && err.code === 50007) interaction.editReply(`${customEmoticons.denided} Nie udało się wysłać zaczepki!`)
             else throw err
         }
     },

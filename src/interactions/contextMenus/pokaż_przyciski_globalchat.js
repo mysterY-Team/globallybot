@@ -52,12 +52,6 @@ export default {
             return
         }
 
-        const uData = gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val)
-        if (uData.karma < 25n) {
-            interaction.editReply(`${customEmoticons.denided} Aby użyć tego elementu, potrzeba **minimum** 25 karmy`)
-            return
-        }
-
         var row = new ActionRowBuilder().setComponents(
             new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${IDs[1]}`).setEmoji(`ℹ️`),
             new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${IDs[0]}`).setEmoji(`👤`)
