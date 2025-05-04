@@ -95,6 +95,7 @@ export const imacaData = {
             nameGradient1: obj[3] ?? "#663399",
             nameGradient2: obj[4] ?? "#F8DF5F",
             bannerURL: !obj[5] ? null : obj[5],
+            showStatusAndActivity: $$.stob(obj[6]) ?? true,
         }
     },
     decode: (data) => {

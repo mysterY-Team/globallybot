@@ -254,6 +254,32 @@ var slashList = [
                 )
         ),
 
+    //imacarrrd
+    new SlashCommandBuilder()
+        .setName("imacarrrd")
+        .setDescription("Karty użytkownika na nowym poziomie")
+        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel)
+        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("pokaż")
+                .setDescription("Pokazuje kartę ImaCarrrd użytkownika")
+                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby"))
+        )
+        .addSubcommand((subcommand) => subcommand.setName("konfiguruj").setDescription("Pozwala na edycję informacji karty ImaCarrrd użytkownika"))
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("aktywność")
+                .setDescription("Te ustawienie decyduje, czy status, jak i aktywność, może być wykorzystywana do ImaCarrrd.")
+                .addBooleanOption((option) => option.setName("opcja").setDescription("Status wyświetlania").setRequired(true))
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("zmieństyl")
+                .setDescription("Zmienia styl karty ImaCarrrd użytkownika")
+                .addStringOption((option) => option.setName("styl").setDescription("Nazwa stylu").setAutocomplete(true).setRequired(true))
+        ),
+
     //mniejsze z argumentami
     new SlashCommandBuilder()
         .setName("devtools")
@@ -279,24 +305,6 @@ var slashList = [
         .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel)
         .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
         .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby")),
-    new SlashCommandBuilder()
-        .setName("imacarrrd")
-        .setDescription("Karty użytkownika na nowym poziomie")
-        .setContexts(InteractionContextType.Guild, InteractionContextType.PrivateChannel)
-        .setIntegrationTypes(ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall)
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("pokaż")
-                .setDescription("Pokazuje kartę ImaCarrrd użytkownika")
-                .addUserOption((option) => option.setName("osoba").setDescription("@wzmianka lub ID osoby"))
-        )
-        .addSubcommand((subcommand) => subcommand.setName("konfiguruj").setDescription("Pozwala na edycję informacji karty ImaCarrrd użytkownika"))
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("zmieństyl")
-                .setDescription("Zmienia styl karty ImaCarrrd użytkownika")
-                .addStringOption((option) => option.setName("styl").setDescription("Nazwa stylu").setAutocomplete(true).setRequired(true))
-        ),
     new SlashCommandBuilder()
         .setName("admin")
         .setDescription("Komendy administracyjne")

@@ -52,7 +52,7 @@ export default {
             case cmds[5]: {
                 let uid = args[0]?.replace(/<@([0-9]{17,19})>/g, "$1") || reply?.author.id || user.id
                 let uc = uid == user.id || uid == "GlobalAction" || !uid.match(/[0-9]{11,13}/) ? user : await client.users.fetch(uid)
-                main.files = [await createCarrrd(imacaData.encode((await db.aget(`userData/${uid}/imaca`)).val), uc)]
+                main.files = [await createCarrrd(imacaData.encode((await db.aget(`userData/${uid}/imaca`)).val), [uc, null])]
                 break
             }
             case cmds[6]:

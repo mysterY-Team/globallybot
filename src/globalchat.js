@@ -1064,6 +1064,20 @@ export async function globalchatFunction(client, message) {
                      * @type {WebhookMessageCreateOptions}
                      */
                     var response = await file.execute(deleteComments(message.content), message.author, replyJSON, client)
+                    const bw = checkAnyBadWords(
+                        [
+                            response.content ?? "",
+                            ...response.embeds.map((x) => [
+                                x.description ?? "",
+                                x.title ?? "",
+                                x.fields?.map((y) => y.name + " " + y.value).join("\n") ?? "",
+                                x.footer?.text ?? "",
+                                x.author?.name ?? "",
+                            ]),
+                            response.username ?? "",
+                        ].join("\n")
+                    )
+                    if (bw.checked) throw `Niedozwolone słowo w odpowiedzi akcji! (aktywowane słowo: ${bw.badWord})`
                     response.avatarURL ??= file.data.avatar
                     if (response.username !== file.data.username && response.username.length > 0 && response.username.length <= 36) response.username += ` aka ${file.data.name}`
                     else response.username = file.data.name
@@ -1106,9 +1120,9 @@ export async function globalchatFunction(client, message) {
                                     iconURL: message.author.displayAvatarURL({ extension: "webp", size: 64 }),
                                 })
                                 .setDescription(`Niepowodzenie wykonania akcji *${file.data.name}* \`\`\`${deleteComments(message.content)}\`\`\``)
-                                .setFields({ name: `Błąd (typ: ${err.name})`, value: `\`\`\`${err.message}\`\`\`` })
+                                .setFields({ name: `Błąd`, value: `\`\`\`${err.message ?? err}\`\`\`` })
                                 .setFooter({ text: `${station}` }),
-                            new EmbedBuilder().setTitle("*Stacktrace*").setDescription(`\`\`\`${err.stack}\`\`\``),
+                            new EmbedBuilder().setTitle("*Stacktrace*").setDescription(`\`\`\`${err.stack ?? err}\`\`\``),
                         ]
                         channel.send({ embeds })
                     }

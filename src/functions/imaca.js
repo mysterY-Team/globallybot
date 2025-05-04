@@ -95,17 +95,48 @@ class ImacarrrdError extends Error {
     }
 }
 
+function changedatatoImacaData(user, member, allowstatusandactivity) {
+    const imacaOptionsData = {
+        username: user.username,
+        id: user.id,
+        global: {
+            avatar: user.displayAvatarURL({ forceStatic: true, extension: "png", size: 512 }),
+            banner: user.bannerURL({ extension: "png", forceStatic: true, size: 1024 }),
+            joinedAt: user.createdAt,
+        },
+        guild: member
+            ? {
+                  avatar: (() => {
+                      if (member instanceof GuildMember) return member.displayAvatarURL({ extension: "png", forceStatic: true, size: 1024 })
+                      if (member.avatar) return `https://cdn.discordapp.com/guilds/${interaction.guild.id}/users/${user.id}/avatars/${member.avatar}.webp?size=512`
+                      else return user.displayAvatarURL({ forceStatic: true, extension: "png", size: 512 })
+                  })(),
+                  banner: user.bannerURL({ forceStatic: true, extension: "png", size: 512 }),
+                  joinedAt: member.joinedAt ?? new Date(member.joined_at),
+                  activities: (() => {
+                      if (member instanceof GuildMember && allowstatusandactivity) return member.presence?.activities
+                      else return null
+                  })(),
+                  status: (() => {
+                      if (member instanceof GuildMember && allowstatusandactivity) return member.presence?.status ?? "offline"
+                      else return null
+                  })(),
+              }
+            : null,
+    }
+    return imacaOptionsData
+}
+
 /**
  *
  * @param {any} data
  * @param {User | GuildMember} oData
  * @returns
  */
-async function createCarrrd(data, oData) {
-    var member = oData.guild,
-        user = oData.global,
-        id = oData.id,
-        username = oData.username
+async function createCarrrd(data, [u, m]) {
+    const _x = changedatatoImacaData(u, m, data.showStatusAndActivity)
+
+    var { id, username, global: user, guild: member } = _x
 
     function getColorToGradient(color, nameType) {
         switch ((nameType || "").toLowerCase()) {
