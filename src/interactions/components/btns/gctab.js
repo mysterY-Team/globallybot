@@ -32,8 +32,8 @@ export default {
             interaction.editReply(`${customEmoticons.denided} Jesteś zablokowany w usłudze GlobalChat!`)
             return
         }
-        if (data1.karma < 25n) {
-            interaction.editReply(`${customEmoticons.denided} Aby użyć zaczepki, potrzeba **minimum** 25 karmy`)
+        if (data1.karma < 1000n) {
+            interaction.editReply(`${customEmoticons.denided} Aby użyć zaczepki, potrzeba **minimum** 1000 karmy`)
             return
         }
         if (data1.timestampToTab > Math.floor(Date.now() / 1000)) {

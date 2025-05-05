@@ -600,12 +600,18 @@ export async function globalchatFunction(client, message) {
 
         listenerLog(3, "➿ Spełniono warunek (2/5)")
 
+        if (userData.sent) {
+            message.react(customEmoticons.denided)
+            if (!chpermissions.has("ReadMessageHistory")) message.reply(`${customEmoticons.denided} Zaczekaj, aż Twoja wiadomość się wyśle!`)
+            else message.channel.send(`${customEmoticons.denided} ${message.author}, zaczekaj, aż Twoja wiadomość się wyśle!`)
+            return
+        }
         if (userData.timestampToSendMessage - 500 > Date.now()) {
             message.react(customEmoticons.denided)
             if (message.content.toLowerCase() !== "<p>")
                 var info = `\n${customEmoticons.info} Możesz cofnąć **tą** zablokowaną wiadomość za pomocą znacznika \`<p>\`. Po prostu to wpisz po usunięciu tej wiadomości, aby to ją właśnie użyć`
 
-            if (chpermissions.has("ReadMessageHistory"))
+            if (!chpermissions.has("ReadMessageHistory"))
                 var msg = message.reply(
                     `${customEmoticons.denided} Jesteś objęty/-a cooldownem! Zaczekaj jeszcze \`${userData.timestampToSendMessage - Date.now()}\` ms${info ?? ""}`
                 )
@@ -630,7 +636,7 @@ export async function globalchatFunction(client, message) {
             return
         }
 
-        userData.timestampToSendMessage = Date.now() + 2000
+        userData.sent = true
         db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
         await wait(Math.max(userData.timestampToSendMessage - Date.now(), 0))
 
@@ -680,7 +686,7 @@ export async function globalchatFunction(client, message) {
         }
 
         listenerLog(3, "Ilość karmy: " + userData.karma)
-        if (userData.karma < 25n && !stationHasPasswd) {
+        if (userData.karma < 1000n && !stationHasPasswd) {
             if (deleteComments(message.content).match(/(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_=]*)?/)) {
                 message.react(customEmoticons.denided)
                 try {
@@ -704,24 +710,22 @@ export async function globalchatFunction(client, message) {
 
         if (!deleteComments(message.content) && gcapprovedAttachments.size == 0) {
             message
-                .reply(`${customEmoticons.info} Posiadasz mniej niż 25 karmy, a ta wiadomość nie mogła zostać przekonwertowana, więc anulowano proces wysyłania dalej`)
+                .reply(`${customEmoticons.info} Posiadasz mniej niż 1000 karmy, a ta wiadomość nie mogła zostać przekonwertowana, więc anulowano proces wysyłania dalej`)
                 .then(async (x) => {
                     await wait(10000)
                     if (x.deletable) x.delete()
                 })
             return
         } else if (mustInform) {
-            message.channel.send(`${customEmoticons.info} ${message.author}, posiadasz mniej niż 25 karmy - multimedia nie mogły zostać wysłane z tego powodu`).then(async (x) => {
+            message.reply(`${customEmoticons.info} Posiadasz mniej niż 1000 karmy - multimedia nie mogły zostać wysłane z tego powodu`).then(async (x) => {
                 await wait(10000)
                 if (x.deletable) x.delete()
             })
         } else if (gcapprovedAttachments.size != message.attachments.size) {
-            message.channel
-                .send(`${customEmoticons.info} ${message.author}, nie wszystkie media mogły zostać wysłane, gdyż GlobalChat przyjmuje tylko niektóre typy plików`)
-                .then(async (x) => {
-                    await wait(7500)
-                    if (x.deletable) x.delete()
-                })
+            message.reply(`${customEmoticons.info} Nie wszystkie media mogły zostać wysłane, gdyż GlobalChat przyjmuje tylko niektóre typy plików`).then(async (x) => {
+                await wait(7500)
+                if (x.deletable) x.delete()
+            })
         }
         mustInform = null
 
@@ -912,21 +916,20 @@ export async function globalchatFunction(client, message) {
 
         function gct() {
             let gctI = [
-                (userData.karma >= 5000n && (userHasPremium || userData.modPerms > 0)) || isInMysteryTeam, //0
-                userData.karma >= 5000n,
+                (userData.karma >= 35000n && (userHasPremium || userData.modPerms > 0)) || isInMysteryTeam, //0
+                userData.karma >= 35000n,
                 false,
                 false,
                 false,
+                userData.karma >= 10000n && userData.modPerms > 0 && userHasPremium,
+                userData.karma >= 10000n && (userData.modPerms > 0 || userHasPremium),
+                userData.karma >= 10000n,
                 false,
-                userData.karma >= 1000n && userData.modPerms > 0 && userHasPremium,
-                userData.karma >= 1000n && (userData.modPerms > 0 || userHasPremium),
+                userData.modPerms > 0 || (userData.karma > 1000n && userHasPremium),
                 userData.karma >= 1000n,
                 false,
-                userData.modPerms > 0 || (userData.karma >= 25n && userHasPremium),
-                userData.karma >= 25n,
                 false,
-                false,
-                true, //15
+                true, //16
             ]
 
             return gctI.indexOf(true)
@@ -936,10 +939,7 @@ export async function globalchatFunction(client, message) {
         listenerLog(4, `gct() => ${gct()}`)
         listenerLog(4, `userCooldown(amount<${database.length}>, type<gct()>) => ${userCooldown(database.length, gct())}`)
 
-        userData.timestampToSendMessage =
-            Date.now() +
-            userCooldown(database.length, gct()) +
-            Math.round((typeof prefixes == "string") * Math.pow(userData.gcUses, 1.2137) * (750 - 250 * (userHasPremium || isInMysteryTeam)))
+        userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct()) * 2 + userData.gcUses * 90
         gct = null
         userData.messageID_bbc = ""
         await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -1039,6 +1039,56 @@ export async function globalchatFunction(client, message) {
             } catch (e) {
                 console.warn(e)
             }
+
+            //ostatnie zapisy danych
+            userData.sent = false
+            if (typeof prefixes == "string") userData.gcUses++
+            switch (true) {
+                case isInMysteryTeam:
+                    if (typeof prefixes == "string") userData.karma += BigInt(Math.max(40, Math.ceil(350 / userData.gcUses)))
+                    else userData.karma += BigInt(30 + Math.round(Math.random() * 55))
+                    if (message.reference && Math.random() <= 0.3) userData.karma += 17n
+                    userData.karma += BigInt(
+                        (() => {
+                            let total = 0
+                            for (let i = 0; i < gcapprovedAttachments.size; i++) {
+                                total += 12 + Math.round(Math.random() * 11)
+                            }
+                            return total
+                        })()
+                    )
+                    break
+                case userHasPremium:
+                    if (typeof prefixes == "string") userData.karma += BigInt(Math.max(40, Math.ceil(350 / userData.gcUses)))
+                    else userData.karma += BigInt(30 + Math.round(Math.random() * 55))
+                    if (message.reference && Math.random() <= 0.2 + (userData.modPerms > 0) * 0.05) userData.karma += 17n
+                    userData.karma += BigInt(
+                        (() => {
+                            let total = 0
+                            for (let i = 0; i < gcapprovedAttachments.size; i++) {
+                                total += 8 + Math.round(Math.random() * (12 + (userData.modPerms > 0) * 5))
+                            }
+                            return total
+                        })()
+                    )
+                    break
+                default:
+                    if (typeof prefixes == "string") userData.karma += BigInt(Math.max(40, Math.ceil(350 / userData.gcUses)))
+                    else userData.karma += BigInt(30 + Math.round(Math.random() * 55))
+                    if (message.reference && Math.random() <= 0.25 + (userData.modPerms > 0) * 0.05) userData.karma += 17n
+                    userData.karma += BigInt(
+                        (() => {
+                            let total = 0
+                            for (let i = 0; i < gcapprovedAttachments.size; i++) {
+                                total += 5 + Math.round(Math.random() * (20 + (userData.modPerms > 0) * 5))
+                            }
+                            return total
+                        })()
+                    )
+                    break
+            }
+
+            await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
 
             var measuringTime = {
                 ends: false,
@@ -1183,16 +1233,11 @@ export async function globalchatFunction(client, message) {
 
                 listenerLog(3, `🌐 Zapisano informację o wiadomości użytkownika`)
             }
-
-            if (typeof prefixes == "string") {
-                userData.karma += 10n + BigInt((userHasPremium || isInMysteryTeam) * 2)
-                userData.gcUses++
-            } else if (gcapprovedAttachments.size > 0) userData.karma += BigInt(Math.round(gcapprovedAttachments.size / (2 - userHasPremium * 0.5)) + 2 + userHasPremium)
-            else userData.karma += 1n
-            if (message.reference && Math.random() < 0.05 * (1 + isInMysteryTeam)) userData.karma += 2n - BigInt(userHasPremium)
-            await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
         })
     } catch (err) {
+        userData.sent = false
+        userData.timestampToSendMessage = Date.now() + 3000
+        db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
         message.channel.send(`${customEmoticons.denided} Podczas analizy wystąpił błąd!`)
         if (debug) return console.error(err)
     }

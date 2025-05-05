@@ -10,7 +10,7 @@ export default {
      * @param {import("discord.js").ChatInputCommandInteraction} interaction
      */
     async execute(client, interaction) {
-        const receivedVal = interaction.options.get("styl", true).value
+        const receivedVal = interaction.options.get("opcja", true).value
 
         await interaction.deferReply()
 
