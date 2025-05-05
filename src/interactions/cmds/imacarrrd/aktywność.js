@@ -22,7 +22,7 @@ export default {
 
         await db.aset(`userData/${interaction.user.id}/imaca`, imacaData.decode(data))
 
-        if (receivedVal)
+        if (!receivedVal)
             interaction.editReply(
                 `${customEmoticons.approved} Poprawnie zapisano dane!\n-# Ta komenda została wprowadzona na rzecz intencji "Aktywność". Rozumiemy, że dbasz o swoje bezpieczeństwo, lecz zalecamy ustawić tą opcję na włączoną - gwarantujemy, że żadne dane tego typu **nie zostają __nigdzie__ zapisywane**.`
             )
