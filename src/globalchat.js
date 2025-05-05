@@ -636,7 +636,6 @@ export async function globalchatFunction(client, message) {
             return
         }
 
-        userData.sent = true
         db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
         await wait(Math.max(userData.timestampToSendMessage - Date.now(), 0))
 
@@ -940,6 +939,7 @@ export async function globalchatFunction(client, message) {
         listenerLog(4, `userCooldown(amount<${database.length}>, type<gct()>) => ${userCooldown(database.length, gct())}`)
 
         userData.timestampToSendMessage = Date.now() + userCooldown(database.length, gct()) * 2 + userData.gcUses * 90
+        userData.sent = true
         gct = null
         userData.messageID_bbc = ""
         await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -1117,7 +1117,7 @@ export async function globalchatFunction(client, message) {
                     const bw = checkAnyBadWords(
                         [
                             response.content ?? "",
-                            ...response.embeds.map((x) => [
+                            ...response.embeds?.map((x) => [
                                 x.description ?? "",
                                 x.title ?? "",
                                 x.fields?.map((y) => y.name + " " + y.value).join("\n") ?? "",
