@@ -89,7 +89,7 @@ export default {
         if (args[0] === interaction.user.id && !premium.have && !isInMysteryTeam) {
             data = gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val)
             data.timestampToSendMessage = Math.max(data.timestampToSendMessage, Date.now()) + messagesToDelete.length * 250
-            data.karma -= BigInt(1 + (data.karma >= 100n && data.modPerms == 0) * 2)
+            data.karma -= BigInt(130 - (data.karma < 1000n || data.modPerms > 0) * 100)
             if (data.karma < 0) data.karma = 0n
             await db.aset(`userData/${interaction.user.id}/gc`, gcdata.decode(data))
         }
