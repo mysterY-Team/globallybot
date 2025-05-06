@@ -47,7 +47,7 @@ export default {
         var snpsht = await db.aget(`stations/${stationWhereItIsSent}`)
         if (args[0] !== interaction.user.id && (!snpsht.exists || !snpsht.val.includes(interaction.user.id)) && data.modPerms === 0 && !isInMysteryTeam) {
             return interaction.editReply({
-                content: `${customEmoticons.denided} Nie masz permisji do usunięcia tej wiadodmości!`,
+                content: `${customEmoticons.denided} Nie masz permisji do usunięcia tej wiadomości!`,
                 flags: ["Ephemeral"],
             })
         }

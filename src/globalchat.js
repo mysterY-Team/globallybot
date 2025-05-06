@@ -992,21 +992,18 @@ export async function globalchatFunction(client, message) {
                 function generateBtns() {
                     let btns = []
 
+                    if (typeof prefixes == "string")
+                        btns.push([new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)])
                     if (w.gid == message.guildId)
-                        if (typeof prefixes == "string")
-                            btns = [[new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)]]
-                        else btns = [[new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}`).setDisabled(true).setEmoji("🗑️")]]
-                    else if (data.flag_showGCButtons && isHisFirstMessage) {
-                        btns = [
-                            [
+                        if (typeof prefixes != "string")
+                            btns.push([new ButtonBuilder().setStyle(ButtonStyle.Danger).setCustomId(`gcdelete\u0000${message.author.id}`).setDisabled(true).setEmoji("🗑️")])
+                        else if (data.flag_showGCButtons && isHisFirstMessage) {
+                            btns.push([
                                 new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcgi\u0000${message.guildId}`).setEmoji(`ℹ️`),
                                 new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`gcui\u0000${message.author.id}`).setEmoji(`👤`),
                                 new ButtonBuilder().setStyle(ButtonStyle.Primary).setCustomId(`gctab\u0000${message.author.id}`).setEmoji("👉"),
-                            ],
-                        ]
-                        if (typeof prefixes == "string")
-                            btns.push([new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId("ga").setDisabled(true).setLabel(`Użyta akcja: ${_file.data.name}`)])
-                    } else btns = [[]]
+                            ])
+                        }
 
                     return btns.filter((row) => row.filter((x) => x).length > 0).map((row) => new ActionRowBuilder().addComponents(...row.filter((x) => x)))
                 }
