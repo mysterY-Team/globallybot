@@ -19,14 +19,14 @@ const alettersVars = {
         "*",
         "•",
         "~",
-        "\\|",
+        "|",
         ":",
         ",",
         ".",
-        "\\+",
+        "+",
         "=",
-        "\\^",
-        "\\\\",
+        "^",
+        "\\",
         "!",
         "?",
         ";",
@@ -44,6 +44,7 @@ const alettersVars = {
         "´",
         "‘",
         "’",
+        "^",
     ],
     SPACE: [" ", "_", "-", "—", "–"],
 }
@@ -230,7 +231,7 @@ const bannedWords = [
 ]
 
 export function checkAnyBadWords(text) {
-    const sep = `(${alettersVars.BLANK.join("|")})+`
+    const sep = `(${alettersVars.BLANK.map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})+`
     for (let i = 0; i < bannedWords.length; i++) {
         let word = []
         for (let j = 0; j < bannedWords[i].length; j++) {
@@ -243,7 +244,7 @@ export function checkAnyBadWords(text) {
         }
         word = word.join(sep)
         // console.log(word)
-        word = word.replace(/\//g, "\\/").replace(/\*/g, "\\*").replace(/\./g, "\\.")
+        word = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
         const regex = new RegExp(`(?:([^a-z0-9])|^)${word}(?:([^a-z0-9])|$)`, "img")
         if (regex.test(text)) {
             return { checked: true, badWord: bannedWords[i] }
