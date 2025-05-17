@@ -17,6 +17,7 @@ export default {
         await interaction.deferReply()
 
         var users = []
+        var udata = ""
         await Promise.all(
             Object.entries((await db.aget("userData")).val).map(async (x) => {
                 var fastData = { gc: gcdata.encode(x[1].gc), userID: x[0], premium: x[1].premium }
@@ -24,7 +25,9 @@ export default {
                     const ssstatus = await checkUserStatus(client, fastData.userID)
                     var user = await client.users.fetch(fastData.userID, { cache: false })
                     var z = Object.assign(fastData.gc, { user, premium: (await botPremiumInfo(fastData.userID, ssstatus, fastData.premium)).have, ssstatus })
+                    if (z.isBlocked) return
                     users.push(z)
+                    if (fastData.userID === interaction.user.id) udata = z
                 } catch (e) {}
 
                 return
@@ -113,18 +116,10 @@ export default {
         const timestamp = Date.now() - 1738000000000
         var attachment = new AttachmentBuilder().setFile(canvas.toBuffer("image/png")).setName(`ranking_${timestamp}.png`)
 
-        let channel = await client.channels.fetch(supportServer.gclogs.msg)
-        if (channel && channel.isTextBased())
-            var msg = await channel.send({
-                content: `Ta wiadomość jest zarezerwowana dla komendy \`globalchat ranking\` (ID interakcji: ${interaction.id})`,
-                files: [attachment],
-            })
-        else throw console.error("Nie udało się wysłać do tego kanału; nie istnieje taka możliwość (/globalchat ranking)")
-
         const _place = leaderboard.findIndex((x) => x.user.id == interaction.user.id) + 1
         var embed = new EmbedBuilder()
             .setImage(`attachment://ranking_${timestamp}.png`)
-            .setDescription(`Twoja ilość karmy: **${gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val).karma}**\nTwoje miejsce w rankingu: **${_place}**`)
+            .setDescription(`Twoja ilość karmy: **${z.karma}**\nTwoje miejsce w rankingu: **${z.isBlocked ? "0" : _place}**`)
 
         interaction.editReply({
             files: [attachment],

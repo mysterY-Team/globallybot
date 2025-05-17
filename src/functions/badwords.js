@@ -1,8 +1,50 @@
 import { listenerLog } from "./useful.js"
 
 const alettersVars = {
-    O: ["ó", "⭕", "🇴", "🅾️"],
-    BLANK: ["", " ", "/", "-", "_", "—", "–", "*", "•", "~", "\\|", ":", ",", ".", "\\+", "=", "\\^"],
+    O: ["🇴", "0", "ó", "⭕", "🅾️", "0️⃣", "𝕆", "𝕠", "𝕺", "𝖔", "ᴼ", "ᵒ"],
+    K: ["k", "🇰", "𝕂", "𝕜", "𝕶", "𝖐", "ᴷ", "ᵏ"],
+    S: ["s", "5", "ś", "🇸", "5️⃣", "𝕊", "𝕤", "𝕾", "𝖘", "ˢ"],
+    V: ["v", "🇻", "✔️", "☑️", "✅", "𝕍", "𝕧", "𝖁", "𝖛", "ⱽ", "ᵛ"],
+    Z: ["z", "ż", "ź", "🇿", "2", "2️⃣", "ℤ", "𝕫", "𝖅", "𝖟", "ᶻ"],
+    C: ["c", "ć", "🇨", "©️", "ℂ", "𝕔", "𝕮", "𝖈", "ꟲ", "ᶜ"],
+    H: ["h", "🇭", "ℍ", "𝕙", "𝕳", "𝖍", "ᴴ", "ʰ"],
+    BLANK: [
+        "",
+        " ",
+        "/",
+        "-",
+        "_",
+        "—",
+        "–",
+        "*",
+        "•",
+        "~",
+        "\\|",
+        ":",
+        ",",
+        ".",
+        "\\+",
+        "=",
+        "\\^",
+        "\\\\",
+        "!",
+        "?",
+        ";",
+        "<",
+        ">",
+        "(",
+        ")",
+        "{",
+        "}",
+        "[",
+        "]",
+        "'",
+        '"',
+        "`",
+        "´",
+        "‘",
+        "’",
+    ],
     SPACE: [" ", "_", "-", "—", "–"],
 }
 
@@ -24,8 +66,8 @@ function expandLetterCombinations(mainString) {
         const currentChar = remaining[0]
         const restOfString = remaining.slice(1)
 
-        if (alv[currentChar]) {
-            for (const replacement of alv[currentChar]) {
+        if (alv[currentChar.toUpperCase()]) {
+            for (const replacement of alv[currentChar.toUpperCase()]) {
                 generateCombinations(prefix + replacement, restOfString)
             }
         } else {
@@ -37,37 +79,38 @@ function expandLetterCombinations(mainString) {
     return allCombs
 }
 
-alettersVars.U = [...expandLetterCombinations("oo"), "🇺"]
+alettersVars.U = ["u", "ó", ...expandLetterCombinations("oo"), "🇺", "𝕌", "𝕦", "𝖀", "𝖚", "ᵁ", "ᵘ"]
+alettersVars.X = ["x", ...expandLetterCombinations("ks"), ...expandLetterCombinations("kss"), ...expandLetterCombinations("ksss"), "❌", "✖️", "𝕏", "𝕩", "𝖃", "𝖝", "ˣ"]
+alettersVars.H.push(...expandLetterCombinations("ch"))
 
 const alternativeLetters = {
-    a: ["4", "@", "ą", "🅰️", "🇦", "4️⃣"],
-    b: ["8", "🇧", "🅱️", "8️⃣", "♾️"],
-    c: ["ć", "🇨", "©️"],
-    d: ["🇩"],
-    e: ["3", "ę", "🇪", "3️⃣"],
-    f: ["🇫"],
-    g: ["6", "б", "🇬", "6️⃣"],
-    h: ["ch", "🇭"],
-    i: ["1", "ℹ️", "🇮", "1️⃣"],
-    j: ["🇯"],
-    k: ["🇰"],
-    l: ["ł", "🇱"],
-    m: ["🇲"],
-    n: ["ń", "🇳"],
-    o: ["0", "ó", "⭕", "🇴", "🅾️", "0️⃣"],
-    ó: ["u", ...alettersVars.U],
-    p: ["🇵"],
-    q: ["🇶"],
-    r: ["🇷", "®️"],
-    s: ["🇸"],
-    t: ["🇹"],
-    u: ["ó", ...alettersVars.U],
-    v: ["🇻", "✔️", "☑️", "✅"],
-    w: ["🇼"],
-    x: ["ks", "kss", "ksss", "❌", "✖️"],
-    y: ["🇾"],
-    z: ["ż", "ź", "ž"],
-    " ": alettersVars.SPACE,
+    a: ["4", "@", "ą", "🅰️", "🇦", "4️⃣", "𝔸", "𝕒", "𝕬", "𝖆", "ᴬ", "ᵃ"],
+    b: ["8", "🇧", "🅱️", "8️⃣", "♾️", "𝔹", "𝕓", "𝕭", "𝖇", "ᴮ", "ᵇ"],
+    c: alettersVars.C.slice(1),
+    d: ["🇩", "𝔻", "𝕕", "𝕯", "𝖉", "ᴰ", "ᵈ"],
+    e: ["3", "ę", "🇪", "3️⃣", "𝔼", "𝕖", "𝕰", "𝖊", "ᴱ", "ᵉ"],
+    f: ["🇫", "𝔽", "𝕗", "𝕱", "𝖋", "ꟳ", "ᶠ"],
+    g: ["6", "б", "🇬", "6️⃣", "𝔾", "𝕘", "𝕲", "𝖌", "ᴳ", "ᵍ"],
+    h: alettersVars.H.slice(1),
+    i: ["1", "ℹ️", "🇮", "1️⃣", "𝕀", "𝕚", "𝕴", "𝖎", "ᴵ", "ⁱ"],
+    j: ["🇯", "𝕁", "𝕛", "𝕵", "𝖏", "ᴶ", "ʲ"],
+    k: alettersVars.K.slice(1),
+    l: ["ł", "🇱", "𝕃", "𝕝", "𝕷", "𝖑", "ᴸ", "ˡ"],
+    m: ["🇲", "𝕄", "𝕞", "𝕸", "𝖒", "ᴹ", "ᵐ"],
+    n: ["ń", "🇳", "ℕ", "𝕟", "𝕹", "𝖓", "ᴺ", "ⁿ"],
+    o: alettersVars.O.slice(1),
+    p: ["🇵", "ℙ", "𝕡", "𝕻", "𝖕", "ᴾ", "ᵖ"],
+    q: ["🇶", ...expandLetterCombinations("ku"), "ℚ", "𝕢", "𝕼", "𝖖", "ꟴ", "𐞥"],
+    r: ["🇷", "®️", "ℝ", "𝕣", "𝕽", "𝖗", "ᴿ", "ʳ"],
+    s: [alettersVars.S.slice(1), alettersVars.Z],
+    t: ["🇹", "𝕋", "𝕥", "𝕿", "𝖙", "ᵀ", "ᵗ"],
+    u: alettersVars.U.slice(1),
+    v: alettersVars.V.slice(1),
+    w: ["🇼", alettersVars.V, "𝕎", "𝕨", "𝖂", "𝖜", "ᵂ", "ʷ"],
+    x: alettersVars.X.slice(1),
+    y: ["🇾", "𝕐", "𝕪", "𝖄", "𝖞", "ʸ"],
+    z: alettersVars.Z.slice(1),
+    " ": alettersVars.SPACE.slice(1),
 }
 
 const bannedWords = [
@@ -81,7 +124,7 @@ const bannedWords = [
     "nygusie",
     "nygers",
     "czarnuh",
-    "czarnoskórych",
+    "czarnoskóryh",
     "czarnymen",
     "czarnuhu",
     "niggerze",
@@ -94,11 +137,11 @@ const bannedWords = [
     "hitler",
     "hitla",
     "adolf",
-    "żyd",
-    "żyda",
-    "żydzi",
-    "żydów", //dla pierwszej alternatywny
-    "żydow", //dla drugiej alternatywy
+    "zyd",
+    "zyda",
+    "zydzi",
+    "zyduw", //dla pierwszej alternatywny
+    "zydow", //dla drugiej alternatywy
     "stalin",
 
     // kysowate
@@ -156,6 +199,8 @@ const bannedWords = [
     "debilko",
     "dziwko",
     "dziwka",
+    "downie",
+    "dalnie",
 
     // inne
     "nudes",
@@ -168,7 +213,10 @@ const bannedWords = [
     "ysenud",
     "sesenud",
     "lgbt",
+    "lgbtq",
     "tbgl",
+    "qtbgl",
+    "lezba",
     "sex",
     "sexx",
     "sexxx",
@@ -206,20 +254,21 @@ export function checkAnyBadWords(text) {
 
 // Calculate total possible word combinations
 function countWordCombinations() {
-    let total = 0
+    let total = 0n
     for (const word of bannedWords) {
-        let combinations = 1
+        let combinations = 1n
         for (const letter of word) {
             if (alternativeLetters[letter]) {
-                combinations *= (alternativeLetters[letter] ?? []).length + 1 // +1 for the original letter
+                combinations *= BigInt(alternativeLetters[letter].length + 1) // +1 for the original letter
             }
         }
-        let separatorsLen = alettersVars.BLANK.length * (word.length - 1)
-        total += combinations + separatorsLen
+        let separatorsLen = BigInt(alettersVars.BLANK.length ** (word.length - 1))
+        total += combinations * separatorsLen
     }
-    return total
+    return total.toString()
 }
 
+console.log(alettersVars.X)
 listenerLog(0, "[BW system] System zakazanych słów włączony poprawnie.", true)
 listenerLog(
     1,
@@ -229,5 +278,5 @@ listenerLog(
             .flat().length,
     true
 )
-listenerLog(1, "Słów w zmiennej: " + bannedWords.length, true)
+listenerLog(1, "Słów w zmiennej: " + bannedWords.length + " + " + alettersVars.BLANK.length, true)
 listenerLog(1, "Możliwych kombinacji słów: " + countWordCombinations(), true)

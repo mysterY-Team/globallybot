@@ -365,6 +365,12 @@ function deleteComments(text) {
  * @param {import("discord.js").Message<true>} message
  */
 export async function globalchatFunction(client, message) {
+    let timeout = setTimeout(async () => {
+        const data = gcdata.encode((await db.aget(`userData/${message.author.id}/gc`)).val)
+        data.sent = false
+        db.aset(`userData/${message.author.id}/gc`, gcdata.decode(data))
+    }, 1000 * 60)
+
     try {
         const ssstatus = await checkUserStatus(client, message.author.id, false)
         var isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
@@ -678,6 +684,7 @@ export async function globalchatFunction(client, message) {
                     .setColor("Red")
                 message.channel.send({ embeds: [embed] })
             } catch (e) {}
+            userData.sent = true
             userData.timestampToSendMessage = Date.now() + 600_000
             userData.messageID_bbc = ""
             await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -696,6 +703,7 @@ export async function globalchatFunction(client, message) {
                         .setColor("Red")
                     message.channel.send({ embeds: [embed] })
                 } catch (e) {}
+                userData.sent = true
                 userData.timestampToSendMessage = Date.now() + 30_000
                 userData.messageID_bbc = ""
                 await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -714,6 +722,8 @@ export async function globalchatFunction(client, message) {
                     await wait(10000)
                     if (x.deletable) x.delete()
                 })
+            userData.sent = true
+            await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
             return
         } else if (mustInform) {
             message.reply(`${customEmoticons.info} Posiadasz mniej niż 1000 karmy - multimedia nie mogły zostać wysłane z tego powodu`).then(async (x) => {
@@ -739,6 +749,7 @@ export async function globalchatFunction(client, message) {
                     .setColor("Red")
                 message.channel.send({ embeds: [embed] })
             } catch (e) {}
+            userData.sent = true
             userData.timestampToSendMessage = Date.now() + 180_000
             userData.messageID_bbc = ""
             await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
@@ -1086,6 +1097,7 @@ export async function globalchatFunction(client, message) {
             }
 
             await db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+            clearTimeout(timeout)
 
             var measuringTime = {
                 ends: false,
@@ -1235,6 +1247,7 @@ export async function globalchatFunction(client, message) {
         userData.sent = false
         userData.timestampToSendMessage = Date.now() + 3000
         db.aset(`userData/${message.author.id}/gc`, gcdata.decode(userData))
+        clearTimeout(timeout)
         message.channel.send(`${customEmoticons.denided} Podczas analizy wystąpił błąd!`)
         if (debug) return console.error(err)
     }
