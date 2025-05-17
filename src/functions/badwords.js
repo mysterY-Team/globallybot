@@ -81,7 +81,7 @@ function expandLetterCombinations(mainString) {
 }
 
 alettersVars.U = ["u", "ó", ...expandLetterCombinations("oo"), "🇺", "𝕌", "𝕦", "𝖀", "𝖚", "ᵁ", "ᵘ"]
-alettersVars.X = ["x", ...expandLetterCombinations("ks"), ...expandLetterCombinations("kss"), ...expandLetterCombinations("ksss"), "❌", "✖️", "𝕏", "𝕩", "𝖃", "𝖝", "ˣ"]
+alettersVars.X = ["x", ...expandLetterCombinations("ks"), ...expandLetterCombinations("kss"), "❌", "✖️", "𝕏", "𝕩", "𝖃", "𝖝", "ˣ"]
 alettersVars.H.push(...expandLetterCombinations("ch"))
 
 const alternativeLetters = {
@@ -219,15 +219,7 @@ const bannedWords = [
     "qtbgl",
     "lezba",
     "sex",
-    "sexx",
-    "sexxx",
-    "sexxxx",
-    "sexxxxx",
     "sexu",
-    "sexxu",
-    "sexxxu",
-    "sexxxxu",
-    "sexxxxxu",
 ]
 
 export function checkAnyBadWords(text) {
@@ -269,7 +261,6 @@ function countWordCombinations() {
     return total.toString()
 }
 
-console.log(alettersVars.X)
 listenerLog(0, "[BW system] System zakazanych słów włączony poprawnie.", true)
 listenerLog(
     1,
