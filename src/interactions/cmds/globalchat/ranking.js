@@ -27,7 +27,7 @@ export default {
                     var z = Object.assign(fastData.gc, { user, premium: (await botPremiumInfo(fastData.userID, ssstatus, fastData.premium)).have, ssstatus })
                     if (z.isBlocked) return
                     users.push(z)
-                    if (fastData.userID === interaction.user.id) udata = z
+                    if (fastData.userID === interaction.user.id) z = udata
                 } catch (e) {}
 
                 return
@@ -119,7 +119,7 @@ export default {
         const _place = leaderboard.findIndex((x) => x.user.id == interaction.user.id) + 1
         var embed = new EmbedBuilder()
             .setImage(`attachment://ranking_${timestamp}.png`)
-            .setDescription(`Twoja ilość karmy: **${z.karma}**\nTwoje miejsce w rankingu: **${z.isBlocked ? "0" : _place}**`)
+            .setDescription(`Twoja ilość karmy: **${udata.karma}**\nTwoje miejsce w rankingu: **${udata.isBlocked ? "0" : _place}**`)
 
         interaction.editReply({
             files: [attachment],
