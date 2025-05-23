@@ -27,7 +27,7 @@ export default {
                     var z = Object.assign(fastData.gc, { user, premium: (await botPremiumInfo(fastData.userID, ssstatus, fastData.premium)).have, ssstatus })
                     if (z.isBlocked) return
                     users.push(z)
-                    if (fastData.userID === interaction.user.id) z = udata
+                    if (fastData.userID === interaction.user.id) udata = z
                 } catch (e) {}
 
                 return
