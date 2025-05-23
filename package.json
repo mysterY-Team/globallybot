@@ -10,13 +10,13 @@
         "perf_hooks": "^0.0.1"
     },
     "name": "globally",
-    "version": "2.8.4",
+    "version": "2.8.5",
     "main": "src/index.js",
     "type": "module",
     "scripts": {
         "test": "node --trace-warnings src/index.js",
         "dev": "nodemon src/index.js",
-        "update": "ncu -u && npm i"
+        "update": "npm i"
     },
     "author": "patYczakus",
     "license": "AGPL-3.0-only",
