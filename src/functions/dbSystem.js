@@ -28,7 +28,7 @@ function gcdataGuildS(data) {
 
 export const gcdata = {
     encode: (data) => {
-        var obj = (data ?? "").split(/{=·}|\u0000/g)
+        var obj = (data.toString?.() || "").split(/{=·}|\u0000/g)
         const karma = BigInt(obj[5] ?? 0n)
         return {
             isBlocked: $$.stob(obj[0]) ?? false,
@@ -88,7 +88,7 @@ export const gcdataGuild = {
 }
 export const imacaData = {
     encode: (data) => {
-        var obj = (data ?? "").split(/{=·}|\u0000/g)
+        var obj = (data.toString?.() || "").split(/{=·}|\u0000/g)
         return {
             cardID: Number(obj[0] ?? 0),
             name: obj[1] ?? "Użytkownik ImaCarrrd",
