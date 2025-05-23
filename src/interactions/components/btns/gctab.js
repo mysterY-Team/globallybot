@@ -22,11 +22,11 @@ export default {
             interaction.deferUpdate()
             return
         }
-        var repliedMessageTimestamp = interaction.message.createdTimestamp
+        var repliedMessgetimestamp = interaction.message.createdTimestamp
 
         await interaction.deferReply({ flags: ["Ephemeral"] })
 
-        var userData1 = await db.aget(`userData/${interaction.user.id}/gc`)
+        var userData1 = await db.get(`userData/${interaction.user.id}/gc`)
         var data1 = gcdata.encode(userData1.val)
         if (data1.isBlocked) {
             interaction.editReply(`${customEmoticons.denided} Jesteś zablokowany w usłudze GlobalChat!`)
@@ -41,7 +41,7 @@ export default {
             return
         }
 
-        var userData2 = await db.aget(`userData/${uid}/gc`)
+        var userData2 = await db.get(`userData/${uid}/gc`)
         var data2 = gcdata.encode(userData2.val ?? "")
         if (data2.isBlocked) {
             interaction.editReply(`${customEmoticons.denided} Użytkownik jest zablokowany! Daj mu spokój!`)
@@ -54,7 +54,7 @@ export default {
 
         // console.log(data2.blockTimestampToTab, data1.timestampToTab, Math.floor(Date.now() / 1000))
 
-        var station = Object.values((await db.aget("serverData")).val)
+        var station = Object.values((await db.get("serverData")).val)
             .filter((x) => "gc" in x)
             .map((x) => Object.entries(gcdataGuild.encode(x.gc)))
             .flat()
@@ -65,7 +65,7 @@ export default {
             return
         }
 
-        if (station[1].createdTimestamp > repliedMessageTimestamp) {
+        if (station[1].createdTimestamp > repliedMessgetimestamp) {
             interaction.editReply("Ta wiadomość powstała ze wcześniejszego podpięcia kamału do GlobalChatu, nie możesz już więc tego użytkownika zaczepić!")
             return
         }
@@ -96,8 +96,8 @@ export default {
             data1.timestampToTab = Math.floor(Date.now() / 1000) + times.cooldown
             data2.blockTimestampToTab = Math.floor(Date.now() / 1000) + times.blockrepl
 
-            await db.aset(`userData/${interaction.user.id}/gc`, gcdata.decode(data1))
-            await db.aset(`userData/${uid}/gc`, gcdata.decode(data2))
+            await db.get(`userData/${interaction.user.id}/gc`, gcdata.decode(data1))
+            await db.get(`userData/${uid}/gc`, gcdata.decode(data2))
         } catch (err) {
             if (err instanceof DiscordAPIError && err.code === 50007) interaction.editReply(`${customEmoticons.denided} Nie udało się wysłać zaczepki!`)
             else throw err

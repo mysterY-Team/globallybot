@@ -14,13 +14,13 @@ export default {
 
         await interaction.deferReply()
 
-        var snpsht = await db.aget(`userData/${interaction.user.id}/imaca`)
+        var snpsht = await db.get(`userData/${interaction.user.id}/imaca`)
         var data = imacaData.encode(snpsht.val)
 
         if (data.showStatusAndActivity == receivedVal) return interaction.editReply(`${customEmoticons.minus} Nic nie zmieniono, wartość jest taka sama jak argument.`)
         data.showStatusAndActivity = receivedVal
 
-        await db.aset(`userData/${interaction.user.id}/imaca`, imacaData.decode(data))
+        await db.get(`userData/${interaction.user.id}/imaca`, imacaData.decode(data))
 
         if (!receivedVal)
             interaction.editReply(

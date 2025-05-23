@@ -223,7 +223,7 @@ function timerToResetTheAPIInfo() {
         listenerLog(2, "")
         listenerLog(2, "✅ Zapisano serwery na lokalnej zmiennej. Liczba oznaczająca zmianę: " + y)
 
-        let users = Object.entries((await db.aget("userData")).val ?? {})
+        let users = Object.entries((await db.get("userData")).val ?? {})
 
         var listOfUsers = {
             gc: users.filter((x) => x[1].gc).map((x) => Object.assign(gcdata.encode(x[1].gc), { userID: x[0] })),
@@ -237,7 +237,7 @@ function timerToResetTheAPIInfo() {
                 }),
         }
 
-        var stations = Object.entries((await db.aget("stations")).val ?? {}).map((x) => {
+        var stations = Object.entries((await db.get("stations")).val ?? {}).map((x) => {
             // console.log(x)
             x[1] = x[1].split("|")
             return { id: x[0], ownerID: x[1][0], passwd: Boolean(x[1][1]), mods: (x[1][2] ?? "").split(",") }
@@ -258,7 +258,7 @@ function timerToResetTheAPIInfo() {
             for (let i = 0; i < listOfUsers.gc.length; i++) {
                 const x = listOfUsers.gc[i]
                 if (Math.max(x.timestampToSendMessage, x._sat) + 864000000 <= Date.now() && !x.isBlocked) {
-                    await db.adelete(`userData/${x.userID}/gc`)
+                    await db.delete(`userData/${x.userID}/gc`)
                     await wait(100)
                     listenerLog(2 * debug + 1, "Usunięto użytkownika " + x.userID, true)
                     continue
@@ -267,7 +267,7 @@ function timerToResetTheAPIInfo() {
                 x.gcUses = 0
                 const uID = x.userID
                 delete x.userID
-                await db.aset(`userData/${uID}/gc`, gcdata.decode(x))
+                await db.get(`userData/${uID}/gc`, gcdata.decode(x))
                 await wait(100)
             }
 
@@ -277,7 +277,7 @@ function timerToResetTheAPIInfo() {
                     const premium = await botPremiumInfo(x.userID, await checkUserStatus(client, x.userID), x.days)
                     if (!premium.have || premium.typeof !== "trial") continue
                     if (x.days == 1) {
-                        await db.adelete(`userData/${x.userID}/premium`)
+                        await db.delete(`userData/${x.userID}/premium`)
                         try {
                             await client.users.send(x.userID, {
                                 content:
@@ -289,7 +289,7 @@ function timerToResetTheAPIInfo() {
                                 ],
                             })
                         } catch (e) {}
-                    } else await db.aset(`userData/${x.userID}/premium`, x.days - 1)
+                    } else await db.get(`userData/${x.userID}/premium`, x.days - 1)
                     await wait(100)
                 }
             }
@@ -307,7 +307,7 @@ function timerToResetTheAPIInfo() {
                 const allStationsByThatOwner = stations.filter((x) => x.ownerID == v)
                 for (let j = 1; j < allStationsByThatOwner.length; j++) {
                     const element = allStationsByThatOwner[j]
-                    await db.adelete(`stations/${element.id}`)
+                    await db.delete(`stations/${element.id}`)
                     listenerLog(4, `🗑️ usunięto stację ${element.id}${element.passwd ? " (hasłowana)" : ""}`)
                     await wait(100)
                 }
@@ -323,7 +323,7 @@ function timerToResetTheAPIInfo() {
             const uID = x.userID
             ids.push(uID)
             delete x.userID
-            await db.aset(`userData/${uID}/gc`, gcdata.decode(x))
+            await db.get(`userData/${uID}/gc`, gcdata.decode(x))
             x.userID = uID
             try {
                 client.users.send(uID, {

@@ -49,7 +49,7 @@ export default {
                 content: `${customEmoticons.denided} Bot potrzebuje permisji admina lub uprawnienia **Zarządzanie webhookami**`,
             })
 
-        var snapshot = await db.aget(`serverData/${interaction.guildId}/gc`)
+        var snapshot = await db.get(`serverData/${interaction.guildId}/gc`)
         var key = Object.entries(gcdataGuild.encode(snapshot.val ?? "")).find((x) => x[1].channel === channel.channel.id)
         if (!key) return interaction.editReply(`${customEmoticons.denided} Nie ma podpiętej stacji na tym kanale`)
 
@@ -59,8 +59,8 @@ export default {
 
         async function removeData() {
             delete data[$stacja]
-            if (Object.keys(data).length > 0) await db.aset(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
-            else await db.adelete(`serverData/${interaction.guildId}/gc`)
+            if (Object.keys(data).length > 0) await db.get(`serverData/${interaction.guildId}/gc`, gcdataGuild.decode(data))
+            else await db.delete(`serverData/${interaction.guildId}/gc`)
             interaction.editReply(`${customEmoticons.approved} Usunięto kanał z bazy danych!`)
 
             const emb = new EmbedBuilder()

@@ -93,7 +93,7 @@ function getModules(udata) {
  */
 async function botPremiumInfo(id, userstatus, cachedPremium = null) {
     if (userstatus.inSupport && userstatus.booster && !userstatus.mysteryTeam) return { have: true, typeof: "supportBoost" }
-    if ((cachedPremium !== null ? cachedPremium : (await conf.db.aget(`userData/${id}/premium`))?.val ?? 0) > 0) return { have: true, typeof: "trial" }
+    if ((cachedPremium !== null ? cachedPremium : (await conf.db.get(`userData/${id}/premium`))?.val ?? 0) > 0) return { have: true, typeof: "trial" }
     return { have: false }
 }
 

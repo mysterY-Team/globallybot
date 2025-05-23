@@ -28,7 +28,7 @@ export default {
             interaction.editReply(`${customEmoticons.denided} Hasło zawiera niedozwolone znaki!`)
             setTimeout(() => interaction.deleteReply(), 5000)
         } else {
-            var stations = (await db.aget(`stations`)).val ?? {}
+            var stations = (await db.get(`stations`)).val ?? {}
 
             if (Object.values(stations).map((x) => x.split("|")[0] === interaction.user.id).length >= 1 + 2 * premium && !isInMysteryTeam) {
                 interaction.editReply(`${customEmoticons.denided} Przekroczyłeś dozwoloną ilość stacji (${1 + 2 * premium})!`)
@@ -38,7 +38,7 @@ export default {
                     interaction.editReply(`${customEmoticons.denided} Już istnieje taka stacja!`)
                     setTimeout(() => interaction.deleteReply(), 3000)
                 } else {
-                    await db.aset(`stations/${modalArgs.id}`, `${interaction.user.id}|${modalArgs.passwd}|`)
+                    await db.get(`stations/${modalArgs.id}`, `${interaction.user.id}|${modalArgs.passwd}|`)
                     const emb = new EmbedBuilder()
                         .setTitle("Nowa stacja!")
                         .setDescription(

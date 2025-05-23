@@ -37,7 +37,7 @@ export default {
             contents: [replyToContent, `${user.username} (${user.id})\n----\n${msg}`].filter((x) => x),
         })
 
-        console.log(result.candidates?.[0]?.groundingMetadata?.groundingChunks)
+        // console.log(result.candidates?.[0]?.groundingMetadata?.groundingChunks)
 
         // get the web url from the result
         var webs = result.candidates?.[0]?.groundingMetadata?.groundingChunks ?? []

@@ -19,7 +19,7 @@ export default {
         const ssstatus = await checkUserStatus(client, user.id)
         const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
-        const fdb = await db.aget(`userData/${user.id}`)
+        const fdb = await db.get(`userData/${user.id}`)
         var data = fdb.val ?? {}
         const premium = await botPremiumInfo(user.id, ssstatus, data.premium)
         const modules = getModules(data)

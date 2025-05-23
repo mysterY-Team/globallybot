@@ -19,7 +19,7 @@ export default {
         const ssstatus = await checkUserStatus(client, interaction.user.id)
         const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
-        var idata = gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val)
+        var idata = gcdata.encode((await db.get(`userData/${interaction.user.id}/gc`)).val)
         if (idata.modPerms < 3 && !isInMysteryTeam) {
             interaction.editReply(`${customEmoticons.denided} Nie masz odpowiednich permisji do wykonania tej komendy!`)
             return
@@ -30,7 +30,7 @@ export default {
             return
         }
 
-        var data = gcdata.encode((await db.aget(`userData/${user.id}/gc`)).val)
+        var data = gcdata.encode((await db.get(`userData/${user.id}/gc`)).val)
 
         if (data.modPerms > idata.modPerms && !isInMysteryTeam) {
             interaction.editReply(`${customEmoticons.denided} Ta osoba stoi ponad Ciebie!`)
@@ -47,7 +47,7 @@ export default {
         } else {
             const prevModPerms = data.modPerms
             data.modPerms = perm
-            await db.aset(`userData/${user.id}/gc`, gcdata.decode(data))
+            await db.get(`userData/${user.id}/gc`, gcdata.decode(data))
             interaction.editReply(
                 `${customEmoticons.approved} <@${user.id}> (\`${user.username}\`) pomyślnie został ${prevModPerms - data.modPerms < 0 ? "awansowany" : "zdegradowany"} na ${
                     roles[perm]

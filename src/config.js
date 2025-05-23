@@ -1,20 +1,20 @@
 import loc from "locallium"
 
 const debug = false
-const ldb = new loc.Database("env", new loc.DatabaseFlags())
+const ldb = new loc.FileDatabase("env")
 
 export default {
     TOKEN: ldb.get("token").val,
     othertokens: ldb.get("other_tokens").val,
-    db: new loc.Database(
-        "db/main.db",
-        new loc.DatabaseFlags({
-            keySeparator: "/",
-            getAdvancedWarns: debug,
-            createDatabaseFileOnReadIfDoesntExist: true,
-            setValueToDatabaseFileOnReadIfDoesntExist: "{}",
-        })
-    ),
+    db: new loc.FileDatabaseV2("db/main.db", {
+        keySeparator: "/",
+        getAdvancedWarns: debug,
+        createDatabaseFileOnReadIfDoesntExist: true,
+        setValueToDatabaseFileOnReadIfDoesntExist: "{}",
+        flushTimeout: 750,
+        pendingLimit: 15000,
+        ramUsageFloat: 0.35,
+    }),
     supportServer: {
         id: "1173722642004574359",
         gclogs: {

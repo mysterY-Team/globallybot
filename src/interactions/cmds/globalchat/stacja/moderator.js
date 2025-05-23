@@ -19,9 +19,9 @@ export default {
         const ssstatus = await checkUserStatus(client, user.id, false)
         const isInMysteryTeam = ssstatus.inSupport && ssstatus.mysteryTeam
 
-        const udata = gcdata.encode((await db.aget(`userData/${user.id}/gc`)).val)
+        const udata = gcdata.encode((await db.get(`userData/${user.id}/gc`)).val)
 
-        var snapshot = await db.aget(`stations/${stationID}`)
+        var snapshot = await db.get(`stations/${stationID}`)
         if (!snapshot.exists) {
             interaction.editReply(`${customEmoticons.denided} Nie ma takiej stacji!`)
             return
@@ -56,6 +56,6 @@ export default {
             data[2] = data[2].join(",")
             interaction.editReply(`${customEmoticons.approved} Pomyślnie dodano ${user} jako moderatora stacji!`)
         }
-        await db.aset(`stations/${stationID}`, data.join("|"))
+        await db.get(`stations/${stationID}`, data.join("|"))
     },
 }

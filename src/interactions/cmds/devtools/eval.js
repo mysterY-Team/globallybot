@@ -108,7 +108,7 @@ export default {
                  * @param {string} time
                  */
                 setSAT: async (uid, time, force = false) => {
-                    const snapshot = await conf.db.aget(`userData/${uid}/gc`)
+                    const snapshot = await conf.db.get(`userData/${uid}/gc`)
                     if (!snapshot.exists && !force) return writeToAkaConsole("Nie ustawiono SAT - użytkownik nie istnieje w bazie danych")
                     const gc = dbsys.gcdata.encode(snapshot.val ?? "")
                     gc._sat =
@@ -120,7 +120,7 @@ export default {
                             if (time.endsWith("m")) return Number(time.replace("m", "")) * 2592000000
                             return Number(time)
                         })() + Date.now()
-                    await conf.db.aset(`userData/${uid}/gc`, dbsys.gcdata.decode(gc))
+                    await conf.db.get(`userData/${uid}/gc`, dbsys.gcdata.decode(gc))
                     writeToAkaConsole(`Ustawiono SAT poprawnie! SAT: ${gc._sat}`)
                 },
             }

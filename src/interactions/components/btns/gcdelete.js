@@ -38,13 +38,13 @@ export default {
             return
         }
 
-        var data = gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val)
+        var data = gcdata.encode((await db.get(`userData/${interaction.user.id}/gc`)).val)
         var lastUser = lastUserHandler.get()
         if (lastUser === `${interaction.guildId}/${interaction.channelId}:${args[0]}[true]`) {
             lastUserHandler.reset()
         }
 
-        var snpsht = await db.aget(`stations/${stationWhereItIsSent}`)
+        var snpsht = await db.get(`stations/${stationWhereItIsSent}`)
         if (args[0] !== interaction.user.id && (!snpsht.exists || !snpsht.val.includes(interaction.user.id)) && data.modPerms === 0 && !isInMysteryTeam) {
             return interaction.editReply({
                 content: `${customEmoticons.denided} Nie masz permisji do usunięcia tej wiadomości!`,
@@ -87,11 +87,11 @@ export default {
         )
 
         if (args[0] === interaction.user.id && !premium.have && !isInMysteryTeam) {
-            data = gcdata.encode((await db.aget(`userData/${interaction.user.id}/gc`)).val)
+            data = gcdata.encode((await db.get(`userData/${interaction.user.id}/gc`)).val)
             data.timestampToSendMessage = Math.max(data.timestampToSendMessage, Date.now()) + messagesToDelete.length * 250
             data.karma -= BigInt(130 - (data.karma < 1000n || data.modPerms > 0) * 100)
             if (data.karma < 0) data.karma = 0n
-            await db.aset(`userData/${interaction.user.id}/gc`, gcdata.decode(data))
+            await db.get(`userData/${interaction.user.id}/gc`, gcdata.decode(data))
         }
 
         const firstEmbed = $message.embeds[0]

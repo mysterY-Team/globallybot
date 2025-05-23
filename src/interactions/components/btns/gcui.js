@@ -19,8 +19,8 @@ export default {
 
         const ssstatus = await checkUserStatus(client, args[0])
 
-        var data = gcdata.encode((await db.aget(`userData/${args[0]}/gc`)).val)
-        var haveImacarrrd = (await db.aget(`userData/${args[0]}/imaca`)).exists
+        var data = gcdata.encode((await db.get(`userData/${args[0]}/gc`)).val)
+        var haveImacarrrd = (await db.get(`userData/${args[0]}/imaca`)).exists
 
         const urole = (() => {
             switch (true) {

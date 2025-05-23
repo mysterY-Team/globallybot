@@ -19,7 +19,8 @@ export default {
         var users = []
         var udata = ""
         await Promise.all(
-            Object.entries((await db.aget("userData")).val).map(async (x) => {
+            Object.entries((await db.get("userData")).val).map(async (x) => {
+                if (x[0] === client.user.id) return
                 var fastData = { gc: gcdata.encode(x[1].gc), userID: x[0], premium: x[1].premium }
                 try {
                     const ssstatus = await checkUserStatus(client, fastData.userID)

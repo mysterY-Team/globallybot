@@ -25,7 +25,7 @@ export default {
 
         await interaction.deferReply({ flags: ["Ephemeral"] })
 
-        const guilsSnpsht = await db.aget(`serverData/${targetMsg.guildId}/gc`)
+        const guilsSnpsht = await db.get(`serverData/${targetMsg.guildId}/gc`)
 
         // console.log(guilsSnpsht)
 
