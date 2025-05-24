@@ -15,6 +15,9 @@ const $$ = {
 }
 
 function gcdataGuildS(data) {
+    if (typeof data == "object" && data !== null) {
+        return data
+    }
     data = data.split(/,|\u0000/)
     return {
         channel: data[0],
@@ -28,7 +31,10 @@ function gcdataGuildS(data) {
 
 export const gcdata = {
     encode: (data) => {
-        var obj = (data.toString?.() || "").split(/{=·}|\u0000/g)
+        if (typeof data == "object" && data !== null) {
+            return data
+        }
+        var obj = (data || "").split(/{=·}|\u0000/g)
         const karma = BigInt(obj[5] ?? 0n)
         return {
             isBlocked: $$.stob(obj[0]) ?? false,
@@ -71,6 +77,9 @@ export const gcdata = {
 }
 export const gcdataGuild = {
     encode: (data) => {
+        if (typeof data == "object" && data !== null) {
+            return data
+        }
         //console.log(data)
         data = data.split("}")
         data = data.filter((x) => x).map((item) => item.split("{"))
@@ -88,7 +97,10 @@ export const gcdataGuild = {
 }
 export const imacaData = {
     encode: (data) => {
-        var obj = (data.toString?.() || "").split(/{=·}|\u0000/g)
+        if (typeof data == "object" && data !== null) {
+            return data
+        }
+        var obj = (data || "").split(/{=·}|\u0000/g)
         return {
             cardID: Number(obj[0] ?? 0),
             name: obj[1] ?? "Użytkownik ImaCarrrd",

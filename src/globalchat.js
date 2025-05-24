@@ -369,7 +369,7 @@ export async function globalchatFunction(client, message) {
         const data = gcdata.encode((await db.get(`userData/${message.author.id}/gc`)).val)
         data.sent = false
         db.get(`userData/${message.author.id}/gc`, gcdata.decode(data))
-    }, 1000 * 60)
+    }, 1000 * 20)
 
     try {
         const ssstatus = await checkUserStatus(client, message.author.id, false)
